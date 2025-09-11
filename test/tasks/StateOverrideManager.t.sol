@@ -14,6 +14,7 @@ import {MockSetEIP1967ImplTask} from "test/tasks/mock/MockSetEIP1967ImplTask.sol
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {MultisigTaskTestHelper as helper} from "test/tasks/MultisigTask.t.sol";
+import {console} from "forge-std/console.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     string constant TESTING_DIRECTORY = "state-override-manager-testing";
@@ -446,6 +447,103 @@ contract StateOverrideManagerUnitTest is Test {
         helper.removeFile(fileName);
     }
 
+    function test_getStateOverrides_singleSafe() public {
+        vm.createSelectFork("sepolia", 9181804);
+        address rootSafe = address(0xd363339eE47775888Df411A163c586a8BdEA9dbf); // Unichain Sepolia ProxyAdminOwner
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory allOverrides = som.wrapperGetStateOverrides(rootSafe, new address[](0));
+        assertTrue(allOverrides.length == 1, "Expected 1 state override");
+        assertEq(allOverrides[0].contractAddress, rootSafe, "Root safe address mismatch");
+        assertEq(allOverrides[0].overrides.length, 4, "Expected 4 storage overrides");
+
+        address rootSafeWithThresholdAlreadyOne = address(0xbefe941b3C4a6AaEe1eb050358064F0bA326975a); // Single Safe
+        allOverrides = som.wrapperGetStateOverrides(rootSafeWithThresholdAlreadyOne, new address[](0));
+        assertTrue(allOverrides.length == 1, "Expected 1 state override");
+        assertEq(allOverrides[0].contractAddress, rootSafeWithThresholdAlreadyOne, "Root safe address mismatch");
+        assertEq(allOverrides[0].overrides.length, 3, "Expected 3 storage overrides");
+    }
+
+    function test_getStateOverrides_oneLevelNesting() public {
+        vm.createSelectFork("sepolia", 9181804);
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        address baseRootSafe = address(0x0fe884546476dDd290eC46318785046ef68a0BA9); // Base Sepolia ProxyAdminOwner
+        address[] memory childSafes = new address[](1);
+        childSafes[0] = address(0x6AF0674791925f767060Dd52f7fB20984E8639d8); // Base Operations Safe
+        Simulation.StateOverride[] memory allOverrides = som.wrapperGetStateOverrides(baseRootSafe, childSafes);
+        assertTrue(allOverrides.length == 2, "Expected 2 state overrides");
+        assertEq(allOverrides[0].contractAddress, baseRootSafe, "Root safe address mismatch");
+        assertEq(allOverrides[0].overrides.length, 1, "Expected 1 storage overrides");
+        assertEq(allOverrides[0].overrides[0].key, bytes32(uint256(0x4)), "Expected threshold override");
+
+        assertEq(allOverrides[1].contractAddress, childSafes[0], "Child safe address mismatch");
+        assertEq(allOverrides[1].overrides.length, 3, "Expected 3 storage overrides");
+        // No threshold override added because it is already 1.
+        assertEq(allOverrides[1].overrides[0].key, bytes32(uint256(0x3)), "Expected owner count override");
+        bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
+        assertEq(allOverrides[1].overrides[1].key, ownerMappingSlot, "Expected owner mapping override");
+        assertEq(
+            allOverrides[1].overrides[1].value,
+            bytes32(uint256(uint160(MULTICALL3_ADDRESS))),
+            "Expected owner mapping override value"
+        );
+        assertEq(
+            allOverrides[1].overrides[2].key,
+            keccak256(abi.encode(MULTICALL3_ADDRESS, uint256(2))),
+            "Expected owner mapping override"
+        );
+        assertEq(allOverrides[1].overrides[2].value, bytes32(uint256(0x1)), "Expected owner mapping override value");
+    }
+
+    function test_getStateOverrides_twoLevelNesting() public {
+        vm.createSelectFork("sepolia", 9181763);
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        address baseRootSafe = address(0x0fe884546476dDd290eC46318785046ef68a0BA9); // Base Sepolia ProxyAdminOwner
+        address[] memory childSafes = new address[](2);
+        childSafes[0] = address(0x6AF0674791925f767060Dd52f7fB20984E8639d8); // Base Operations Safe
+        childSafes[1] = address(0x646132A1667ca7aD00d36616AFBA1A28116C770A); // Base SC Safe
+        Simulation.StateOverride[] memory allOverrides = som.wrapperGetStateOverrides(baseRootSafe, childSafes);
+        assertTrue(allOverrides.length == 3, "Expected 3 state overrides");
+        assertEq(allOverrides[0].contractAddress, baseRootSafe, "Root safe address mismatch");
+        assertEq(allOverrides[0].overrides.length, 1, "Expected 1 storage overrides");
+        assertEq(allOverrides[0].overrides[0].key, bytes32(uint256(0x4)), "Expected threshold override");
+
+        assertEq(allOverrides[1].contractAddress, childSafes[0], "Child safe address mismatch");
+        assertEq(allOverrides[1].overrides.length, 3, "Expected 3 storage overrides");
+        // No threshold override added because it is already 1.
+        assertEq(allOverrides[1].overrides[0].key, bytes32(uint256(0x3)), "Expected owner count override");
+        bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
+        assertEq(allOverrides[1].overrides[1].key, ownerMappingSlot, "Expected owner mapping override");
+        assertEq(
+            allOverrides[1].overrides[1].value,
+            bytes32(uint256(uint160(MULTICALL3_ADDRESS))),
+            "Expected owner mapping override value"
+        );
+        assertEq(
+            allOverrides[1].overrides[2].key,
+            keccak256(abi.encode(MULTICALL3_ADDRESS, uint256(2))),
+            "Expected owner mapping override"
+        );
+        assertEq(allOverrides[1].overrides[2].value, bytes32(uint256(0x1)), "Expected owner mapping override value");
+
+        assertEq(allOverrides[2].contractAddress, childSafes[1], "Child safe address mismatch");
+        assertEq(allOverrides[2].overrides.length, 4, "Expected 4 storage overrides");
+        assertEq(allOverrides[2].overrides[0].key, bytes32(uint256(0x4)), "Expected threshold override");
+        assertEq(allOverrides[2].overrides[1].key, bytes32(uint256(0x3)), "Expected owner count override");
+        bytes32 ownerMappingSlot2 = keccak256(abi.encode(uint256(1), uint256(2)));
+        assertEq(allOverrides[2].overrides[2].key, ownerMappingSlot2, "Expected owner mapping override");
+        assertEq(
+            allOverrides[2].overrides[2].value,
+            bytes32(uint256(uint160(MULTICALL3_ADDRESS))),
+            "Expected owner mapping override value"
+        );
+        assertEq(
+            allOverrides[2].overrides[3].key,
+            keccak256(abi.encode(MULTICALL3_ADDRESS, uint256(2))),
+            "Expected owner mapping override"
+        );
+        assertEq(allOverrides[2].overrides[3].value, bytes32(uint256(0x1)), "Expected owner mapping override value");
+    }
+
     /// @notice Helper function to convert strings to bytes32
     function _toBytes32(string memory s) private pure returns (bytes32) {
         return bytes32(bytes(s));
@@ -618,6 +716,14 @@ contract StateOverrideManagerUnitTest is Test {
 /// The StateOverrideManager contract is an abstract contract so we need to inherit from it
 /// to test it.
 contract MockStateOverrideManager is StateOverrideManager {
+    function wrapperGetStateOverrides(address rootSafe, address[] memory childSafes)
+        public
+        view
+        returns (Simulation.StateOverride[] memory allOverrides_)
+    {
+        return super.getStateOverrides(rootSafe, childSafes);
+    }
+
     function wrapperAppendUserDefinedOverrides(
         Simulation.StateOverride[] memory defaults,
         Simulation.StateOverride memory userOverride
