@@ -1,6 +1,6 @@
 # 025-opcm-upgrade-v410-freya-bn-u15
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x96818c873717c91bad8cabb658050a639d02dd4c22e46365b98b105e448587e4)
 
 ```bash
 cd src/improvements/tasks/sep/025-opcm-upgrade-v410-freya-bn-u15
