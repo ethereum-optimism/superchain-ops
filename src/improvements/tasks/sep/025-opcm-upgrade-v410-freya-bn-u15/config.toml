@@ -10,7 +10,7 @@ templateName = "OPCMUpgradeV410"
 [[opcmUpgrades]]
 chainId = 420110013
 # Freya prestate:
-absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+absolutePrestate = "0x03f0fcd170d6538082f38fd2911a7169162f1f0922253325851a5b0b97b920d8"
 
 # PROXYA-10: The PAO is not the standard one
 # SYSCON-140: The SYSCON is not the standard one
@@ -23,7 +23,7 @@ expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PL
 [[opcmUpgrades]]
 chainId = 420110014
 # Freya prestate:
-absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+absolutePrestate = "0x03f0fcd170d6538082f38fd2911a7169162f1f0922253325851a5b0b97b920d8"
 
 # PROXYA-10: The PAO is not the standard one
 # SYSCON-140: The SYSCON is not the standard one
