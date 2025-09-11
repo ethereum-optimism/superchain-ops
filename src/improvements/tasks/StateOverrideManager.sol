@@ -20,23 +20,14 @@ abstract contract StateOverrideManager is CommonBase {
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
     /// with user-defined overrides. User defined overrides either replace or append to the
     /// default overrides.
-    /// If a child multisig is provided then we are working with a nested safe.
-    /// In this case we need additional state overrides.
-    function getStateOverrides(address parentMultisig, address optionalChildMultisig)
+    function getStateOverrides(address parentMultisig)
         public
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
     {
-        Simulation.StateOverride[] memory defaultOverrides =
-            optionalChildMultisig != address(0) ? new Simulation.StateOverride[](2) : new Simulation.StateOverride[](1);
+        Simulation.StateOverride[] memory defaultOverrides = new Simulation.StateOverride[](1);
 
-        if (optionalChildMultisig != address(0)) {
-            defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig);
-            defaultOverrides[1] = _childMultisigTenderlyOverride(optionalChildMultisig);
-        } else {
-            defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig, msg.sender);
-        }
-
+        defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig, msg.sender);
         allOverrides_ = defaultOverrides;
         for (uint256 i = 0; i < _stateOverrides.length; i++) {
             allOverrides_ = _appendUserDefinedOverrides(allOverrides_, _stateOverrides[i]);

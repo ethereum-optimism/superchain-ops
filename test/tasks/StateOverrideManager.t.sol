@@ -481,7 +481,11 @@ contract StateOverrideManagerUnitTest is Test {
         address childMultisig,
         address rootSafe
     ) internal view returns (Simulation.StateOverride[] memory allOverrides_) {
-        allOverrides_ = task.getStateOverrides(rootSafe, childMultisig);
+        if (childMultisig != address(0)) {
+            allOverrides_ = task.getStateOverridesForNested(rootSafe, Solarray.addresses(childMultisig));
+        } else {
+            allOverrides_ = task.getStateOverrides(rootSafe);
+        }
 
         assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (parent default)");
         assertEq(

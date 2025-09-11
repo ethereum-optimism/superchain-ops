@@ -849,7 +849,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 Signatures.genPrevalidatedSignature(msg.sender),
                 _getMulticallAddress(rootSafe, payload.safes)
             );
-            overrides = getStateOverrides(rootSafe, address(0));
+            overrides = getStateOverrides(rootSafe);
         }
 
         uint256 postExecuteSnapshot = vm.snapshotState();
