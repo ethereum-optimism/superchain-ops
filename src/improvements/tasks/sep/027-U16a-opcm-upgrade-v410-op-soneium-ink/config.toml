@@ -1,0 +1,58 @@
+# Superchain Sepolia Testnets
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Ink Sepolia Testnet", chainId = 763373},
+    {name = "Soneium Testnet Minato", chainId = 1946}
+]
+
+templateName = "OPCMUpgradeV410"
+
+
+# The absolute prestate does come from https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
+
+# OP Sepolia Testnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 11155420
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+expectedValidationErrors = ""
+
+
+# Ink Sepolia Testnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 763373
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedValidationErrors = ""
+
+
+# Soneium Testnet Minato (Permissioned)
+[[opcmUpgrades]]
+chainId = 1946
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+# PDDG-130: The challenger is not the standard one - expected
+# PLDG-10: There are no permissionless dispute games on Soneium - expected
+expectedValidationErrors = "PDDG-130,PLDG-10"
+
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Freshly deployed on Sepolia
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Freshly deployed on Sepolia
+
+[stateOverrides]
+
+
+# ProxyAdminOwner
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32}
+]
+
+# Foundation Upgrades Safe
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 46}
+]
+
+# Security Council
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43}
+]
