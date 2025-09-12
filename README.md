@@ -168,6 +168,7 @@ just simulate-stack eth                                       # Simulate all tas
 just simulate-stack eth 001-example                           # Simulate specific task on root safe
 just simulate-stack eth 001-example foundation                # Simulate on foundation child safe
 just simulate-stack eth 001-example base-nested base-council  # Simulate on nested architecture
+SKIP_DECODE_AND_PRINT=1 just simulate-stack eth               # By using the 'SKIP_DECODE_AND_PRINT' environment variable, you'll have faster stacked simulations. However, markdown will not be printed to the terminal.
 ```
 
 > **Note**: For nested architectures, specify child safes in ownership order: depth-1 safe (owned by root) then depth-2 safe (owned by depth-1).

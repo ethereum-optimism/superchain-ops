@@ -781,8 +781,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         MultisigTaskPrinter.printWelcomeMessage();
         SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
         // Decoding account accesses and printing to the console significantly impacts performance.
-        // Performance only becomes a concern when we're running many tasks in CI.
-        if (!Utils.isCiFoundryProfile()) {
+        // Performance only becomes a concern when we're running many tasks in CI and local testing.
+        if (!Utils.skipDecodeAndPrint()) {
             accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
         }
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
