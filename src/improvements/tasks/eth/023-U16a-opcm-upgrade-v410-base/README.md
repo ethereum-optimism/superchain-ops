@@ -1,10 +1,10 @@
-# 029-U16a-opcm-upgrade-v410-base: Upgrades Base Sepolia to `op-contracts/v4.1.0` (i.e. U16a)
+# 023-U16a-opcm-upgrade-v410-base: Upgrades Base Mainnet to `op-contracts/v4.1.0` (i.e. U16a)
 
 Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
-Upgrade Base Sepolia to U16a.
+Upgrade Base Mainnet to U16a.
 
 ## Simulation, Signing & Execution
 
@@ -14,34 +14,35 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 ```bash
 #
 #    ┌─────────────────────────────────────────────┐       ┌─────────────────────────────────────────────┐       ┌─────────────────────────────────────────────┐
-#    │                 Base Council                │       │              Base Operations                │       │              Base Operations                │ 
-#    │                  (3 of 14)                  │       │                 (1 of 14)                   │       │                 (1 of 14)                   │
-#    │  0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f │       │  0x6AF0674791925f767060Dd52f7fB20984E8639d8 │       │  0x6AF0674791925f767060Dd52f7fB20984E8639d8 │
+#    │                 Base Council                │       │              Base Operations                │       │           Foundation Operations (FOS)       │ 
+#    │                  (7 of 10)                  │       │                 (3 of 6)                    │       │                 (5 of 7)                    │
+#    │  0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd │       │  0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110 │       │  0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A │
 #    └─────────────────────┬───────────────────────┘       └─────────────────────┬───────────────────────┘       └─────────────────────┬───────────────────────┘
 #                          │                                                     │                                                     │
 #                          └─────────────────┬───────────────────────────────────┘                                                     │      
 #                                            ▼                                                                                         │
 #                             ┌─────────────────────────────────────────────┐                                                          │
 #                             │                 Base Nested                 │                                                          │
-#                             │  0x646132A1667ca7aD00d36616AFBA1A28116C770A │                                                          │
+#                             │  0x9855054731540A48b28990B63DcF4f33d8AE46A1 │                                                          │
 #                             └─────────────────────┬───────────────────────┘                                                          │
 #                                                   │                                                                                  │
 #                                                   └─────────────────┬────────────────────────────────────────────────────────────────┘
 #                                                                     ▼
 #                                            ┌─────────────────────────────────────────────┐
 #                                            │               ProxyAdminOwner               │
-#                                            │  0x0fe884546476dDd290eC46318785046ef68a0BA9 │
+#                                            │  0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c │
 #                                            └─────────────────────────────────────────────┘
 ```
 
+
 ### Step 1 (Role: Signer) - Base Nested Simulation and Signing
 
-In this section, through a sequence of commands, we will successfully sign this task’s upgrade transaction from the 'base-nested' (`0x646132A1667ca7aD00d36616AFBA1A28116C770A`) safe. 
+In this section, you will simulate and sign the upgrade transactions for the 'base-nested' (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`) path and the 'foundation-operations' (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) path.
 
 ```bash
-cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-base
 
-# Base Council: 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f
+# Base Council: 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
 #  │   'base-council'   │
@@ -61,11 +62,11 @@ cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
 #                                          └─────────────────┘
  SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
-# Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Domain Hash: 
+# Message Hash: 
+# Normalized Hash: 
 
-# Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
+# Base Operations: 0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
 #  │ 'base-operations'  │
@@ -85,66 +86,15 @@ cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
 #                                          └─────────────────┘
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
-# Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
-```
+# Domain Hash: 
+# Message Hash: 
+# Normalized Hash: 
 
-Now, perform the signing for both safes that are owners of 'base-nested':
-```bash
-cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
 
-just --dotenv-path $(pwd)/.env sign base-nested base-council 
-# Expected Hashes
-# Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
-
-just --dotenv-path $(pwd)/.env sign base-nested base-operations
-# Expected Hashes
-# Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
-```
-
-> **⚠️ Attention Signers:**
-> Once you've signed, please send your signatures to the designated ceremony facilitator.
-
-> **⚠️ Attention Base Operations Signers (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`):**
-> You must provide another signature because the base-operations safe is used twice in Base’s safe architecture. ONLY Base Operations SIGNERS SHOULD CONTINUE TO Step 1a.
-
-### Step 1a (Role: Base Operations Signer) - Base Operations Simulation and Signing
-
-The Base Operations Safe (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`) executes two 'approveHash' transactions in this ceremony. Therefore, to pre-commit to the correct hashes, we need to increment the nonce of the Base Operations Safe in the [config.toml](./config.toml) file. 
-
-Your [config.toml](./config.toml) file **MUST** match the data below:
-```toml
-[stateOverrides]
-# Base Sepolia ProxyAdminOwner
-0x0fe884546476dDd290eC46318785046ef68a0BA9 = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 24}
-]
-# Base Nested Safe
-0x646132A1667ca7aD00d36616AFBA1A28116C770A = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
-]
-# Base Council Safe
-0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
-]
-# Base Operations Safe
-0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11} # <--- THIS IS THE ONLY CHANGE
-]
-```
-
-Once you've updated the nonce for the base-operations safe, you can now safely simulate and sign:
-
-```bash
-# Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
+# Foundation Operations: 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
-#                           │ 'base-operations'  │
+#                           │        'FOS'       │
 #                           └────────────────────┘
 #                                      │          
 #                                      └──────────┬
@@ -152,23 +102,45 @@ Once you've updated the nonce for the base-operations safe, you can now safely s
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-operations
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
 # Expected Hashes
-# Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
-
-just --dotenv-path $(pwd)/.env sign base-operations
-# Expected Hashes
-# Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Domain Hash: 
+# Message Hash: 
+# Normalized Hash: 
 ```
+
+Now, perform the signing for both safes that are owners of 'base-nested':
+```bash
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-base
+
+just --dotenv-path $(pwd)/.env sign base-nested base-council 
+# Expected Hashes
+# Domain Hash: 
+# Message Hash: 
+# Normalized Hash: 
+
+just --dotenv-path $(pwd)/.env sign base-nested base-operations
+# Expected Hashes
+# Domain Hash: 
+# Message Hash: 
+# Normalized Hash: 
+
+
+just --dotenv-path $(pwd)/.env sign foundation-operations
+# Expected Hashes
+# Domain Hash: 
+# Message Hash: 
+# Normalized Hash: 
+```
+
+> **⚠️ Attention Signers:**
+> Once you've signed, please send your signatures to the designated ceremony facilitator.
 
 ### Step 2 (Role: Facilitator) - Base Nested Approval
 
-After receiving each signer’s signatures from Step 1, you must use them to make the necessary 'approveHash' calls. In this section, there are a total of 3 'approveHash' calls.
+After receiving each signer's signature from Step 1, you must use them to make the necessary 'approveHash' calls. In this section, there are a total of 3 'approveHash' calls.
 ```bash
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-base
 
 #  .------------.               .-----------.
 #  |base-council|               |base-nested|
@@ -194,8 +166,7 @@ SIGNATURES=0x<concatenated-sigs-from-base-council-members> just approve base-nes
 # '---------------'              '-----------'
 # You can read this command as, call approveHash on 'base-nested' from 'base-operations'.
 # For the 'base-operations' to successfully execute the approveHash transaction, it needs a quorum of signatures from signers.
-# The signatures below MUST be from 'Step 1' NOT 'Step 1a'.
-SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1> just approve base-nested base-operations 
+SIGNATURES=0x<concatenated-sigs-from-base-operations-members> just approve base-nested base-operations 
 
 # .-----------.             .-----------------.
 # |base-nested|             |proxy-admin-owner|
@@ -211,29 +182,29 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1> just approve
 just approve base-nested
 ```
 
-### Step 3 (Role: Facilitator) - Base Operations Approval
+### Step 3 (Role: Facilitator) - Foundation Operations Approval
 
-This is the final 'approveHash' call from the base-operations safe.
+This is the final 'approveHash' call from the foundation-operations safe.
 
 ```bash
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-base
 # .---------------.           .-----------------.
-# |base-operations|           |proxy-admin-owner|
+# |     FOS       |           |proxy-admin-owner|
 # '---------------'           '-----------------'
 #         |                            |         
 #         |Execute approveHash(bytes32)|         
 #         |--------------------------->|         
 # .---------------.           .-----------------.
-# |base-operations|           |proxy-admin-owner|
+# |     FOS       |           |proxy-admin-owner|
 # '---------------'           '-----------------'
-# You can read this command as, call approveHash on ProxyAdminOwner from 'base-operations'.
-# The signatures below MUST be from 'Step 1a' NOT 'Step 1'.
-SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1a> just approve base-operations 
+# You can read this command as, call approveHash on ProxyAdminOwner from 'foundation-operations'.
+SIGNATURES=0x<concatenated-sigs-from-foundation-operations-members> just approve foundation-operations
 ```
 
-### Step 4 (Role: Facilitator) - Execute Transaction on L1 ProxyAdminOwner `0x0fe884546476dDd290eC46318785046ef68a0BA9`
+### Step 4 (Role: Facilitator) - Execute Transaction on L1 ProxyAdminOwner `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`
 
 Execute command: 
 ```bash
-cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-base
 just --dotenv-path $(pwd)/.env execute
 ```
