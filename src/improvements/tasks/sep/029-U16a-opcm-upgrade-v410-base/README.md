@@ -9,6 +9,7 @@ Upgrade Base Sepolia to U16a.
 ## Simulation, Signing & Execution
 
 Below you can find the steps to complete the execution of this transaction. Base has a doubly-nested safe architecture which superchain-ops supports. 
+You **MUST** ensure the hashes you generate from running the commands below match the documented hashes. If you notice *any* mismatches, please alert your facilitator **immediately**.
 
 ### Step 1 (Role: Signer) - Base Nested Simulation and Signing
 
@@ -17,6 +18,7 @@ In this section, through a sequence of commands, we will successfully approve th
 ```bash
 cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
 
+# Base Council: 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
 #  │   'base-council'   │
@@ -40,6 +42,7 @@ cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
 # Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
 # Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
 
+# Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
 #  │ 'base-operations'  │
@@ -81,9 +84,11 @@ just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
 ```
 
-> Attention Signers: Once you've signed, please send your signatures to the designated ceremony facilitator.
+> **⚠️ Attention Signers:**
+> Once you've signed, please send your signatures to the designated ceremony facilitator.
 
-> Attention Base Operations Signers (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`): You must provide another signature because the base-operations safe is used twice in Base’s safe architecture. ONLY Base Operations SIGNERS SHOULD CONTINUE TO Step 1a.
+> **⚠️ Attention Base Operations Signers (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`):**
+> You must provide another signature because the base-operations safe is used twice in Base’s safe architecture. ONLY Base Operations SIGNERS SHOULD CONTINUE TO Step 1a.
 
 ### Step 1a (Role: Base Operations Signer) - Base Operations Simulation and Signing
 
@@ -113,6 +118,7 @@ Your [config.toml](./config.toml) file **MUST** match the data below:
 Once you've updated the nonce for the base-operations safe, you can now safely simulate and sign:
 
 ```bash
+# Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
 #                           │ 'base-operations'  │
@@ -181,7 +187,6 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1> just approve
 # We don't need to pass through 'SIGNATURES' here because this transaction was pre-approved in the previous two steps.
 just approve base-nested
 ```
-
 
 ### Step 3 (Role: Facilitator) - Base Operations Approval
 
