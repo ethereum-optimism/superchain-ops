@@ -11,6 +11,29 @@ Upgrade Base Sepolia to U16a.
 Below you can find the steps to complete the execution of this transaction. Base has a doubly-nested safe architecture which superchain-ops supports. 
 You **MUST** ensure the hashes you generate from running the commands below match the documented hashes. If you notice *any* mismatches, please alert your facilitator **immediately**.
 
+```bash
+#
+#    ┌─────────────────────────────────────────────┐       ┌─────────────────────────────────────────────┐       ┌─────────────────────────────────────────────┐
+#    │                 Base Council                │       │              Base Operations                │       │              Base Operations                │ 
+#    │                  (3 of 14)                  │       │                 (1 of 14)                   │       │                 (1 of 14)                   │
+#    │  0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f │       │  0x6AF0674791925f767060Dd52f7fB20984E8639d8 │       │  0x6AF0674791925f767060Dd52f7fB20984E8639d8 │
+#    └─────────────────────┬───────────────────────┘       └─────────────────────┬───────────────────────┘       └─────────────────────┬───────────────────────┘
+#                          │                                                     │                                                     │
+#                          └─────────────────┬───────────────────────────────────┘                                                     │      
+#                                            ▼                                                                                         │
+#                             ┌─────────────────────────────────────────────┐                                                          │
+#                             │                 Base Nested                 │                                                          │
+#                             │  0x646132A1667ca7aD00d36616AFBA1A28116C770A │                                                          │
+#                             └─────────────────────┬───────────────────────┘                                                          │
+#                                                   │                                                                                  │
+#                                                   └─────────────────┬────────────────────────────────────────────────────────────────┘
+#                                                                     ▼
+#                                            ┌─────────────────────────────────────────────┐
+#                                            │               ProxyAdminOwner               │
+#                                            │  0x0fe884546476dDd290eC46318785046ef68a0BA9 │
+#                                            └─────────────────────────────────────────────┘
+```
+
 ### Step 1 (Role: Signer) - Base Nested Simulation and Signing
 
 In this section, through a sequence of commands, we will successfully approve this task’s upgrade transaction from the 'base-nested' (`0x646132A1667ca7aD00d36616AFBA1A28116C770A`) safe. 
