@@ -1,0 +1,7 @@
+{
+  "10101010101010": { 
+    "ProxyAdminOwner": "0x35E37acf123E5b055025fAa883b8daE33C007A40", 
+    "ProxyAdmin": "0x33414009A26A0004eFeAD4ff80951744a6730964", 
+    "L2StandardBridge": "0x143DB0C348A61fA8b38dB2cd3Ae6baA7778f1346" 
+  }
+}
