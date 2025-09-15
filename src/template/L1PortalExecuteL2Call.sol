@@ -7,7 +7,7 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {MultisigTaskPrinter} from "../../libraries/MultisigTaskPrinter.sol";
 import {Action} from "../../libraries/MultisigTypes.sol";
 
-import {IOptimismPortal2} from "@optimism/packages/contracts-bedrock/interfaces/L1/IOptimismPortal2.sol";
+import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOptimismPortal2.sol";
 
 import {SimpleTaskBase} from "../tasks/types/SimpleTaskBase.sol";
 
