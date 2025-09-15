@@ -1,6 +1,6 @@
 # <task-name><short-description>
 
-Status: [DRAFT, NOT READY TO SIGN"()
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
