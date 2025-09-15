@@ -1,0 +1,33 @@
+# Superchain Sepolia Testnets
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+
+templateName = "OPCMUpgradeV410"
+
+
+# The absolute prestate does come from https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
+
+
+# Unichain
+[[opcmUpgrades]]
+chainId = 130
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+expectedValidationErrors = ""
+
+
+
+
+[addresses]
+OPCM = ""
+StandardValidatorV410 = ""
+
+
+[stateOverrides]
+
+# L1PAO Unichain
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = X}
+]
