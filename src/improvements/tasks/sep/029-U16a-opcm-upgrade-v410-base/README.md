@@ -6,6 +6,8 @@ Status: [DRAFT, NOT READY TO SIGN]()
 
 Upgrade Base Sepolia to U16a. More context on U16a can be found in the Optimism docs [here](https://docs.optimism.io/notices/upgrade-16a).
 
+The [VALIDATION.md](./VALIDATION.md) file contains the calldata and various hashes for this task.
+
 ## Simulation, Signing & Execution
 
 Below you can find the steps to complete the execution of this transaction. Base has a doubly-nested safe architecture which is supported by superchain-ops.
@@ -111,7 +113,7 @@ just --dotenv-path $(pwd)/.env sign base-nested base-operations
 > Once you've signed, please send your signatures to the designated ceremony facilitator.
 
 > **⚠️ Attention Base Operations Signers (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`):**
-> You must provide another signature because the base-operations safe is used twice in Base’s Sepolia safe architecture. **ONLY Base Operations signers MUST continue to Step 1a**.
+> **ONLY Base Operations signers MUST continue to Step 1a**. You must provide another signature because the base-operations safe is used twice in Base’s Sepolia safe architecture. 
 
 ### Step 1a (Role: Base Operations Signer) - Base Operations Simulation and Signing
 
