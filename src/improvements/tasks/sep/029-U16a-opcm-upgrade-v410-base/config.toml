@@ -8,6 +8,11 @@ templateName = "OPCMUpgradeV410"
 chainId = 84532
 absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8" # https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
 expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+# PROXYA-10: The PAO is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L286
+# DF-30: The DF owner is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L517
+# PDDG-DWETH-30: The PDDG owner is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L686 
+# PDDG-130: The PDDG challenger is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L561
+# PLDG-DWETH-30: The PLDG owner is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L686 
 
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
