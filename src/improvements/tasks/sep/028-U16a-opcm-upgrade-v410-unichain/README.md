@@ -35,5 +35,5 @@ Navigate to the correct task directory then run the simulate command.
 
 ```
 cd src/improvements/tasks/sep/028-U16a-opcm-upgrade-v410-unichain
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate
 ```

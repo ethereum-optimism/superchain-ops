@@ -22,11 +22,11 @@ which reads the inputs from the [`config.toml`](./config.toml) file.
 
 ## Signing and execution
 
-Follow the instructions in the [Single Execution](../../../SINGLE.md) guide for the following steps:
+Follow the instructions in the [Nested Execution](../../../NESTED.md) guide for the following steps:
 
-- [1. Update repo](../../../SINGLE.md#1-update-repo)
-- [2. Setup Ledger](../../../SINGLE.md#2-setup-ledger)
-- [3. Simulate and validate the transaction](../../../SINGLE.md#3-simulate-and-validate-the-transaction)
+- [1. Update repo](../../../NESTED.md#1-update-repo)
+- [2. Setup Ledger](../../../NESTED.md#2-setup-ledger)
+- [3. Simulate and validate the transaction](../../../NESTED.md#3-simulate-and-validate-the-transaction)
 
 Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
@@ -37,5 +37,5 @@ Navigate to the correct task directory then run the simulate command.
 
 ```
 cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410-op-soneium-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate
 ```
