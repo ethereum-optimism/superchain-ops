@@ -111,7 +111,7 @@ just --dotenv-path $(pwd)/.env sign base-nested base-operations
 > Once you've signed, please send your signatures to the designated ceremony facilitator.
 
 > **⚠️ Attention Base Operations Signers (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`):**
-> You must provide another signature because the base-operations safe is used twice in Base’s safe architecture. ONLY Base Operations SIGNERS SHOULD CONTINUE TO Step 1a.
+> You must provide another signature because the base-operations safe is used twice in Base’s Sepolia safe architecture. **ONLY Base Operations signers MUST continue to Step 1a**.
 
 ### Step 1a (Role: Base Operations Signer) - Base Operations Simulation and Signing
 
