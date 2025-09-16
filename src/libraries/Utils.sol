@@ -18,8 +18,17 @@ library Utils {
         return vm.envOr(_feature, false) || vm.envOr(_feature, uint256(0)) == 1;
     }
 
+    /// @notice Checks if the current Foundry profile is the CI profile.
     function isCiFoundryProfile() internal view returns (bool) {
         return vm.envOr("FOUNDRY_PROFILE", string("")).eq("ci");
+    }
+
+    /// @notice Checks if the skip decode and print feature is enabled.
+    function skipDecodeAndPrint() internal view returns (bool) {
+        // Skip heavy decode/print in CI, or when fast/suppress flags are enabled
+        if (isCiFoundryProfile()) return true;
+        if (isFeatureEnabled("SKIP_DECODE_AND_PRINT")) return true;
+        return false;
     }
 
     /// @notice Checks that values have code on this chain.
@@ -88,5 +97,14 @@ library Utils {
         safeData_.safe = _payload.safes[_index];
         safeData_.callData = _payload.calldatas[_index];
         safeData_.nonce = _payload.originalNonces[_index];
+    }
+
+    /// @notice Returns all child safes except the root safe.
+    function getChildSafes(TaskPayload memory _payload) internal pure returns (address[] memory) {
+        address[] memory childSafes = new address[](_payload.safes.length - 1);
+        for (uint256 i = 0; i < _payload.safes.length - 1; i++) {
+            childSafes[i] = _payload.safes[i];
+        }
+        return childSafes;
     }
 }
