@@ -7,8 +7,19 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
+> ### Nested Safe 1 (Foundation): `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+>
 > - Domain Hash: ``
 > - Message Hash: ``
+> ### Nested Safe 2 (Security Council): `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+>
+> - Domain Hash: ``
+> - Message Hash: ``
+> ### Nested Safe 3 (Chain Governor): `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`
+>
+> - Domain Hash: ``
+> - Message Hash: ``
+
 ## Normalized State Diff Hash Attestation
 
 The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.

@@ -15,6 +15,7 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash: ``
 > - Message Hash: ``
+
 ## Normalized State Diff Hash Attestation
 
 The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.
