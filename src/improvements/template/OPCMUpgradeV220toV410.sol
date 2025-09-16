@@ -16,28 +16,28 @@ import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice Use this template for chains that are on U12 and need to be upgraded to U16 (inclusive).
-///         The template applies each required OPCM upgrade step (U13, U14, U15, U16) in sequence.
+/// @notice Use this template for chains that are on U12 and need to be upgraded to U16a (inclusive).
+///         The template applies each required OPCM upgrade step (U13, U14, U15, U16a) in sequence.
 /// Supports: op-contracts/v1.8.0
-contract OPCMUpgradeV220toV400 is OPCMTaskBase {
+contract OPCMUpgradeV220toV410 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
     /// @notice Validators
     IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
-    IStandardValidatorV400 public STANDARD_VALIDATOR_V400;
+    IStandardValidatorV410 public STANDARD_VALIDATOR_V410;
 
-    /// @notice Address of the OPCM for U13, U14, U15 and U16.
+    /// @notice Address of the OPCM for U13, U14, U15 and U16a.
     address public OPCM_V220;
     address public OPCM_V300;
-    address public OPCM_V400;
+    address public OPCM_V410;
 
     /// @notice Prestates for the OPCM upgrades.
     bytes32 public OPCM_V220_PRESTATE;
     bytes32 public OPCM_V300_PRESTATE;
     bytes32 public OPCM_V300_UPDATE_PRESTATE;
-    bytes32 public OPCM_V400_PRESTATE;
+    bytes32 public OPCM_V410_PRESTATE;
 
     /// @notice Struct to store inputs for OPCM.upgrade() function per L2 chain
     struct OPCMUpgrade {
@@ -45,7 +45,7 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         uint256 chainId;
         string expectedErrorsV220; // Expected Validation Errors for U13
         string expectedErrorsV300; // Expected Validation Errors for U14/U15
-        string expectedErrorsV400; // Expected Validation Errors for U16
+        string expectedErrorsV410; // Expected Validation Errors for U16a
     }
 
     /// @notice Mapping from chain ID to upgrade parameters
@@ -69,7 +69,7 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         storageWrites[12] = "PermissionedWETH";
         storageWrites[13] = "PermissionlessWETH";
         storageWrites[14] = "OPCMUpgradeV300";
-        storageWrites[15] = "OPCMUpgradeV400";
+        storageWrites[15] = "OPCMUpgradeV410";
         return storageWrites;
     }
 
@@ -108,11 +108,11 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         require(IOPContractsManager(OPCM_V300).version().eq("1.9.0"), "Incorrect OPCM - expected version 1.9.0");
         vm.label(OPCM_V300, "OPCMUpgradeV300");
 
-        // === OPCM for U16 ===
-        OPCM_V400 = tomlContent.readAddress(".addresses.OPCMUpgradeV400");
-        OPCM_TARGETS.push(OPCM_V400);
-        require(IOPContractsManager(OPCM_V400).version().eq("2.4.0"), "Incorrect OPCM - expected version 2.4.0");
-        vm.label(OPCM_V400, "OPCMUpgradeV400");
+        // === OPCM for U16a ===
+        OPCM_V410 = tomlContent.readAddress(".addresses.OPCMUpgradeV410");
+        OPCM_TARGETS.push(OPCM_V410);
+        require(IOPContractsManager(OPCM_V410).version().eq("3.2.0"), "Incorrect OPCM - expected version 3.2.0");
+        vm.label(OPCM_V410, "OPCMUpgradeV410");
 
         // === Standard Validator for U13 ===
         STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
@@ -124,13 +124,13 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         require(address(STANDARD_VALIDATOR_V300).code.length > 0, "ValidatorV300 not deployed");
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
 
-        // === Standard Validator for U16 ===
-        STANDARD_VALIDATOR_V400 = IStandardValidatorV400(tomlContent.readAddress(".addresses.StandardValidatorV400"));
-        require(address(STANDARD_VALIDATOR_V400).code.length > 0, "ValidatorV400 not deployed");
-        vm.label(address(STANDARD_VALIDATOR_V400), "StandardValidatorV400");
+        // === Standard Validator for U16a ===
+        STANDARD_VALIDATOR_V410 = IStandardValidatorV410(tomlContent.readAddress(".addresses.StandardValidatorV410"));
+        require(address(STANDARD_VALIDATOR_V410).code.length > 0, "ValidatorV410 not deployed");
+        vm.label(address(STANDARD_VALIDATOR_V410), "StandardValidatorV410");
     }
 
-    /// @notice Performs the atomic upgrade (U12 to U16) for all chains
+    /// @notice Performs the atomic upgrade (U12 to U16a) for all chains
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
@@ -221,7 +221,7 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
             require(errors.eq(expErrors), string.concat("U15 validation failed: ", errors, "; expected: ", expErrors));
         }
 
-        // === Upgrade to U16 ===
+        // === Upgrade to U16a ===
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
@@ -233,8 +233,8 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
 
         // Delegatecall the OPCM.upgrade() function
         (bool success4,) =
-            OPCM_V400.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
-        require(success4, "OPCMUpgradeV400: upgrade call failed in _build.");
+            OPCM_V410.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+        require(success4, "OPCMUpgradeV410: upgrade call failed in _build.");
     }
 
     /// @notice Validates final post-upgrade state
@@ -243,17 +243,17 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
-            string memory expErrors = upgrades[chainId].expectedErrorsV400;
+            string memory expErrors = upgrades[chainId].expectedErrorsV410;
 
-            IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
+            IStandardValidatorV410.InputV410 memory input = IStandardValidatorV410.InputV410({
                 proxyAdmin: superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
                 sysCfg: superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
                 absolutePrestate: expAbsolutePrestate,
                 l2ChainID: chainId
             });
 
-            string memory errors = STANDARD_VALIDATOR_V400.validate(input, true);
-            require(errors.eq(expErrors), string.concat("U16 validation failed: ", errors, "; expected: ", expErrors));
+            string memory errors = STANDARD_VALIDATOR_V410.validate(input, true);
+            require(errors.eq(expErrors), string.concat("U16a validation failed: ", errors, "; expected: ", expErrors));
         }
     }
 
@@ -279,15 +279,15 @@ interface IStandardValidatorV300 {
     function systemConfigVersion() external pure returns (string memory);
 }
 
-interface IStandardValidatorV400 {
-    struct InputV400 {
+interface IStandardValidatorV410 {
+    struct InputV410 {
         address proxyAdmin;
         address sysCfg;
         bytes32 absolutePrestate;
         uint256 l2ChainID;
     }
 
-    function validate(InputV400 memory _input, bool _allowFailure) external view returns (string memory);
+    function validate(InputV410 memory _input, bool _allowFailure) external view returns (string memory);
     function mipsVersion() external pure returns (string memory);
     function systemConfigVersion() external pure returns (string memory);
 }

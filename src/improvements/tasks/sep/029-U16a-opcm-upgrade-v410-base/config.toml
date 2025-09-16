@@ -1,0 +1,37 @@
+l2chains = [
+    {name = "Base Sepolia Testnet", chainId = 84532}
+]
+
+templateName = "OPCMUpgradeV410"
+
+[[opcmUpgrades]]
+chainId = 84532
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8" # https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+# PROXYA-10: The PAO is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L286
+# DF-30: The DF owner is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L517
+# PDDG-DWETH-30: The PDDG owner is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L686 
+# PDDG-130: The PDDG challenger is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L561
+# PLDG-DWETH-30: The PLDG owner is not the standard one: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol#L686 
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
+
+[stateOverrides]
+# Base Sepolia ProxyAdminOwner
+0x0fe884546476dDd290eC46318785046ef68a0BA9 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 24}
+]
+# Base Nested Safe
+0x646132A1667ca7aD00d36616AFBA1A28116C770A = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+]
+# Base Council Safe
+0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
+]
+# Base Operations Safe
+0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10} # <--- THIS MUST BE CHANGED TO '11' FOR STEP 1A IN README.md FILE.
+]
