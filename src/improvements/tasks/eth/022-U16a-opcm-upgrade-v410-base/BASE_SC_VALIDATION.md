@@ -27,13 +27,24 @@ the values printed to the terminal when you run the task.
 
 # Task State Changes
 
-### `0x2453c1216e49704d84ea98a4dacd95738f2fc8ec` (<TODO: enter contract name>) 
+### `0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd` (Base Council GnosisSafe) 
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `2`
+  - **After:** `3`
+  - **Summary:** nonce
+  - **Detail:** Gnosis safe nonce incremented.
+
+---
+
+### `0x2453c1216e49704d84ea98a4dacd95738f2fc8ec` (DelayedWETH) - Chain ID: 8453
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Summary:** 
-  - **Detail:** 
+  - **Summary:** _initialized flag set to 1 (initialization completed)
+  - **Detail:** Storage slot 0 contains the initialization flag for the DelayedWETH contract.
   
 **<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
   
