@@ -1,6 +1,6 @@
 # 029-U16a-opcm-upgrade-v410-base: Upgrades Base Sepolia to `op-contracts/v4.1.0` (i.e. U16a)
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
