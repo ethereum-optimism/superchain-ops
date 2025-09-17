@@ -1,4 +1,4 @@
-templateName = "OPCMUpgradeV220toV400"
+templateName = "OPCMUpgradeV220toV410"
 
 OPCMUpgradeV220_PRESTATE = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9"
 OPCMUpgradeV300_PRESTATE = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
@@ -18,36 +18,35 @@ expectedErrorsV220 = "SYSCON-20,PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,P
 # PDDG-50 : Permissioned dispute game VM address mismatch.
 # PDDG-DWETH-40 : Permissioned dispute game delayed WETH delay not set to 1 week.
 # PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
-# PDDG-120: 
+# PDDG-120: Permissioned dispute game challenger address mismatch.
 # PLDG-10 : Permissionless dispute game implementation not found.
 expectedErrorsV300 = "PDDG-ANCHORP-40,PDDG-120,PLDG-10"
 # PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
-# PDDG-120:
+# PDDG-120: Permissioned dispute game challenger address mismatch.
 # PLDG-10 : Permissionless dispute game implementation not found.
 expectedErrorsV400 = "PDDG-130,PLDG-10"
-# PDDG-130:
+# PDDG-130: The challenger is not the standard one.
 # PLDG-10 : Permissionless dispute game implementation not found.
 
 [addresses]
 OPCMUpgradeV220 = "0x6b6f9129efb1b7a48f84e3b787333d1dca02ee34" # version 1.7.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L160
 StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 
-OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L82
+OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L102
 StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c"
 
-# https://oplabs.notion.site/Sepolia-Release-Checklist-op-contracts-v4-0-0-rc-8-216f153ee1628095ba5be322a0bf9364
-OPCMUpgradeV400 = "0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d" # version 2.4.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L22
-StandardValidatorV400 = "0xaaabe70a4198ab9e99e1a22b1afa0a43cc7f2c79"
+OPCMUpgradeV410 = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
 
 [stateOverrides]
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
-    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32 }
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 33 }
 ]
 
 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
-    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 46 }
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47 }
 ]
 
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
-    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43 }
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44 }
 ]
