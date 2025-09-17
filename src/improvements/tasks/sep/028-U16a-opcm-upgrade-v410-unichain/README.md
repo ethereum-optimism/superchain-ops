@@ -1,5 +1,5 @@
 # 028-U16a-opcm-upgrade-v410-unichain: Upgrade 16a: Unichain Sepolia on Sepolia
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
