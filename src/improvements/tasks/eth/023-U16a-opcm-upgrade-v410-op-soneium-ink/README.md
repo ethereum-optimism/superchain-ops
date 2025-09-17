@@ -1,4 +1,5 @@
-# 024-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Mainnet
+# 023-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Mainnet
+
 Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
@@ -32,10 +33,9 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV410.sol`.
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/eth/024-U16a-opcm-upgrade-v410-op-soneium-ink
-SIMULATE_WITHOUT_LEDGER=1 USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-op-soneium-ink
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate <foundation|council>
 ```
