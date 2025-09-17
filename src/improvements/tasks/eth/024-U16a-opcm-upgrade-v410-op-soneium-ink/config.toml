@@ -14,7 +14,6 @@ templateName = "OPCMUpgradeV410"
 [[opcmUpgrades]]
 chainId = 10
 absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
-
 expectedValidationErrors = ""
 
 
@@ -29,10 +28,8 @@ expectedValidationErrors = ""
 [[opcmUpgrades]]
 chainId = 1868
 absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
-
-# PDDG-130: The challenger is not the standard one - expected
 # PLDG-10: There are no permissionless dispute games on Soneium - expected
-expectedValidationErrors = "PDDG-130,PLDG-10"
+expectedValidationErrors = "PLDG-10"
 
 
 [addresses]

@@ -15,7 +15,12 @@ templateName = "OPCMUpgradeV410"
 chainId = 130
 absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
 
-expectedValidationErrors = ""
+# The following are expected errors related to Unichain having a different L1PAO
+# PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig - expected
+# DF-30: DisputeGameFactory owner is not set to L1 PAO multisig - expected
+# PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch - expected
+# PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch - expected
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PLDG-DWETH-30"
 
 
 [addresses]
