@@ -1,0 +1,11 @@
+l2chains = [{name = "Worldchain Sepolia", chainId = 4801}]
+templateName = "TransferL2PAOFromL1ToEOA"
+
+# The new owner address (EOA).
+newOwnerEOA = "0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0"
+
+[stateOverrides]
+# Set the current L1PAO to the new owner. The TransferL2PAOFromL1 template assumes all L1 ownership transfers have already been completed.
+0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4 = [ 
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"}
+]
