@@ -54,7 +54,6 @@ For each chain being upgraded, the `opcm.upgrade()` function is called with a tu
 - ProxyAdmin: [`0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E`](https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/superchain/extra/addresses/addresses.json#L1238)
 - AbsolutePrestate: [`0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8`](https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5)
 
-
 Thus, the command to encode the calldata is:
 
 ```bash
