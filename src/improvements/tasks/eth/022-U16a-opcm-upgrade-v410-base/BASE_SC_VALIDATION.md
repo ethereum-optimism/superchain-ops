@@ -352,4 +352,4 @@ the values printed to the terminal when you run the task.
     To verify the slot yourself, run:
     - `res=$(cast index address 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd 8)` - Base Council Safe.
     - `cast index bytes32 0x99e9c7c57436615b7485b4f917281ab9f9e998e0a214ffaf5d8ac4332d79b3b1 $res`
-    - Please note: the `0x401cc2c1a3bc9d909a1cae9c0b522f8d3fa09146a919db1d200ae564d4c06b38` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+    - Please note: the `0x99e9c7c57436615b7485b4f917281ab9f9e998e0a214ffaf5d8ac4332d79b3b1` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
