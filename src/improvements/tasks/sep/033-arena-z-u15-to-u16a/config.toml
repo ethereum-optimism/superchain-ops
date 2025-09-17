@@ -1,0 +1,28 @@
+l2chains = [
+    {name = "arena-z-testnet", chainId = 9899}
+]
+
+templateName = "OPCMUpgradeV410"
+
+[[opcmUpgrades]]
+chainId = 9899
+absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
+expectedValidationErrors = "PLDG-10"
+# PLDG-10 : Permissionless dispute game implementation not found.
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Freshly deployed on Sepolia
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Freshly deployed on Sepolia
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36 }
+]
+
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50 }
+]
+
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47 }
+]
