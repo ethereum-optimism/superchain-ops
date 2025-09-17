@@ -18,14 +18,12 @@ absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b7
 expectedValidationErrors = ""
 
 
-
-
 [addresses]
-OPCM = ""
-StandardValidatorV410 = ""
+OPCM = "0x8123739c1368c2dedc8c564255bc417feeebff9d" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+StandardValidatorV410 = "0x845fef377fa9c678b3ebe33b024678538f1215dd" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+
 
 [stateOverrides]
-
 # Unichain 3/3 (L1PAO)
 0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 6}
