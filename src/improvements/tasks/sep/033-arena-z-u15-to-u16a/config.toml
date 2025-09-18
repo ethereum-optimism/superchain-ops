@@ -11,8 +11,8 @@ expectedValidationErrors = "PLDG-10"
 # PLDG-10 : Permissionless dispute game implementation not found.
 
 [addresses]
-OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Freshly deployed on Sepolia
-StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Freshly deployed on Sepolia
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
 
 [stateOverrides]
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
