@@ -4,11 +4,9 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
+import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOptimismPortal2.sol";
 import {MultisigTaskPrinter} from "../../libraries/MultisigTaskPrinter.sol";
 import {Action} from "../../libraries/MultisigTypes.sol";
-
-import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOptimismPortal2.sol";
-
 import {SimpleTaskBase} from "../tasks/types/SimpleTaskBase.sol";
 
 /// @notice Template to execute an L2 call via the L1 Optimism Portal from a nested L1 Safe.
@@ -39,7 +37,7 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
 
     /// @notice The contracts expected to have balance changes during execution.
     /// Allowlist the OptimismPortal to receive ETH (value) in the deposit call.
-    function _taskBalanceChanges() internal view override returns (string[] memory) {
+    function _taskBalanceChanges() internal pure override returns (string[] memory) {
         string[] memory _balanceChanges = new string[](1);
         _balanceChanges[0] = "OptimismPortal";
         return _balanceChanges;
@@ -95,7 +93,7 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     }
 
     /// @notice Validate that exactly one action to the portal with the expected calldata and value was captured.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal view override {
         bytes memory _expected = abi.encodeWithSelector(
             IOptimismPortal2.depositTransaction.selector, l2Target, valueWei, gasLimit, isCreation, l2Data
         );
@@ -115,7 +113,5 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     }
 
     /// @notice No code exceptions required for this template.
-    function _getCodeExceptions() internal view override returns (address[] memory) {
-        return new address[](0);
-    }
+    function _getCodeExceptions() internal view override returns (address[] memory) {}
 }
