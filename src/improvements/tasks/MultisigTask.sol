@@ -607,7 +607,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (TaskPayload memory payload_, Action[] memory actions_)
     {
         require(_preExecutionSnapshot == 0, "MultisigTask: already initialized");
-        templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
+        // Commented out - address(this) not allowed in scripts
+        // templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
+        templateConfig.safeAddressString = safeAddressString();
         IGnosisSafe _root;
         (addrRegistry, _root, multicallTarget) = _configureTask(_taskConfigFilePath);
 
@@ -627,7 +629,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         _setAllowedBalanceChanges();
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
-        vm.label(address(this), "MultisigTask");
+        // vm.label(address(this), "MultisigTask"); // Commented out - address(this) not allowed in scripts
 
         actions_ = build(address(_root));
         bytes[] memory allCalldatas = transactionDatas(actions_, allSafes, allOriginalNonces);

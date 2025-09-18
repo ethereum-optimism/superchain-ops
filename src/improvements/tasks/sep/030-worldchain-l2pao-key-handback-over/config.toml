@@ -1,0 +1,5 @@
+l2chains = [{name = "Worldchain Sepolia", chainId = 4801}]
+templateName = "TransferL2PAOFromL1ToEOA"
+
+# The new owner address (EOA).
+newOwnerEOA = "0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0"
