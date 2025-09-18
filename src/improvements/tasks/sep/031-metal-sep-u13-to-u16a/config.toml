@@ -32,7 +32,7 @@ StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L102
 StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c"
 
-OPCMUpgradeV410 = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0
+OPCMUpgradeV410 = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
 StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
 
 [stateOverrides]
