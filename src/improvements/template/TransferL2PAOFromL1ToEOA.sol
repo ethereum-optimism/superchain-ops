@@ -74,11 +74,42 @@ contract TransferL2PAOFromL1ToEOA is L2TaskBase {
     }
 
     /// @notice Validates that the owner was transferred correctly.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
-        // We can't currently perform an assertion on the L2 because the transaction is only simulated and not actually executed,
-        // so it's up to the user to manually assert that. See the manual post-execution checks documented in the comments
-        // at the top of this file.
-        // assertEq(ProxyAdmin(l2ProxyAdminPredeploy).owner(), newOwnerEOA, "new EOA owner not set correctly");
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory actions, address) internal view override {
+        // Validate that the depositTransaction action was created correctly
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        address expectedPortal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId);
+
+        // Expected calldata for depositTransaction
+        uint64 gasLimit = 200000;
+        bytes memory expectedCalldata = abi.encodeCall(
+            OptimismPortal.depositTransaction,
+            (
+                address(Predeploys.PROXY_ADMIN),  // _to
+                0,                                 // _value
+                gasLimit,                          // _gasLimit
+                false,                            // _isCreation
+                abi.encodeCall(ProxyAdmin.transferOwnership, (newOwnerEOA))  // _data
+            )
+        );
+
+        // Check that we have exactly one action to the OptimismPortal with the expected calldata
+        bool found = false;
+        uint256 matches = 0;
+        for (uint256 i = 0; i < actions.length; i++) {
+            if (actions[i].target == expectedPortal) {
+                if (keccak256(actions[i].arguments) == keccak256(expectedCalldata)) {
+                    found = true;
+                    matches++;
+                }
+                assertEq(actions[i].value, 0, "Should not send ETH with depositTransaction");
+            }
+        }
+
+        assertTrue(found, "depositTransaction action not found");
+        assertEq(matches, 1, "Should have exactly one depositTransaction action");
+
+        // Note: We can't validate the L2 state change since it only happens after L1 execution
+        // Manual verification steps are documented in the contract comments above
     }
 
     /// @notice No code exceptions for this template.
