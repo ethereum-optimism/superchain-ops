@@ -1561,11 +1561,12 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
     }
 
+    // Version 3.5.0 - op-contracts/v4.1.0-rc.3 - AnchorStateRegistry
     function test_normalizedStateDiffHash_AnchorStateRegistryRetirementTimestamp() public {
-        vm.createSelectFork("mainnet", 22319975);
+        vm.createSelectFork("mainnet", 22990600);
         setupTests();
 
-        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        address anchorStateRegistry = address(0x23B2C62946350F4246f9f9D027e071f0264FD113);
         bytes32 retirementTimestampSlot = bytes32(uint256(6));
         bytes32 retirementTimestamp =
             bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
@@ -1577,8 +1578,8 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
         bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
-        bytes32 expectedHash = bytes32(0x241e6b7219e7929518322ed65cbe52a5d3f6c3e61439ae8fdae8e842d3f8f500);
-
+        // This hash is the zero'd out retirement timestamp slot. Stepped through code to prove this.
+        bytes32 expectedHash = bytes32(0xba500e0a45c2487e48cabd2c832376eabc7d10080926d10c0340829a3a97e622);
         assertEq(hash, expectedHash, "AnchorStateRegistry should match the expected hash");
 
         bytes32 retirementTimestamp2 =
@@ -1591,11 +1592,12 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(hash2, expectedHash, "AnchorStateRegistry should still match the expected hash");
     }
 
+    // Version 3.5.0 - op-contracts/v4.1.0-rc.3 - AnchorStateRegistry
     function test_normalizedStateDiffHash_AnchorStateRegistryProposal() public {
-        vm.createSelectFork("mainnet", 22319975);
+        vm.createSelectFork("mainnet", 22990600);
         setupTests();
 
-        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        address anchorStateRegistry = address(0x23B2C62946350F4246f9f9D027e071f0264FD113);
         bytes32 proposalRootSlot = bytes32(uint256(3));
         bytes32 proposalRoot = bytes32(uint256(0x08ce0a407e15a1776bd43cd669328edc6825fcab988b8e2052258774251c25d2));
         bytes32 proposalL2SequenceNumberSlot = bytes32(uint256(4));
@@ -1616,6 +1618,35 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         bytes32 expectedHash = keccak256(abi.encode(emptyArray));
 
         assertEq(hash, expectedHash, "AnchorStateRegistry proposal should be removed");
+    }
+
+    // Version 2.2.2 - op-contracts/v3.0.0 - AnchorStateRegistry
+    function test_normalizedStateDiffHash_AnchorStateRegistryOutputRootSlots() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address anchorStateRegistry = address(0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7);
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
+
+        bytes32 startingAnchorRootSlot = bytes32(uint256(4));
+        bytes32 l2BlockNumberSlot = bytes32(uint256(5));
+
+        bytes32 startingAnchorRoot =
+            bytes32(uint256(0x08ce0a407e15a1776bd43cd669328edc6825fcab988b8e2052258774251c25d2));
+        bytes32 l2BlockNumber = bytes32(uint256(0x0000000000000000000000000000000000000000000000000000000000123456));
+
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, startingAnchorRootSlot, isWrite, val0, startingAnchorRoot);
+        storageAccesses[1] = storageAccess(anchorStateRegistry, l2BlockNumberSlot, isWrite, val0, l2BlockNumber);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+        assertEq(hash, expectedHash, "AnchorStateRegistry output root writes should be removed");
     }
 
     /// It's possible for there to be more storage writes than accesses.
