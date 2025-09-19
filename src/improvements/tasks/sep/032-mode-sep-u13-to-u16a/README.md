@@ -1,6 +1,6 @@
 # 032-mode-sep-u13-to-u16a
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
