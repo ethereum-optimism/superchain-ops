@@ -20,7 +20,7 @@ the values printed to the terminal when you run the task.
 > ### Worldchain Mainnet Proxy Admin Owner (`0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d`)
 >
 > - Domain Hash:  `0xb38a131bd7616105e60b1765f40d80d946e7ccf096e2a816236d7d819746a870`
-> - Message Hash: `0x01cd30d5be302086544671edb964406e29b4e022221db0ba64c91a093164e66a`
+> - Message Hash: `0xa76789c502cfd5e57d8fadecf1bcff72acb1dd8a098ae543577f37d3609445e2`
 
 ## Normalized State Diff Hash Attestation
 
