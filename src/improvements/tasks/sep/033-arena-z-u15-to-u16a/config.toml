@@ -6,7 +6,7 @@ templateName = "OPCMUpgradeV410"
 
 [[opcmUpgrades]]
 chainId = 9899
-absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8" # https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-prestates.toml#L6
 expectedValidationErrors = "PLDG-10"
 # PLDG-10 : Permissionless dispute game implementation not found.
 
