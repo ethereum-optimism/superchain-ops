@@ -17,5 +17,5 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../
 Signing commands for each safe:
 ```bash
 cd src/improvements/tasks/sep/031-metal-sep-u13-to-u16a
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate foundation
+just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile sign foundation
 ```
