@@ -11,11 +11,11 @@ This task upgrades Arena-Z Sepolia to U16a.
 Simulation commands for each safe:
 ```bash
 cd src/improvements/tasks/sep/033-arena-z-u15-to-u16a
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate council
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|foundation>
 ```
 
 Signing commands for each safe:
 ```bash
 cd src/improvements/tasks/sep/033-arena-z-u15-to-u16a
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation
+just --dotenv-path $(pwd)/.env --justfile sign <council|foundation>
 ```
