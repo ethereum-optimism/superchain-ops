@@ -33,7 +33,7 @@ the values printed to the terminal when you run the task.
 
 The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
 
-**Normalized hash:** `0xc1dd36951022169c46d8dea2b59b6c37fd7368f436e25b062fc54e4103818743`
+**Normalized hash:** `0x19330b437d7c09cea0b5f285d113b5dfa5fb6221759fad95b006b5ffa28447c0`
 
 ## Task Calldata
 
