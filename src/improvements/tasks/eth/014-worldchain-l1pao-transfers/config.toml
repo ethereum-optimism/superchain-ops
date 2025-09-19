@@ -7,5 +7,5 @@ newOwner = "0xFD29D82d18086413B7f217D5D2f8E277e3dd34a8"
 [stateOverrides]
 # https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/mainnet/worldchain.toml#L43C22-L43C64
 0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d = [ # Current owner of the ProxyAdmin before this task is executed
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 31}
 ]
