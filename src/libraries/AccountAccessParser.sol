@@ -135,9 +135,14 @@ library AccountAccessParser {
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
 
-    bytes32 internal constant ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
-    bytes32 internal constant ANCHOR_STATE_REGISTRY_PROPOSAL_ROOT_SLOT = bytes32(uint256(3));
-    bytes32 internal constant ANCHOR_STATE_REGISTRY_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT = bytes32(uint256(4));
+    // op-contracts/v4.1.0-rc.3 - AnchorStateRegistry version: 3.5.0
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_V410_PROPOSAL_ROOT_SLOT = bytes32(uint256(3));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_V410_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT = bytes32(uint256(4));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_V410_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
+    
+    // op-contracts/v3.0.0 - AnchorStateRegistry version: 2.2.2
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_STARTING_ANCHOR_ROOT_SLOT = bytes32(uint256(4));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_L2_BLOCK_NUMBER_SLOT = bytes32(uint256(5));
 
     bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
 
@@ -443,15 +448,20 @@ library AccountAccessParser {
     function isAnchorStateRegistryProposal(address _account, StateDiff memory _diff) internal view returns (bool) {
         if (isAnchorStateRegistry(_account)) {
             // The proposal is stored in slot 3 and 4.
-            return _diff.slot == ANCHOR_STATE_REGISTRY_PROPOSAL_ROOT_SLOT
-                || _diff.slot == ANCHOR_STATE_REGISTRY_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT;
+            if (isAnchorStateRegistryV410(_account)) {
+                return _diff.slot == ANCHOR_STATE_REGISTRY_V410_PROPOSAL_ROOT_SLOT
+                    || _diff.slot == ANCHOR_STATE_REGISTRY_V410_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT;
+            } else if (isAnchorStateRegistryV300(_account)) {
+                return _diff.slot == ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_STARTING_ANCHOR_ROOT_SLOT
+                    || _diff.slot == ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_L2_BLOCK_NUMBER_SLOT;
+            }
         }
         return false;
     }
 
     /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
     function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
-        if (_diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
+        if (_diff.slot == ANCHOR_STATE_REGISTRY_V410_RETIREMENT_TIMESTAMP_SLOT) {
             if (isAnchorStateRegistry(_account)) {
                 // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
                 // Define a static mask to zero out 64 bits at offset 4 in little-endian format
@@ -1175,6 +1185,30 @@ library AccountAccessParser {
         bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("getAnchorRoot()")));
         (bool ok, bytes memory data) = _who.staticcall(callData);
         return ok && data.length == 64;
+    }
+
+    /// @notice Fetches the semantic version string from a contract that implements `version()`.
+    /// Returns an empty string if the call fails or the return data is empty.
+    function getContractVersion(address _who) internal view returns (string memory) {
+        (bool ok, bytes memory data) = _who.staticcall(abi.encodeWithSelector(bytes4(keccak256("version()"))));
+        if (!ok || data.length == 0) return "";
+        return abi.decode(data, (string));
+    }
+
+    /// @notice Returns true if `_who` is an AnchorStateRegistry with a 3.x.x semantic version.
+    /// Corresponds to op-contracts ≥ v4.1.0 where ASR version is 3.5.0 (and later 3.x).
+    function isAnchorStateRegistryV410(address _who) internal view returns (bool) {
+        string memory v = getContractVersion(_who);
+        if (bytes(v).length == 0) return false;
+        return v.eq("3.5.0");
+    }
+
+    /// @notice Returns true if `_who` is an AnchorStateRegistry with a 2.x.x semantic version.
+    /// Corresponds to op-contracts v3.0.0 where ASR version is 2.2.2 (and other 2.x).
+    function isAnchorStateRegistryV300(address _who) internal view returns (bool) {
+        string memory v = getContractVersion(_who);
+        if (bytes(v).length == 0) return false;
+        return v.eq("2.2.2");
     }
 
     /// @notice Pre-calculate all hash approval slots for a given multisig and hash.
