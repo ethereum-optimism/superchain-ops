@@ -17,5 +17,5 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|found
 Signing commands for each safe:
 ```bash
 cd src/improvements/tasks/sep/030-zora-sep-u13-to-u16a
-just --dotenv-path $(pwd)/.env --justfile sign <council|foundation>
+just --dotenv-path $(pwd)/.env sign <council|foundation>
 ```
