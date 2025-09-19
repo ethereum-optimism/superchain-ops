@@ -31,9 +31,11 @@ superchain-ops/
 > ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`. You **must** use the `install-mise.sh` script to install `mise`.
 
 1. Install dependencies:
+Run the commands below to set up your environment. `mise` is a one-time setup that ensures all signers and developers use the same dependency versions.
 ```bash
 cd src/improvements/
 ./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
+mise activate # Manually activate mise for the current shell
 mise trust ../../mise.toml
 mise install
 just --justfile ../../justfile install
