@@ -8,7 +8,7 @@ the values printed to the terminal when you run the task.
 > Before signing, ensure the below hashes match what is on your ledger.
 >
 > - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message Hash: `0x38df25c915e6cf7ded7163f1e2ee34ec64c024b5d0f29918f5f25a701286b79e`
+> - Message Hash: `0xa1405af7dcae65432fb2b4708676bef5dcc0d3faaf43277a9921bcf04262f93b`
 
 ## Normalized State Diff Hash Attestation
 
