@@ -35,9 +35,20 @@ the values printed to the terminal when you run the task.
   - **After:** `25`
   - **Summary:** nonce
   - **Detail:** Proxy admin owner nonce incremented.
-  
+
+- **Key:**          `0xf2bbbeb1826921cbddfd00e626fa8ba949fbcef64056b814959151cf996c2935`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+    To verify the slot yourself, run:
+    - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)` - Base Nested Safe
+    - `cast index bytes32 0x38088b006efbd2e14694c61a6603bd579955beee666fc83a3674ed8e6e808735 $res`
+    - Please note: the `0x38088b006efbd2e14694c61a6603bd579955beee666fc83a3674ed8e6e808735` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+
   ---
-  
+
 ### `0x21efd066e581fa55ef105170cc04d74386a09190` (L1ERC721Bridge) - Chain ID: 84532
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -171,14 +182,14 @@ the values printed to the terminal when you run the task.
   - **Summary:** nonce
   - **Detail:** Gnosis safe nonce incremented.
 
-- **Key:**          `0x214ba6b5fd34975f54c9d29934e8ce22d12c610239f19c7f0f6fd96b7d3be700`
+- **Key:**          `0x1313827d372ba257f1963c84ffa991edeb559981fd3e20c2cbf190d01733eb28`
   - **Decoded Kind:** `uint256`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
   - **Detail:** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
     To verify the slot yourself, run:
-    - `res=$(cast index address 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f 8)` - Base Council Safe.
+    - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)` - Base Operations Safe.
     - `cast index bytes32 0x401cc2c1a3bc9d909a1cae9c0b522f8d3fa09146a919db1d200ae564d4c06b38 $res`
     - Please note: the `0x401cc2c1a3bc9d909a1cae9c0b522f8d3fa09146a919db1d200ae564d4c06b38` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
