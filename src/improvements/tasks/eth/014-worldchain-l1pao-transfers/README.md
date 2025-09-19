@@ -1,6 +1,6 @@
 # 014-worldchain-l1pao-transfers: Transfer L1 owners for Worldchain Mainnet (DisputeGameFactory, PermissionlessWETH, PermissionedWETH and L1PAO)
 
-Status: [READY TO SIGN]()
+Status: [CANCELLED]()
 
 ## Objective
 
