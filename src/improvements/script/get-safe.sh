@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Get the task path from the first argument
 TASK_PATH="$1"
-# Get the safe name from the third argument
 SAFE_NAME="$2"
 
 if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
@@ -11,38 +10,27 @@ if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
     exit 1
 fi
 
-# Convert safe name to the correct format to read the config.toml file.
-# In the cases where the safe name is not one of foundation, council, chain-governor, foundation-operations, base-operations then
-# tasks should use a custom name to represent the owners of the proxy admin owner. They should put these safes
-# under the addresses section of the config.toml file.
-if [[ "$SAFE_NAME" == "foundation" ]]; then
-    SAFE_NAME="FoundationUpgradeSafe"
-elif [[ "$SAFE_NAME" == "council" ]]; then
-    SAFE_NAME="SecurityCouncil"
-elif [[ "$SAFE_NAME" == "chain-governor" ]]; then
-    SAFE_NAME="ChainGovernorSafe"
-elif [[ "$SAFE_NAME" == "foundation-operations" ]]; then
-    SAFE_NAME="FoundationOperationsSafe"
-elif [[ "$SAFE_NAME" == "base-nested" ]]; then
-    # This is Base's nested safe, which is a 2/2 between Base and the Base Security
-    # Council (SC), which rolls up into a 2/2 between that Safe and the Optimism
-    # Foundation for Base's L1PAO.
-    SAFE_NAME="BaseNestedSafe"
-elif [[ "$SAFE_NAME" == "base-operations" ]]; then
-    # This is Base's safe, which one signer on the BaseNestedSafe 2/2.
-    SAFE_NAME="BaseOperationsSafe"
-elif [[ "$SAFE_NAME" == "base-council" ]]; then
-    # This is Base's Security Council safe, which is the other signer on the BaseNestedSafe 2/2.
-    SAFE_NAME="BaseSCSafe"
-elif [[ "$SAFE_NAME" == "test-rehearsal-council" ]]; then
-    # This is a test rehearsal safe for the Security Council.
-    SAFE_NAME="TestRehearsalCouncil"
-elif [[ "$SAFE_NAME" == "test-rehearsal-foundation" ]]; then
-    # This is a test rehearsal safe for the Optimism Foundation.
-    SAFE_NAME="TestRehearsalFoundation"
-fi
+ROOT_DIR=$(git rev-parse --show-toplevel)
+ADDRESSES_FILE="${ROOT_DIR}/src/improvements/addresses.toml"
+CONFIG_PATH="${TASK_PATH}/config.toml"
 
-root_dir=$(git rev-parse --show-toplevel)
+canonicalize_safe_name() {
+    local input_name="$1"
+    case "$input_name" in
+        foundation) echo "FoundationUpgradeSafe" ;;
+        council) echo "SecurityCouncil" ;;
+        chain-governor) echo "ChainGovernorSafe" ;;
+        foundation-operations) echo "FoundationOperationsSafe" ;;
+        base-nested) echo "BaseNestedSafe" ;;
+        base-operations) echo "BaseOperationsSafe" ;;
+        base-council) echo "BaseSCSafe" ;;
+        test-rehearsal-council) echo "TestRehearsalCouncil" ;;
+        test-rehearsal-foundation) echo "TestRehearsalFoundation" ;;
+        *) echo "$input_name" ;;
+    esac
+}
+
+SAFE_NAME=$(canonicalize_safe_name "$SAFE_NAME")
 get_safe_fallback() {
     local config_path="$1"
     local safe_name="$2"
@@ -53,27 +41,35 @@ get_safe_fallback() {
     echo "$fallback_safe"
 }
 
-# Check if the path contains eth/ or sep/
+lookup_safe_address() {
+    local network="$1"
+    local safe_name="$2"
+    local value
+    value=$(yq ".${network}.\"$safe_name\"" "$ADDRESSES_FILE")
+    if [[ -z "$value" || "$value" == "null" ]]; then
+        value=$(get_safe_fallback "$CONFIG_PATH" "$safe_name")
+    fi
+    echo "$value"
+}
+
 case "$TASK_PATH" in
-    *"/eth/"*)
-        safe=$(yq ".eth.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
-        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
-        ;;
-    *"/sep/"*)
-        if [[ "$SAFE_NAME" == "ChainGovernorSafe" ]]; then
-            echo "Error (get-safe.sh): chain-governor does not exist on sepolia" >&2
-            exit 1
-        fi
-        safe=$(yq ".sep.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
-        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
-        ;;
+    *"/eth/"*) network="eth" ;;
+    *"/sep/"*) network="sep" ;;
+    *"/opsep/"*) network="opsep" ;;
+    *"/oeth/"*) network="oeth" ;;
     *)
-        echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/" >&2
+        echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/ or /opsep/" >&2
         exit 1
         ;;
 esac
 
-# Ensure a value was found for the safe
+if [[ "$network" == "sep" && "$SAFE_NAME" == "ChainGovernorSafe" ]]; then
+    echo "Error (get-safe.sh): chain-governor does not exist on sepolia" >&2
+    exit 1
+fi
+
+safe=$(lookup_safe_address "$network" "$SAFE_NAME")
+
 if [[ -z "$safe" || "$safe" == "null" ]]; then
     echo "Error (get-safe.sh): SAFE_NAME '$SAFE_NAME' not found in ${TASK_PATH}/config.toml" >&2
     exit 1
