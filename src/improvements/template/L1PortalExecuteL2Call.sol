@@ -114,8 +114,8 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
 
     /// @notice Validate that exactly one action to the portal with the expected calldata and value was captured.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal view override {
-        bytes memory _expected = abi.encodeWithSelector(
-            IOptimismPortal2.depositTransaction.selector, l2Target, valueWei, gasLimit, isCreation, l2Data
+        bytes memory _expected = abi.encodeCall(
+            IOptimismPortal2.depositTransaction, (l2Target, valueWei, gasLimit, isCreation, l2Data)
         );
 
         bool _found;
