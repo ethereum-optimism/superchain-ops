@@ -102,6 +102,9 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
         try vm.parseTomlBool(_toml, ".isCreation") returns (bool _b) {
             isCreation = _b;
         } catch {}
+
+        // early revert in case of attempted contract creation with a non-zero target
+        require(isCreation && l2Target == address(0) || !isCreation, "contract creation requires zero target address");
     }
 
     /// @notice Build the portal deposit action. WARNING: State changes here are reverted after capture.
