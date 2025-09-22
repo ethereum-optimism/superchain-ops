@@ -84,8 +84,7 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
         require(l2Target != address(0), "l2Target must be set");
 
         // Read hex string and parse to bytes.
-        string memory _dataHex = _toml.readString(".l2Data");
-        l2Data = vm.parseBytes(_dataHex);
+        l2Data = _toml.readBytes(".l2Data");
         require(l2Data.length > 0, "l2Data must be set");
 
         uint256 _gasLimitTmp = _toml.readUint(".gasLimit");
