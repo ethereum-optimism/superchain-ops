@@ -27,12 +27,18 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     using stdToml for string;
 
     // -------- Config inputs --------
-    address payable public portal; // L1 OptimismPortal address
-    address public l2Target; // L2 target address
-    bytes public l2Data; // Inner L2 calldata
-    uint256 public valueWei; // ETH value to forward to L2 (defaults to 0)
-    uint64 public gasLimit; // L2 gas limit (required)
-    bool public isCreation; // Whether to create a contract on L2 (defaults to false)
+    /// @notice The address of the OptimismPortal2 contract on L1.
+    address payable public portal;
+    /// @notice The address of the L2 target contract.
+    address public l2Target;
+    /// @notice The calldata to be executed on l2Target.
+    bytes public l2Data;
+    /// @notice The ETH value to forward to L2.
+    uint256 public valueWei;
+    /// @notice The L2 gas limit.
+    uint64 public gasLimit;
+    /// @notice Whether to create a contract on L2.
+    bool public isCreation;
 
     /// @notice Default Safe name. Can be overridden via `safeAddressString` in config.toml.
     function safeAddressString() public pure override returns (string memory) {
