@@ -4,10 +4,22 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
-import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOptimismPortal2.sol";
 import {MultisigTaskPrinter} from "../../libraries/MultisigTaskPrinter.sol";
 import {Action} from "../../libraries/MultisigTypes.sol";
 import {SimpleTaskBase} from "../tasks/types/SimpleTaskBase.sol";
+
+/// @notice Interface for the OptimismPortal2 contract on L1.
+interface IOptimismPortal2 {
+    function depositTransaction(
+        address _to,
+        uint256 _value,
+        uint64 _gasLimit,
+        bool _isCreation,
+        bytes memory _data
+    )
+        external
+        payable;
+}
 
 /// @notice Template to execute an L2 call via the L1 Optimism Portal from a nested L1 Safe.
 /// Sends an L2 transaction using OptimismPortal.depositTransaction with config-driven params.
