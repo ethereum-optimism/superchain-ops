@@ -17,8 +17,8 @@ First, we need to validate the domain and message hashes. These values should ma
 >
 > ### Worldchain Proxy Admin Owner (`0x945185C01fb641bA3E63a9bdF66575e35a407837`)
 >
-> - Domain Hash: `0x6faec9c52949ba8274340008df12c69faedd5c44e77f77c956d2ca8e4bcd877e`
-> - Message Hash: `0x9d228a76bf7ab77438ffffc6b869643ff697f20fbf681147caa88c93752aa06f`
+> - Domain Hash:  `0x6faec9c52949ba8274340008df12c69faedd5c44e77f77c956d2ca8e4bcd877e`
+> - Message Hash: `0x20556e9d7d2847116caef0b79cdcd207b399adcdb01776e368fcbc9011559a4e`
 
 ## Normalized State Diff Hash Attestation
 
@@ -74,8 +74,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `51` - (`cast --to-dec 0x33` is `51`)
-  - **After:** `52` - (`cast --to-dec 0x34` is `52`)
+  - **Before:** `44` - (`cast --to-dec 0x2c` is `44`)
+  - **After:** `45` - (`cast --to-dec 0x2d` is `45`)
   - **Summary:** nonce
   - **Detail:** Nonce update for the parent multisig.
   
