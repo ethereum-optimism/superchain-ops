@@ -1,5 +1,5 @@
 # 027-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Sepolia
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd89411f0240fbc789f2cb36ead949bd5e7fc93ab2701f0f408e6604ecf2b75bf)
 
 ## Objective
 
