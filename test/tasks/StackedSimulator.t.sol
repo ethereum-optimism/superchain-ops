@@ -120,8 +120,15 @@ contract StackedSimulatorUnitTest is Test {
         );
 
         StackedSimulator ss = new StackedSimulator();
+        string memory expectedPath_006 = string.concat(testDirectory, "/", network, "/", taskName2, "/config.toml");
         vm.expectRevert(
-            "StateOverrideManager: User-defined nonce (12) is less than current actual nonce (13) for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+            bytes(
+                string.concat(
+                    "StateOverrideManager: User-defined nonce (12) is less than current actual nonce (13) for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A",
+                    " in task config file: ",
+                    expectedPath_006
+                )
+            )
         );
         ss.simulateStack(network, taskName2);
     }
@@ -143,8 +150,15 @@ contract StackedSimulatorUnitTest is Test {
 
         StackedSimulator ss = new StackedSimulator();
         // Child has the wrong nonce, so this should revert.
+        string memory expectedPath_007 = string.concat(testDirectory, "/", network, "/", taskName2, "/config.toml");
         vm.expectRevert(
-            "StateOverrideManager: User-defined nonce (20) is less than current actual nonce (21) for contract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+            bytes(
+                string.concat(
+                    "StateOverrideManager: User-defined nonce (20) is less than current actual nonce (21) for contract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92",
+                    " in task config file: ",
+                    expectedPath_007
+                )
+            )
         );
         ss.simulateStack(network, taskName2);
     }
@@ -166,8 +180,15 @@ contract StackedSimulatorUnitTest is Test {
 
         StackedSimulator ss = new StackedSimulator();
         // Child has the wrong nonce, so this should revert.
+        string memory expectedPath_008 = string.concat(testDirectory, "/", network, "/", taskName2, "/config.toml");
         vm.expectRevert(
-            "StateOverrideManager: User-defined nonce (22) is less than current actual nonce (23) for contract: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+            bytes(
+                string.concat(
+                    "StateOverrideManager: User-defined nonce (22) is less than current actual nonce (23) for contract: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03",
+                    " in task config file: ",
+                    expectedPath_008
+                )
+            )
         );
         ss.simulateStack(network, taskName2);
     }
