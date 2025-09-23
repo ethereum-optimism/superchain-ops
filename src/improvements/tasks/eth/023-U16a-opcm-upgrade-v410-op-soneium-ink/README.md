@@ -1,19 +1,20 @@
-# 027-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Sepolia
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd89411f0240fbc789f2cb36ead949bd5e7fc93ab2701f0f408e6604ecf2b75bf)
+# 023-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Mainnet
+
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
-Executes Upgrade 16a on OP, Soneium, and Ink on Sepolia.
+Executes Upgrade 16a on OP, Soneium, and Ink on Mainnet.
 
 This task uses `op-contract/v4.1.0-rc.2` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade the following chains:
 
-1. OP Sepolia Testnet
-2. Ink Sepolia Testnet
-3. Soneium Testnet Minato
+1. OP Mainnet
+2. Ink
+3. Soneium
 
 ### Timing
 
-Expected to be executed on or around 2025-09-22.
+Expected to be executed on or around 2025-10-02.
 
 ## Transaction creation
 
@@ -32,10 +33,9 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV410.sol`.
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410-op-soneium-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate foundation/council
+cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-op-soneium-ink
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate <foundation|council>
 ```

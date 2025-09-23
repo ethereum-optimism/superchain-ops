@@ -35,9 +35,20 @@ the values printed to the terminal when you run the task.
   - **After:** `25`
   - **Summary:** nonce
   - **Detail:** Proxy admin owner nonce incremented.
-  
+
+- **Key:**          `0xf2bbbeb1826921cbddfd00e626fa8ba949fbcef64056b814959151cf996c2935`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+    To verify the slot yourself, run:
+    - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)` - Base Nested Safe
+    - `cast index bytes32 0x38088b006efbd2e14694c61a6603bd579955beee666fc83a3674ed8e6e808735 $res`
+    - Please note: the `0x38088b006efbd2e14694c61a6603bd579955beee666fc83a3674ed8e6e808735` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+
   ---
-  
+
 ### `0x21efd066e581fa55ef105170cc04d74386a09190` (L1ERC721Bridge) - Chain ID: 84532
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -55,7 +66,7 @@ the values printed to the terminal when you run the task.
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
-  - **After:** `0x7f1d12fB2911EB095278085f721e644C1f675696` <TODO: Add link when available in SCR>
+  - **After:** [`0x7f1d12fB2911EB095278085f721e644C1f675696`](https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L20)
   - **Summary:** ERC-1967 implementation slot
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   
@@ -151,12 +162,12 @@ the values printed to the terminal when you run the task.
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000002ff5cc82dbf333ea30d8ee462178ab1707315355`
   - **Summary:** Slot 62 set to `anchorStateRegistry`.
-  - **Detail:** See AnchorStateRegistry above. <TODO: add link when we have it in SCR>
+  - **Detail:** See AnchorStateRegistry above.
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
-  - **After:** `0x381E729FF983FA4BCEd820e7b922d79bF653B999` <TODO: Add link when we have it in SCR>
+  - **After:** [`0x381E729FF983FA4BCEd820e7b922d79bF653B999`](https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L12)
   - **Summary:** ERC-1967 implementation slot
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   
@@ -171,14 +182,14 @@ the values printed to the terminal when you run the task.
   - **Summary:** nonce
   - **Detail:** Gnosis safe nonce incremented.
 
-- **Key:**          `0x214ba6b5fd34975f54c9d29934e8ce22d12c610239f19c7f0f6fd96b7d3be700`
+- **Key:**          `0x1313827d372ba257f1963c84ffa991edeb559981fd3e20c2cbf190d01733eb28`
   - **Decoded Kind:** `uint256`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
   - **Detail:** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
     To verify the slot yourself, run:
-    - `res=$(cast index address 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f 8)` - Base Council Safe.
+    - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)` - Base Operations Safe.
     - `cast index bytes32 0x401cc2c1a3bc9d909a1cae9c0b522f8d3fa09146a919db1d200ae564d4c06b38 $res`
     - Please note: the `0x401cc2c1a3bc9d909a1cae9c0b522f8d3fa09146a919db1d200ae564d4c06b38` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
@@ -200,7 +211,7 @@ the values printed to the terminal when you run the task.
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
   - **Before:** `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   - **After:** `0x00000000000000000000000022d12e0faebd62d429514a65ebae32dd316c12d6`
-  - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v4.1.0-rc.2' L1CrossDomainMessenger at [0x22d12e0faebd62d429514a65ebae32dd316c12d6](<TODO: Add link from SCR>).
+  - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v4.1.0-rc.2' L1CrossDomainMessenger at [0x22d12e0faebd62d429514a65ebae32dd316c12d6](https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L19).
   - **Detail:** This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below. **Before** address matches the following cast call to `AddressManager.getAddres()`:
       - `cast call 0x709c2b8ef4a9fefc629a8a2c1af424dc5bd6ad1b 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
       - returns: `0x5D5a095665886119693F0B41d8DFeE78da033e8B`
@@ -309,7 +320,7 @@ the values printed to the terminal when you run the task.
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0xfdA350e8038728B689976D4A9E8A318400A150C5`
-  - **After:** `0x2bFE4A5Bd5A41e9d848d843ebCDFa15954e9A557` <TODO: add link from SCR>
+  - **After:** [`0x2bFE4A5Bd5A41e9d848d843ebCDFa15954e9A557`](https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L8)
   - **Summary:** ERC-1967 implementation slot
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   
@@ -339,6 +350,6 @@ the values printed to the terminal when you run the task.
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
-  - **After:** `0xe32B192fb1DcA88fCB1C56B3ACb429e32238aDCb` <TODO: Add link from SCR>
+  - **After:** [`0xe32B192fb1DcA88fCB1C56B3ACb429e32238aDCb`](https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L21)
   - **Summary:** ERC-1967 implementation slot
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.

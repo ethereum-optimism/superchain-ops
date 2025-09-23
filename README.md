@@ -31,9 +31,11 @@ superchain-ops/
 > ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`. You **must** use the `install-mise.sh` script to install `mise`.
 
 1. Install dependencies:
+Run the commands below to set up your environment. `mise` is a **one-time setup** that ensures all signers and developers use the same dependency versions.
 ```bash
 cd src/improvements/
 ./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
+mise activate   # Activate mise for the current shell; if it doesn’t take effect, restart your terminal.
 mise trust ../../mise.toml
 mise install
 just --justfile ../../justfile install
@@ -195,7 +197,7 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 
 **Environment variables:**
 - `HD_PATH` - Hardware wallet derivation path (default: 0)
-- `USE_KEYSTORE` - If set, uses keystore instead of ledger
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger. 
 
 **Examples:**
 
@@ -252,6 +254,18 @@ templateName = "<YOUR_TEMPLATE_NAME>"
 ```
 
 Example: see [`test/tasks/example/opsep/001-set-eip1967-impl`](/test//tasks/example/opsep/001-set-eip1967-impl/).
+
+### How do I add a private key to my keystore?
+
+Use Foundry's keystore. Import your key and set a password when prompted:
+
+```bash
+cast wallet import my-account-name --private-key <priv-key>
+```
+
+By default, keys are stored under `~/.foundry/keystores`. List accounts with `cast wallet list`. When running signing commands with `USE_KEYSTORE=1`, you'll be prompted for the keystore password.
+
+See the official Foundry docs for the [cast wallet import](https://getfoundry.sh/cast/reference/wallet/) command.
 
 ### How do I make sure an address is universally available to any task?
 
