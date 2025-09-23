@@ -29,6 +29,6 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd 002-unichain-superchain-config-fix
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
-# Optionally set the SIGNER_ADDRESS environment variable to simulate as a specific address. Or remove SIMULATE_WITHOUT_LEDGER to simulate with Ledger. e.g. To set a custom signer: SIMULATE_WITHOUT_LEDGER=1 SIGNER_ADDRESS=0x1111111111111111111111111111111111111111
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+# Optionally set the SIGNER_ADDRESS environment variable to simulate as a specific address. Or remove SIMULATE_WITHOUT_WALLET to simulate with Ledger. e.g. To set a custom signer: SIMULATE_WITHOUT_WALLET=1 SIGNER_ADDRESS=0x1111111111111111111111111111111111111111
 ```

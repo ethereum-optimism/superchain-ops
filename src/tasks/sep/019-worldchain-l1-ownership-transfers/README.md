@@ -11,7 +11,7 @@ Transfer the L1 owners for the Worldchain Sepolia (DisputeGameFactory, Permissio
 Simulation commands for each safe:
 ```bash
 cd src/tasks/sep/019-worldchain-l1-ownership-transfers
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 Signing commands for each safe:
