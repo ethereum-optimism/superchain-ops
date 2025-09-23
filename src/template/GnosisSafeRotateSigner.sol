@@ -76,6 +76,7 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
         for (uint256 i = 0; i < owners.length; i++) {
             additionalCodeExceptions.push(owners[i]);
         }
+        additionalCodeExceptions.push(ownerToAdd);
     }
 
     /// @notice Builds the actions for executing the operations.
