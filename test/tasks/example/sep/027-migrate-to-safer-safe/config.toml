@@ -1,0 +1,26 @@
+# Configuration for transitioning to LivenessModule2
+templateName = "MigrateToSaferSafe"
+
+# Safe to perform the transition on
+safeAddressString = "SecurityCouncil"
+
+# Current LivenessModule address to disable (Sepolia LivenessModule)
+currentLivenessModule = "0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e"
+# Previous module in the linked list (use SENTINEL_MODULE address if current module is first)
+previousModule = "0x0000000000000000000000000000000000000001"
+
+
+# LivenessModule2 configuration parameters
+newLivenessModule = "0xBF83aCe11Fa979b90C1e914cC5565271f22C6615"
+livenessResponsePeriod = 2592000  # 30 days in seconds
+fallbackOwner = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"  # FoundationUpgradeSafe on Sepolia
+livenessModuleVersion = "2.0.0"
+
+
+# TimelockGuard configuration
+newTimelockGuard = "0xedf94583e3d54da29fbedfb7b6006aea0ccec166"  # TODO: Replace with actual address
+timelockDelay = 604800  # 7 days in seconds (adjust as needed)
+timelockGuardVersion = "1.0.0"  # TODO: Replace with actual expected version
+
+# Address of the current LivenessGuard
+currentGuard = "0xc26977310bC89DAee5823C2e2a73195E85382cC7"
