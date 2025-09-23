@@ -87,7 +87,7 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address _rootSafe) internal view override {
         require(!IGnosisSafe(_rootSafe).isOwner(ownerToRemove), "Old owner not removed");
         require(IGnosisSafe(_rootSafe).isOwner(ownerToAdd), "New owner not added");
-        require(IGnosisSafe(_rootSafe).getOwners().length == totalOwnersBefore - 1, "Total owners not decreased");
+        require(IGnosisSafe(_rootSafe).getOwners().length == totalOwnersBefore, "Total owners not equal");
         require(IGnosisSafe(_rootSafe).getThreshold() == thresholdBefore, "Threshold must be the same");
         require(
             IGnosisSafe(_rootSafe).getOwners().length >= thresholdBefore, "Must have enough owners to cover threshold"
