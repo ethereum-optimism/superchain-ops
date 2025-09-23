@@ -1,0 +1,12 @@
+templateName = "GnosisSafeRotateSigner"
+
+safeAddressString = "FoundationUpgradeSafe"
+
+ownerToRemove = "0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8"
+ownerToAdd = "0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02"
+
+[stateOverrides]
+
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
+]
