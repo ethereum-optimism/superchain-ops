@@ -36,8 +36,8 @@ Navigate to the correct task directory then run the simulate command.
 ```
 cd src/tasks/eth/004-opcm-upgrade-v300-base
 # BaseOperationsSafe: 0x9855054731540A48b28990B63DcF4f33d8AE46A1 (Base)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign base-operations
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign base-operations
 
 # FoundationOperationsSafe 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A (Optimism Foundation)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign foundation-operations
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign foundation-operations
 ```

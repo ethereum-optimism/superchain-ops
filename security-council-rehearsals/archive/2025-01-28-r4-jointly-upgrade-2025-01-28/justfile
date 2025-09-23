@@ -11,7 +11,7 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 simulate-council hdPath='0':
   #!/usr/bin/env bash
   echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  if [ t"$SIMULATE_WITHOUT_WALLET" == t1 ]
   then
     signer="0xc49d46E3F834f5C9856A7FcBEB185baD052c98e7"
   else

@@ -6,11 +6,11 @@ Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x96818c873717c91bad8cabb6580
 cd src/tasks/sep/025-opcm-upgrade-v410-freya-bn-u15
 
 # Testing
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate
 
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
-USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
-# or USE_KEYSTORE=1 just sign-stack sep 025-opcm-upgrade-v410-freya-bn-u15
+WALLET_TYPE=keystore just --dotenv-path $(pwd)/.env sign
+# or WALLET_TYPE=keystore just sign-stack sep 025-opcm-upgrade-v410-freya-bn-u15
 SIGNATURES=0x just execute
 ```

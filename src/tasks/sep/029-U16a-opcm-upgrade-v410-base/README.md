@@ -61,7 +61,7 @@ cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
- SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
+ SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
 # Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
@@ -85,7 +85,7 @@ cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
 # Message Hash: 0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81
@@ -154,7 +154,7 @@ Once you've updated the nonce for the base-operations safe, you can now safely s
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-operations
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
 # Message Hash: 0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9

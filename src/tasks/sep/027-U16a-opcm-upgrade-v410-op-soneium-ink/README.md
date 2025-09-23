@@ -37,5 +37,5 @@ Navigate to the correct task directory then run the simulate command.
 
 ```
 cd src/tasks/sep/027-U16a-opcm-upgrade-v410-op-soneium-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation/council
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation/council
 ```

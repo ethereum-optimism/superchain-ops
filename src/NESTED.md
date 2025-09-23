@@ -40,7 +40,7 @@ is ready".
 
 Make sure your ledger is still unlocked and run the following commands depending on which Safe you are signing on behalf of.
 
-**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_LEDGER=1` to your command or `.env` file.
+**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_WALLET=1` to your command or `.env` file.
 
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
 If you wish to use a different account, set the `HD_PATH` environment variable. For example, `HD_PATH=1` will derive the address using `m/44'/60'/1'/0/0` instead.

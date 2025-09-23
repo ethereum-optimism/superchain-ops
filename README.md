@@ -197,6 +197,8 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 **Environment variables:**
 - `HD_PATH` - Hardware wallet derivation path index (default: 0). The value is inserted into the [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) Ethereum path as `m/44'/60'/$HD_PATH'/0/0` (e.g. `0` -> `m/44'/60'/0'/0/0`, `1` -> `m/44'/60'/1'/0/0`). Use this to select the desired Ethereum account on your hardware wallet.
 - `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
+- `SIMULATE_WITHOUT_WALLET` - Set to run the simulation phase without a wallet (i.e. Ledger/Trezor/KeyStore). This step will simulate a task with valid, default keys.
+- `WALLET_TYPE` - This can be either `ledger`, `trezor` or `keystore`. The default value is `ledger`.
 
 **Examples:**
 
@@ -215,7 +217,7 @@ HD_PATH=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
 To use keystore instead of ledger:
 
 ```bash
-USE_KEYSTORE=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
+WALLET_TYPE=keystore just sign-stack eth 002-opcm-upgrade-v200 foundation
 ```
 
 The command will then:
@@ -262,7 +264,7 @@ Use Foundry's keystore. Import your key and set a password when prompted:
 cast wallet import my-account-name --private-key <priv-key>
 ```
 
-By default, keys are stored under `~/.foundry/keystores`. List accounts with `cast wallet list`. When running signing commands with `USE_KEYSTORE=1`, you'll be prompted for the keystore password.
+By default, keys are stored under `~/.foundry/keystores`. List accounts with `cast wallet list`. When running signing commands with `WALLET_TYPE=keystore`, you'll be prompted for the keystore password.
 
 See the official Foundry docs for the [cast wallet import](https://getfoundry.sh/cast/reference/wallet/) command.
 

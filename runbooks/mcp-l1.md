@@ -238,7 +238,7 @@ Everything else in this script should not need to be changed.
 Now we can run our simulation. From within your task’s directory, run:
 
 ```bash
-SIMULATE_WITHOUT_LEDGER=1 just \
+SIMULATE_WITHOUT_WALLET=1 just \
   --dotenv-path $(pwd)/.env \
   --justfile ../../../single.just \
   simulate
