@@ -224,6 +224,37 @@ The command will then:
 2. Simulate the tasks in order.
 3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
 
+### How do I perform a contract upgrade directly on an L2?
+
+You can execute an upgrade directly on an L2 (e.g. `op-sepolia`). `SuperchainAddressRegistry` detects that the task is upgrading directly via an L2. It does this by looking at the RPC url, which is decided by the directory that the task is contained within (i.e. `tasks/opsep`).
+
+- Create your task in the correct directory for your L2 (e.g. `opsep`).
+- Set `l2chains` to the chain you're targetting.
+- Set `fallbackAddressesJsonPath` in `config.toml`.
+- In `addresses.json` (keyed by chainId), include every identifier your template uses (e.g., `ProxyAdminOwner`, `ProxyAdmin`, `<Identifier>`).
+
+`config.toml`:
+
+```toml
+l2chains = [{ name = "<CHAIN_NAME>", chainId = <CHAIN_ID> }]
+fallbackAddressesJsonPath = "<relative/path/to/addresses.json>"
+templateName = "<YOUR_TEMPLATE_NAME>"
+# template-specific fields...
+```
+
+`addresses.json`:
+```json
+{
+  "<CHAIN_ID>": {
+    "ProxyAdminOwner": "0x...",
+    "ProxyAdmin": "0x...",
+    "<IdentifierYourTemplateUses>": "0x..."
+  }
+}
+```
+
+Example: see [`test/tasks/example/opsep/001-set-eip1967-impl`](/test/tasks/example/opsep/001-set-eip1967-impl/).
+
 ### How do I add a private key to my keystore?
 
 Use Foundry's keystore. Import your key and set a password when prompted:
