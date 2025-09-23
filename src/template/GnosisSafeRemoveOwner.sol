@@ -2,12 +2,10 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
@@ -16,7 +14,6 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// More info can be found here: https://docs.safe.global/reference-smart-account/owners/removeOwner
 contract GnosisSafeRemoveOwner is SimpleTaskBase {
     using LibString for string;
-    using SafeERC20 for IERC20;
     using stdToml for string;
 
     /// @notice The total number of owners before the task is executed.
@@ -30,9 +27,6 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
 
     /// @notice Owner that pointed to the owner to be replaced in the linked list
     address public previousOwner;
-
-    /// @notice The address of the first owner in the linked list of owners.
-    address internal constant SENTINEL_OWNERS = address(0x1);
 
     /// @notice Additional code exceptions to add to the task.
     address[] internal additionalCodeExceptions;
@@ -63,7 +57,7 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         // Don't want to accidentally brick the safe. Gnosis Safe already enforces this but keeping this check for safety.
         require(totalOwnersBefore - 1 >= thresholdBefore, "Safe after removal must have at least threshold owners.");
 
-        previousOwner = getPreviousOwner(_rootSafe);
+        previousOwner = Utils.getPreviousOwner(_rootSafe, ownerToRemove);
         require(previousOwner != address(0), "previousOwner must be set.");
         checkSupportedVersions(_rootSafe);
 
@@ -95,20 +89,6 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         // The original writes get analyzed in our `_checkStateDiff` function.
         // Therefore, we have to add the SecurityCouncil's owners addresses as code exceptions.
         return additionalCodeExceptions;
-    }
-
-    /// @notice Returns the owner that pointed to the owner to be removed in the linked list.
-    /// Taken from: https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/test/safe-tools/SafeTestTools.sol#L213
-    function getPreviousOwner(address _rootSafe) public view returns (address) {
-        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
-        for (uint256 i; i < owners.length; i++) {
-            if (owners[i] != ownerToRemove) continue;
-            if (i == 0) {
-                return SENTINEL_OWNERS;
-            }
-            return owners[i - 1];
-        }
-        revert(string.concat("Owner ", vm.toString(ownerToRemove), " not found in the safe: ", vm.toString(_rootSafe)));
     }
 
     /// @notice Checks if the safe version is supported for removing owners.
