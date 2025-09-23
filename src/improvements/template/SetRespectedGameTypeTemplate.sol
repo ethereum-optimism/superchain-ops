@@ -13,6 +13,8 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
+import {IAnchorStateRegistry} from "lib/optimism/packages/contracts-bedrock/interfaces/IAnchorStateRegistry.sol";
+
 /// @title SetRespectedGameTypeTemplate
 /// @notice This template is used to set the respected game type in the OptimismPortal2 contract
 ///         for a given chain or set of chains.
@@ -38,7 +40,7 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         string[] memory storageWrites = new string[](3);
         storageWrites[0] = "DeputyGuardianModule";
         storageWrites[1] = "Guardian";
-        storageWrites[2] = "OptimismPortalProxy";
+        storageWrites[2] = "AnchorStateRegistry";
         return storageWrites;
     }
 
@@ -62,8 +64,8 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            address portalAddress = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
-            dgm.setRespectedGameType(IOptimismPortal2(payable(portalAddress)), cfg[chainId].gameType);
+            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistry", chainId);
+            dgm.setRespectedGameType(IAnchorStateRegistry(payable(asrAddress)), cfg[chainId].gameType);
         }
     }
 
@@ -73,9 +75,10 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            address portalAddress = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
-            IOptimismPortal2 portal = IOptimismPortal2(payable(portalAddress));
-            assertEq(portal.respectedGameType().raw(), cfg[chainId].gameType.raw());
+            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistry", chainId);
+            IAnchorStateRegistry asr = IAnchorStateRegistry(payable(asrAddress));
+            assertEq(asr.respectedGameType().raw(), cfg[chainId].gameType.raw());
+
         }
     }
 
