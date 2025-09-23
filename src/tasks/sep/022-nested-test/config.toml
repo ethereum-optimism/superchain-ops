@@ -1,0 +1,24 @@
+l2chains = [
+    {name = "Nested Test Chain", chainId = 10101010101010} # Create a fake chain
+]
+fallbackAddressesJsonPath = "src/tasks/sep/022-nested-test/addresses.json" # You're going to create this file in the next step
+
+templateName = "SetEIP1967Implementation"
+
+contractIdentifier = "OptimismPortalProxy"
+newImplementation = "0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd" # This is an old OptimismPortalProxy implementation. You can change this if you like. 
+
+[addresses]
+TestChildSafeDepth1 = "0xbefe941b3C4a6AaEe1eb050358064F0bA326975a" # Safe from step 021-single-test owner on 0x8c44C05937bb760Ccdba40e0E946D1880a023D4F.
+# Nested nested safe: 0x8c44C05937bb760Ccdba40e0E946D1880a023D4F 
+# Threshold:        1
+# Number of Owners: 1
+#   0xbefe941b3C4a6AaEe1eb050358064F0bA326975a
+
+[stateOverrides]
+0xbefe941b3C4a6AaEe1eb050358064F0bA326975a = [ # Single Safe
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 6}
+]
+0x8c44C05937bb760Ccdba40e0E946D1880a023D4F = [ # Nested Safe
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 2}
+]

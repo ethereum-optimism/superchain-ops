@@ -11,8 +11,8 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";

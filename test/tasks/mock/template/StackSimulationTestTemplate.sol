@@ -5,7 +5,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A simple contract that's used to test stacked simulations.

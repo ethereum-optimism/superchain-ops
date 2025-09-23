@@ -1,0 +1,20 @@
+# Freya Devnet on u15
+l2chains = [
+    {name = "freya-u15-0", chainId = 420110013},
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/024-opcm-upgrade-superchainconfig-v410-freya-bn-u15/addresses.json"
+templateName = "OPCMUpgradeSuperchainConfigV410"
+
+allowOverwrite = ["SuperchainConfig"]
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Source: https://www.notion.so/oplabs/Freya-bootstrap-addresses-26bf153ee1628028a12ae035916a904c?source=copy_link
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Source: https://www.notion.so/oplabs/Freya-bootstrap-addresses-26bf153ee1628028a12ae035916a904c?source=copy_link
+SuperchainConfig = "0x696093050C25Af778afb3d1c3B371aB236C324E8"
+SuperchainConfigProxyAdmin = "0x282ADE3eE960681Ed3b3E3692bA8b74E878cEE57"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+]

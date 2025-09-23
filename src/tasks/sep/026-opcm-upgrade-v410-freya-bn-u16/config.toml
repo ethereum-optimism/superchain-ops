@@ -1,0 +1,43 @@
+# Freya Devnet on u16
+l2chains = [
+    {name = "freya-u16-0", chainId = 420110015},
+    {name = "freya-u16-1", chainId = 420110016}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/026-opcm-upgrade-v410-freya-bn-u16/addresses.json"
+templateName = "OPCMUpgradeV410"
+
+[[opcmUpgrades]]
+chainId = 420110015
+# Freya prestate:
+absolutePrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef" # Source: https://github.com/ethereum-optimism/devnets/blob/ea0a8e288486ea0059b32d779bb648899abc984c/betanets/freya-u16/op-program/prestates.json#L3
+
+# PROXYA-10: The PAO is not the standard one
+# SYSCON-140: The SYSCON is not the standard one
+# DF-30: The DF is not the standard one
+# PDDG-DWETH-30: The PDDG is not the standard one
+# PDDG-130: The PDDG is not the standard one
+# PLDG-10: The PLDG is not the standard one
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
+
+[[opcmUpgrades]]
+chainId = 420110016
+# Freya prestate:
+absolutePrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef" # Source: https://github.com/ethereum-optimism/devnets/blob/ea0a8e288486ea0059b32d779bb648899abc984c/betanets/freya-u16/op-program/prestates.json#L3
+
+# PROXYA-10: The PAO is not the standard one
+# SYSCON-140: The SYSCON is not the standard one
+# DF-30: The DF is not the standard one
+# PDDG-DWETH-30: The PDDG is not the standard one
+# PDDG-130: The PDDG is not the standard one
+# PLDG-DWETH-30: The PLDG is not the standard one
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Source: https://www.notion.so/oplabs/Freya-bootstrap-addresses-26bf153ee1628028a12ae035916a904c?source=copy_link
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Source: https://www.notion.so/oplabs/Freya-bootstrap-addresses-26bf153ee1628028a12ae035916a904c?source=copy_link
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
+]
