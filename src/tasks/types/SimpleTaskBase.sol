@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
+import {SimpleAddressRegistry} from "src/SimpleAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {TaskType} from "src/libraries/MultisigTypes.sol";
 

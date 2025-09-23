@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/018-U16-remove-dpm
+cd src/tasks/sep/018-U16-remove-dpm
 just simulate-stack sep 018-U16-remove-dpm
 ```

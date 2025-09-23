@@ -19,12 +19,12 @@ Expected to be executed on May 22, 2025.
 ### Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (FoundationUpgradeSafe)
 Simulation commands:
 ```bash
-cd src/improvements/tasks/eth/013-gas-params-op
+cd src/tasks/eth/013-gas-params-op
 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
 Signing commands:
 ```bash
-cd src/improvements/tasks/eth/013-gas-params-op
+cd src/tasks/eth/013-gas-params-op
 just --dotenv-path $(pwd)/.env --justfile ../../../single.just sign
 ```

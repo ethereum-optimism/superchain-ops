@@ -9,7 +9,7 @@ set -eo pipefail
 # 2. No duplicate numeric prefixes exist within each task group
 #
 # Example failures:
-#   src/improvements/tasks/eth/
+#   src/tasks/eth/
 #     ├── abc-invalid-name    <-- ❌ invalid prefix format
 #     └── 001-duplicate-task
 #     └── 001-another-thing   <-- ❌ duplicate prefix
@@ -18,7 +18,7 @@ set -eo pipefail
 # ---------------------------------------------
 
 root_dir=$(git rev-parse --show-toplevel)
-parent_dir="$root_dir/src/improvements/tasks"
+parent_dir="$root_dir/src/tasks"
 exit_code=0
 
 while IFS= read -r -d $'\0' dir; do

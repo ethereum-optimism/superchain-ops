@@ -7,8 +7,8 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {console} from "forge-std/console.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {StorageSetter} from "@eth-optimism-bedrock/src/universal/StorageSetter.sol";
 

@@ -1,7 +1,7 @@
 l2chains = [
     {name = "Rehearsal Chain", chainId = 10101010101010} # Create a fake chain
 ]
-fallbackAddressesJsonPath = "src/improvements/tasks/eth/rehearsals/2025-07-31-R3-nested-upgrade/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/eth/rehearsals/2025-07-31-R3-nested-upgrade/addresses.json"
 
 templateName = "SetEIP1967Implementation"
 

@@ -40,7 +40,7 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 In this section, you will simulate and sign the upgrade transactions for the 'base-nested' (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`) path and the 'foundation-operations' (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) path. Both of these safes are required to reach a threshold on the Proxy Admin Owner.
 
 ```bash
-cd src/improvements/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 
 # Base Council: 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd
 #  ┌────────────────────┐      
@@ -111,7 +111,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation-ope
 
 Now, perform the signing for both safes that are owners of 'base-nested':
 ```bash
-cd src/improvements/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 
 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
@@ -140,7 +140,7 @@ just --dotenv-path $(pwd)/.env sign foundation-operations
 
 After receiving each signer's signature from Step 1, you must use them to make the necessary 'approveHash' calls. In this section, there are a total of 3 'approveHash' calls.
 ```bash
-cd src/improvements/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 
 #  .------------.               .-----------.
 #  |base-council|               |base-nested|
@@ -187,7 +187,7 @@ just approve base-nested
 This is the final 'approveHash' call from the foundation-operations safe.
 
 ```bash
-cd src/improvements/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 # .---------------.           .-----------------.
 # |     FOS       |           |proxy-admin-owner|
 # '---------------'           '-----------------'
@@ -205,6 +205,6 @@ SIGNATURES=0x<concatenated-sigs-from-foundation-operations-members> just approve
 
 Execute command: 
 ```bash
-cd src/improvements/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 just --dotenv-path $(pwd)/.env execute
 ```

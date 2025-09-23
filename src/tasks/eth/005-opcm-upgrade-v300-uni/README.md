@@ -31,11 +31,11 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV300.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/template/OPCMUpgradeV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/eth/005-opcm-upgrade-v300-uni
+cd src/tasks/eth/005-opcm-upgrade-v300-uni
 
 # Chain Governor: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC (Unichain)
 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign chain-governor

@@ -6,8 +6,8 @@ import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for setting the EIP-1967 implementation address across 'n' number of chains where all

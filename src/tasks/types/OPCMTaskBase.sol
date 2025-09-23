@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTask} from "src/tasks/MultisigTask.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
@@ -10,8 +10,8 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action, TaskType, TaskPayload} from "src/libraries/MultisigTypes.sol";
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice This contract is used for all OPCM task types. It overrides various functions in the L2TaskBase contract.

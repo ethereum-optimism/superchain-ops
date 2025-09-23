@@ -4,8 +4,8 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.

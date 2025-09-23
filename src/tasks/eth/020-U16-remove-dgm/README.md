@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/020-U16-remove-dgm
+cd src/tasks/eth/020-U16-remove-dgm
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate council
 ```

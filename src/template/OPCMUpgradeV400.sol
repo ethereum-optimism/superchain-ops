@@ -12,8 +12,8 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.

@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 
 import {Action} from "src/libraries/MultisigTypes.sol";
 

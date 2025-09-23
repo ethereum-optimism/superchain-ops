@@ -7,7 +7,7 @@ This guide walks through the process of creating new tasks using existing templa
 To scaffold a new task using an existing template:
 
 ```bash
-cd src/improvements/
+cd src/
 just new task
 ```
 
@@ -18,7 +18,7 @@ Follow the prompts from the justfile to create a new task directory with pre-pop
 Tasks are organized by network in the following structure:
 
 ```
-src/improvements/tasks/
+src/tasks/
 ├── eth/    # Ethereum mainnet tasks (Task developers create tasks here)
 └── sep/    # Sepolia testnet tasks (Task developers create tasks here)
 ```

@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/013-U16-enable-dpm
+cd src/tasks/sep/013-U16-enable-dpm
 just simulate-stack sep 013-U16-enable-dpm
 ```

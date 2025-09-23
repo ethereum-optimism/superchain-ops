@@ -10,7 +10,7 @@ simulate_task() {
     nested_safe_name_depth_2=$3
     network=$4
     root_dir=$(git rev-parse --show-toplevel)
-    just_file="${root_dir}/src/improvements/justfile"
+    just_file="${root_dir}/src/justfile"
 
     if [ -z "$task" ]; then
         echo "Error: task path is required"
@@ -18,9 +18,9 @@ simulate_task() {
         exit 1
     fi
     
-    rpcUrl=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
+    rpcUrl=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     echo "Task: $task"
-    is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 --json | jq -r '.returns["0"].value')
+    is_nested=$(forge script "$root_dir"/src/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 --json | jq -r '.returns["0"].value')
     echo "Is nested: $is_nested"
     pushd "$task" > /dev/null
     if [ "$is_nested" = "true" ]; then

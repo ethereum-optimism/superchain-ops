@@ -31,9 +31,9 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpdatePrestateV300.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/template/OPCMUpdatePrestateV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/012-opcm-update-prestate-v300-uni
+cd src/tasks/sep/012-opcm-update-prestate-v300-uni
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```

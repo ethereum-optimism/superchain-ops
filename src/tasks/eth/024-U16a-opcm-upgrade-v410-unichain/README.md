@@ -34,6 +34,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/eth/024-U16a-opcm-upgrade-v410-unichain
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate <foundation|council|chain-governor>
+cd src/tasks/eth/024-U16a-opcm-upgrade-v410-unichain
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate <foundation|council|chain-governor>
 ```

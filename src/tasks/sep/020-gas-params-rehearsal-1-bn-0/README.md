@@ -10,12 +10,12 @@ Testing task against a devnet with local addresses.json. This will send no-op tx
 
 Simulation commands for each safe:
 ```bash
-cd src/improvements/tasks/sep/020-gas-params-rehearsal-1-bn-0
+cd src/tasks/sep/020-gas-params-rehearsal-1-bn-0
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/improvements/tasks/sep/020-gas-params-rehearsal-1-bn-0
+cd src/tasks/sep/020-gas-params-rehearsal-1-bn-0
 just --dotenv-path $(pwd)/.env --justfile ../../../single.just sign
 ```

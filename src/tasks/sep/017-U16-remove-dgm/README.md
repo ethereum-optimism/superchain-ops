@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/017-U16-remove-dgm
+cd src/tasks/sep/017-U16-remove-dgm
 just simulate-stack sep 017-U16-remove-dgm
 ```

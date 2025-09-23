@@ -9,7 +9,7 @@ import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template to help users onboard to SuperchainOps.

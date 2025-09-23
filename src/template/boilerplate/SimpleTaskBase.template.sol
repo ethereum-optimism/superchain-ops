@@ -8,7 +8,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.

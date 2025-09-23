@@ -1,5 +1,5 @@
 l2chains = [ {name = "rehearsal-1-bn-0", chainId = 420120011} ]
-fallbackAddressesJsonPath = "src/improvements/tasks/sep/020-gas-params-rehearsal-1-bn-0/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/020-gas-params-rehearsal-1-bn-0/addresses.json"
 templateName = "SystemConfigGasParams"
 
 # We overwrite the FoundationUpgradeSafe address for this devnet. See below.

@@ -36,6 +36,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/eth/023-U16a-opcm-upgrade-v410-op-soneium-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate <foundation|council>
+cd src/tasks/eth/023-U16a-opcm-upgrade-v410-op-soneium-ink
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate <foundation|council>
 ```

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {TaskManager} from "src/tasks/TaskManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {TaskConfig} from "src/libraries/MultisigTypes.sol";

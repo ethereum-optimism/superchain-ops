@@ -41,7 +41,7 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 In this section, through a sequence of commands, we will successfully sign this task’s upgrade transaction from the 'base-nested' (`0x646132A1667ca7aD00d36616AFBA1A28116C770A`) safe. 
 
 ```bash
-cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
 
 # Base Council: 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f
 #  ┌────────────────────┐      
@@ -94,7 +94,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested ba
 
 Now, perform the signing for both safes that are owners of 'base-nested':
 ```bash
-cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
 
 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
@@ -236,6 +236,6 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1a> just approv
 
 Execute command: 
 ```bash
-cd src/improvements/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
 just --dotenv-path $(pwd)/.env execute
 ```

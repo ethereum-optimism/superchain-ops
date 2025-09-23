@@ -40,7 +40,7 @@ fi
 # To enable testing mode set the FETCH_TASKS_TEST_DIR environment variable to the directory containing your test tasks.
 test_dir=${FETCH_TASKS_TEST_DIR:-}
 
-task_dir="$root_dir/src/improvements/tasks/$network"
+task_dir="$root_dir/src/tasks/$network"
 
 if [[ -n "$test_dir" ]]; then
   task_dir="$test_dir/$network"

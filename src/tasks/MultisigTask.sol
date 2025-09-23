@@ -16,10 +16,10 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {Action, TemplateConfig, TaskType, TaskPayload, SafeData} from "src/libraries/MultisigTypes.sol";
-import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {StateOverrideManager} from "src/tasks/StateOverrideManager.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
-import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {TaskManager} from "src/tasks/TaskManager.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 type AddressRegistry is address;

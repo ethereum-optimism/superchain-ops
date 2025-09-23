@@ -1,7 +1,7 @@
 l2chains = [
     {name = "Nested Nested Test Chain", chainId = 20202020202020} # Create a fake chain
 ]
-fallbackAddressesJsonPath = "src/improvements/tasks/sep/023-nested-nested-test/addresses.json" # You're going to create this file in the next step
+fallbackAddressesJsonPath = "src/tasks/sep/023-nested-nested-test/addresses.json" # You're going to create this file in the next step
 
 templateName = "SetEIP1967Implementation"
 

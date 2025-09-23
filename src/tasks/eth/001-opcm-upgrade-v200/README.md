@@ -19,7 +19,7 @@ which reads the inputs from the [`config.toml`](./config.toml) fil
 
 ## Signing and execution
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV200.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/template/OPCMUpgradeV200.sol`.
 Navigate to the correct task directory then run the simulate command.
 
 ```

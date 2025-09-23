@@ -63,7 +63,7 @@ contract SimpleAddressRegistry is StdChains {
 
     /// @notice Reads in hardcoded addresses from the addresses.toml file and registers them.
     function _loadHardcodedAddresses(string memory _chainKey) internal {
-        string memory toml = vm.readFile("./src/improvements/addresses.toml");
+        string memory toml = vm.readFile("./src/addresses.toml");
         string[] memory keyStrings = vm.parseTomlKeys(toml, _chainKey);
 
         for (uint256 i = 0; i < keyStrings.length; i++) {

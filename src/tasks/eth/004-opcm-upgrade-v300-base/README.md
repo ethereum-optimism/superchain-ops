@@ -31,10 +31,10 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV300.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/template/OPCMUpgradeV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/004-opcm-upgrade-v300-base
+cd src/tasks/eth/004-opcm-upgrade-v300-base
 # BaseOperationsSafe: 0x9855054731540A48b28990B63DcF4f33d8AE46A1 (Base)
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign base-operations
 

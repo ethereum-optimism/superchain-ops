@@ -11,7 +11,7 @@ if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
 fi
 
 ROOT_DIR=$(git rev-parse --show-toplevel)
-ADDRESSES_FILE="${ROOT_DIR}/src/improvements/addresses.toml"
+ADDRESSES_FILE="${ROOT_DIR}/src/addresses.toml"
 CONFIG_PATH="${TASK_PATH}/config.toml"
 
 canonicalize_safe_name() {

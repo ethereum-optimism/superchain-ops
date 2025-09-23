@@ -12,7 +12,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
+import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice OPCM SuperchainConfig V4.1.0 upgrade template.

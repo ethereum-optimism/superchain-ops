@@ -7,7 +7,7 @@ import {console} from "forge-std/console.sol";
 import {IDeputyPauseModule} from "@eth-optimism-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 

@@ -26,7 +26,7 @@ Fill this out with an appropriate value.
 ### 1. Update repo and move to the appropriate folder for this rehearsal task
 
 ```shell
-cd superchain-ops/src/improvements
+cd superchain-ops/src
 git pull
 just --justfile ../../justfile clean
 just --justfile ../../justfile install

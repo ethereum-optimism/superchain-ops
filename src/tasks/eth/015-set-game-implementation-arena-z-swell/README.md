@@ -10,7 +10,7 @@ This task resets the FaultDisputeGame implementation on the DisputeGameFactory c
 
 Simulation commands for each safe:
 ```bash
-cd src/improvements/tasks/eth/015-set-game-implementation-arena-z-swell
+cd src/tasks/eth/015-set-game-implementation-arena-z-swell
 
 SIMULATE_WITHOUT_LEDGER=1 just \
    --dotenv-path $(pwd)/.env \

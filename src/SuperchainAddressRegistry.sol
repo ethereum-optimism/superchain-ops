@@ -180,7 +180,7 @@ contract SuperchainAddressRegistry is StdChains {
 
     /// @notice Reads in hardcoded addresses from the addresses.toml file.
     function _loadHardcodedAddresses(string memory chainKey) internal {
-        string memory toml = vm.readFile("./src/improvements/addresses.toml");
+        string memory toml = vm.readFile("./src/addresses.toml");
         string[] memory keys = vm.parseTomlKeys(toml, chainKey);
 
         for (uint256 i = 0; i < keys.length; i++) {

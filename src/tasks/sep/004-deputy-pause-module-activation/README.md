@@ -14,7 +14,7 @@ Installs the `DeputyPauseModule` into the Optimism Foundation Operations Safe fo
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/src/improvements/template/EnableDeputyPauseModuleTemplate.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/src/template/EnableDeputyPauseModuleTemplate.sol`.
 This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation

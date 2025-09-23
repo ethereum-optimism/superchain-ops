@@ -121,7 +121,7 @@ create_task() {
         readme_path="$task_path/README.md"
         cp "template/boilerplate/README.template.md" "$readme_path"
 
-        navigate_to_task_command="cd src/improvements/${task_path}"
+        navigate_to_task_command="cd src/${task_path}"
         sed -e "s|<task-name>|$dirname|g" \
             -e "s|<short-description>|$short_description|g" \
             -e "s|<navigate-to-simulation-command>|$navigate_to_task_command|g" \

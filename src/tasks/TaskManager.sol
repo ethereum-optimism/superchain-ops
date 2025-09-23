@@ -7,9 +7,9 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
+import {MultisigTask} from "src/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {SimpleAddressRegistry} from "src/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {LibString} from "@solady/utils/LibString.sol";
@@ -56,7 +56,7 @@ contract TaskManager is Script {
     /// @notice Fetches all non-terminal tasks for a given network.
     function getNonTerminalTaskPaths(string memory network) public returns (string[] memory taskPaths_) {
         string[] memory commands = new string[](2);
-        commands[0] = "./src/improvements/script/fetch-tasks.sh";
+        commands[0] = "./src/script/fetch-tasks.sh";
         commands[1] = network;
 
         bytes memory result = vm.ffi(commands);

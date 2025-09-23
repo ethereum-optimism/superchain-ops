@@ -4,7 +4,7 @@ create_template() {
     # Determine the directory of this script so we can locate the template file.
     task_type=$1
     root_dir=$(git rev-parse --show-toplevel)
-    template_source_dir="${root_dir}/src/improvements/template/boilerplate/"
+    template_source_dir="${root_dir}/src/template/boilerplate/"
 
     if [[ -z "$task_type" ]]; then
         echo -e "\n\033[31mNo task type provided. Available task types are: L2TaskBase, SimpleTaskBase, OPCMTaskBase\033[0m"
@@ -33,7 +33,7 @@ create_template() {
 
         if [[ "$filename" == *.sol ]]; then
             contract_name="${filename%.sol}"
-            template_path="${root_dir}/src/improvements/template/${filename}"
+            template_path="${root_dir}/src/template/${filename}"
             mkdir -p "$(dirname "$template_path")"
             
             template_source="${template_source_dir}/${task_type}.template.sol"

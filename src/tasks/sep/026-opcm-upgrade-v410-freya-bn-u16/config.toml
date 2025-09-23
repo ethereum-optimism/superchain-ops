@@ -4,7 +4,7 @@ l2chains = [
     {name = "freya-u16-1", chainId = 420110016}
 ]
 
-fallbackAddressesJsonPath = "src/improvements/tasks/sep/026-opcm-upgrade-v410-freya-bn-u16/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/026-opcm-upgrade-v410-freya-bn-u16/addresses.json"
 templateName = "OPCMUpgradeV410"
 
 [[opcmUpgrades]]

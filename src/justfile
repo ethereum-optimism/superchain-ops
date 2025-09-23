@@ -54,7 +54,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    root_just_file="${root_dir}/src/improvements/justfile"
+    root_just_file="${root_dir}/src/justfile"
     just _print-welcome-message
 
     show_usage() {
@@ -69,29 +69,29 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
 
     [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m"; show_usage; exit 1; }
 
-    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "{{NETWORK}}")
+    ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "{{NETWORK}}")
     echo -e "\n⏳ Stacked Task simulation in progress..."
 
     if [ -z "{{TASK}}" ]; then
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
         just list-stack {{NETWORK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} 
+        forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} 
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
         just list-stack {{NETWORK}} {{TASK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
+        forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     else
-        task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
+        task_dir_path="${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}"
         child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
         child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
         just list-stack {{NETWORK}} {{TASK}}
         
         if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
             echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
-            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
+            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
         else
             echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
-            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
+            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
         fi
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
@@ -100,7 +100,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    root_just_file="${root_dir}/src/improvements/justfile"
+    root_just_file="${root_dir}/src/justfile"
     just _print-welcome-message
 
     show_usage() {
@@ -114,8 +114,8 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
         exit 0
     fi
 
-    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "{{NETWORK}}")
-    task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
+    ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "{{NETWORK}}")
+    task_dir_path="${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}"
     child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 
@@ -130,16 +130,16 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
+         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
         just list-stack {{NETWORK}} {{TASK}}
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
+         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     else
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
+         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
@@ -158,10 +158,10 @@ list-stack NETWORK="" TASK="":
 
     if [ -z "{{TASK}}" ]; then
         echo "Listing all tasks for network: {{NETWORK}}"
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
+        forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
     else
         echo "Listing tasks for network: {{NETWORK}} up to task: {{TASK}}"
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
+        forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
 
 # Example of 'depth' as a concept when using nested safes:
@@ -187,7 +187,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    root_just_file="${root_dir}/src/improvements/justfile"
+    root_just_file="${root_dir}/src/justfile"
     config_path=${TASK_PATH}/config.toml
     script_name=$(yq '.templateName' ${config_path})
     just _print-welcome-message
@@ -203,7 +203,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 
     task_name=$(basename "$TASK_PATH")
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
+    ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
 
     # Get function signature and arguments using helper
@@ -222,7 +222,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    root_just_file="${root_dir}/src/improvements/justfile"
+    root_just_file="${root_dir}/src/justfile"
     config_path=${TASK_PATH}/config.toml
     script_name=$(yq '.templateName' ${config_path})
     just _print-welcome-message
@@ -239,7 +239,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 
     task_name=$(basename "$TASK_PATH")
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
+    ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
     USE_KEYSTORE=${USE_KEYSTORE:-}
     
@@ -264,7 +264,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   #!/usr/bin/env bash
   set -euo pipefail
   root_dir=$(git rev-parse --show-toplevel)
-  root_just_file="${root_dir}/src/improvements/justfile"
+  root_just_file="${root_dir}/src/justfile"
   config_path=${TASK_PATH}/config.toml
   script_name=$(yq '.templateName' $config_path)
   
@@ -290,7 +290,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-  ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
+  ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
@@ -316,7 +316,7 @@ execute:
   #!/usr/bin/env bash
   set -euo pipefail
   root_dir=$(git rev-parse --show-toplevel)
-  root_just_file="${root_dir}/src/improvements/justfile"
+  root_just_file="${root_dir}/src/justfile"
   config_path=${TASK_PATH}/config.toml
   script_name=$(yq '.templateName' $config_path)
 
@@ -327,7 +327,7 @@ execute:
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-  ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
+  ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
@@ -367,7 +367,7 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     root_dir=$(git rev-parse --show-toplevel)
     safe="$ZERO_ADDRESS" # Default to zero address for non-nested safes
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
-        safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
+        safe=$(bash ${root_dir}/src/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
         echo "Retrieved safe for '{{OWNER_SAFE_NAME}}': ${safe}" >&2
     fi
     echo "${safe}"
@@ -379,7 +379,7 @@ _get-signer-args hdPath='0' use_keystore_flag='':
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    root_just_file="${root_dir}/src/improvements/justfile"
+    root_just_file="${root_dir}/src/justfile"
     
     if [ -z "{{use_keystore_flag}}" ]; then
         hdpaths="m/44'/60'/{{hdPath}}'/0/0"
@@ -461,7 +461,7 @@ _build-simulate-args TASK_DIR_PATH CONFIG_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAF
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    root_just_file="${root_dir}/src/improvements/justfile"
+    root_just_file="${root_dir}/src/justfile"
     
     child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_DIR_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_DIR_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")

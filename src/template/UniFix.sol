@@ -17,9 +17,9 @@ import {
 import {StorageSetter} from "@eth-optimism-bedrock/src/universal/StorageSetter.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {AddressRegistry} from "src/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring protocol parameters.

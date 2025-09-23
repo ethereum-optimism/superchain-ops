@@ -25,7 +25,7 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/UniFix.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/template/UniFix.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
 cd 002-unichain-superchain-config-fix

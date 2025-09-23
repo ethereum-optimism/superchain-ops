@@ -3,7 +3,7 @@ l2chains = [
     {name = "freya-u15-0", chainId = 420110013},
 ]
 
-fallbackAddressesJsonPath = "src/improvements/tasks/sep/024-opcm-upgrade-superchainconfig-v410-freya-bn-u15/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/024-opcm-upgrade-superchainconfig-v410-freya-bn-u15/addresses.json"
 templateName = "OPCMUpgradeSuperchainConfigV410"
 
 allowOverwrite = ["SuperchainConfig"]

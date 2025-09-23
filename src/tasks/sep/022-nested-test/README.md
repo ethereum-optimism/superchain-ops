@@ -3,7 +3,7 @@
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa70795a463494c616c8672f0c5fb1c336a8a8b3c08764c61bab593320d71f067)
 
 ```bash
-cd src/improvements/tasks/sep/022-nested-test
+cd src/tasks/sep/022-nested-test
 just simulate TestChildSafeDepth1
 just sign TestChildSafeDepth1
 # OR

@@ -31,15 +31,15 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/template/OPCMUpgradeV400.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/015-U16-opcm-upgrade-v400-soneium
+cd src/tasks/sep/015-U16-opcm-upgrade-v400-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
 ```
 
 Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
 ```
-cd src/improvements
+cd src/
 just simulate-stack sep 015-U16-opcm-upgrade-v400-uni-soneium
 ```

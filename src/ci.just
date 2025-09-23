@@ -4,7 +4,7 @@ check-superchain-registry-latest:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
+    bash ${root_dir}/src/script/check-superchain-latest.sh
 
 # This command simulates tasks in the example directory. There should be a corresponding task for each template.
 simulate-all-templates:
@@ -54,7 +54,7 @@ simulate-all-templates:
             task_path="$root_dir/test/tasks/example/$network/$task_name"
 
             # Launch each simulation in background.
-            "${root_dir}/src/improvements/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
+            "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))
 
             # If we have reached the batch size, wait for this batch to complete
@@ -86,7 +86,7 @@ simulate-all-templates:
     echo "$simulation_count simulations run."
 
     # Count template files (excluding *.template.sol and boilerplate dir).
-    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
+    template_count=$(find "${root_dir}/src/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
     # Verify that every template file is referenced by at least one example task config.
     missing_templates=()
@@ -95,7 +95,7 @@ simulate-all-templates:
         if ! grep -R --quiet "templateName = \"${tmpl_name}\"" "${root_dir}/test/tasks/example"/*/*/config.toml 2>/dev/null; then
             missing_templates+=("$tmpl_name")
         fi
-    done < <(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*")
+    done < <(find "${root_dir}/src/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*")
 
     echo ""
     if [ ${#missing_templates[@]} -ne 0 ]; then
