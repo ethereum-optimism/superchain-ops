@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 
 import {SimpleAddressRegistryTest} from "./SimpleAddressRegistry.t.sol";
 import {MultisigTaskTestHelper} from "../tasks/MultisigTask.t.sol";

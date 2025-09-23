@@ -3,13 +3,13 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {TaskManager} from "src/tasks/TaskManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
-import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {StateOverrideManager} from "src/tasks/StateOverrideManager.sol";
 import {TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {SystemConfigGasParams} from "src/improvements/template/SystemConfigGasParams.sol";
+import {SystemConfigGasParams} from "src/template/SystemConfigGasParams.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
@@ -26,22 +26,22 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     function testSetTenderlyGasEnv() public {
         TaskManager tm = new TaskManager();
 
-        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/000-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/tasks/sep/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
 
-        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/001-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/tasks/sep/001-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
-        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/002-unichain-superchain-config-fix/");
+        tm.setTenderlyGasEnv("./src/tasks/sep/002-unichain-superchain-config-fix/");
         assertEq(vm.envString("TENDERLY_GAS"), "");
 
-        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/003-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/tasks/sep/003-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
-        tm.setTenderlyGasEnv("./src/improvements/tasks/eth/000-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/tasks/eth/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
 
-        tm.setTenderlyGasEnv("./src/improvements/tasks/eth/002-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/tasks/eth/002-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
     }
 
@@ -74,7 +74,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(safe)
         );
         vm.expectRevert(bytes(errorMessage));
-        tm.requireSignerOnSafe(signer, "src/improvements/tasks/eth/011-deputy-pause-module-activation");
+        tm.requireSignerOnSafe(signer, "src/tasks/eth/011-deputy-pause-module-activation");
         vm.expectRevert(bytes(errorMessage));
         tm.requireSignerOnSafe(signer, safe);
     }
@@ -84,7 +84,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         TaskManager tm = new TaskManager();
         address signer = 0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8;
         address safe = FOUNDATION_OPERATIONS_SAFE;
-        tm.requireSignerOnSafe(signer, "src/improvements/tasks/eth/011-deputy-pause-module-activation");
+        tm.requireSignerOnSafe(signer, "src/tasks/eth/011-deputy-pause-module-activation");
         tm.requireSignerOnSafe(signer, safe);
     }
 
@@ -104,7 +104,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertTrue(tm.checkNormalizedHash(bytes32(hex"1234"), config));
 
         // Does have a VALIDATION markdown file and hash matches.
-        config.basePath = "src/improvements/tasks/eth/013-gas-params-op";
+        config.basePath = "src/tasks/eth/013-gas-params-op";
         assertTrue(
             tm.checkNormalizedHash(
                 bytes32(hex"2576512ad010b917c049a392e916bb02de1c168477fe29c4f8cbc4fcb016a4b0"), config
@@ -116,7 +116,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         TaskManager tm = new TaskManager();
         TaskConfig memory config = TaskConfig({
             optionalL2Chains: new L2Chain[](0),
-            basePath: "src/improvements/tasks/eth/013-gas-params-op",
+            basePath: "src/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
             rootSafe: address(0),
@@ -146,7 +146,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertTrue(tm.checkDataToSign(dataToSign, config));
 
         // Does have a VALIDATION markdown file and domain and message hash matches.
-        config.basePath = "src/improvements/tasks/eth/013-gas-params-op";
+        config.basePath = "src/tasks/eth/013-gas-params-op";
         assertTrue(tm.checkDataToSign(dataToSign, config));
     }
 
@@ -154,7 +154,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         TaskManager tm = new TaskManager();
         TaskConfig memory config = TaskConfig({
             optionalL2Chains: new L2Chain[](0),
-            basePath: "src/improvements/tasks/eth/013-gas-params-op",
+            basePath: "src/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
             rootSafe: FOUNDATION_UPGRADE_SAFE,
@@ -219,7 +219,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     function testGetRootSafe() public {
         vm.createSelectFork("mainnet", 23025164); // Pinning to a block for consistency
         TaskManager tm = new TaskManager();
-        string memory taskConfigPath = "src/improvements/tasks/eth/000-opcm-upgrade-v200/config.toml";
+        string memory taskConfigPath = "src/tasks/eth/000-opcm-upgrade-v200/config.toml";
         address rootSafe = tm.getRootSafe(taskConfigPath);
 
         assertTrue(rootSafe != address(0), "Root safe should not be zero address");
@@ -227,7 +227,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertTrue(owners.length > 0, "Root safe should have owners");
         assertEq(rootSafe, OP_MAINNET_L1PAO);
 
-        string memory anotherTaskConfigPath = "src/improvements/tasks/eth/002-opcm-upgrade-v200/config.toml";
+        string memory anotherTaskConfigPath = "src/tasks/eth/002-opcm-upgrade-v200/config.toml";
         address anotherRootSafe = tm.getRootSafe(anotherTaskConfigPath);
         assertTrue(anotherRootSafe != address(0), "Another root safe should not be zero address");
         address[] memory owners2 = IGnosisSafe(anotherRootSafe).getOwners();

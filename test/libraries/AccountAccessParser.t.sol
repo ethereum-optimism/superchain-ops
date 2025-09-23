@@ -1428,7 +1428,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     }
 
     /// This test uses a real transaction that was approved on mainnet.
-    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
+    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
     function test_normalizedStateDiffHash_GnosisSafeApproveHash() public {
         vm.createSelectFork("mainnet", 22319975);
 
@@ -1535,7 +1535,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     }
 
     /// This test uses data from a real liveness guard timestamp update on mainnet.
-    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
+    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
     function test_normalizedStateDiffHash_LivenessGuardTimestamp() public {
         vm.createSelectFork("mainnet", 22319975);
         setupTests();

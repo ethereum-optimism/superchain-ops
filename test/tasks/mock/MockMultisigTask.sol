@@ -6,8 +6,8 @@ import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 

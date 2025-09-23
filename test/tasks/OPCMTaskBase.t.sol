@@ -2,8 +2,8 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
-import {OPCMUpgradeV400} from "src/improvements/template/OPCMUpgradeV400.sol";
+import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
+import {OPCMUpgradeV400} from "src/template/OPCMUpgradeV400.sol";
 import {TaskType} from "src/libraries/MultisigTypes.sol";
 
 contract OPCMTaskBase_Test is Test {

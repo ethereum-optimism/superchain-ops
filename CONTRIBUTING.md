@@ -35,7 +35,7 @@ working inside of the `optimism` directory.
 To run an installation of `mise` you **must use** the following script. We want a local, static version of the script to reduce the likelihood of installing a vulnerable version of `mise`.
 
 ```bash
-./src/improvements/script/install-mise.sh
+./src/script/install-mise.sh
 ```
 
 Verify the installation:
@@ -110,7 +110,7 @@ Before running tests: **follow the above instructions to get everything built**.
 Once done, you can run tests as follows:
 
 ```bash
-cd src/improvements/
+cd src/
 just test # Run this command before asking for a review on any PR.
 ```
 
