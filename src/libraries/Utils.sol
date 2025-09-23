@@ -11,8 +11,6 @@ library Utils {
 
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
 
-    address private constant SENTINEL_OWNERS = address(0x1);
-
     /// @notice Helper function to simplify feature-flagging by reading an environment variable
     /// @param _feature The name of the feature flag environment variable to check
     /// @return bool True if the feature is enabled (env var is true or 1), false otherwise
@@ -113,6 +111,7 @@ library Utils {
     /// @notice Returns the owner that pointed to the owner to be removed in the linked list.
     /// Taken from: https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/test/safe-tools/SafeTestTools.sol#L213
     function getPreviousOwner(address _rootSafe, address owner) public view returns (address) {
+        address SENTINEL_OWNERS = address(0x1);
         address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
         for (uint256 i; i < owners.length; i++) {
             if (owners[i] != owner) continue;

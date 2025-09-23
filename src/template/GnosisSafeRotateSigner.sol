@@ -5,7 +5,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {Utils} from "src/libraries/Utils.sol";
 
 import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
@@ -62,7 +61,7 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
 
         thresholdBefore = IGnosisSafe(_rootSafe).getThreshold();
 
-        previousOwner = Utils.getPreviousOwner(_rootSafe, ownerToRemove);
+        previousOwner = getPreviousOwner(_rootSafe, ownerToRemove);
         require(previousOwner != address(0), "previousOwner must be set.");
         checkSupportedVersions(_rootSafe);
 
@@ -112,5 +111,20 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
         // If the version is not in the supported list of versions it may not support removing owners. Please manually check if your safe version supports removing owners.
         // If it does and the removeOwner function does not contain any breaking changes, please update the supported versions list above to include the new version.
         revert(string.concat("Safe version is not in the supported list of versions. Current version: ", version));
+    }
+
+    /// @notice Returns the owner that pointed to the owner to be removed in the linked list.
+    /// Taken from: https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/test/safe-tools/SafeTestTools.sol#L213
+    function getPreviousOwner(address _rootSafe, address owner) internal view returns (address) {
+        address SENTINEL_OWNERS = address(0x1);
+        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
+        for (uint256 i; i < owners.length; i++) {
+            if (owners[i] != owner) continue;
+            if (i == 0) {
+                return SENTINEL_OWNERS;
+            }
+            return owners[i - 1];
+        }
+        revert(string.concat("Owner ", vm.toString(owner), " not found in the safe: ", vm.toString(_rootSafe)));
     }
 }
