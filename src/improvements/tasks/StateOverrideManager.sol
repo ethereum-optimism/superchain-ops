@@ -62,7 +62,11 @@ abstract contract StateOverrideManager is CommonBase {
     /// Checks if nonce is overridden in the state overrides, otherwise gets from contract.
     /// An important part of this function is to perform nonce safety checks. It ensures that
     /// user-defined nonces are not less than the current actual nonce.
-    function _getNonceOrOverride(address safeAddress) internal view returns (uint256 nonce_) {
+    function _getNonceOrOverride(address safeAddress, string memory _taskConfigFilePath)
+        internal
+        view
+        returns (uint256 nonce_)
+    {
         uint256 currentActualNonce = IGnosisSafe(safeAddress).nonce();
 
         uint256 GNOSIS_SAFE_NONCE_SLOT = 0x5;
@@ -87,7 +91,9 @@ abstract contract StateOverrideManager is CommonBase {
                                 ") is less than current actual nonce (",
                                 vm.toString(currentActualNonce),
                                 ") for contract: ",
-                                vm.toString(safeAddress)
+                                vm.toString(safeAddress),
+                                " in task config file: ",
+                                _taskConfigFilePath
                             )
                         );
                     }

@@ -197,7 +197,7 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 
 **Environment variables:**
 - `HD_PATH` - Hardware wallet derivation path (default: 0)
-- `USE_KEYSTORE` - If set, uses keystore instead of ledger
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger. 
 
 **Examples:**
 
@@ -223,6 +223,18 @@ The command will then:
 1. List all the tasks that will be simulated in the stack.
 2. Simulate the tasks in order.
 3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
+
+### How do I add a private key to my keystore?
+
+Use Foundry's keystore. Import your key and set a password when prompted:
+
+```bash
+cast wallet import my-account-name --private-key <priv-key>
+```
+
+By default, keys are stored under `~/.foundry/keystores`. List accounts with `cast wallet list`. When running signing commands with `USE_KEYSTORE=1`, you'll be prompted for the keystore password.
+
+See the official Foundry docs for the [cast wallet import](https://getfoundry.sh/cast/reference/wallet/) command.
 
 ### How do I make sure an address is universally available to any task?
 

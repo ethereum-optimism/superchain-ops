@@ -20,7 +20,7 @@ the values printed to the terminal when you run the task.
 > ### Nested Safe 3 (Chain Governor): `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`
 >
 > - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
-> - Message Hash: `0x763f885e0be084e7283a8418d1c438a397cb847a16b6073e088ba5da9b0cf58a`
+> - Message Hash: `0xfb0ef475958a41cb4b4281c1c0677d6148c2b7ee6d46ab9f79a8f6680d0b28ec`
 
 ## Normalized State Diff Hash Attestation
 
