@@ -26,7 +26,7 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
     address public ownerToRemove;
 
     /// @notice The new owner to add to the safe.
-    address public newOwner;
+    address public ownerToAdd;
 
     /// @notice The threshold of the safe before the task is executed.
     uint256 public thresholdBefore;
