@@ -253,7 +253,7 @@ templateName = "<YOUR_TEMPLATE_NAME>"
 }
 ```
 
-Example: see [`test/tasks/example/opsep/001-set-eip1967-impl`](/test//tasks/example/opsep/001-set-eip1967-impl/).
+Example: see [`test/tasks/example/opsep/001-set-eip1967-impl`](/test/tasks/example/opsep/001-set-eip1967-impl/).
 
 ### How do I add a private key to my keystore?
 
