@@ -11,7 +11,7 @@ Once Completed, a fake OptimismPortalProxy contract will be upgraded to a new im
 4. Deploying a fake Foundation Safe.
 5. Deploying a fake ProxyAdminOwner Safe (2-of-2 between the safes from steps 3 and 4).
 
-The call executed by the Safe contract is defined in the `build` function of the [`SetEIP1967Implementation`](../../src/improvements/template/SetEIP1967Implementation.sol) template.
+The call executed by the Safe contract is defined in the `build` function of the [`SetEIP1967Implementation`](../../src/template/SetEIP1967Implementation.sol) template.
 
 Note: No onchain actions will occur during this rehearsal. You are not submitting a transaction, and your wallet does not need to be funded. You will simply sign an offchain message with your wallet. These signatures will be collected by a Facilitator, who will submit them for execution.
 Once the required number of signatures is collected, anyone can finalize the execution. For convenience, a Facilitator will handle this step.
@@ -24,10 +24,10 @@ Once the required number of signatures is collected, anyone can finalize the exe
 cd superchain-ops
 git pull
 # Make sure you've installed the dependencies for the repository.
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
 ```
 
-See the [README](../../src/improvements/README.md) for more information on how to install the dependencies for the repository.
+See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
 
 ### 2. Setup Ledger
 
@@ -40,7 +40,7 @@ is ready".
 Make sure your ledger is still unlocked and run the following.
 
 ``` shell
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env simulate test-rehearsal-council
 # For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
@@ -125,7 +125,7 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ``` shell
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env sign test-rehearsal-council
 # For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file.
@@ -215,7 +215,7 @@ Below is a screenshot of example output of the `just deploy-contracts` command:
 #### 3. Create a new task in the `eth` directory:
 
 ```bash
-cd superchain-ops/src/improvements
+cd superchain-ops/src
 just new task # Follow the prompts to create a new rehearsals task. 
 # (a) choose 'eth' 
 # (b) choose 'SetEIP1967Implementation' 
@@ -223,7 +223,7 @@ just new task # Follow the prompts to create a new rehearsals task.
 # (d) press 'y' for 'Is this a security council rehearsal task?'
 # (e) enter a name of the task in the format of '<yyyy-mm-dd>-<task-name>'
 
-# This creates a new directory in the `src/improvements/tasks/eth/rehearsals` directory.
+# This creates a new directory in the `src/tasks/eth/rehearsals` directory.
 ```
 
 Next, make sure your `config.toml` file, located in your newly created task directory, is correct. You should use the TOML below as a starting point. Make sure to fill in the missing values.
@@ -232,7 +232,7 @@ Next, make sure your `config.toml` file, located in your newly created task dire
 l2chains = [
     {name = "Rehearsal Chain", chainId = 10101010101010} # Create a fake chain
 ]
-fallbackAddressesJsonPath = "src/improvements/tasks/eth/rehearsals/<rehearsal-task-name>/addresses.json" # You're going to create this file in the next step. Make sure to update the path to the correct directory.
+fallbackAddressesJsonPath = "src/tasks/eth/rehearsals/<rehearsal-task-name>/addresses.json" # You're going to create this file in the next step. Make sure to update the path to the correct directory.
 
 templateName = "SetEIP1967Implementation"
 

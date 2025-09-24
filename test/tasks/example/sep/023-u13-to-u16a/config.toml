@@ -1,0 +1,49 @@
+templateName = "OPCMUpgradeV220toV410"
+
+OPCMUpgradeV220_PRESTATE = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9"
+OPCMUpgradeV300_PRESTATE = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+OPCMUpgradeV300_UPDATE_PRESTATE = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
+
+[[l2chains]]
+chainId = 919
+name = "Mode Testnet"
+
+[[opcmUpgrades]]
+chainId = 919
+# prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedErrorsV220 = "SYSCON-20,PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-10"
+# SYSCON-20 : SystemConfig gas limit is not set to 60,000,000.
+# PDDG-50 : Permissioned dispute game VM address mismatch.
+# PDDG-DWETH-40 : Permissioned dispute game delayed WETH delay not set to 1 week.
+# PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
+# PLDG-10 : Permissionless dispute game implementation not found.
+expectedErrorsV300 = "PDDG-ANCHORP-40,PLDG-10"
+# PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
+# PLDG-10 : Permissionless dispute game implementation not found.
+expectedErrorsV410 = "PLDG-10"
+# PLDG-10 : Permissionless dispute game implementation not found.
+
+[addresses]
+OPCMUpgradeV220 = "0x6b6f9129efb1b7a48f84e3b787333d1dca02ee34" # version 1.7.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L160
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+
+OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L102
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c"
+
+OPCMUpgradeV410 = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32 }
+]
+
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 46 }
+]
+
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43 }
+]

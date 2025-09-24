@@ -8,7 +8,7 @@ evm_version = "cancun"
 fs_permissions = [{ access = "read-write", path = "./" }]
 gas_limit = "18446744073709551615" # max allowable value, which is max uint64
 ffi = true # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
-no_match_coverage = 'src/improvements/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|test'
+no_match_coverage = 'src/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|test'
 
 remappings = [
   '@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/',
@@ -27,11 +27,14 @@ remappings = [
 deny_warnings = true
 
 [profile.ci.rpc_endpoints]
-mainnet = "https://ci-mainnet-l1-archive.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
-sepolia = "https://ci-sepolia-l1-archive.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
+mainnet = "https://ci-mainnet-l1-archive.optimism.io" 
+sepolia = "https://ci-sepolia-l1-archive.optimism.io" 
+opSepolia = "https://ci-sepolia-l2.optimism.io"
+opMainnet = "https://mainnet.optimism.io" # We eventually need a CI L2 RPC URL for this.
 
 [profile.default.rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
 mainnet = "https://ethereum.publicnode.com"
 sepolia = "https://sepolia.gateway.tenderly.co"
+opSepolia = "https://sepolia.optimism.io"
 opMainnet = "https://mainnet.optimism.io"

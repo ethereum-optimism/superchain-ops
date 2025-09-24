@@ -1,0 +1,54 @@
+# Superchain Chains on Mainnet
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Ink", chainId = 57073},
+    {name = "Soneium", chainId = 1868}
+]
+
+templateName = "OPCMUpgradeV410"
+
+
+# The absolute prestate does come from https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
+
+# OP Mainnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 10
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedValidationErrors = ""
+
+
+# Ink (Permissionless)
+[[opcmUpgrades]]
+chainId = 57073
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedValidationErrors = ""
+
+
+# Soneium (Permissioned)
+[[opcmUpgrades]]
+chainId = 1868
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+# PLDG-10: There are no permissionless dispute games on Soneium - expected
+expectedValidationErrors = "PLDG-10"
+
+
+[addresses]
+OPCM = "0x8123739c1368c2dedc8c564255bc417feeebff9d" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+StandardValidatorV410 = "0x845fef377fa9c678b3ebe33b024678538f1215dd" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+
+
+[stateOverrides]
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 22}
+]
+
+# Foundation Upgrades Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 35}
+]
+
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 39}
+]

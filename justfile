@@ -18,4 +18,4 @@ clean:
   forge clean
 
 compare-games before-game='' after-game='':
-  bash src/improvements/script/compareGames.sh {{before-game}} {{after-game}}
+  bash src/script/compareGames.sh {{before-game}} {{after-game}}
