@@ -1,6 +1,6 @@
 # 023-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Mainnet
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
