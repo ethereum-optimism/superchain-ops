@@ -106,19 +106,4 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         // If it does and the removeOwner function does not contain any breaking changes, please update the supported versions list above to include the new version.
         revert(string.concat("Safe version is not in the supported list of versions. Current version: ", version));
     }
-
-    /// @notice Returns the owner that pointed to the owner to be removed in the linked list.
-    /// Taken from: https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/test/safe-tools/SafeTestTools.sol#L213
-    function getPreviousOwner(address _rootSafe, address owner) internal view returns (address) {
-        address SENTINEL_OWNERS = address(0x1);
-        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
-        for (uint256 i; i < owners.length; i++) {
-            if (owners[i] != owner) continue;
-            if (i == 0) {
-                return SENTINEL_OWNERS;
-            }
-            return owners[i - 1];
-        }
-        revert(string.concat("Owner ", vm.toString(owner), " not found in the safe: ", vm.toString(_rootSafe)));
-    }
 }
