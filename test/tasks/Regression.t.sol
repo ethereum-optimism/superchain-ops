@@ -3,38 +3,38 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTask} from "src/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
-import {EnableDeputyPauseModuleTemplate} from "src/improvements/template/EnableDeputyPauseModuleTemplate.sol";
-import {FinanceTemplate} from "src/improvements/template/FinanceTemplate.sol";
-import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
-import {OPCMUpgradeV300} from "src/improvements/template/OPCMUpgradeV300.sol";
-import {OPCMUpgradeV400} from "src/improvements/template/OPCMUpgradeV400.sol";
-import {OPCMUpdatePrestateV300} from "src/improvements/template/OPCMUpdatePrestateV300.sol";
-import {SetRespectedGameTypeTemplate} from "src/improvements/template/SetRespectedGameTypeTemplate.sol";
-import {UpdateRetirementTimestampV200} from "src/improvements/template/UpdateRetirementTimestampV200.sol";
-import {UpdateRetirementTimestampV400} from "src/improvements/template/UpdateRetirementTimestampV400.sol";
-import {SystemConfigGasParams} from "src/improvements/template/SystemConfigGasParams.sol";
+import {EnableDeputyPauseModuleTemplate} from "src/template/EnableDeputyPauseModuleTemplate.sol";
+import {OPCMUpgradeV200} from "src/template/OPCMUpgradeV200.sol";
+import {OPCMUpgradeV300} from "src/template/OPCMUpgradeV300.sol";
+import {OPCMUpgradeV400} from "src/template/OPCMUpgradeV400.sol";
+import {OPCMUpdatePrestateV300} from "src/template/OPCMUpdatePrestateV300.sol";
+import {SetRespectedGameTypeTemplate} from "src/template/SetRespectedGameTypeTemplate.sol";
+import {UpdateRetirementTimestampV200} from "src/template/UpdateRetirementTimestampV200.sol";
+import {UpdateRetirementTimestampV400} from "src/template/UpdateRetirementTimestampV400.sol";
+import {SystemConfigGasParams} from "src/template/SystemConfigGasParams.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
-import {DelayedWETHOwnershipTemplate} from "src/improvements/template/DelayedWETHOwnershipTemplate.sol";
-import {TransferOwners} from "src/improvements/template/TransferOwners.sol";
-import {TransferL2PAOFromL1} from "src/improvements/template/TransferL2PAOFromL1.sol";
-import {DisableModule} from "src/improvements/template/DisableModule.sol";
+import {DelayedWETHOwnershipTemplate} from "src/template/DelayedWETHOwnershipTemplate.sol";
+import {TransferOwners} from "src/template/TransferOwners.sol";
+import {TransferL2PAOFromL1} from "src/template/TransferL2PAOFromL1.sol";
+import {DisableModule} from "src/template/DisableModule.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {GnosisSafeApproveHash} from "src/improvements/template/GnosisSafeApproveHash.sol";
-import {SetDisputeGameImpl} from "src/improvements/template/SetDisputeGameImpl.sol";
+import {GnosisSafeApproveHash} from "src/template/GnosisSafeApproveHash.sol";
+import {SetDisputeGameImpl} from "src/template/SetDisputeGameImpl.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
-import {WelcomeToSuperchainOps} from "src/improvements/template/WelcomeToSuperchainOps.sol";
-import {GnosisSafeRemoveOwner} from "src/improvements/template/GnosisSafeRemoveOwner.sol";
-import {SetEIP1967Implementation} from "src/improvements/template/SetEIP1967Implementation.sol";
-import {UnpauseSuperchainConfigV400} from "src/improvements/template/UnpauseSuperchainConfigV400.sol";
-import {UniFix} from "src/improvements/template/UniFix.sol";
-import {DeputyPauseKeyRotationTemplate} from "src/improvements/template/DeputyPauseKeyRotationTemplate.sol";
-import {BlacklistGamesV140} from "src/improvements/template/BlacklistGamesV140.sol";
-import {BlacklistGamesV400} from "src/improvements/template/BlacklistGamesV400.sol";
-import {OPCMUpgradeV220toV400} from "src/improvements/template/OPCMUpgradeV220toV400.sol";
+import {WelcomeToSuperchainOps} from "src/template/WelcomeToSuperchainOps.sol";
+import {GnosisSafeRemoveOwner} from "src/template/GnosisSafeRemoveOwner.sol";
+import {SetEIP1967Implementation} from "src/template/SetEIP1967Implementation.sol";
+import {UnpauseSuperchainConfigV400} from "src/template/UnpauseSuperchainConfigV400.sol";
+import {UniFix} from "src/template/UniFix.sol";
+import {DeputyPauseKeyRotationTemplate} from "src/template/DeputyPauseKeyRotationTemplate.sol";
+import {BlacklistGamesV140} from "src/template/BlacklistGamesV140.sol";
+import {BlacklistGamesV400} from "src/template/BlacklistGamesV400.sol";
+import {OPCMUpgradeV220toV410} from "src/template/OPCMUpgradeV220toV410.sol";
+import {OPCMUpgradeV410} from "src/template/OPCMUpgradeV410.sol";
+import {OPCMUpgradeSuperchainConfigV410} from "src/template/OPCMUpgradeSuperchainConfigV410.sol";
 
 /// @notice Ensures that simulating the task consistently produces the same call data and data to sign.
 /// This guarantees determinism if a bug is introduced in the task logic, the call data or data to sign
@@ -100,7 +100,7 @@ contract RegressionTest is Test {
     }
 
     /// @notice expected call data and data to sign generated by manually running the SetRespectedGameTypeTemplate at block 21724199 on mainnet using script:
-    /// forge script src/improvements/template/SetRespectedGameTypeTemplate.sol --sig "simulate(string)" test/tasks/mock/configs/SetRespectedGameTypeTemplate.toml --rpc-url mainnet --fork-block-number 21724199 -vv
+    /// forge script src/template/SetRespectedGameTypeTemplate.sol --sig "simulate(string)" test/tasks/mock/configs/SetRespectedGameTypeTemplate.toml --rpc-url mainnet --fork-block-number 21724199 -vv
     function testRegressionCallDataMatches_SetRespectedGameTypeTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/SetRespectedGameTypeTemplate.toml";
         string memory expectedCallData =
@@ -126,7 +126,7 @@ contract RegressionTest is Test {
 
     /// @notice expected call data and data to sign generated by manually running the example task test/tasks/example/sep/020-blacklist-games-v140:
     /// cd test/tasks/example/sep/020-blacklist-games-v140
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate council
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate council
     function testRegressionCallDataMatches_BlacklistGamesV140() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/020-blacklist-games-v140/config.toml";
         string memory expectedCallData =
@@ -149,7 +149,7 @@ contract RegressionTest is Test {
 
     /// @notice expected call data and data to sign generated by manually running the example task test/tasks/example/sep/021-blacklist-games-v400:
     /// cd test/tasks/example/sep/021-blacklist-games-v400
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate council
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate council
     function testRegressionCallDataMatches_BlacklistGamesV400() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/021-blacklist-games-v400/config.toml";
         string memory expectedCallData =
@@ -171,7 +171,7 @@ contract RegressionTest is Test {
     }
 
     /// @notice expected call data and data to sign generated by manually running the UpdateRetirementTimestampV200 at block 22183268 on mainnet using script:
-    /// forge script src/improvements/template/UpdateRetirementTimestampV200.sol --sig "simulate(string)" test/tasks/mock/configs/UpdateRetirementTimestampV200.toml --rpc-url mainnet --fork-block-number 22183268 -vv
+    /// forge script src/template/UpdateRetirementTimestampV200.sol --sig "simulate(string)" test/tasks/mock/configs/UpdateRetirementTimestampV200.toml --rpc-url mainnet --fork-block-number 22183268 -vv
     function testRegressionCallDataMatches_UpdateRetirementTimestampV200() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/UpdateRetirementTimestampV200.toml";
         string memory expectedCallData =
@@ -197,7 +197,7 @@ contract RegressionTest is Test {
 
     /// @notice expected call data and data to sign generated by manually running the example task test/tasks/example/sep/022-update-retirement-timestamp-v400:
     /// cd test/tasks/example/sep/022-update-retirement-timestamp-v400
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate council
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate council
     function testRegressionCallDataMatches_UpdateRetirementTimestampV400() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/022-update-retirement-timestamp-v400/config.toml";
         string memory expectedCallData =
@@ -219,7 +219,7 @@ contract RegressionTest is Test {
     }
 
     /// @notice expected call data and data to sign generated by manually running the EnableDeputyPauseModuleTemplate at block 7745524 on sepolia using script:
-    /// forge script src/improvements/template/EnableDeputyPauseModuleTemplate.sol --sig "simulate(string)" test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml --rpc-url sepolia --fork-block-number 7745524 -vv
+    /// forge script src/template/EnableDeputyPauseModuleTemplate.sol --sig "simulate(string)" test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml --rpc-url sepolia --fork-block-number 7745524 -vv
     function testRegressionCallDataMatches_EnableDeputyPauseModuleTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml";
         string memory expectedCallData =
@@ -273,7 +273,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the OPCMUpgradeV300 template at block 8044263 on sepolia.
     /// Simulate from task directory (test/tasks/example/sep/006-opcm-upgrade-v300) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
     function testRegressionCallDataMatches_OPCMUpgradeV300() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/006-opcm-upgrade-v300/config.toml";
         // Call data generated by manually running the OPCMUpgradeV300 template at block 7972618 on sepolia
@@ -303,7 +303,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the OPCMUpgradeV400 template at block 8368038 on sepolia.
     /// Simulate from task directory (test/tasks/example/sep/008-opcm-upgrade-v400) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
     function testRegressionCallDataMatches_OPCMUpgradeV400() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/008-opcm-upgrade-v400/config.toml";
         // Call data generated by manually running the OPCMUpgradeV400 template at block 8318585 on sepolia
@@ -334,7 +334,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the SystemConfigGasParams template at block 22283936 on mainnet.
     /// Simulate from task directory (test/tasks/example/eth/006-system-config-gas-params) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/single.just simulate
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/single.just simulate
     function testRegressionCallDataMatches_SystemConfigGasParams() public {
         string memory taskConfigFilePath = "test/tasks/example/eth/006-system-config-gas-params/config.toml";
         // Call data generated by manually running the SystemConfigGasParams template at block 22283936 on mainnet
@@ -351,7 +351,6 @@ contract RegressionTest is Test {
             _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
 
-        // data to sign generated by manually running the FinanceTemplate at block 7880546 on sepolia
         string memory expectedDataToSign =
             "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b73267249771935e440b6212f2f0a8302967dcac81b52ea7573563fd25b9b7ee33d8b3e";
 
@@ -361,7 +360,7 @@ contract RegressionTest is Test {
     }
 
     /// @notice expected call data and data to sign generated by manually running the DelayedWETHOwnershipTemplate at block 22183268 on mainnet using script:
-    /// forge script src/improvements/template/DelayedWETHOwnershipTemplate.sol --sig "simulate(string)" test/tasks/example/eth/007-delayedweth-xfer/config.toml --rpc-url mainnet --fork-block-number 22183268 -vv
+    /// forge script src/template/DelayedWETHOwnershipTemplate.sol --sig "simulate(string)" test/tasks/example/eth/007-delayedweth-xfer/config.toml --rpc-url mainnet --fork-block-number 22183268 -vv
     function testRegressionCallDataMatches_DelayedWETHOwnershipTemplate() public {
         string memory taskConfigFilePath = "test/tasks/example/eth/007-delayedweth-xfer/config.toml";
         // call data generated by manually running the DelayedWETHOwnershipTemplate at block 22183268 on mainnet
@@ -387,36 +386,9 @@ contract RegressionTest is Test {
         );
     }
 
-    /// @notice expected call data and data to sign generated by manually running the FinanceTemplate at block 7880546 on sepolia using script:
-    /// forge script src/improvements/template/FinanceTemplate.sol --sig "simulate(string)" test/tasks/mock/configs/TestFinanceTemplate.toml --rpc-url sepolia --fork-block-number 7880546 -vv
-    function testRegressionCallDataMatches_FinanceTemplate() public {
-        string memory taskConfigFilePath = "test/tasks/mock/configs/TestFinanceTemplate.toml";
-        // call data generated by manually running the FinanceTemplate at block 7880546 on sepolia
-        string memory expectedCallData =
-            "0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000140000000000000000000000000bb4daac11b4446ee1c6146de1e26ecf1ab8b3eb60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000f64bc17485f0b4ea5f06a96514182fc4cb5619770000000000000000000000000000000000000000000000056bc75e2d6310000000000000000000000000000000000000000000000000000000000000000000000000000000000000bb4daac11b4446ee1c6146de1e26ecf1ab8b3eb60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044095ea7b300000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000056bc75e2d6310000000000000000000000000000000000000000000000000000000000000";
-        MultisigTask multisigTask = new FinanceTemplate();
-        address rootSafe = address(0xcBC62730b54BFE94173B1182FA56Db1393451d4e); // 'SafeToSendFrom' value in config.toml file.
-        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe);
-
-        (Action[] memory actions, uint256[] memory allOriginalNonces) =
-            _setupAndSimulate(taskConfigFilePath, 7880546, "sepolia", multisigTask, allSafes);
-
-        bytes memory rootSafeCalldata =
-            _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
-        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
-
-        // data to sign generated by manually running the FinanceTemplate at block 7880546 on sepolia
-        string memory expectedDataToSign =
-            "0x190196c653b6193d04eb71ad87ac1577524661acf1e1e0c492a68c88a1deb059927f5c6e8f9c07df88078080944e37bdee8fabf7e4c4addbfb7c56281712bf386a4a";
-
-        _assertDataToSignSingleMultisig(
-            rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
-        );
-    }
-
     /// @notice Expected call data and data to sign generated by manually running the OPCMUpdatePrestateV300 template at block 8098229 on sepolia
     /// Simulate from task directory (test/tasks/example/sep/008-opcm-upgrade-prestate-v300) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
     function testRegressionCallDataMatches_OPCMUpdatePrestateV300() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/008-opcm-upgrade-prestate-v300/config.toml";
         // Call data generated by manually running the OPCMUpdatePrestateV300 template at block 8098229 on sepolia.
@@ -445,7 +417,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the TransferL2PAOFromL1 template at block 22447773 on mainnet.
     /// Simulate from task directory (test/tasks/example/eth/008-transfer-l2pao) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
     function testRegressionCallDataMatches_TransferL2PAOFromL1() public {
         string memory taskConfigFilePath = "test/tasks/example/eth/008-transfer-l2pao/config.toml";
         // Call data generated by manually running the TransferL2PAOFromL1 template at block 22447773 on mainnet.
@@ -477,7 +449,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the DisableModule template at block 8326814 on sepolia
     /// Simulate from task directory (test/tasks/example/sep/011-disable-module) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/single.just simulate
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/single.just simulate
     function testRegressionCallDataMatches_DisableModule() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/011-disable-module/config.toml";
         // Call data generated by manually running the DisableModule template at block 8326814 on sepolia.
@@ -503,7 +475,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the UnpauseSuperchainConfigV400 template at block 8792870 on sepolia
     /// Simulate from task directory (test/tasks/example/sep/019-unpause-superchainConfig) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate council
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate council
     function testRegressionCallDataMatches_UnpauseSuperchainConfigV400() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/019-unpause-superchainConfig/config.toml";
         // Call data generated by manually running the UnpauseSuperchainConfigV400 template at block 8792870 on sepolia.
@@ -529,7 +501,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the TransferOwners template at block 22469206 on mainnet.
     /// Simulate from task directory (test/tasks/example/eth/009-transfer-owners) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
     function testRegressionCallDataMatches_TransferOwners() public {
         string memory taskConfigFilePath = "test/tasks/example/eth/009-transfer-owners/config.toml";
         // Call data generated by manually running the TransferOwners template at block 22469206 on mainnet.
@@ -561,7 +533,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the GnosisSafeApproveHash template at block 8384642 on sepolia
     /// Simulate from task directory (test/tasks/example/sep/013-gnosis-safe-approve-hash) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate base
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate base
     function testRegressionCallDataMatches_GnosisSafeApproveHash() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/013-gnosis-safe-approve-hash/config.toml";
         string memory expectedCallData =
@@ -589,7 +561,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the SetDisputeGameImpl template at block 7798424 on sepolia.
     /// Simulate from task directory (test/tasks/example/sep/014-set-dispute-game-impl/config.toml) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
     function testRegressionCallDataMatches_SetDisputeGameImpl() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/014-set-dispute-game-impl/config.toml";
         string memory expectedCallData =
@@ -613,32 +585,32 @@ contract RegressionTest is Test {
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
-    /// @notice Expected call data and data to sign generated by manually running the OPCMUpgradeV220toV400 template at block 9068770 on sepolia.
-    /// Simulate from task directory (test/tasks/example/sep/023-u13-to-u16) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate <foundation|council>
-    function testRegressionCallDataMatches_OPCMUpgradeV220toV400() public {
+    /// @notice Expected call data and data to sign generated by manually running the OPCMUpgradeV220toV410 template at block 9216877 on sepolia.
+    /// Simulate from task directory (test/tasks/example/sep/023-u13-to-u16a) with:
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate <foundation|council>
+    function testRegressionCallDataMatches_OPCMUpgradeV220toV410() public {
         // Particularly gas guzzling template that can sometimes error with OOG. Manually pausing gas usage to circumvent OOG errors.
         // Note: Running 'forge test' alone usually passes but when ran with verbosity flags ('-vvv'), errors occur.
         vm.pauseGasMetering();
-        string memory taskConfigFilePath = "test/tasks/example/sep/023-u13-to-u16/config.toml";
+        string memory taskConfigFilePath = "test/tasks/example/sep/023-u13-to-u16a/config.toml";
         string memory expectedCallData =
-            "0x82ad56cb00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000004400000000000000000000000006b6f9129efb1b7a48f84e3b787333d1dca02ee340000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d900000000000000000000000000000000000000000000000000000000000000000000000000000000fbceed4de885645fbded164910e10f52febfab350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee40500000000000000000000000000000000000000000000000000000000000000000000000000000000fbceed4de885645fbded164910e10f52febfab350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a49a72745b0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6000000000000000000000000000000000000000000000000000000000000000000000000000000001ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000000000000000000000000000000000000";
-        MultisigTask multisigTask = new OPCMUpgradeV220toV400();
+            "0x82ad56cb00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000004400000000000000000000000006b6f9129efb1b7a48f84e3b787333d1dca02ee340000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d900000000000000000000000000000000000000000000000000000000000000000000000000000000fbceed4de885645fbded164910e10f52febfab350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee40500000000000000000000000000000000000000000000000000000000000000000000000000000000fbceed4de885645fbded164910e10f52febfab350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a49a72745b0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6000000000000000000000000000000000000000000000000000000000000000000000000000000003bb6437aba031afbf9cb3538fa064161e2bf2d780000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new OPCMUpgradeV220toV410();
         address rootSafe = address(0x1Eb2fFc903729a0F03966B917003800b145F56E2);
         address nestedSafe = address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B); // sepolia
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
         (Action[] memory actions, uint256[] memory allOriginalNonces) =
-            _setupAndSimulate(taskConfigFilePath, 9068770, "sepolia", multisigTask, allSafes);
+            _setupAndSimulate(taskConfigFilePath, 9216877, "sepolia", multisigTask, allSafes);
 
         _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
 
         string[] memory expectedDataToSign = new string[](2);
         // Foundation
         expectedDataToSign[0] =
-            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbbb87ebd854fc92f1b2d587fd83f2d9c6322f08aabd73a389954d77458abe91c3c";
+            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbba5cafe700f789415656d7083117f4bac8a4d0810190eb7b476c6a76d6a18c922";
         // Security Council
         expectedDataToSign[1] =
-            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533092c9f45e0c8818668b9d570f66b7a73ba1196a017bc2695c88886e539d3691a";
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b85339e2cbd43f4e7012cbc1aae98fa97604dc06acea1e17c3a73b7a0bdb66c83df7b";
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
         vm.resumeGasMetering();
     }
@@ -709,7 +681,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the SetEIP1967Implementation template at block 8772255 on sepolia.
     /// Simulate from task directory (test/tasks/example/sep/018-set-eip1967-impl/config.toml) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just simulate <test-rehearsal-council|test-rehearsal-foundation>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <test-rehearsal-council|test-rehearsal-foundation>
     function testRegressionCallDataMatches_SetEIP1967Implementation() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/018-set-eip1967-impl/config.toml";
         string memory expectedCallData =
@@ -735,7 +707,7 @@ contract RegressionTest is Test {
 
     /// @notice Expected call data and data to sign generated by manually running the UniFix template at block 8029861 on sepolia.
     /// Simulate from task directory (test/tasks/example/sep/004-replace-superchain-config/config.toml) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../../../src/improvements/justfile simulate
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../../../src/justfile simulate
     function testRegressionCallDataMatches_UniFix() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/004-replace-superchain-config/config.toml";
         string memory expectedCallData =
@@ -756,10 +728,10 @@ contract RegressionTest is Test {
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
         );
     }
+
     /// @notice Expected call data generated by manually running the DeputyPauseKeyRotationTemplate at block 8092613 on sepolia.
     /// Simulate from task directory (test/tasks/example/sep/007-deputy-pause-key-rotation/config.toml) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../../../src/improvements/justfile simulate
-
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../../../src/justfile simulate
     function testRegressionCallDataMatches_DeputyPauseKeyRotationTemplate() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/007-deputy-pause-key-rotation/config.toml";
         string memory expectedCallData =
@@ -780,6 +752,60 @@ contract RegressionTest is Test {
         _assertDataToSignSingleMultisig(
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
         );
+    }
+
+    /// @notice Expected call data generated by manually running the OPCMUpgradeV410Template at block 9167980 on sepolia.
+    /// Simulate from task directory (test/tasks/example/sep/024-opcm-upgrade-v410/config.toml) with:
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../../../src/justfile simulate
+    function testRegressionCallDataMatches_OPCMUpgradeV410Template() public {
+        string memory taskConfigFilePath = "test/tasks/example/sep/024-opcm-upgrade-v410/config.toml";
+
+        string memory expectedCallData =
+            "0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000003bb6437aba031afbf9cb3538fa064161e2bf2d780000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new OPCMUpgradeV410();
+        address rootSafe = address(0x1Eb2fFc903729a0F03966B917003800b145F56E2);
+        address nestedSafe = address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B); // sepolia
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 9167980, "sepolia", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        // Foundation
+        expectedDataToSign[0] =
+            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb750e241919d95648b52ce00e5bfa1cbbf9a2cf94f52d4b578b0129204b3a8cac";
+        // Security Council
+        expectedDataToSign[1] =
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b85334163196cb8ef182f1d2df7e7a463f470a1d488c18920e948b2014bb482e46ae7";
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+    }
+
+    /// @notice Expected call data generated by manually running the OPCMUpgradeSuperchainConfigV410Template at block 9167980 on sepolia.
+    /// Simulate from task directory (test/tasks/example/sep/025-opcm-upgrade-superchainconfig-v410/config.toml) with:
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../../../src/justfile simulate
+    function testRegressionCallDataMatches_OPCMUpgradeSuperchainConfigV410Template() public {
+        string memory taskConfigFilePath = "test/tasks/example/sep/025-opcm-upgrade-superchainconfig-v410/config.toml";
+
+        string memory expectedCallData =
+            "0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000003bb6437aba031afbf9cb3538fa064161e2bf2d78000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044b0b807eb00000000000000000000000075435c995b5bb0bbf866fa968f67a0d6a40982da000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc00000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new OPCMUpgradeSuperchainConfigV410();
+        address rootSafe = address(0x1Eb2fFc903729a0F03966B917003800b145F56E2);
+        address nestedSafe = address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B); // sepolia
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 9167980, "sepolia", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        // Foundation
+        expectedDataToSign[0] =
+            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb7f5a0c576fc25d78004c4f7e5809c11563a52f4acf3552cf3deaa985e1291a5b";
+        // Security Council
+        expectedDataToSign[1] =
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533b986b3d556ad13b4abe0443803f9d9b20ffb2c5c476870c410d2337380a21d4e";
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
     /// @notice Internal function to set up the fork and run the simulate method. Requires a gas limit to be passed to it.
