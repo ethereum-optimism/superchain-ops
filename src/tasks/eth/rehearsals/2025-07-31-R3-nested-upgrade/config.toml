@@ -1,0 +1,13 @@
+l2chains = [
+    {name = "Rehearsal Chain", chainId = 10101010101010} # Create a fake chain
+]
+fallbackAddressesJsonPath = "src/tasks/eth/rehearsals/2025-07-31-R3-nested-upgrade/addresses.json"
+
+templateName = "SetEIP1967Implementation"
+
+contractIdentifier = "OptimismPortalProxy"
+newImplementation = "0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd" # This is an old OptimismPortalProxy implementation. You can change this if you like. 
+
+[addresses]
+TestRehearsalCouncil = "0x348eebA2609645182872CCd75256D873e689fCFf" # This is the address of the Safe that you already created.
+TestRehearsalFoundation = "0xcb5b47685F23ACbd72435Af586333c1Ea41327EF" # This is the address of the Safe that you already created.

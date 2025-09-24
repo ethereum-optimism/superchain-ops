@@ -11,8 +11,8 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
@@ -218,9 +218,9 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testRevertIfUnsupportedChain() public {
-        vm.chainId(10);
+        vm.chainId(20101010); // non-existent chain ID
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 10");
+        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 20101010");
         localMultisigTask.simulate(taskConfigFilePath, new address[](0));
     }
 

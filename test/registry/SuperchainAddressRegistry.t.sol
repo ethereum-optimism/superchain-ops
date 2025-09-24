@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 
 import {SimpleAddressRegistryTest} from "./SimpleAddressRegistry.t.sol";
 import {MultisigTaskTestHelper} from "../tasks/MultisigTask.t.sol";
@@ -313,6 +313,28 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
             vm.toString(uint256(keccak256("SuperchainAddressRegistry")))
         );
         vm.expectRevert(bytes(errorMessage));
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_constructor_onL2WithoutFallback_reverts() public {
+        vm.createSelectFork("opSepolia");
+        string memory tomlContent =
+            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n' 'fallbackAddressesJsonPath = ""';
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-000");
+
+        vm.expectRevert(
+            "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades."
+        );
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_constructor_onL2WithFallback_passes() public {
+        vm.createSelectFork("opSepolia");
+        string memory tomlContent = 'l2chains = [{name = "MyLocalChain", chainId = 10101010101010}]\n'
+            'fallbackAddressesJsonPath = "test/tasks/example/opsep/001-set-eip1967-impl/addresses.json"';
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-001");
         new SuperchainAddressRegistry(fileName);
         MultisigTaskTestHelper.removeFile(fileName);
     }

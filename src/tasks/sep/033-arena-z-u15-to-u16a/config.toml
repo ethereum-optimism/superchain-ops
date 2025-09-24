@@ -1,0 +1,32 @@
+l2chains = [
+    {name = "arena-z-testnet", chainId = 9899}
+]
+
+templateName = "OPCMUpgradeV410"
+
+[[opcmUpgrades]]
+chainId = 9899
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8" # https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-prestates.toml#L6
+expectedValidationErrors = "PLDG-10"
+# PLDG-10 : Permissionless dispute game implementation not found.
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36 }
+]
+
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50 }
+]
+
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47 }
+]
+
+0x6b6F9129eFb1B7a48f84E3b787333D1dCA02Ee34 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000016", value = 0 }
+]
