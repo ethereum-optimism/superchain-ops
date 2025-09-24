@@ -10,9 +10,9 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice A template contract for removing an owner from a Gnosis Safe.
-/// More info can be found here: https://docs.safe.global/reference-smart-account/owners/removeOwner
-contract GnosisSafeRemoveOwner is SimpleTaskBase {
+/// @notice A template contract for swapping an owner from a Gnosis Safe.
+/// More info can be found here: https://docs.safe.global/reference-smart-account/owners/swapOwner
+contract GnosisSafeRotateSigner is SimpleTaskBase {
     using LibString for string;
     using stdToml for string;
 
@@ -21,6 +21,9 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
 
     /// @notice The owner to remove from the safe.
     address public ownerToRemove;
+
+    /// @notice The new owner to add to the safe.
+    address public ownerToAdd;
 
     /// @notice The threshold of the safe before the task is executed.
     uint256 public thresholdBefore;
@@ -53,9 +56,11 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         require(ownerToRemove != address(0), "ownerToRemove must be set in the config file.");
         require(IGnosisSafe(_rootSafe).isOwner(ownerToRemove), "ownerToRemove must be an owner of the safe.");
 
+        ownerToAdd = toml.readAddress(".ownerToAdd");
+        require(ownerToAdd != address(0), "ownerToAdd must be set in the config file.");
+        require(!IGnosisSafe(_rootSafe).isOwner(ownerToAdd), "ownerToAdd must not be an owner of the safe.");
+
         thresholdBefore = IGnosisSafe(_rootSafe).getThreshold();
-        // Don't want to accidentally brick the safe. Gnosis Safe already enforces this but keeping this check for safety.
-        require(totalOwnersBefore - 1 >= thresholdBefore, "Safe after removal must have at least threshold owners.");
 
         previousOwner = Utils.getPreviousOwner(_rootSafe, ownerToRemove);
         require(previousOwner != address(0), "previousOwner must be set.");
@@ -65,17 +70,19 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         for (uint256 i = 0; i < owners.length; i++) {
             additionalCodeExceptions.push(owners[i]);
         }
+        additionalCodeExceptions.push(ownerToAdd);
     }
 
     /// @notice Builds the actions for executing the operations.
     function _build(address _rootSafe) internal override {
-        IGnosisSafe(_rootSafe).removeOwner(previousOwner, ownerToRemove, thresholdBefore);
+        IGnosisSafe(_rootSafe).swapOwner(previousOwner, ownerToRemove, ownerToAdd);
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address _rootSafe) internal view override {
-        require(!IGnosisSafe(_rootSafe).isOwner(ownerToRemove), "Owner not removed");
-        require(IGnosisSafe(_rootSafe).getOwners().length == totalOwnersBefore - 1, "Total owners not decreased");
+        require(!IGnosisSafe(_rootSafe).isOwner(ownerToRemove), "Old owner not removed");
+        require(IGnosisSafe(_rootSafe).isOwner(ownerToAdd), "New owner not added");
+        require(IGnosisSafe(_rootSafe).getOwners().length == totalOwnersBefore, "Total owners not equal");
         require(IGnosisSafe(_rootSafe).getThreshold() == thresholdBefore, "Threshold must be the same");
         require(
             IGnosisSafe(_rootSafe).getOwners().length >= thresholdBefore, "Must have enough owners to cover threshold"
