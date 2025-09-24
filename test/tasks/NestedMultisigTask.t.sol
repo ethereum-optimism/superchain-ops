@@ -13,15 +13,15 @@ import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/librarie
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {OPCMUpgradeV200} from "src/template/OPCMUpgradeV200.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockSetEIP1967ImplTask} from "test/tasks/mock/MockSetEIP1967ImplTask.sol";
-import {SetEIP1967Implementation} from "src/improvements/template/SetEIP1967Implementation.sol";
+import {SetEIP1967Implementation} from "src/template/SetEIP1967Implementation.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
-import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {TaskManager} from "src/tasks/TaskManager.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {

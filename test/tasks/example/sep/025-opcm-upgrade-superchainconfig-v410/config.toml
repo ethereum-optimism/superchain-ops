@@ -1,0 +1,13 @@
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMUpgradeSuperchainConfigV410"
+
+allowOverwrite = ["SuperchainConfig"] # We do this because this template is meant to be used by different superchain asides that of OP Mainnet.
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
+SuperchainConfig = "0x75435c995B5bb0bbF866fA968F67a0d6a40982DA" # This is a custom OPCM that is at a version < 2.3.0 to enable the regression test to pass. It's configured with the correct proxy admin for OP Sepolia Testnet.
+SuperchainConfigProxyAdmin = "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc"

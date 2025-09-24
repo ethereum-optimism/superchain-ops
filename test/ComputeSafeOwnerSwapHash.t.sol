@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {ComputeSafeOwnerSwapHash} from "src/improvements/script/ComputeSafeOwnerSwapHash.s.sol";
+import {ComputeSafeOwnerSwapHash} from "src/script/ComputeSafeOwnerSwapHash.s.sol";
 
 // Forge v1 will not support `expectRevert` on internal calls, so use a harness to expose the
 // internal functions and test them using external calls. Learn more:

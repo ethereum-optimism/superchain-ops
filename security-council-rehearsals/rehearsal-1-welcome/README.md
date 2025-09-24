@@ -8,7 +8,7 @@ to execute an onchain action.
 
 Once completed, you can be sure that if the task is executed, the WelcomeToSuperchainOps contract will return `"Welcome to SuperchainOps, <name>"` from its [`welcome()`](https://etherscan.io/address/0x0fb11b4164894912f079de62699f4cc5a2271f0c#readContract#F2) method.
 
-The call that will be executed can be found in the `build` function of the [`WelcomeToSuperchainOps`](../../src/improvements/template/WelcomeToSuperchainOps.sol) template.
+The call that will be executed can be found in the `build` function of the [`WelcomeToSuperchainOps`](../../src/template/WelcomeToSuperchainOps.sol) template.
 
 Note that no onchain actions will be taking place during this
 signing. You won’t be submitting a transaction and your address
@@ -27,10 +27,10 @@ convenience.
 cd superchain-ops
 git pull
 # Make sure you've installed the dependencies for the repository.
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
 ```
 
-See the [README](../../src/improvements/README.md) for more information on how to install the dependencies for the repository.
+See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
 
 ### 2. Setup Ledger
 
@@ -43,7 +43,7 @@ is ready”.
 Make sure your ledger is still unlocked and run the following.
 
 ``` shell
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env simulate
 # For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
 ```
@@ -143,7 +143,7 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ``` shell
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env sign
 # For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign
 ```
@@ -208,7 +208,7 @@ multisig with 4 additional keys owned by the Facilitator.
 #### 2. Create a new task in the `eth` directory:
 
 ```bash
-cd superchain-ops/src/improvements
+cd superchain-ops/src
 just new task # Follow the prompts to create a new rehearsals task. 
 # (a) choose 'eth' 
 # (b) choose 'WelcomeToSuperchainOps' 
@@ -216,7 +216,7 @@ just new task # Follow the prompts to create a new rehearsals task.
 # (d) press 'y' for 'Is this a security council rehearsal task?'
 # (e) enter a name of the task in the format of '<yyyy-mm-dd>-<task-name>'
 
-# This creates a new directory in the `src/improvements/tasks/eth/rehearsals` directory.
+# This creates a new directory in the `src/tasks/eth/rehearsals` directory.
 ```
 
 Next, make sure your `config.toml` is correct. You should use the TOML below as a starting point.
@@ -233,7 +233,7 @@ TargetContract = "0x0fb11b4164894912f079de62699f4cc5a2271f0c" # This is the main
 SecurityCouncil = "<enter-your-multisig-address>" # This is the address of the multisig that you created in step 1. e.g. 0x799F5202AEBB41eC779e046e46a4D033d367d877.
 ```
 
-For mainnet, the Gnosis safe that you will be signing for will be the safe you created in step 1. If you don't include the `SecurityCouncil` address entry in the `config.toml` file, the code will automatically retrieve the real `SecurityCouncil` safe address from the [`addresses.toml`](../../src/improvements/addresses.toml) file (we don't want this). 
+For mainnet, the Gnosis safe that you will be signing for will be the safe you created in step 1. If you don't include the `SecurityCouncil` address entry in the `config.toml` file, the code will automatically retrieve the real `SecurityCouncil` safe address from the [`addresses.toml`](../../src/addresses.toml) file (we don't want this). 
 
 #### 3. Test the rehearsal and commit the files to Github
 
@@ -267,8 +267,8 @@ Then you should run
 
 ``` shell
 export SIGNATURES="0xAAAABBBB"
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env execute
 ```
 
-For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/improvements/tasks/eth/rehearsals/2025-07-21-R1-welcome/README.md).
+For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/tasks/eth/rehearsals/2025-07-21-R1-welcome/README.md).

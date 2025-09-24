@@ -1,0 +1,14 @@
+# This task created a fake nested safe on op-sepolia, proxy admin and l2 standard bridge.
+l2chains = [
+    {name = "Fake Chain", chainId = 10101010101010} 
+]
+
+fallbackAddressesJsonPath = "test/tasks/example/opsep/001-set-eip1967-impl/addresses.json" 
+
+templateName = "SetEIP1967Implementation"
+
+contractIdentifier = "L2StandardBridge"
+newImplementation = "0xC0d3c0d3c0D3c0d3C0D3c0D3C0d3C0D3C0D30011" # Set the implementation to an incorrect impl.
+
+[addresses]
+TestFakeCouncil = "0x02a5b051f1e79E5FC7d6d62BA9727DaBce0c06Cc" # Created via https://safe.optimism.io/

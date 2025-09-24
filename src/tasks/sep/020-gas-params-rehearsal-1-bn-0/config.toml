@@ -1,0 +1,20 @@
+l2chains = [ {name = "rehearsal-1-bn-0", chainId = 420120011} ]
+fallbackAddressesJsonPath = "src/tasks/sep/020-gas-params-rehearsal-1-bn-0/addresses.json"
+templateName = "SystemConfigGasParams"
+
+# We overwrite the FoundationUpgradeSafe address for this devnet. See below.
+allowOverwrite = ["FoundationUpgradeSafe"]
+
+[gasParams]
+gasLimit = 60000000
+eip1559Elasticity = 6
+eip1559Denominator = 250
+
+[addresses]
+# Overwrite the FoundationUpgradeSafe address.
+FoundationUpgradeSafe = "0x1A18bd2A868898EDDe75C54013baCc1938d399aC"
+
+[stateOverrides]
+0x1A18bd2A868898EDDe75C54013baCc1938d399aC = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1 }
+]
