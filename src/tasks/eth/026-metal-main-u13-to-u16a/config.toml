@@ -21,7 +21,7 @@ expectedErrorsV220 = "SYSCON-20,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-10"
 expectedErrorsV300 = "PDDG-ANCHORP-40,PLDG-10"
 # PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
 # PLDG-10 : Permissionless dispute game implementation not found.
-expectedErrorsV400 = "PLDG-10"
+expectedErrorsV410 = "PLDG-10"
 # PLDG-10 : Permissionless dispute game implementation not found.
 
 [addresses]
