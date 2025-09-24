@@ -4,7 +4,7 @@ Status: [READY TO SIGN]()
 
 ## Objective
 
-This task upgrades Mode Mainnet to U16, executing U13, U14, U15 sequentially.
+This task upgrades Mode Mainnet to U16a, executing U13, U14, U15 sequentially.
 
 ## Simulation & Signing
 
