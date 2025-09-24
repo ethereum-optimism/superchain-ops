@@ -1,0 +1,7 @@
+# Test configuration for TransferL2PAOFromL1ToEOA template
+l2chains = [{name = "OP Sepolia", chainId = 11155420}]
+
+templateName = "TransferL2PAOFromL1ToEOA"
+
+# The new EOA owner address
+newOwnerEOA = "0x1234567890123456789012345678901234567890"
