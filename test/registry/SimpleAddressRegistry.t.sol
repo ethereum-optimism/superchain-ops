@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
-import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
+import {SimpleAddressRegistry} from "src/SimpleAddressRegistry.sol";
 import {MultisigTaskTestHelper} from "../tasks/MultisigTask.t.sol";
 
 contract SimpleAddressRegistryTest is Test {

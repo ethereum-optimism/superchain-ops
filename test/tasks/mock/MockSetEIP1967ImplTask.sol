@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.15;
 
-import {SetEIP1967Implementation} from "src/improvements/template/SetEIP1967Implementation.sol";
+import {SetEIP1967Implementation} from "src/template/SetEIP1967Implementation.sol";
 
 /// Mock task that sets the implementation of a EIP1967 compliant proxy
 /// to an example implementation address without code

@@ -1,0 +1,50 @@
+# Superchain Sepolia Testnets
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+
+templateName = "OPCMUpgradeV410"
+
+
+# The absolute prestate does come from https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
+
+
+# Unichain
+[[opcmUpgrades]]
+chainId = 130
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+# The following are expected errors related to Unichain having a different L1PAO
+# PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig - expected
+# DF-30: DisputeGameFactory owner is not set to L1 PAO multisig - expected
+# PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch - expected
+# PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch - expected
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PLDG-DWETH-30"
+
+
+[addresses]
+OPCM = "0x8123739c1368c2dedc8c564255bc417feeebff9d" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+StandardValidatorV410 = "0x845fef377fa9c678b3ebe33b024678538f1215dd" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+
+
+[stateOverrides]
+# Unichain 3/3 (L1PAO)
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 6}
+]
+
+# Unichain Operations Safe
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 13}
+]
+
+# Foundation Upgrade Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+]
+
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 40}
+]
