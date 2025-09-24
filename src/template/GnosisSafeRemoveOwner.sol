@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
+import {Utils} from "src/libraries/Utils.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
@@ -56,7 +57,7 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         // Don't want to accidentally brick the safe. Gnosis Safe already enforces this but keeping this check for safety.
         require(totalOwnersBefore - 1 >= thresholdBefore, "Safe after removal must have at least threshold owners.");
 
-        previousOwner = getPreviousOwner(_rootSafe, ownerToRemove);
+        previousOwner = Utils.getPreviousOwner(_rootSafe, ownerToRemove);
         require(previousOwner != address(0), "previousOwner must be set.");
         checkSupportedVersions(_rootSafe);
 
