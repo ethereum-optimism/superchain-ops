@@ -195,8 +195,8 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 ```
 
 **Environment variables:**
-- `HD_PATH` - Hardware wallet derivation path (default: 0)
-- `USE_KEYSTORE` - If set, uses keystore instead of ledger. 
+- `HD_PATH` - Hardware wallet derivation path index (default: 0). The value is inserted into the [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) Ethereum path as `m/44'/60'/$HD_PATH'/0/0` (e.g. `0` -> `m/44'/60'/0'/0/0`, `1` -> `m/44'/60'/1'/0/0`). Use this to select the desired Ethereum account on your hardware wallet.
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
 
 **Examples:**
 
@@ -297,6 +297,19 @@ The fallback JSON file must be structured with the chain ID as the top-level key
 When the task runs, it will first attempt to use the superchain-registry. If the chain is not found, it will load addresses directly from your fallback JSON file instead of performing automatic onchain discovery.
 
 > ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
+
+### What is the 'Normalized State Diff Hash'?
+
+The normalized state diff hash is a single fingerprint of all the onchain state changes your task would make if executed. We “normalize” the diff first (stable ordering and encoding) so the hash only changes when the actual intended state changes do.
+
+- Why it exists: To make it easy for reviewers and signers to verify they’re approving the exact same change set that was simulated and reviewed.
+- Where to see it: It’s printed at the end of simulation/stacked simulation and recorded in each task’s `VALIDATION.md` under “Normalized State Diff Hash Attestation”.
+- When it changes: If any task state we consider meaningful changes, the hash will also change.
+
+What to do if it doesn’t match:
+- **Do not proceed or sign**.
+- Contact the task authors and update the task only after review.
+
 
 ## Available Templates
 
