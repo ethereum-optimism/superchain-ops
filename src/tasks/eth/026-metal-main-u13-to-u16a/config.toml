@@ -1,0 +1,52 @@
+templateName = "OPCMUpgradeV220toV410"
+
+OPCMUpgradeV220_PRESTATE = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9"
+OPCMUpgradeV300_PRESTATE = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+OPCMUpgradeV300_UPDATE_PRESTATE = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
+
+[[l2chains]]
+chainId = 1750
+name = "Metal L2"
+
+[[opcmUpgrades]]
+chainId = 1750
+# prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedErrorsV220 = "SYSCON-20,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-10"
+# SYSCON-20 : SystemConfig gas limit is not set to 60,000,000.
+# PDDG-DWETH-40 : Permissioned dispute game delayed WETH delay not set to 1 week.
+# PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
+# PLDG-10 : Permissionless dispute game implementation not found.
+expectedErrorsV300 = "PDDG-ANCHORP-40,PLDG-10"
+# PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
+# PLDG-10 : Permissionless dispute game implementation not found.
+expectedErrorsV410 = "PLDG-10"
+# PLDG-10 : Permissionless dispute game implementation not found.
+
+[addresses]
+OPCMUpgradeV220 = "0x1c7bfa38a25ad22cafc556a9bd827e1da7ec1791" # version 1.7.0 https://github.com/ethereum-optimism/superchain-registry/blob/661f3cf4afc8e8544895c85d40f946d48a487f8f/validation/standard/standard-versions-mainnet.toml#L160
+StandardValidatorV200 = "0x12a9e38628e5a5b24d18b1956ed68a24fe4e3dc0"
+
+OPCMUpgradeV300 = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/661f3cf4afc8e8544895c85d40f946d48a487f8f/validation/standard/standard-versions-mainnet.toml#L102
+StandardValidatorV300 = "0xf989df70fb46c581ba6157ab335c0833ba60e1f0"
+
+OPCMUpgradeV410 = "0x8123739c1368c2dedc8c564255bc417feeebff9d" # version 3.2.0 Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+StandardValidatorV410 = "0x845fef377fa9c678b3ebe33b024678538f1215dd" # Source: https://www.notion.so/oplabs/Post-to-governance-254f153ee1628074a320e0eebc2558d4?source=copy_link
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 24 }
+]
+
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38 }
+]
+
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42 }
+]
+
+0x1c7bfa38a25ad22cafc556a9bd827e1da7ec1791 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000016", value = 0 }
+]
