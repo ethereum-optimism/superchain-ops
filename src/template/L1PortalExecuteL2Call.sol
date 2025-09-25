@@ -4,8 +4,8 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
-import {MultisigTaskPrinter} from "../../libraries/MultisigTaskPrinter.sol";
-import {Action} from "../../libraries/MultisigTypes.sol";
+import {MultisigTaskPrinter} from "../libraries/MultisigTaskPrinter.sol";
+import {Action} from "../libraries/MultisigTypes.sol";
 import {SimpleTaskBase} from "../tasks/types/SimpleTaskBase.sol";
 
 /// @notice Interface for the OptimismPortal2 contract on L1.
