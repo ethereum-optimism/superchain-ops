@@ -63,6 +63,7 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
         thresholdBefore = IGnosisSafe(_rootSafe).getThreshold();
 
         previousOwner = Utils.getPreviousOwner(_rootSafe, ownerToRemove);
+
         require(previousOwner != address(0), "previousOwner must be set.");
         checkSupportedVersions(_rootSafe);
 
