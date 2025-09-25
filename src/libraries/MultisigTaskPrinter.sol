@@ -104,12 +104,11 @@ library MultisigTaskPrinter {
     // ======= Verification Information ========
     // ==========================================
 
-    /// @notice Prints audit report information with normalized state diff hash.
-    function printAuditReportInfo(bytes32 normalizedStateDiffHash) internal pure {
-        printTitle("AUDIT REPORT INFORMATION");
+    /// @notice Prints normalized state diff hash.
+    function printNormalizedStateDiffHash(bytes32 normalizedStateDiffHash) internal pure {
+        printTitle("NORMALIZED STATE DIFF HASH");
         // forgefmt: disable-start
-        console.log("The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.");
-        console.log("As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.");
+        console.log("Ensure the normalized state diff hash from your simulation matches the hash in the VALIDATION.md file for this task.");
         console.log("");
         console.log("Normalized hash: %s", vm.toString(normalizedStateDiffHash));
         console.log("");
