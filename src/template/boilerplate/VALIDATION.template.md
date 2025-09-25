@@ -7,10 +7,10 @@ signing.
 
 The steps are:
 
-1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
-3. [Verifying the transaction input](#understanding-task-calldata)
-4. [Verifying the state changes](#task-state-changes)
+1. [Expected Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Normalized State Diff Hash Attestation](#normalized-state-diff-hash-attestation)
+3. [Understanding Task Calldata](#understanding-task-calldata)
+4. [Task State Changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
@@ -28,7 +28,7 @@ the values printed to the terminal when you run the task.
 
 ## Normalized State Diff Hash Attestation
 
-The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
+The normalized state diff hash is a single fingerprint of all the onchain state changes your task would make if executed. We “normalize” the diff first (stable ordering and encoding) so the hash only changes when the actual intended state changes do. You **MUST** ensure that the normalized hash produced from your simulation matches the normalized hash in this document.
 
 **Normalized hash:** `<TODO-enter-normalized-hash>`
 

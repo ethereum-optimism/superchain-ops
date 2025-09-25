@@ -811,7 +811,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             _printTenderlySimulationData(payload);
         }
         normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.safe, txHash);
-        MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
+        MultisigTaskPrinter.printNormalizedStateDiffHash(normalizedHash_);
     }
 
     /// @notice Helper function to print the final safe information.
