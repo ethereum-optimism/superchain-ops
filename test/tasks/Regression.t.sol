@@ -37,7 +37,7 @@ import {BlacklistGamesV400} from "src/template/BlacklistGamesV400.sol";
 import {OPCMUpgradeV220toV410} from "src/template/OPCMUpgradeV220toV410.sol";
 import {OPCMUpgradeV410} from "src/template/OPCMUpgradeV410.sol";
 import {OPCMUpgradeSuperchainConfigV410} from "src/template/OPCMUpgradeSuperchainConfigV410.sol";
-import {L1PortalExecuteL2Call} from "src/improvements/template/L1PortalExecuteL2Call.sol";
+import {L1PortalExecuteL2Call} from "src/template/L1PortalExecuteL2Call.sol";
 
 /// @notice Ensures that simulating the task consistently produces the same call data and data to sign.
 /// This guarantees determinism if a bug is introduced in the task logic, the call data or data to sign
