@@ -1,6 +1,6 @@
 # 024-U16a-opcm-upgrade-v410-unichain: Upgrade 16a: Unichain
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
@@ -33,7 +33,17 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 
-```
+```bash
 cd src/tasks/eth/024-U16a-opcm-upgrade-v410-unichain
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate <foundation|council|chain-governor>
+# Foundation - Simulate and Sign
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation
+just --dotenv-path $(pwd)/.env sign foundation
+
+# Security Council - Simulate and Sign
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate council
+just --dotenv-path $(pwd)/.env sign council
+
+# Chain Governor - Simulate and Sign
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate chain-governor
+just --dotenv-path $(pwd)/.env sign chain-governor
 ```

@@ -1,6 +1,6 @@
 # 023-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Mainnet
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
@@ -35,7 +35,13 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 
-```
+```bash
 cd src/tasks/eth/023-U16a-opcm-upgrade-v410-op-soneium-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate <foundation|council>
+# Foundation - Simulate and Sign
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation
+just --dotenv-path $(pwd)/.env sign foundation
+
+# Security Council - Simulate and Sign
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate council
+just --dotenv-path $(pwd)/.env sign council
 ```
