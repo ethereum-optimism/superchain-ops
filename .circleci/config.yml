@@ -130,6 +130,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: forge test
+          max_auto_reruns: 3
+          auto_rerun_delay: 10s
           command: |
             just install
             forge --version
@@ -147,6 +149,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: Make sure all templates can be simulated.
+          max_auto_reruns: 3
+          auto_rerun_delay: 10s
           command: |
             (cd src/ && just --justfile ci.just simulate-all-templates)
       - notify-failures-on-main:
@@ -240,15 +244,9 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-          retry:
-            automatic:
-              - limit: 3
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
-          retry:
-            automatic:
-              - limit: 3
       - just_new_recipe_tests
       - shellcheck:
           context:
@@ -269,9 +267,6 @@ workflows:
           network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          retry:
-            automatic:
-              - limit: 3
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -279,9 +274,6 @@ workflows:
           network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          retry:
-            automatic:
-              - limit: 3
 
   close-issue-workflow:
     when:
