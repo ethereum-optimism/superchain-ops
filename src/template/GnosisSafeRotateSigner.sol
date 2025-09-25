@@ -98,7 +98,7 @@ contract GnosisSafeRotateSigner is SimpleTaskBase {
         // Therefore, we have to add the SecurityCouncil's owners addresses as code exceptions.
         return additionalCodeExceptions;
     }
-    
+
     /// @notice Checks if the safe version is supported for removing owners.
     /// This check is added to force the task developer to understand the version of the safe they're using. It's meant to act as an additional layer of safety.
     function checkSupportedVersions(address _rootSafe) public view {
