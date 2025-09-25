@@ -10,13 +10,7 @@ import {SimpleTaskBase} from "../tasks/types/SimpleTaskBase.sol";
 
 /// @notice Interface for the OptimismPortal2 contract on L1.
 interface IOptimismPortal2 {
-    function depositTransaction(
-        address _to,
-        uint256 _value,
-        uint64 _gasLimit,
-        bool _isCreation,
-        bytes memory _data
-    )
+    function depositTransaction(address _to, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data)
         external
         payable;
 }
@@ -114,9 +108,8 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
 
     /// @notice Validate that exactly one action to the portal with the expected calldata and value was captured.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal view override {
-        bytes memory _expected = abi.encodeCall(
-            IOptimismPortal2.depositTransaction, (l2Target, valueWei, gasLimit, isCreation, l2Data)
-        );
+        bytes memory _expected =
+            abi.encodeCall(IOptimismPortal2.depositTransaction, (l2Target, valueWei, gasLimit, isCreation, l2Data));
 
         bool _found;
         uint256 _matches;
