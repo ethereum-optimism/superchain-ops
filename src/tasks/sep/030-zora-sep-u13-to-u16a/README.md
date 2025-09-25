@@ -1,6 +1,6 @@
 # 030-zora-sep-u13-to-u16a
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xb000e85475326c5278204d31492945e4100f2c747f19e91b53ceb6a5e620ad6e)
 
 ## Objective
 
