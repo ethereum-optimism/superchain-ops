@@ -84,11 +84,11 @@ contract TransferL2PAOFromL1ToEOA is L2TaskBase {
         bytes memory expectedCalldata = abi.encodeCall(
             OptimismPortal.depositTransaction,
             (
-                address(Predeploys.PROXY_ADMIN),  // _to
-                0,                                 // _value
-                gasLimit,                          // _gasLimit
-                false,                            // _isCreation
-                abi.encodeCall(ProxyAdmin.transferOwnership, (newOwnerEOA))  // _data
+                address(Predeploys.PROXY_ADMIN), // _to
+                0, // _value
+                gasLimit, // _gasLimit
+                false, // _isCreation
+                abi.encodeCall(ProxyAdmin.transferOwnership, (newOwnerEOA)) // _data
             )
         );
 
