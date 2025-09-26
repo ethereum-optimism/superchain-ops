@@ -48,9 +48,9 @@ contract TransferL2PAOFromL1ToEOA is L2TaskBase {
         string memory toml = vm.readFile(taskConfigFilePath);
 
         // New owner EOA address.
+        // New owner EOA address.
         newOwnerEOA = abi.decode(vm.parseToml(toml, ".newOwnerEOA"), (address));
-
-        // Only allow one chain to be modified at a time with this template.
+        require(newOwnerEOA != address(0), "newOwnerEOA must be non-zero address");
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
