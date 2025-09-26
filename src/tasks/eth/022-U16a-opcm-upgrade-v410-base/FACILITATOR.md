@@ -8,9 +8,9 @@ Upgrade Base Mainnet to U16a. More context on U16a can be found in the Optimism 
 
 This document is solely for the upgrade Facilitator. If you are a signer on the Base Council, Base Operations, or Foundations Operations, please, instead, follow the instructions [here](./README.md).
 
-## Step 1 (Role: Facilitator) - Base Nested Approval
+## Step 1 - Base Nested Approval
 
-After receiving each signer's signature the instructions [here](./README.md), you must use them to make the necessary 'approveHash' calls. In this section, there are a total of 3 'approveHash' calls.
+After receiving each signer's signature from the instructions [here](./README.md), you must use them to make the necessary 'approveHash' calls. In this section, there are a total of 3 'approveHash' calls.
 ```bash
 cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 
@@ -54,7 +54,7 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members> just approve base-
 just approve base-nested
 ```
 
-## Step 2 (Role: Facilitator) - Foundation Operations Approval
+## Step 2 - Foundation Operations Approval
 
 This is the final 'approveHash' call from the foundation-operations safe.
 
@@ -73,7 +73,7 @@ cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 SIGNATURES=0x<concatenated-sigs-from-foundation-operations-members> just approve foundation-operations
 ```
 
-## Step 3 (Role: Facilitator) - Execute Transaction on L1 ProxyAdminOwner `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`
+## Step 3 - Execute Transaction on L1 ProxyAdminOwner `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`
 
 Execute command: 
 ```bash

@@ -14,7 +14,7 @@ Open your terminal and run the following command:
 brew --version
 ```
 
-If you see a version printed like, for example, something like `Homebrew 4.6.4`, then you can [skip to Step 2 below](#Step-2-Install-Golang). Otherwise, please run the following:
+If you see a version printed, for example, something like `Homebrew 4.6.4`, then you can [skip to Step 2 below](#Step-2-Install-Golang). Otherwise, please run the following:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -36,7 +36,7 @@ Open your terminal and run the following command:
 go version
 ```
 
-If you see a version printed like, for example, something like `go version go1.24.6 darwin/arm64`, then you can [skip to Step 3 below](#Step-3-Install-Just). Otherwise, please run the following:
+If you see a version printed, for example, something like `go version go1.24.6 darwin/arm64`, then you can [skip to Step 3 below](#Step-3-Install-Just). Otherwise, please run the following:
 
 ```bash
 brew install go
@@ -50,7 +50,7 @@ Open your terminal and run the following command:
 just --version
 ```
 
-If you see a version printed like, for example, something like `just 1.37.0`, then you can [skip to Step 4 below](#Step-4-Install-Foundry). Otherwise, please run the following:
+If you see a version printed, for example, something like `just 1.37.0`, then you can [skip to Step 4 below](#Step-4-Install-Foundry). Otherwise, please run the following:
 
 ```bash
 brew install just
@@ -108,7 +108,7 @@ git pull
 Install Mise by executing the following commands. When the Bash script runs, follow the instructions in the log output to activate mise in your shell.
 
 ```bash
-cd /superchain-ops/src
+cd /src
 ./script/install-mise.sh
 ```
 
