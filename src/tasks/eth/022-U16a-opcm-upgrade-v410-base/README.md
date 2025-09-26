@@ -30,7 +30,7 @@ git pull
 Install Mise by executing the following commands. When the Bash script runs, follow the instructions in the log output to activate mise in your shell.
 
 ```bash
-cd /src
+cd src
 ./script/install-mise.sh
 ```
 
@@ -83,7 +83,7 @@ In this section, you will simulate, validate, and sign the upgrade transactions 
 First, simulate the upgrade transaction using the command below corresponding to the safe you are a member of (Base Council, Base Operations, or Foundations Operations) and take note of the resulting hashes and output:
 
 ```bash
-cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd tasks/eth/022-U16a-opcm-upgrade-v410-base
 
 # Base Council: 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd
 #  ┌────────────────────┐      
