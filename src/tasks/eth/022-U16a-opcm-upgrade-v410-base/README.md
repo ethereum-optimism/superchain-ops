@@ -37,7 +37,8 @@ cd src
 Now configure Mise with the following commands:
 
 ```bash
-mise activate
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+source ~/.zshrc
 mise trust ../mise.toml
 mise install
 just --justfile ../justfile install
