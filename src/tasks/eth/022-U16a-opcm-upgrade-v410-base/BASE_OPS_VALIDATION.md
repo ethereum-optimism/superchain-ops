@@ -5,7 +5,7 @@ This document can be used to validate the results of the execution simulation of
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-4. [Verifying the state changes](#task-state-changes)
+2. [Verifying the state changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
