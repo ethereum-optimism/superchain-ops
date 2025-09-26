@@ -10,7 +10,7 @@ If this is your first signing task, follow the [Initial Setup Instructions below
 
 ## Initial Setup Instructions
 
-These instructions are for initial setup of your development environment, to install basic tools (e.g Go, Git etc.) needed for the rest of the process.
+These instructions are for initial setup of your development environment, to install basic tools needed for the rest of the process.
 
 ### Step 1. Install Homebrew
 
@@ -77,7 +77,7 @@ git clone https://github.com/ethereum-optimism/superchain-ops.git
 Install Mise by executing the following commands. When the Bash script runs, follow the instructions in the log output to activate mise in your shell.
 
 ```bash
-cd /src
+cd /superchain-ops/src
 ./script/install-mise.sh
 ```
 
