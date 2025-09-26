@@ -35,7 +35,7 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 ```
 
 
-### Step 1 (Role: Signer) - Base Nested Simulation and Signing
+### Step 1 (Role: Signer) - Base Nested/Foundation Operations Simulation and Signing
 
 In this section, you will simulate and sign the upgrade transactions for the 'base-nested' (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`) path and the 'foundation-operations' (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) path. Both of these safes are required to reach a threshold on the Proxy Admin Owner.
 

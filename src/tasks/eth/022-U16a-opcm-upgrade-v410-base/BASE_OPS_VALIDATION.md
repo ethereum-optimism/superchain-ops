@@ -104,7 +104,7 @@ the values printed to the terminal when you run the task.
   - **Before:** `0x000000000000000000000000ab91fb6cef84199145133f75cbd96b8a31f184ed`
   - **After:** `0x000000000000000000000000e4066890367bf8a51d58377431808083a01b1e0c`
   - **Summary:**  Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
-  - **Detail:**  This is `gameImpls[0]` -> `0xe3803582fd5BCdc62720D2b80f35e8dDeA94e2ec`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Detail:**  This is `gameImpls[0]` -> `0xe4066890367BF8A51d58377431808083A01b1E0c`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.1.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ```shell
       cast index uint32 0 101
@@ -234,7 +234,7 @@ the values printed to the terminal when you run the task.
   - **Summary:** nonce
   - **Detail:** Proxy admin owner nonce incremented.
 
-  - **Key:**          `0x69fe20c2c04059fe9036c3ae4878b8e54b643ea18610d61a18d50bbbe8ec7202`
+- **Key:**          `0x69fe20c2c04059fe9036c3ae4878b8e54b643ea18610d61a18d50bbbe8ec7202`
   - **Decoded Kind:** `uint256`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`

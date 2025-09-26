@@ -1,5 +1,5 @@
 # 028-U16a-opcm-upgrade-v410-unichain: Upgrade 16a: Unichain Sepolia on Sepolia
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xcd7bb88a7fc608c674f01c23d7eacfb6f190a13734a2b62f72c8a3798d44ed67)
 
 ## Objective
 
@@ -35,5 +35,5 @@ Navigate to the correct task directory then run the simulate command.
 
 ```
 cd src/tasks/sep/028-U16a-opcm-upgrade-v410-unichain
-SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate
 ```

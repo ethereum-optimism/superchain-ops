@@ -1,6 +1,6 @@
 # 031-metal-sep-u13-to-u16a
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xdd494b61fb365aad3a7b4e2bf345e949ba5346cfc3d4f96b073b28a0f6f88106)
 
 ## Objective
 

@@ -1,0 +1,7 @@
+templateName = "GnosisSafeRotateSigner"
+
+safeAddressString = "SecurityCouncil"
+
+# This is an owner on the Sepolia Security Council safe: 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977.
+ownerToRemove = "0x1084092Ac2f04c866806CF3d4a385Afa4F6A6C97"
+ownerToAdd = "0xeE9c9b799B3f53626Ef70e4560080B8a686B7682"
