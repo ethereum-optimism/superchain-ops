@@ -6,7 +6,7 @@ Status: [DRAFT, NOT READY TO SIGN]()
 
 Upgrade Base Mainnet to U16a. More context on U16a can be found in the Optimism docs [here](https://docs.optimism.io/notices/upgrade-16a).
 
-If this is your first signing task, follow the [Initial Setup Instructions below](#Initial-Setup-Instructions). If you have previously signed tasks in this repo, you can skip directly to the [Procedure](#Procedure-Simulation-Signing-&-Execution).
+If this is your first signing task, follow the [Initial Setup Instructions below](#Initial-Setup-Instructions). If you have previously signed tasks in this repo, you can skip directly to the [Procedure](#Procedure).
 
 ## Initial Setup Instructions
 
@@ -94,7 +94,7 @@ just --justfile ../justfile install
 
 ### Step 1. Update Repo
 
-If you've just completed the [Initial Setup Instructions](#Initial-Setup-Instructions), then skip this step and [continue to step 2 below](#2-Setup-Ledger). Otherwise, if ran the [Initial Setup Instructions](#Initial-Setup-Instructions) previously (e.g. for an earlier upgrade), then please run the following commands in a terminal window to update the repo:
+If you've just completed the [Initial Setup Instructions](#Initial-Setup-Instructions), then skip this step and [continue to step 2 below](#Step-2-Setup-Ledger). Otherwise, if ran the [Initial Setup Instructions](#Initial-Setup-Instructions) previously (e.g. for an earlier upgrade), then please run the following commands in a terminal window to update the repo:
 
 ```bash
 cd superchain-ops
@@ -107,7 +107,7 @@ Connect and unlock your Ledger with your 8-digit pin. Open the Ethereum applicat
 
 ### Step 3. Simulation, Validation, Signing & Execution
 
-Now, depending on your role, the steps from this point on vary. If you are simply a signer (on the Base Council, Base Operations, or Foundations Operations), then please solely complete [Step 3.1 below](#Step-3-1-Role-Signer---Base-Nested-Foundation=Operations-Simulation-and-Signing) — none of the steps after [Step 3.1](#Step-3-1-Role-Signer---Base-Nested-Foundation=Operations-Simulation-and-Signing) are applicable to you. However, if you are the Facilitator, then please jump ahead to [Step 3.2 below](#Step-3-2-Role-Facilitator---Base-Nested-Approval).
+Now, depending on your role, the steps from this point on vary. If you are simply a signer (on the Base Council, Base Operations, or Foundations Operations), then please solely complete [Step 3.1 below](#Step-31-Role-Signer---Base-NestedFoundation-Operations-Simulation-validation-and-Signing) — none of the steps after [Step 3.1](#Step-31-Role-Signer---Base-NestedFoundation-Operations-Simulation-validation-and-Signing) are applicable to you. However, if you are the Facilitator, then please jump ahead to [Step 3.2 below](#Step-32-Role-Facilitator---Base-Nested-Approval).
 
 Base has a doubly-nested safe architecture which is supported by superchain-ops. You **MUST** ensure the hashes you generate from running the commands below match the documented hashes. If you notice *any* mismatches, please alert your facilitator **immediately**.
 
@@ -264,11 +264,11 @@ Once you have completed the verification checks corresponding to your role, retu
 
 Now that we have verified that the transaction performs the right operation, we need to extract the domain and message hashes for approval.
 
-Go back to the "Summary" tab in the Tenderly UI, and find the `Safe.checkSignatures` call. This call's `data` parameter contains both the domain hash and the message hash that will show up on your Ledger (and are also listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-3-1-4-Validate-correctness-of-the-state-diff)).
+Go back to the "Summary" tab in the Tenderly UI, and find the `Safe.checkSignatures` call. This call's `data` parameter contains both the domain hash and the message hash that will show up on your Ledger (and are also listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-314-Validate-correctness-of-the-state-diff)).
 
 This `data` field will consist of a concatenation of `0x1901`, the domain hash, and the message hash, in the format: **`0x1901[domain hash][message hash]`**.
 
-Confirm that these values match the values listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-3-1-4-Validate-correctness-of-the-state-diff) and note them down. You will need to compare these values with the ones displayed on your Ledger screen when signing in [Step 3.1.6 below](#Step-3-1-6-Signing).
+Confirm that these values match the values listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-314-Validate-correctness-of-the-state-diff) and note them down. You will need to compare these values with the ones displayed on your Ledger screen when signing in [Step 3.1.6 below](#Step-316-Signing).
 
 ##### Step 3.1.6 Signing
 
