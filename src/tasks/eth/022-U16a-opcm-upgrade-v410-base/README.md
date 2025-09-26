@@ -43,23 +43,13 @@ mise install
 just --justfile ../justfile install
 ```
 
-## Step 4. Start Foundry
-
-If you just installed Forge in the step above, then please ensure that you first quit / re-open your terminal window before proceeding.
-
-Now, run the following command:
-
-```bash
-foundryup
-```
-
 If you see a `libusb` warning (`warning: libusb not found...`), you can safely ignore it and continue to the next step.
 
-## Step 5. Setup Ledger
+## Step 4. Setup Ledger
 
 Connect and unlock your Ledger with your 8-digit pin. Open the Ethereum application on your Ledger so that it displays the message "Application is ready". Also, please ensure that blind signing is first enabled on your Ledger.
 
-## Step 6. Base-Nested / Foundation Operations Simulation, Validation, and Signing
+## Step 5. Base-Nested / Foundation Operations Simulation, Validation, and Signing
 
 Base has a doubly-nested safe architecture which is supported by superchain-ops. You **MUST** ensure the hashes you generate from running the commands below match the documented hashes. If you notice *any* mismatches, please alert your facilitator **immediately**.
 
@@ -88,7 +78,7 @@ Base has a doubly-nested safe architecture which is supported by superchain-ops.
 
 In this section, you will simulate, validate, and sign the upgrade transactions for the 'base-nested' (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`) path and / or the 'foundation-operations' (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) path, depending on which safe you are a member of. Both of these safes are required to reach a threshold on the Proxy Admin Owner.
 
-### Step 6.1. Simulation
+### Step 5.1. Simulation
 
 First, simulate the upgrade transaction using the command below corresponding to the safe you are a member of (Base Council, Base Operations, or Foundations Operations) and take note of the resulting hashes and output:
 
@@ -177,7 +167,7 @@ Example link below (just for reference):
 https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new?network=1&contractAddress=0xcA11bde05977b3631167028862bE2a173976CA11&from=0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38&stateOverrides=%5B%7B"contractAddress":"0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D,%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000003","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D,%7B"key":"0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0","value":"0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11"%7D,%7B"key":"0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D,%7B"contractAddress":"0x9855054731540A48b28990B63DcF4f33d8AE46A1","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D,%7B"contractAddress":"0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D%5D
 ```
 
-### Step 6.2. Validation Overview
+### Step 5.2. Validation Overview
 
 Now, we will perform 3 validations, as well as extract the domain and message hashes to be approved later on your Ledger:
 
@@ -188,7 +178,7 @@ Now, we will perform 3 validations, as well as extract the domain and message ha
 > [!NOTE]
 > Ensure you have "Dev Mode" turned on in Tenderly for these validations. This switch is usually located towards the top right of the Tenderly UI.
 
-### Step 6.3. Validate Integrity of the Simulation
+### Step 5.3. Validate Integrity of the Simulation
 
 Make sure you are on the "Summary" tab of the Tenderly simulation. To validate the integrity of the simulation, we need to check the following:
 
@@ -196,7 +186,7 @@ Make sure you are on the "Summary" tab of the Tenderly simulation. To validate t
 2. "Timestamp": Check that the simulation is performed on a block with a recent timestamp (i.e. close to when you ran the script). You can double-check the timestamp by inputting the block number [here](https://etherscan.io/blocks).
 3. "Sender": Check that the address shown is your signer account.
 
-### Step 6.4. Validate Correctness of the State Diff
+### Step 5.4. Validate Correctness of the State Diff
 
 Now click on the "State" tab.
 
@@ -210,7 +200,7 @@ Please ensure that you verify all state diffs listed in the "Task State Changes"
 
 Once you have completed the verification checks corresponding to your role, return to this document to continue the process.
 
-### Step 6.5. Extract The Domain and Message Hashes for Approval
+### Step 5.5. Extract The Domain and Message Hashes for Approval
 
 Now that we have verified that the transaction performs the right operation, we need to extract the domain and message hashes for approval.
 
@@ -220,7 +210,7 @@ This `data` field will consist of a concatenation of `0x1901`, the domain hash, 
 
 Confirm that these values match the values listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-314-Validate-correctness-of-the-state-diff) and note them down. You will need to compare these values with the ones displayed on your Ledger screen when signing in [Step 3.1.6 below](#Step-316-Signing).
 
-### Step 6.6. Signing
+### Step 5.6. Signing
 
 Now, perform the signing for whichever of the safes you are a member of:
 
@@ -238,7 +228,6 @@ just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
 # Message Hash: 0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a
 # Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
-
 
 just --dotenv-path $(pwd)/.env sign foundation-operations
 # Expected Hashes
