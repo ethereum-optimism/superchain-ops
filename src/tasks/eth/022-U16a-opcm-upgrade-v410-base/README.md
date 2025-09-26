@@ -243,7 +243,7 @@ Example link below (just for reference):
 https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new?network=1&contractAddress=0xcA11bde05977b3631167028862bE2a173976CA11&from=0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38&stateOverrides=%5B%7B"contractAddress":"0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D,%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000003","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D,%7B"key":"0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0","value":"0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11"%7D,%7B"key":"0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D,%7B"contractAddress":"0x9855054731540A48b28990B63DcF4f33d8AE46A1","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D,%7B"contractAddress":"0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D%5D
 ```
 
-### Step 10.2 Validation Overview
+### Step 10.2. Validation Overview
 
 Now, we will perform 3 validations, as well as extract the domain and message hashes to be approved later on your Ledger:
 
@@ -286,7 +286,7 @@ This `data` field will consist of a concatenation of `0x1901`, the domain hash, 
 
 Confirm that these values match the values listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-314-Validate-correctness-of-the-state-diff) and note them down. You will need to compare these values with the ones displayed on your Ledger screen when signing in [Step 3.1.6 below](#Step-316-Signing).
 
-### Step 10.6 Signing
+### Step 10.6. Signing
 
 Now, perform the signing for whichever of the safes you are a member of:
 
