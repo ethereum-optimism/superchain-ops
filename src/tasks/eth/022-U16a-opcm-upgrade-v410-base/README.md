@@ -104,7 +104,7 @@ cd tasks/eth/022-U16a-opcm-upgrade-v410-base
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-just --dotenv-path $(pwd)/.env simulate base-nested base-council
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
 # Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772
@@ -128,7 +128,7 @@ just --dotenv-path $(pwd)/.env simulate base-nested base-council
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-just --dotenv-path $(pwd)/.env simulate base-nested base-operations
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
 # Message Hash: 0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a
@@ -146,7 +146,7 @@ just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-just --dotenv-path $(pwd)/.env simulate foundation-operations
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
 # Message Hash: 0x2b7f17c0100e6766aaac289acba0122860a51bdd64810626948b0f986f88efa5
@@ -185,7 +185,6 @@ Make sure you are on the "Summary" tab of the Tenderly simulation. To validate t
 
 1. "Network": Check that the network is Mainnet.
 2. "Timestamp": Check that the simulation is performed on a block with a recent timestamp (i.e. close to when you ran the script). You can double-check the timestamp by inputting the block number [here](https://etherscan.io/blocks).
-3. "Sender": Check that the address shown is your signer account.
 
 ### Step 5.4. Validate Correctness of the State Diff
 
