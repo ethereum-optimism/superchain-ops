@@ -6,10 +6,53 @@ Status: [DRAFT, NOT READY TO SIGN]()
 
 Upgrade Base Mainnet to U16a. More context on U16a can be found in the Optimism docs [here](https://docs.optimism.io/notices/upgrade-16a).
 
-## Simulation, Signing & Execution
+## Step 1. Tenderly Account
 
-Below you can find the steps to complete the execution of this transaction. Base has a doubly-nested safe architecture which is supported by superchain-ops. 
-You **MUST** ensure the hashes you generate from running the commands below match the documented hashes. If you notice *any* mismatches, please alert your facilitator **immediately**.
+Make a free [Tenderly](https://tenderly.co/) account if you don't already have one. We will use this later on for validating the task transaction.
+
+## Step 2. Clone the Repo
+
+Inside a terminal window run:
+
+```bash
+git clone https://github.com/ethereum-optimism/superchain-ops.git
+```
+
+Note: if you see an error output after running this command stating `fatal: destination path 'superchain-ops' already exists and is not an empty directory.`, then, instead, run the following commands:
+
+```bash
+cd superchain-ops
+git pull
+```
+
+## Step 3. Install & Configure Mise 
+
+Install Mise by executing the following commands. When the Bash script runs, follow the instructions in the log output to activate mise in your shell.
+
+```bash
+cd src
+./script/install-mise.sh
+```
+
+Now configure Mise with the following commands:
+
+```bash
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+source ~/.zshrc
+mise trust ../mise.toml
+mise install
+just --justfile ../justfile install
+```
+
+If you see a `libusb` warning (`warning: libusb not found...`), you can safely ignore it and continue to the next step.
+
+## Step 4. Setup Ledger
+
+Connect and unlock your Ledger with your 8-digit pin. Open the Ethereum application on your Ledger so that it displays the message "Application is ready". Also, please ensure that blind signing is first enabled on your Ledger.
+
+## Step 5. Base-Nested / Foundation Operations Simulation, Validation, and Signing
+
+Base has a doubly-nested safe architecture which is supported by superchain-ops. You **MUST** ensure the hashes you generate from running the commands below match the documented hashes. If you notice *any* mismatches, please alert your facilitator **immediately**.
 
 ```bash
 #
@@ -34,13 +77,14 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 #                                            └─────────────────────────────────────────────┘
 ```
 
+In this section, you will simulate, validate, and sign the upgrade transactions for the 'base-nested' (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`) path and / or the 'foundation-operations' (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) path, depending on which safe you are a member of. Both of these safes are required to reach a threshold on the Proxy Admin Owner.
 
-### Step 1 (Role: Signer) - Base Nested/Foundation Operations Simulation and Signing
+### Step 5.1. Simulation
 
-In this section, you will simulate and sign the upgrade transactions for the 'base-nested' (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`) path and the 'foundation-operations' (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) path. Both of these safes are required to reach a threshold on the Proxy Admin Owner.
+First, simulate the upgrade transaction using the command below corresponding to the safe you are a member of (Base Council, Base Operations, or Foundations Operations) and take note of the resulting hashes and output:
 
 ```bash
-cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd tasks/eth/022-U16a-opcm-upgrade-v410-base
 
 # Base Council: 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd
 #  ┌────────────────────┐      
@@ -60,7 +104,7 @@ cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
- SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
 # Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772
@@ -109,7 +153,67 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation-ope
 # Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
 ```
 
-Now, perform the signing for both safes that are owners of 'base-nested':
+You will see a `Simulation link` in the output (yes, it's a big link). Paste this URL from your terminal in your browser. A prompt may ask you to choose a project, any project will do. You can create one if necessary.
+
+In your terminal output, if you saw text instructing you to `Insert the following hex into the 'Raw input data' field:` after the link, the following 2 additional steps are required:
+
+1. In Tenderly, click the "Enter raw input data" option towards the bottom of the `Contract` component on the left side of your screen.
+2. Paste the data string that was output below the `Insert the following hex into the 'Raw input data' field:` text in your terminal into the "Raw input data" field.
+
+Click "Simulate Transaction".
+
+Example link below (just for reference):
+
+```txt
+https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new?network=1&contractAddress=0xcA11bde05977b3631167028862bE2a173976CA11&from=0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38&stateOverrides=%5B%7B"contractAddress":"0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D,%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000003","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D,%7B"key":"0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0","value":"0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11"%7D,%7B"key":"0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D,%7B"contractAddress":"0x9855054731540A48b28990B63DcF4f33d8AE46A1","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D,%7B"contractAddress":"0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c","storage":%5B%7B"key":"0x0000000000000000000000000000000000000000000000000000000000000004","value":"0x0000000000000000000000000000000000000000000000000000000000000001"%7D%5D%7D%5D
+```
+
+### Step 5.2. Validation Overview
+
+Now, we will perform 3 validations, as well as extract the domain and message hashes to be approved later on your Ledger:
+
+1. Validate the integrity of the simulation.
+2. Validate the correctness of the state diff.
+3. Validate and extract the domain and message hashes for approval.
+
+> [!NOTE]
+> Ensure you have "Dev Mode" turned on in Tenderly for these validations. This switch is usually located towards the top right of the Tenderly UI.
+
+### Step 5.3. Validate Integrity of the Simulation
+
+Make sure you are on the "Summary" tab of the Tenderly simulation. To validate the integrity of the simulation, we need to check the following:
+
+1. "Network": Check that the network is Mainnet.
+2. "Timestamp": Check that the simulation is performed on a block with a recent timestamp (i.e. close to when you ran the script). You can double-check the timestamp by inputting the block number [here](https://etherscan.io/blocks).
+
+### Step 5.4. Validate Correctness of the State Diff
+
+Now click on the "State" tab.
+
+- If you are a **Base Security Council Signer** refer to the [Base Security Council State Validations](./BASE_SC_VALIDATION.md) instructions for the transaction you are signing.
+
+- If you are a **Base Operations Signer** refer to the [Base Operations State Validations](./BASE_OPS_VALIDATION.md) instructions for the transaction you are signing.
+
+- If you are a **Foundation Operations Signer** refer to the [Foundation Operations State Validations](./FND_OPS_VALIDATION.md) instructions for the transaction you are signing.
+
+Please ensure that you verify all state diffs listed in the "Task State Changes" section of your respective State Validations instructions.
+
+Once you have completed the verification checks corresponding to your role, return to this document to continue the process.
+
+### Step 5.5. Extract The Domain and Message Hashes for Approval
+
+Now that we have verified that the transaction performs the right operation, we need to extract the domain and message hashes for approval.
+
+Go back to the "Summary" tab in the Tenderly UI, and find the `Safe.checkSignatures` call. This call's `data` parameter contains both the domain hash and the message hash that will show up on your Ledger (and are also listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-314-Validate-correctness-of-the-state-diff)).
+
+This `data` field will consist of a concatenation of `0x1901`, the domain hash, and the message hash, in the format: **`0x1901[domain hash][message hash]`**.
+
+Confirm that these values match the values listed in the "Expected Domain and Message Hashes" section of your respective State Validation instructions in [Step 3.1.4 above](#Step-314-Validate-correctness-of-the-state-diff) and note them down. You will need to compare these values with the ones displayed on your Ledger screen when signing in [Step 3.1.6 below](#Step-316-Signing).
+
+### Step 5.6. Signing
+
+Now, perform the signing for whichever of the safes you are a member of:
+
 ```bash
 cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 
@@ -125,7 +229,6 @@ just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Message Hash: 0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a
 # Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
 
-
 just --dotenv-path $(pwd)/.env sign foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
@@ -134,77 +237,6 @@ just --dotenv-path $(pwd)/.env sign foundation-operations
 ```
 
 > **⚠️ Attention Signers:**
-> Once you've signed, please send your signatures to the designated ceremony facilitator.
+> Once you've signed, please send your signature(s) to the designated ceremony facilitator.
 
-### Step 2 (Role: Facilitator) - Base Nested Approval
-
-After receiving each signer's signature from Step 1, you must use them to make the necessary 'approveHash' calls. In this section, there are a total of 3 'approveHash' calls.
-```bash
-cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
-
-#  .------------.               .-----------.
-#  |base-council|               |base-nested|
-#  '------------'               '-----------'
-#        |                            |      
-#        |Execute approveHash(bytes32)|      
-#        |--------------------------->|      
-#  .------------.               .-----------.
-#  |base-council|               |base-nested|
-#  '------------'               '-----------'
-# You can read this command as, call approveHash on 'base-nested' from 'base-council'.
-# For the 'base-council' to successfully execute the approveHash transaction, it needs a quorum of signatures from signers.
-SIGNATURES=0x<concatenated-sigs-from-base-council-members> just approve base-nested base-council
-
-# .---------------.              .-----------.
-# |base-operations|              |base-nested|
-# '---------------'              '-----------'
-#         |                            |      
-#         |Execute approveHash(bytes32)|      
-#         |--------------------------->|      
-# .---------------.              .-----------.
-# |base-operations|              |base-nested|
-# '---------------'              '-----------'
-# You can read this command as, call approveHash on 'base-nested' from 'base-operations'.
-# For the 'base-operations' to successfully execute the approveHash transaction, it needs a quorum of signatures from signers.
-SIGNATURES=0x<concatenated-sigs-from-base-operations-members> just approve base-nested base-operations 
-
-# .-----------.             .-----------------.
-# |base-nested|             |proxy-admin-owner|
-# '-----------'             '-----------------'
-#       |                            |         
-#       |Execute approveHash(bytes32)|         
-#       |--------------------------->|         
-# .-----------.             .-----------------.
-# |base-nested|             |proxy-admin-owner|
-# '-----------'             '-----------------'
-# You can read this command as, call approveHash on ProxyAdminOwner from 'base-nested'.
-# We don't need to pass through 'SIGNATURES' here because this transaction was pre-approved in the previous two steps.
-just approve base-nested
-```
-
-### Step 3 (Role: Facilitator) - Foundation Operations Approval
-
-This is the final 'approveHash' call from the foundation-operations safe.
-
-```bash
-cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
-# .---------------.           .-----------------.
-# |     FOS       |           |proxy-admin-owner|
-# '---------------'           '-----------------'
-#         |                            |         
-#         |Execute approveHash(bytes32)|         
-#         |--------------------------->|         
-# .---------------.           .-----------------.
-# |     FOS       |           |proxy-admin-owner|
-# '---------------'           '-----------------'
-# You can read this command as, call approveHash on ProxyAdminOwner from 'foundation-operations'.
-SIGNATURES=0x<concatenated-sigs-from-foundation-operations-members> just approve foundation-operations
-```
-
-### Step 4 (Role: Facilitator) - Execute Transaction on L1 ProxyAdminOwner `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`
-
-Execute command: 
-```bash
-cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
-just --dotenv-path $(pwd)/.env execute
-```
+As a signer (on the Base Council, Base Operations, or Foundations Operations), the procedure for you is now complete.

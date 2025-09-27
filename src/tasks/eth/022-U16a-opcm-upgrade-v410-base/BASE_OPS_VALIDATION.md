@@ -1,19 +1,15 @@
 # Validation
 
-This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
-signing.
+This document can be used to validate the results of the execution simulation of the upgrade transaction which you are signing.
 
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
-3. [Verifying the transaction input](#understanding-task-calldata)
-4. [Verifying the state changes](#task-state-changes)
+2. [Verifying the state changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
-First, we need to validate the domain and message hashes. These values should match both the values on your ledger and
-the values printed to the terminal when you run the task.
+First, we need to validate the domain and message hashes. These values should match both the values printed to the terminal when you run the task (specifically in the `SAFE (DEPTH: 2)` section of the output) and the values that will be displayed later on your Ledger when you are signing.
 
 > [!CAUTION]
 >
@@ -25,7 +21,7 @@ the values printed to the terminal when you run the task.
 > - Message Hash: `0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a`
 >
 
-# Task State Changes
+## Task State Changes
 
 ### `0x2453c1216e49704d84ea98a4dacd95738f2fc8ec` (DelayedWETH) - Chain ID: 8453
   
