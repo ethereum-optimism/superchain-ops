@@ -36,5 +36,5 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/tasks/sep/010-opcm-update-prestate-v300-op-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
 ```

@@ -5,11 +5,11 @@ Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x5a1d79494372decb0b00eee2adf
 ```bash
 cd src/tasks/sep/024-opcm-upgrade-superchainconfig-v410-freya-bn-u15
 # Testing
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate
 
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
-USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+WALLET_TYPE=keystore just --dotenv-path $(pwd)/.env sign
 # or just sign-stack sep 024-opcm-upgrade-superchainconfig-v410-freya-bn-u15
 SIGNATURES=0x just execute
 ```

@@ -43,7 +43,7 @@ is ready".
 
 Make sure your ledger is still unlocked and run the following command.
 
-**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_LEDGER=1` to your command or `.env` file.
+**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_WALLET=1` to your command or `.env` file.
 
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
 If you wish to use a different account, set the `HD_PATH` environment variable. For example, `HD_PATH=1` will derive the address using `m/44'/60'/1'/0/0` instead.
@@ -56,7 +56,7 @@ just --dotenv-path $(pwd)/.env simulate
 HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
 
 # Alternative: simulate without ledger (useful for development/testing):
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 **This will generate an op-txverify link with instructions on how to verify the domain and message hashes. Follow and complete the instructions before proceeding.**
@@ -127,7 +127,7 @@ just --dotenv-path $(pwd)/.env sign
 HD_PATH=1 just --dotenv-path $(pwd)/.env sign
 
 # To use keystore instead of ledger:
-USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+WALLET_TYPE=keystore just --dotenv-path $(pwd)/.env sign
 ```
 
 > [!WARNING]

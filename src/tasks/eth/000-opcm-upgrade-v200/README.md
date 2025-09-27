@@ -37,5 +37,5 @@ Navigate to the correct task directory then run the simulate command.
 
 ```
 cd eth/000-opcm-upgrade-v200
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
 ```

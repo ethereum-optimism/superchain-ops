@@ -31,7 +31,7 @@ The following state overrides are necessary to enable the simulation:
 The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L15). For the purpose of calculating the storage, note that this mapping is in slot `2`.
 This mapping implements a linked list for iterating through the list of owners.
 
-Since we'll only have one owner, and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides. For demonstration purposes, we'll use the `0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38` owner which is used in with`SIMULATE_WITHOUT_LEDGER=1`. If simulating with a different signer address, the first slot below will differ but can be derived using the same method.
+Since we'll only have one owner, and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides. For demonstration purposes, we'll use the `0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38` owner which is used in with`SIMULATE_WITHOUT_WALLET=1`. If simulating with a different signer address, the first slot below will differ but can be derived using the same method.
 
 - `owners[1] -> 0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38`
 - `owners[0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38] -> 1`

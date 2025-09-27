@@ -36,14 +36,14 @@ Navigate to the correct task directory then run the simulate command.
 ```bash
 cd src/tasks/eth/024-U16a-opcm-upgrade-v410-unichain
 # Foundation - Simulate and Sign
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate foundation
 just --dotenv-path $(pwd)/.env sign foundation
 
 # Security Council - Simulate and Sign
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate council
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate council
 just --dotenv-path $(pwd)/.env sign council
 
 # Chain Governor - Simulate and Sign
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate chain-governor
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate chain-governor
 just --dotenv-path $(pwd)/.env sign chain-governor
 ```
