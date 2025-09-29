@@ -3,12 +3,53 @@ pragma solidity ^0.8.15;
 
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import "forge-std/Test.sol";
+import {stdJson} from "forge-std/StdJson.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 contract GnosisSafeHashes_Test is Test {
     using GnosisSafeHashes for bytes;
+
+    /// @notice Returns the common long `message.data` bytes used in EIP-712 JSON tests.
+    function _defaultData() internal pure returns (bytes memory) {
+        return
+        hex"174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000006d5b183f538abb8572f5cd17109c617b994d58330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024d4d9bdcd2d714b9e5365bc8bfb6929dcaa90a870cc1a2a19b93ac61ea078f5b95253aae900000000000000000000000000000000000000000000000000000000";
+    }
+
+    /// @notice Helper to build the EIP-712 JSON payload used by tests.
+    function _buildEip712Json(
+        uint256 chainId,
+        address verifyingContract,
+        address to,
+        bytes memory data,
+        uint8 operation,
+        uint256 nonce
+    ) internal returns (bytes memory) {
+        string memory types =
+            '{"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"SafeTx":[{"name":"to","type":"address"},{"name":"value","type":"uint256"},{"name":"data","type":"bytes"},{"name":"operation","type":"uint8"},{"name":"safeTxGas","type":"uint256"},{"name":"baseGas","type":"uint256"},{"name":"gasPrice","type":"uint256"},{"name":"gasToken","type":"address"},{"name":"refundReceiver","type":"address"},{"name":"nonce","type":"uint256"}]}';
+
+        string memory domain = stdJson.serialize("domain", "chainId", chainId);
+        domain = stdJson.serialize("domain", "verifyingContract", verifyingContract);
+
+        string memory message = stdJson.serialize("message", "to", to);
+        message = stdJson.serialize("message", "value", uint256(0));
+        message = stdJson.serialize("message", "data", data);
+        message = stdJson.serialize("message", "operation", uint256(operation));
+        message = stdJson.serialize("message", "safeTxGas", uint256(0));
+        message = stdJson.serialize("message", "baseGas", uint256(0));
+        message = stdJson.serialize("message", "gasPrice", uint256(0));
+        message = stdJson.serialize("message", "gasToken", address(0));
+        message = stdJson.serialize("message", "refundReceiver", address(0));
+        message = stdJson.serialize("message", "nonce", nonce);
+
+        string memory json = stdJson.serialize("", "primaryType", string("SafeTx"));
+        json = stdJson.serialize("", "types", types);
+        json = stdJson.serialize("", "domain", domain);
+        json = stdJson.serialize("", "message", message);
+
+        return abi.encodePacked(json);
+    }
 
     /// @notice Test calculateMessageHashFromCalldata with valid input
     function testCalculateMessageHashFromCalldata_ValidInput() public pure {
@@ -106,59 +147,125 @@ contract GnosisSafeHashes_Test is Test {
 
     /// @notice Test with valid input. The encoded data is constructed as:
     /// [0x19, 0x01, 32 bytes domain separator (zeros), 32 bytes message hash].
-    function testGetMessageHashFromEncodedTransactionData_ValidInput() public pure {
+    function testGetDomainAndMessageHashFromDataToSign_ValidInput() public pure {
         bytes32 expectedDomainSeparator = bytes32(hex"0000000000000000000000000000000000000000000000000000000000001234");
         bytes32 expectedMessageHash = bytes32(hex"000000000000000000000000000000000000000000000000000000000000abcd");
         bytes memory encodedTxData = abi.encodePacked(bytes2(0x1901), expectedDomainSeparator, expectedMessageHash);
 
-        (bytes32 domainSeparator, bytes32 messageHash) =
-            encodedTxData.getDomainAndMessageHashFromEncodedTransactionData();
+        (bytes32 domainSeparator, bytes32 messageHash) = encodedTxData.getDomainAndMessageHashFromDataToSign();
         assertEq(domainSeparator, expectedDomainSeparator, "Domain separator should be all zeros");
         assertEq(messageHash, expectedMessageHash, "Message hash should match the last 32 bytes");
     }
 
     /// @notice Test where the message hash is all zeros.
-    function testGetMessageHashFromEncodedTransactionData_AllZeros() public pure {
+    function testGetDomainAndMessageHashFromDataToSign_AllZeros() public pure {
         bytes memory encodedTxData = abi.encodePacked(bytes2(0x1901), bytes32(0), bytes32(0));
         bytes32 expectedHash = bytes32(0);
 
-        (bytes32 domainSeparator, bytes32 messageHash) =
-            encodedTxData.getDomainAndMessageHashFromEncodedTransactionData();
+        (bytes32 domainSeparator, bytes32 messageHash) = encodedTxData.getDomainAndMessageHashFromDataToSign();
         assertEq(domainSeparator, expectedHash, "Domain separator should be all zeros");
         assertEq(messageHash, expectedHash, "Message hash should be all zeros");
     }
 
-    function testGetDomainAndMessageHashFromEncodedTransactionData_MaxUint256() public pure {
+    function testGetDomainAndMessageHashFromDataToSign_MaxUint256() public pure {
         bytes memory encodedTxData =
             abi.encodePacked(bytes2(0x1901), bytes32(type(uint256).max), bytes32(type(uint256).max));
         bytes32 expectedHash = bytes32(type(uint256).max);
 
-        (bytes32 domainSeparator, bytes32 messageHash) =
-            encodedTxData.getDomainAndMessageHashFromEncodedTransactionData();
+        (bytes32 domainSeparator, bytes32 messageHash) = encodedTxData.getDomainAndMessageHashFromDataToSign();
         assertEq(domainSeparator, expectedHash, "Domain separator should be the max uint256");
         assertEq(messageHash, expectedHash, "Message hash should be the max uint256");
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
-    function testGetMessageHashFromEncodedTransactionData_TooShort() public {
+    function testGetDomainAndMessageHashFromDataToSign_TooShort() public {
         // Only 6 bytes (too short)
         bytes memory encodedTxData = hex"1901deadbeef";
-        vm.expectRevert("GnosisSafeHashes: Invalid encoded transaction data length.");
-        encodedTxData.getDomainAndMessageHashFromEncodedTransactionData();
+        vm.expectRevert(); // Tries to parse data as EIP-712 JSON but it reverts.
+        encodedTxData.getDomainAndMessageHashFromDataToSign();
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
-    function testGetMessageHashFromEncodedTransactionData_TooLong() public {
-        // 67 bytes (too long)
+    function testGetDomainAndMessageHashFromDataToSign_IncorrectEIP712Json() public {
+        // 67 bytes that is not a valid EIP-712 JSON.
         bytes memory encodedTxData = new bytes(67);
-        vm.expectRevert("GnosisSafeHashes: Invalid encoded transaction data length.");
-        encodedTxData.getDomainAndMessageHashFromEncodedTransactionData();
+        vm.expectRevert();
+        encodedTxData.getDomainAndMessageHashFromDataToSign();
     }
 
-    function testGetMessageHashFromEncodedTransactionData_FuzzTest(bytes32 randomHash) public pure {
+    function testGetDomainAndMessageHashFromDataToSign_FuzzTest(bytes32 randomHash) public pure {
         bytes memory encodedTxData = abi.encodePacked(bytes2(0x1901), bytes32(0), randomHash);
-        (, bytes32 messageHash) = encodedTxData.getDomainAndMessageHashFromEncodedTransactionData();
+        (, bytes32 messageHash) = encodedTxData.getDomainAndMessageHashFromDataToSign();
         assertEq(messageHash, randomHash, "Message hash should match the input random hash");
+    }
+
+    function testGetDomainAndMessageHashFromEip712Json() public {
+        bytes memory payload = _buildEip712Json({
+            chainId: 1,
+            verifyingContract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
+            to: 0xcA11bde05977b3631167028862bE2a173976CA11,
+            data: _defaultData(),
+            operation: 1,
+            nonce: 36
+        });
+
+        // Expected hashes provided by the user for this exact JSON
+        // These hashes are taken from 'eth/024-U16a-opcm-upgrade-v410-unichain'.
+        bytes32 expectedDomainHash = bytes32(hex"a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672");
+        bytes32 expectedMessageHash = bytes32(hex"01bdc123c9d8c24f36748875ebbfa43edc5be26a165455e9ea8cb0668c4f9feb");
+
+        (bytes32 domainHash, bytes32 messageHash) = payload.getDomainAndMessageHashFromDataToSign();
+        assertEq(domainHash, expectedDomainHash, "Domain hash should match expected value");
+        assertEq(messageHash, expectedMessageHash, "Message hash should match expected value");
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testGetDomainAndMessageHashFromEip712Json_InvalidOperation() public {
+        bytes memory payload = _buildEip712Json({
+            chainId: 1,
+            verifyingContract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
+            to: 0xcA11bde05977b3631167028862bE2a173976CA11,
+            data: _defaultData(),
+            operation: 0,
+            nonce: 36
+        });
+        vm.expectRevert("GnosisSafeHashes: invalid operation, only DelegateCall is supported");
+        payload.getDomainAndMessageHashFromDataToSign();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testGetDomainAndMessageHashFromEip712Json_ZeroVerifyingContract() public {
+        bytes memory payload = _buildEip712Json({
+            chainId: 1,
+            verifyingContract: address(0),
+            to: 0xcA11bde05977b3631167028862bE2a173976CA11,
+            data: _defaultData(),
+            operation: 1,
+            nonce: 36
+        });
+        vm.expectRevert("GnosisSafeHashes: verifyingContract is zero");
+        payload.getDomainAndMessageHashFromDataToSign();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testGetDomainAndMessageHashFromEip712Json_ZeroToAddress() public {
+        bytes memory payload = _buildEip712Json({
+            chainId: 1,
+            verifyingContract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
+            to: address(0),
+            data: _defaultData(),
+            operation: 1,
+            nonce: 36
+        });
+        vm.expectRevert("GnosisSafeHashes: to is zero");
+        payload.getDomainAndMessageHashFromDataToSign();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testGetDomainAndMessageHashFromEip712Json_EmptyJson() public {
+        bytes memory payload = bytes("");
+        vm.expectRevert("GnosisSafeHashes: empty EIP-712 JSON");
+        payload.getDomainAndMessageHashFromDataToSign();
     }
 
     /// @notice Test decodeMulticallApproveHash with valid input.

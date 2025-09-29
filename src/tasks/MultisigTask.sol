@@ -797,10 +797,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 MultisigTaskPrinter.printTitle(string.concat("Safe (Depth: ", vm.toString(level), ")"));
                 console.log("Safe Address:   ", MultisigTaskPrinter.getAddressLabel(payload.safes[i]));
                 console.log("Safe Hash:      ", vm.toString(safeHash));
-                address multicallAddress = _getMulticallAddress(payload.safes[i], payload.safes);
-                dataToSign_ = GnosisSafeHashes.getEncodedTransactionData(
-                    payload.safes[i], payload.calldatas[i], 0, payload.originalNonces[i], multicallAddress
-                );
+                dataToSign_ =
+                    _getDataToSign(payload.calldatas[i], payload.safes[i], payload.originalNonces[i], payload.safes);
 
                 bool isLastTask = i == 0;
                 if (isLastTask) {
@@ -814,13 +812,49 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         MultisigTaskPrinter.printNormalizedStateDiffHash(normalizedHash_);
     }
 
+    /// @notice Builds the data that signers should sign for a given safe and call.
+    /// If Utils.printDataHashes() is true, returns the encoded transaction data; otherwise returns EIP-712 JSON.
+    function _getDataToSign(bytes memory callData, address safe, uint256 originalNonce, address[] memory allSafes)
+        internal
+        returns (bytes memory dataToSign_)
+    {
+        address multicallAddress = _getMulticallAddress(safe, allSafes);
+        bytes memory dataToSignDataHashes =
+            GnosisSafeHashes.getEncodedTransactionData(safe, callData, 0, originalNonce, multicallAddress);
+        bytes memory dataToSignJson = GnosisSafeHashes.encodeEIP712Json(
+            multicallAddress,
+            safe,
+            GnosisSafeHashes.SafeTransaction({
+                to: multicallAddress,
+                value: 0,
+                data: callData,
+                operation: uint8(Enum.Operation.DelegateCall),
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                nonce: originalNonce
+            })
+        );
+        (bytes32 domainHashFromData, bytes32 messageHashFromData) =
+            GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(dataToSignDataHashes);
+        (bytes32 domainHashFromJson, bytes32 messageHashFromJson) =
+            GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(dataToSignJson);
+        require(
+            messageHashFromData == messageHashFromJson && domainHashFromData == domainHashFromJson,
+            "MultisigTask: EIP712 data to sign hashes do not match. Please report this error."
+        );
+        return Utils.printDataHashes() ? dataToSignDataHashes : dataToSignJson;
+    }
+
     /// @notice Helper function to print the final safe information.
     function _printLastSafe(bytes memory dataToSign, address rootSafe, TaskPayload memory payload) private view {
         (bytes32 domainSeparator, bytes32 messageHash) =
-            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(dataToSign);
+            GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(dataToSign);
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
-        MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
+        MultisigTaskPrinter.printDataToSign(dataToSign);
         address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
         address childMulticallTarget =
             payload.safes.length > 1 ? _getMulticallAddress(payload.safes[0], payload.safes) : address(0);

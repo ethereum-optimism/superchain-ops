@@ -207,7 +207,7 @@ contract TaskManager is Script {
     function checkDataToSign(bytes memory _dataToSign, TaskConfig memory _config) public view returns (bool) {
         string memory message = "Please check that you've added it to the VALIDATION markdown file.";
         (bytes32 domainSeparator, bytes32 messageHash) =
-            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(_dataToSign);
+            GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(_dataToSign);
         bytes memory domainHashBytes = abi.encodePacked(domainSeparator);
         bytes memory messageHashBytes = abi.encodePacked(messageHash);
         bool containsDomainHash =

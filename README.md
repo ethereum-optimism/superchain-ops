@@ -199,6 +199,8 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 - `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
 - `SIMULATE_WITHOUT_WALLET` - Set to run the simulation phase without a wallet (i.e. Ledger/Trezor/KeyStore). This step will simulate a task with valid, default keys.
 - `WALLET_TYPE` - This can be either `ledger`, `trezor` or `keystore`. The default value is `ledger`.
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
+- `EIP712_ENCODED_DATA_TO_SIGN` - If set the encoded EIP-712 typed data JSON is used for signing; when unset, only the EIP-712 domain and message hashes (default) are used for signing.
 
 **Examples:**
 

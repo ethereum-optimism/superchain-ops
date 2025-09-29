@@ -66,8 +66,10 @@ library MultisigTaskPrinter {
     }
 
     /// @notice Prints encoded transaction data with formatted header and footer and instructions for signers.
-    /// @param dataToSign The encoded transaction data to sign.
-    function printEncodedTransactionData(bytes memory dataToSign) internal view {
+    /// @param dataToSign The encoded transaction data to sign. This can be encoded either as:
+    /// 1. EIP-712 Json string
+    /// 2. 0x1901<32-byte domainSeparator><32-byte messageHash>
+    function printDataToSign(bytes memory dataToSign) internal view {
         // NOTE: Do not change the vvvvvvvv and ^^^^^^^^ lines, as the eip712sign tool explicitly
         // looks for those specific lines to identify the data to sign.
         printTitle("DATA TO SIGN");

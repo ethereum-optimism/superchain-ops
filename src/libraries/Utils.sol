@@ -31,6 +31,14 @@ library Utils {
         return false;
     }
 
+    /// @notice Controls whether the safe tx is printed as structured EIP-712 data, or just hashes.
+    /// If you want to print and sign hashed EIP-712 data (domain + message hash) rather than the
+    /// typed EIP-712 data struct, set the environment variable accordingly.
+    /// We default to printing the hashes and not the structured data.
+    function printDataHashes() internal view returns (bool) {
+        return !isFeatureEnabled("EIP712_ENCODED_DATA_TO_SIGN");
+    }
+
     /// @notice Checks that values have code on this chain.
     /// This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
     /// results for cases like packed slots, and silently show that things are okay when they are not.
