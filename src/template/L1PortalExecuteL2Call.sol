@@ -4,9 +4,10 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
-import {MultisigTaskPrinter} from "../libraries/MultisigTaskPrinter.sol";
-import {Action} from "../libraries/MultisigTypes.sol";
-import {SimpleTaskBase} from "../tasks/types/SimpleTaskBase.sol";
+import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 
 /// @notice Interface for the OptimismPortal2 contract on L1.
 interface IOptimismPortal2 {
@@ -17,12 +18,10 @@ interface IOptimismPortal2 {
 
 /// @notice Template to execute an L2 call via the L1 Optimism Portal from a nested L1 Safe.
 /// Sends an L2 transaction using OptimismPortal.depositTransaction with config-driven params.
-contract L1PortalExecuteL2Call is SimpleTaskBase {
+contract L1PortalExecuteL2Call is L2TaskBase {
     using stdToml for string;
 
     // -------- Config inputs --------
-    /// @notice The address of the OptimismPortal2 contract on L1.
-    address payable public portal;
     /// @notice The address of the L2 target contract.
     address public l2Target;
     /// @notice The calldata to be executed on l2Target.
@@ -41,7 +40,7 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     /// Allowlist the OptimismPortal since it will mutate state (queue/event) on deposit.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         string[] memory _storageWrites = new string[](1);
-        _storageWrites[0] = "OptimismPortal";
+        _storageWrites[0] = "OptimismPortalProxy";
         return _storageWrites;
     }
 
@@ -49,13 +48,12 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     /// Allowlist the OptimismPortal to receive ETH (value) in the deposit call.
     function _taskBalanceChanges() internal pure override returns (string[] memory) {
         string[] memory _balanceChanges = new string[](1);
-        _balanceChanges[0] = "OptimismPortal";
+        _balanceChanges[0] = "OptimismPortalProxy";
         return _balanceChanges;
     }
 
     /// @notice Parse config and initialize template variables.
     /// Expected TOML keys:
-    /// - portal: address (L1 OptimismPortal) OR addresses.OptimismPortal in [addresses]
     /// - l2Target: address (L2 target address)
     /// - l2Data: hex string (e.g. 0x1234...)
     /// - gasLimit: uint (will be cast to uint64)
@@ -63,14 +61,6 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     /// - isCreation: bool (optional, default false)
     function _templateSetup(string memory _taskConfigFilePath, address) internal override {
         string memory _toml = vm.readFile(_taskConfigFilePath);
-
-        // Resolve portal from registry first if available, else read explicit field.
-        try simpleAddrRegistry.get("OptimismPortal") returns (address p) {
-            portal = payable(p);
-        } catch {
-            portal = payable(_toml.readAddress(".portal"));
-        }
-        require(portal != address(0), "portal must be set (addresses.OptimismPortal or .portal)");
 
         l2Target = _toml.readAddress(".l2Target");
         require(l2Target != address(0), "l2Target must be set");
@@ -95,8 +85,12 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
 
     /// @notice Build the portal deposit action. WARNING: State changes here are reverted after capture.
     function _build(address) internal override {
-        // Record the L1 portal call with value for action extraction.
-        IOptimismPortal2(portal).depositTransaction(l2Target, 0, gasLimit, isCreation, l2Data);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            // Record the L1 portal call with value for action extraction.
+            IOptimismPortal2(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[i].chainId))
+                .depositTransaction(l2Target, 0, gasLimit, isCreation, l2Data);
+        }
     }
 
     /// @notice Validate that exactly one action to the portal with the expected calldata and value was captured.
@@ -106,15 +100,22 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
 
         bool _found;
         uint256 _matches;
-        for (uint256 _i = 0; _i < _actions.length; _i++) {
-            if (_actions[_i].target == portal && _actions[_i].value == 0) {
-                if (keccak256(_actions[_i].arguments) == keccak256(_expected)) {
-                    _found = true;
-                    _matches++;
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            for (uint256 _i = 0; _i < _actions.length; _i++) {
+                if (
+                    _actions[_i].target == superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[i].chainId)
+                        && _actions[_i].value == 0
+                ) {
+                    if (keccak256(_actions[_i].arguments) == keccak256(_expected)) {
+                        _found = true;
+                        _matches++;
+                    }
                 }
             }
         }
-        require(_found && _matches == 1, "expected one portal deposit action");
+
+        require(_found && _matches == chains.length, "expected one portal deposit action for each chain");
         MultisigTaskPrinter.printTitle("Validated portal deposit action");
     }
 
