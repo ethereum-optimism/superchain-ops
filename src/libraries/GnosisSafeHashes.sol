@@ -8,15 +8,11 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Vm} from "forge-std/Vm.sol";
-import {console} from "forge-std/console.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
 library GnosisSafeHashes {
-    address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
-    Vm internal constant vm = Vm(VM_ADDRESS);
-
     // Safe transaction type hash
     bytes32 constant SAFE_TX_TYPEHASH = keccak256(
         "SafeTx(address to,uint256 value,bytes data,uint8 operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,uint256 nonce)"
@@ -172,7 +168,7 @@ library GnosisSafeHashes {
     /// @notice Reads the result of a call to Safe.encodeTransactionData and returns the message hash.
     function getDomainAndMessageHashFromDataToSign(bytes memory _dataToSign)
         internal
-        pure
+        view
         returns (bytes32 domainSeparator_, bytes32 messageHash_)
     {
         // If it looks like 0x1901-prefixed encoded bytes (66 bytes total), decode directly.
@@ -197,7 +193,7 @@ library GnosisSafeHashes {
     /// @dev This mirrors the Safe EIP-712 encoding: dynamic types such as bytes are hashed before struct encoding.
     function getDomainAndMessageHashFromEip712Json(bytes memory _json)
         internal
-        pure
+        view
         returns (bytes32 domainSeparator_, bytes32 messageHash_)
     {
         string memory json = string(_json);
@@ -208,9 +204,7 @@ library GnosisSafeHashes {
         address verifyingContract = stdJson.readAddress(json, ".domain.verifyingContract");
         require(verifyingContract != address(0), "GnosisSafeHashes: verifyingContract is zero");
         // Compute domain separator according to the JSON schema used in encodeEIP712Json
-        domainSeparator_ = keccak256(
-            abi.encode(keccak256("EIP712Domain(uint256 chainId,address verifyingContract)"), chainId, verifyingContract)
-        );
+        domainSeparator_ = calculateDomainSeparator(chainId, verifyingContract);
 
         // Message fields
         address to = stdJson.readAddress(json, ".message.to");
@@ -225,7 +219,6 @@ library GnosisSafeHashes {
         address gasToken = stdJson.readAddress(json, ".message.gasToken");
         address refundReceiver = stdJson.readAddress(json, ".message.refundReceiver");
         uint256 nonce = stdJson.readUint(json, ".message.nonce");
-
         bytes32 dataHash = keccak256(data);
         messageHash_ = keccak256(
             abi.encode(

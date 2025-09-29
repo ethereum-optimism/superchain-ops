@@ -841,10 +841,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(dataToSignDataHashes);
         (bytes32 domainHashFromJson, bytes32 messageHashFromJson) =
             GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(dataToSignJson);
-        require(
-            messageHashFromData == messageHashFromJson && domainHashFromData == domainHashFromJson,
-            "MultisigTask: EIP712 data to sign hashes do not match. Please report this error."
-        );
+        require(domainHashFromData == domainHashFromJson, "MultisigTask: EIP712 domain hash does not match.");
+        require(messageHashFromData == messageHashFromJson, "MultisigTask: EIP712 message hash does not match.");
         return Utils.printDataHashes() ? dataToSignDataHashes : dataToSignJson;
     }
 

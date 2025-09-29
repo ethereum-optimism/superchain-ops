@@ -147,7 +147,7 @@ contract GnosisSafeHashes_Test is Test {
 
     /// @notice Test with valid input. The encoded data is constructed as:
     /// [0x19, 0x01, 32 bytes domain separator (zeros), 32 bytes message hash].
-    function testGetDomainAndMessageHashFromDataToSign_ValidInput() public pure {
+    function testGetDomainAndMessageHashFromDataToSign_ValidInput() public view {
         bytes32 expectedDomainSeparator = bytes32(hex"0000000000000000000000000000000000000000000000000000000000001234");
         bytes32 expectedMessageHash = bytes32(hex"000000000000000000000000000000000000000000000000000000000000abcd");
         bytes memory encodedTxData = abi.encodePacked(bytes2(0x1901), expectedDomainSeparator, expectedMessageHash);
@@ -158,7 +158,7 @@ contract GnosisSafeHashes_Test is Test {
     }
 
     /// @notice Test where the message hash is all zeros.
-    function testGetDomainAndMessageHashFromDataToSign_AllZeros() public pure {
+    function testGetDomainAndMessageHashFromDataToSign_AllZeros() public view {
         bytes memory encodedTxData = abi.encodePacked(bytes2(0x1901), bytes32(0), bytes32(0));
         bytes32 expectedHash = bytes32(0);
 
@@ -167,7 +167,7 @@ contract GnosisSafeHashes_Test is Test {
         assertEq(messageHash, expectedHash, "Message hash should be all zeros");
     }
 
-    function testGetDomainAndMessageHashFromDataToSign_MaxUint256() public pure {
+    function testGetDomainAndMessageHashFromDataToSign_MaxUint256() public view {
         bytes memory encodedTxData =
             abi.encodePacked(bytes2(0x1901), bytes32(type(uint256).max), bytes32(type(uint256).max));
         bytes32 expectedHash = bytes32(type(uint256).max);
@@ -193,13 +193,14 @@ contract GnosisSafeHashes_Test is Test {
         encodedTxData.getDomainAndMessageHashFromDataToSign();
     }
 
-    function testGetDomainAndMessageHashFromDataToSign_FuzzTest(bytes32 randomHash) public pure {
+    function testGetDomainAndMessageHashFromDataToSign_FuzzTest(bytes32 randomHash) public view {
         bytes memory encodedTxData = abi.encodePacked(bytes2(0x1901), bytes32(0), randomHash);
         (, bytes32 messageHash) = encodedTxData.getDomainAndMessageHashFromDataToSign();
         assertEq(messageHash, randomHash, "Message hash should match the input random hash");
     }
 
     function testGetDomainAndMessageHashFromEip712Json() public {
+        vm.createSelectFork("mainnet", 23470688);
         bytes memory payload = _buildEip712Json({
             chainId: 1,
             verifyingContract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
@@ -221,6 +222,8 @@ contract GnosisSafeHashes_Test is Test {
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testGetDomainAndMessageHashFromEip712Json_InvalidOperation() public {
+        vm.createSelectFork("mainnet", 23470688);
+        GnosisSafeHashes_Harness gnosisSafeHashesHarness = new GnosisSafeHashes_Harness();
         bytes memory payload = _buildEip712Json({
             chainId: 1,
             verifyingContract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
@@ -230,7 +233,7 @@ contract GnosisSafeHashes_Test is Test {
             nonce: 36
         });
         vm.expectRevert("GnosisSafeHashes: invalid operation, only DelegateCall is supported");
-        payload.getDomainAndMessageHashFromDataToSign();
+        gnosisSafeHashesHarness.getDomainAndMessageHashFromDataToSign(payload);
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
@@ -249,6 +252,8 @@ contract GnosisSafeHashes_Test is Test {
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testGetDomainAndMessageHashFromEip712Json_ZeroToAddress() public {
+        vm.createSelectFork("mainnet", 23470688);
+        GnosisSafeHashes_Harness gnosisSafeHashesHarness = new GnosisSafeHashes_Harness();
         bytes memory payload = _buildEip712Json({
             chainId: 1,
             verifyingContract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
@@ -258,7 +263,7 @@ contract GnosisSafeHashes_Test is Test {
             nonce: 36
         });
         vm.expectRevert("GnosisSafeHashes: to is zero");
-        payload.getDomainAndMessageHashFromDataToSign();
+        gnosisSafeHashesHarness.getDomainAndMessageHashFromDataToSign(payload);
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
@@ -453,5 +458,13 @@ contract GnosisSafeHashes_Harness is Test {
 
     function getOperationDetails(VmSafe.AccountAccessKind _kind) public pure returns (string memory, Enum.Operation) {
         return GnosisSafeHashes.getOperationDetails(_kind);
+    }
+
+    function getDomainAndMessageHashFromDataToSign(bytes memory payload)
+        public
+        view
+        returns (bytes32 domainSeparator, bytes32 messageHash)
+    {
+        return GnosisSafeHashes.getDomainAndMessageHashFromDataToSign(payload);
     }
 }
