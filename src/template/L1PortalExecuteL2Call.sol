@@ -87,9 +87,9 @@ contract L1PortalExecuteL2Call is L2TaskBase {
     /// @notice Build the portal deposit action. WARNING: State changes here are reverted after capture.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        for (uint256 i = 0; i < chains.length; i++) {
+        for (uint256 _i = 0; _i < chains.length; _i++) {
             // Record the L1 portal call with value for action extraction.
-            IOptimismPortal2(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[i].chainId))
+            IOptimismPortal2(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[_i].chainId))
                 .depositTransaction(l2Target, 0, gasLimit, isCreation, l2Data);
         }
     }
@@ -102,13 +102,13 @@ contract L1PortalExecuteL2Call is L2TaskBase {
         bool _found;
         uint256 _matches;
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        for (uint256 i = 0; i < chains.length; i++) {
-            for (uint256 _i = 0; _i < _actions.length; _i++) {
+        for (uint256 _i = 0; _i < chains.length; _i++) {
+            for (uint256 _j = 0; _j < _actions.length; _j++) {
                 if (
-                    _actions[_i].target == superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[i].chainId)
-                        && _actions[_i].value == 0
+                    _actions[_j].target == superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[_i].chainId)
+                        && _actions[_j].value == 0
                 ) {
-                    if (keccak256(_actions[_i].arguments) == keccak256(_expected)) {
+                    if (keccak256(_actions[_j].arguments) == keccak256(_expected)) {
                         _found = true;
                         _matches++;
                     }
