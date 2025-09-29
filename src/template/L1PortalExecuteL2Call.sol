@@ -18,6 +18,7 @@ interface IOptimismPortal2 {
 
 /// @notice Template to execute an L2 call via the L1 Optimism Portal from a nested L1 Safe.
 /// Sends an L2 transaction using OptimismPortal.depositTransaction with config-driven params.
+/// Supports: op-contracts/v4.6.0
 contract L1PortalExecuteL2Call is L2TaskBase {
     using stdToml for string;
 
