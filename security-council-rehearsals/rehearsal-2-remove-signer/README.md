@@ -8,7 +8,7 @@ Once completed:
 - The Safe will have one fewer owner
 - The threshold will remain unchanged
 
-The call executed by the Safe contract is defined in the `build` function of the [`GnosisSafeRemoveOwner`](../../src/improvements/template/GnosisSafeRemoveOwner.sol) template.
+The call executed by the Safe contract is defined in the `build` function of the [`GnosisSafeRemoveOwner`](../../src/template/GnosisSafeRemoveOwner.sol) template.
 
 Note: No onchain actions will occur during this rehearsal. You are not submitting a transaction, and your wallet does not need to be funded. You will simply sign an offchain message with your wallet. These signatures will be collected by a Facilitator, who will submit them for execution.
 Once the required number of signatures is collected, anyone can finalize the execution. For convenience, a Facilitator will handle this step.
@@ -21,10 +21,10 @@ Once the required number of signatures is collected, anyone can finalize the exe
 cd superchain-ops
 git pull
 # Make sure you've installed the dependencies for the repository.
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
 ```
 
-See the [README](../../src/improvements/README.md) for more information on how to install the dependencies for the repository.
+See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
 
 ### 2. Setup Ledger
 
@@ -37,7 +37,7 @@ is ready”.
 Make sure your ledger is still unlocked and run the following.
 
 ``` shell
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env simulate
 # For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
 ```
@@ -125,7 +125,7 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ``` shell
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env sign
 # For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign
 ```
@@ -177,7 +177,7 @@ congrats, you are done!
 #### 1. Create a new task in the `eth` directory:
 
 ```bash
-cd superchain-ops/src/improvements
+cd superchain-ops/src
 just new task # Follow the prompts to create a new rehearsals task. 
 # (a) choose 'eth' 
 # (b) choose 'GnosisSafeRemoveOwner' 
@@ -185,7 +185,7 @@ just new task # Follow the prompts to create a new rehearsals task.
 # (d) press 'y' for 'Is this a security council rehearsal task?'
 # (e) enter a name of the task in the format of '<yyyy-mm-dd>-<task-name>'
 
-# This creates a new directory in the `src/improvements/tasks/eth/rehearsals` directory.
+# This creates a new directory in the `src/tasks/eth/rehearsals` directory.
 ```
 
 Next, make sure your `config.toml` is correct. You should use the TOML below as a starting point.
@@ -233,8 +233,8 @@ Then you should run
 
 ``` shell
 export SIGNATURES="0xAAAABBBB"
-cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env execute
 ```
 
-For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/improvements/tasks/eth/rehearsals/2025-11-28-R2-remove-signer/README.md).
+For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/tasks/eth/rehearsals/2025-11-28-R2-remove-signer/README.md).

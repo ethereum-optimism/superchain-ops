@@ -1,0 +1,33 @@
+[eth]
+SuperchainConfig = "0x95703e0982140D16f8ebA6d158FccEde42f04a4C"
+ProtocolVersions = "0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
+DeputyGuardianModule = "0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B"
+FoundationUpgradeSafe = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+SecurityCouncil = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+LivenessGuard = "0x24424336F04440b1c28685a38303aC33C9D14a25" # LivenessGuard on security council
+ChainGovernorSafe = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC" # unichain mainnet 3-of-3
+FoundationOperationsSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
+GuardianSafe = "0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2"
+
+BaseNestedSafe = "0x9855054731540A48b28990B63DcF4f33d8AE46A1" # 2/2 between Base and their Security Council (SC)
+BaseOperationsSafe = "0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110" # The Base safe that is one signer on the BaseNestedSafe
+BaseSCSafe = "0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd" # The Base SC safe that is the other signer on the BaseNestedSafe
+
+[sep]
+SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"
+ProtocolVersions = "0x79ADD5713B383DAa0a138d3C4780C7A1804a8090" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
+DeputyGuardianModule = "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8"
+DeputyPauseModule = "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
+FoundationUpgradeSafe = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
+SecurityCouncil = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
+LivenessGuard = "0xc26977310bC89DAee5823C2e2a73195E85382cC7" # LivenessGuard on security council
+FoundationOperationsSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"
+GuardianSafe = "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E"
+
+BaseNestedSafe = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # 2/2 between Base and their Security Council (SC)
+BaseOperationsSafe = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # The Base safe that is one signer on the BaseNestedSafe
+BaseSCSafe = "0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f" # The Base SC safe that is the other signer on the BaseNestedSafe
+
+[oeth]
+
+[opsep]

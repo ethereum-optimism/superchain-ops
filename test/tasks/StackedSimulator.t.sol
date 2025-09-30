@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
+import {StackedSimulator} from "src/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";

@@ -11,8 +11,8 @@ import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/librarie
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockSetEIP1967ImplTask} from "test/tasks/mock/MockSetEIP1967ImplTask.sol";
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {MultisigTask} from "src/tasks/MultisigTask.sol";
+import {StateOverrideManager} from "src/tasks/StateOverrideManager.sol";
 import {MultisigTaskTestHelper as helper} from "test/tasks/MultisigTask.t.sol";
 import {console} from "forge-std/console.sol";
 

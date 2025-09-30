@@ -52,7 +52,7 @@ jobs:
           at: .
       - run:
           name: Check task statuses
-          command: bash ./src/improvements/script/check-task-statuses.sh
+          command: bash ./src/script/check-task-statuses.sh
 
   check_superchain_registry:
     docker:
@@ -65,7 +65,7 @@ jobs:
           name: Check superchain registry
           command: |
             just install
-            (cd src/improvements && just --justfile ci.just check-superchain-registry-latest)
+            (cd src/ && just --justfile ci.just check-superchain-registry-latest)
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
@@ -88,10 +88,10 @@ jobs:
           no_output_timeout: 30m 
           command: |
             just install
-            cd src/improvements
+            cd src/
             just simulate-stack <<parameters.network>> > stack-simulation-output.txt
       - store_artifacts:
-          path: src/improvements/stack-simulation-output.txt
+          path: src/stack-simulation-output.txt
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
@@ -130,6 +130,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: forge test
+          max_auto_reruns: 3
+          auto_rerun_delay: 10s
           command: |
             just install
             forge --version
@@ -147,8 +149,10 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: Make sure all templates can be simulated.
+          max_auto_reruns: 3
+          auto_rerun_delay: 10s
           command: |
-            (cd src/improvements && just --justfile ci.just simulate-all-templates)
+            (cd src/ && just --justfile ci.just simulate-all-templates)
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
@@ -161,7 +165,7 @@ jobs:
       - run:
           name: just new recipe tests
           command: |
-            (cd src/improvements && bash script/test-just-new.sh)
+            (cd src/ && bash script/test-just-new.sh)
 
   print_versions:
     docker:
@@ -184,7 +188,7 @@ jobs:
           name: shellcheck
           command:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
-            (cd src/improvements/script && shellcheck -x *.sh)
+            (cd src/script && shellcheck -x *.sh)
   # Check that all task directories have valid names and there are no duplicate prefixes.
   check_task_names:
     docker:
@@ -193,7 +197,7 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: check task names
-          command: (cd src/improvements/script && ./check-task-names.sh)
+          command: (cd src/script && ./check-task-names.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1

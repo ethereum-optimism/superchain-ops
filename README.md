@@ -8,7 +8,7 @@
 
 A tooling system for developers to write, test, and simulate onchain state changes safely before execution.
 
-> 📚 More detailed documentation can be found in the [doc](src/improvements/doc/) directory.
+> 📚 More detailed documentation can be found in the [doc](src/doc/) directory.
 
 ## Repository Structure
 
@@ -17,12 +17,11 @@ The repository is organized as follows:
 ```
 superchain-ops/
 └── src/
-    └── improvements/ 
-       ├── template/     # Solidity template contracts (Template developers create templates here)
-       └── doc/          # Detailed documentation
-       └── tasks/        # Network-specific tasks
-            ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
-            └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
+      ├── template/     # Solidity template contracts (Template developers create templates here)
+      └── doc/          # Detailed documentation
+      └── tasks/        # Network-specific tasks
+          ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
+          └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
 
 ```
 
@@ -33,7 +32,7 @@ superchain-ops/
 1. Install dependencies:
 Run the commands below to set up your environment. `mise` is a **one-time setup** that ensures all signers and developers use the same dependency versions.
 ```bash
-cd src/improvements/
+cd src/
 ./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
 mise activate   # Activate mise for the current shell; if it doesn’t take effect, restart your terminal.
 mise trust ../../mise.toml
@@ -45,15 +44,15 @@ just --justfile ../../justfile install
 
 2. Run tests:
 ```bash
-# Ensure you're in 'src/improvements/'
-# cd src/improvements/
+# Ensure you're in 'src/'
+# cd src/
 forge test # Run solidity tests.
 ```
 
 3. Create a new task:
 ```bash
-# Ensure you're in 'src/improvements/'
-# cd src/improvements/
+# Ensure you're in 'src/'
+# cd src/
 just new task
 ```
 
@@ -78,11 +77,11 @@ allowOverwrite = ["<enter-address-name-here>"] # We may want to overwrite an add
 # State overrides (e.g. specify a Safe nonce).
 ```
 
-The `allowOverwrite` TOML [array](https://toml.io/en/v1.0.0#array) is optional. It can be used to specify the addresses that we want to overwrite. You can see an example of its use in this [task](src/improvements/tasks/sep/020-gas-params-rehearsal-1-bn-0/config.toml). It's used when the user is adding an address to the `[addresses]` table that is already defined in the `addresses.toml` file.
+The `allowOverwrite` TOML [array](https://toml.io/en/v1.0.0#array) is optional. It can be used to specify the addresses that we want to overwrite. You can see an example of its use in this [task](src/tasks/sep/020-gas-params-rehearsal-1-bn-0/config.toml). It's used when the user is adding an address to the `[addresses]` table that is already defined in the `addresses.toml` file.
 
-The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](src/improvements/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml).
+The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](src/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml).
 
-The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](src/improvements/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml). If you're unsure about the format of the `key` and `value` fields, you must default to using 66-character hex strings (i.e. `0x` followed by 64 hex characters). For example, setting the nonce for a Safe to `23` would look like:
+The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](src/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml). If you're unsure about the format of the `key` and `value` fields, you must default to using 66-character hex strings (i.e. `0x` followed by 64 hex characters). For example, setting the nonce for a Safe to `23` would look like:
 
 ```toml
 # USE HEX ENCODED STRINGS WHEN POSSIBLE.
@@ -120,12 +119,12 @@ just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-na
 ```
 
 **Examples:**
-- **Single Safe Operations** (most common - see [SINGLE.md](src/improvements/SINGLE.md)):
+- **Single Safe Operations** (most common - see [SINGLE.md](src/SINGLE.md)):
   ```bash
   just --dotenv-path $(pwd)/.env simulate
   ```
 
-- **Nested Safe Operations** (see [NESTED.md](src/improvements/NESTED.md)):
+- **Nested Safe Operations** (see [NESTED.md](src/NESTED.md)):
   ```bash
   just --dotenv-path $(pwd)/.env simulate foundation
   just --dotenv-path $(pwd)/.env simulate council  
@@ -137,12 +136,12 @@ just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-na
   just --dotenv-path $(pwd)/.env simulate base-nested base-council
   ```
 
-> ℹ️ [child-safe-name-depth-1] or [child-safe-name-depth-2] refers to a safe name defined manually by the task developer under the `[addresses]` table in the tasks config.toml file or under a given network (e.g. `[sep]`) in [`addresses.toml`](./src/improvements/addresses.toml) file.
-> Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](src/improvements/tasks/sep/001-opcm-upgrade-v200/config.toml).
+> ℹ️ [child-safe-name-depth-1] or [child-safe-name-depth-2] refers to a safe name defined manually by the task developer under the `[addresses]` table in the tasks config.toml file or under a given network (e.g. `[sep]`) in [`addresses.toml`](./src/addresses.toml) file.
+> Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](src/tasks/sep/001-opcm-upgrade-v200/config.toml).
 
 **For stacked simulation** (recommended - simulates dependencies):
 ```bash
-cd src/improvements/
+cd src/
 just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
@@ -189,15 +188,15 @@ just list-stack eth <your-task-name>
 
 ### How do I sign a task that depends on another task?
 
-To sign a task, you can use the `just sign-stack` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your signing device.
+To sign a task, you can use the `just sign-stack` command in `src/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your signing device.
 
 ```bash
 just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
 **Environment variables:**
-- `HD_PATH` - Hardware wallet derivation path (default: 0)
-- `USE_KEYSTORE` - If set, uses keystore instead of ledger. 
+- `HD_PATH` - Hardware wallet derivation path index (default: 0). The value is inserted into the [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) Ethereum path as `m/44'/60'/$HD_PATH'/0/0` (e.g. `0` -> `m/44'/60'/0'/0/0`, `1` -> `m/44'/60'/1'/0/0`). Use this to select the desired Ethereum account on your hardware wallet.
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
 
 **Examples:**
 
@@ -224,6 +223,37 @@ The command will then:
 2. Simulate the tasks in order.
 3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
 
+### How do I perform a contract upgrade directly on an L2?
+
+You can execute an upgrade directly on an L2 (e.g. `op-sepolia`). `SuperchainAddressRegistry` detects that the task is upgrading directly via an L2. It does this by looking at the RPC url, which is decided by the directory that the task is contained within (i.e. `tasks/opsep`).
+
+- Create your task in the correct directory for your L2 (e.g. `opsep`).
+- Set `l2chains` to the chain you're targetting.
+- Set `fallbackAddressesJsonPath` in `config.toml`.
+- In `addresses.json` (keyed by chainId), include every identifier your template uses (e.g., `ProxyAdminOwner`, `ProxyAdmin`, `<Identifier>`).
+
+`config.toml`:
+
+```toml
+l2chains = [{ name = "<CHAIN_NAME>", chainId = <CHAIN_ID> }]
+fallbackAddressesJsonPath = "<relative/path/to/addresses.json>"
+templateName = "<YOUR_TEMPLATE_NAME>"
+# template-specific fields...
+```
+
+`addresses.json`:
+```json
+{
+  "<CHAIN_ID>": {
+    "ProxyAdminOwner": "0x...",
+    "ProxyAdmin": "0x...",
+    "<IdentifierYourTemplateUses>": "0x..."
+  }
+}
+```
+
+Example: see [`test/tasks/example/opsep/001-set-eip1967-impl`](/test/tasks/example/opsep/001-set-eip1967-impl/).
+
 ### How do I add a private key to my keystore?
 
 Use Foundry's keystore. Import your key and set a password when prompted:
@@ -238,17 +268,17 @@ See the official Foundry docs for the [cast wallet import](https://getfoundry.sh
 
 ### How do I make sure an address is universally available to any task?
 
-We have provided the [`addresses.toml`](./src/improvements/addresses.toml) file to help you do this. This file is used to store commonly used addresses involved in an upgrade. You can access any of these addresses by name in your task's template.
+We have provided the [`addresses.toml`](./src/addresses.toml) file to help you do this. This file is used to store commonly used addresses involved in an upgrade. You can access any of these addresses by name in your task's template.
 
 The addresses in this file are loaded into two different address registry contracts, depending on the needs of your task: `SimpleAddressRegistry.sol` and `SuperchainAddressRegistry.sol`.
 
 - **`SimpleAddressRegistry.sol`**: This is a straightforward key-value store for addresses. It's used for tasks that require a simple way to look up addresses by a human-readable name.
 
-- **`SuperchainAddressRegistry.sol`**: An advanced registry designed to automatically discover contract addresses deployed across chains in the Superchain. For this to work, the target chain must be listed in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry). While standard deployments can be discovered automatically, some addresses such as multisig safes or custom contracts require manual inclusion. In these cases, `SuperchainAddressRegistry.sol` also loads entries from [`addresses.toml`](./src/improvements/addresses.toml) to ensure availability. If you're working with a chain not yet included in the Superchain registry, you can manually provide a fallback JSON file via `fallbackAddressesJsonPath` in your task's `config.toml`. See the section [below](#what-if-i-want-to-upgrade-a-chain-that-is-not-in-the-superchain-registry) for details.
+- **`SuperchainAddressRegistry.sol`**: An advanced registry designed to automatically discover contract addresses deployed across chains in the Superchain. For this to work, the target chain must be listed in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry). While standard deployments can be discovered automatically, some addresses such as multisig safes or custom contracts require manual inclusion. In these cases, `SuperchainAddressRegistry.sol` also loads entries from [`addresses.toml`](./src/addresses.toml) to ensure availability. If you're working with a chain not yet included in the Superchain registry, you can manually provide a fallback JSON file via `fallbackAddressesJsonPath` in your task's `config.toml`. See the section [below](#what-if-i-want-to-upgrade-a-chain-that-is-not-in-the-superchain-registry) for details.
 
-Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of [`addresses.toml`](./src/improvements/addresses.toml) will be loaded. You can only access addresses for the network you are working on.
+Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of [`addresses.toml`](./src/addresses.toml) will be loaded. You can only access addresses for the network you are working on.
 
-By adding an address to [`addresses.toml`](./src/improvements/addresses.toml), you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
+By adding an address to [`addresses.toml`](./src/addresses.toml), you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
 
 ### What if I want to upgrade a chain that is not in the superchain-registry?
 
@@ -268,6 +298,19 @@ When the task runs, it will first attempt to use the superchain-registry. If the
 
 > ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
 
+### What is the 'Normalized State Diff Hash'?
+
+The normalized state diff hash is a single fingerprint of all the onchain state changes your task would make if executed. We “normalize” the diff first (stable ordering and encoding) so the hash only changes when the actual intended state changes do.
+
+- Why it exists: To make it easy for reviewers and signers to verify they’re approving the exact same change set that was simulated and reviewed.
+- Where to see it: It’s printed at the end of simulation/stacked simulation and recorded in each task’s `VALIDATION.md` under “Normalized State Diff Hash Attestation”.
+- When it changes: If any task state we consider meaningful changes, the hash will also change.
+
+What to do if it doesn’t match:
+- **Do not proceed or sign**.
+- Contact the task authors and update the task only after review.
+
+
 ## Available Templates
 
-All available templates can be found in the [template](src/improvements/template/) directory. 
+All available templates can be found in the [template](src/template/) directory. 
