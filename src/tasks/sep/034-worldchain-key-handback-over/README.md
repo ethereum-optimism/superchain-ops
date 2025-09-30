@@ -17,5 +17,5 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
 Signing commands for each safe:
 ```bash
 cd src/tasks/sep/034-worldchain-key-handback-over
-just --dotenv-path $(pwd)/.env sign 
+just --dotenv-path $(pwd)/.env sign <council|foundation>
 ```
