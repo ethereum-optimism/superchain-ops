@@ -1,0 +1,10 @@
+templateName = "DeployFeesDepositor"
+
+salt = "fees-depositor"
+minDepositAmount = 5000000000000000000
+l2Recipient = "0x0000000000000000000000000000000000000001"
+portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
+gasLimit = 300000
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # 2-of-2 between council and foundation
