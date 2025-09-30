@@ -46,19 +46,13 @@ contract L1PortalExecuteL2Call is L2TaskBase {
     }
 
     /// @notice The contracts expected to have balance changes during execution.
-    /// Allowlist the OptimismPortal to receive ETH (value) in the deposit call.
-    function _taskBalanceChanges() internal pure override returns (string[] memory) {
-        string[] memory _balanceChanges = new string[](1);
-        _balanceChanges[0] = "OptimismPortalProxy";
-        return _balanceChanges;
-    }
+    function _taskBalanceChanges() internal pure override returns (string[] memory) {}
 
     /// @notice Parse config and initialize template variables.
     /// Expected TOML keys:
     /// - l2Target: address (L2 target address)
     /// - l2Data: hex string (e.g. 0x1234...)
     /// - gasLimit: uint (will be cast to uint64)
-    /// - value: uint (optional, default 0)
     /// - isCreation: bool (optional, default false)
     function _templateSetup(string memory _taskConfigFilePath, address) internal override {
         string memory _toml = vm.readFile(_taskConfigFilePath);
@@ -88,13 +82,12 @@ contract L1PortalExecuteL2Call is L2TaskBase {
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 _i = 0; _i < chains.length; _i++) {
-            // Record the L1 portal call with value for action extraction.
             IOptimismPortal2(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[_i].chainId))
                 .depositTransaction(l2Target, 0, gasLimit, isCreation, l2Data);
         }
     }
 
-    /// @notice Validate that exactly one action to the portal with the expected calldata and value was captured.
+    /// @notice Validate that exactly one action to the portal with the expected calldata was captured.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal view override {
         bytes memory _expected =
             abi.encodeCall(IOptimismPortal2.depositTransaction, (l2Target, 0, gasLimit, isCreation, l2Data));
