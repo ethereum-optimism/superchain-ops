@@ -3,5 +3,5 @@ l2chains = [{name = "Worldchain Sepolia", chainId = 4801}]
 
 templateName = "TransferL2PAOFromL1ToEOA"
 
-# The new EOA owner address (from the actual simulation)
+# The new owner address (EOA). See here https://www.notion.so/oplabs/Worldchain-key-handback-over-address-validation-272f153ee1628002bfa2e00a718c57d5?source=copy_link
 newOwnerEOA = "0xe78a0a96c5d6ae6c606418ed4a9ced378cb030a0"

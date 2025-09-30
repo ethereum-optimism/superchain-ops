@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
-Todo: Describe the objective of the task
+Transfer the L2 ProxyAdmin Owner for Worldchain Sepolia to [Alchemy-controlled EOA](https://www.notion.so/oplabs/Worldchain-key-handback-over-address-validation-272f153ee1628002bfa2e00a718c57d5?source=copy_link).
 
 ## Simulation & Signing
 
