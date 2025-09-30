@@ -381,6 +381,11 @@ _get-signer-args hdPath='0' wallet_type='ledger':
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     
+    # The 'eip712sign' library requires EIP712 typed data to be supplied for Trezor devices.
+    if [ "{{wallet_type}}" = "trezor" ]; then
+        export EIP712_ENCODED_DATA_TO_SIGN=true
+    fi
+    
     if [ "{{wallet_type}}" != "keystore" ]; then # either 'ledger' or 'trezor'
         hdpaths="m/44'/60'/{{hdPath}}'/0/0"
         echo "Using {{wallet_type}}" >&2
