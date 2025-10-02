@@ -9,7 +9,7 @@ export OWNER_SAFE := env_var('COUNCIL_SAFE')
 simulate hdPath='0':
   #!/usr/bin/env bash
   echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  if [ t"$SIMULATE_WITHOUT_WALLET" == t1 ]
   then
     signer="0xc49d46E3F834f5C9856A7FcBEB185baD052c98e7"
   else

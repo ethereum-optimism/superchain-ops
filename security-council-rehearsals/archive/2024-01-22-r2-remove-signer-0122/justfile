@@ -10,7 +10,7 @@ simulate hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  if [ t"$SIMULATE_WITHOUT_WALLET" == t1 ]
   then
     signer="0xC4C1721d5aD79a8eb88C935A58FE99e441f6Fc75"
   else

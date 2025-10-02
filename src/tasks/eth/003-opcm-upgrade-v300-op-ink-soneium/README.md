@@ -45,5 +45,5 @@ just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign foundation
 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign council
 
 # If you're simulating without a ledger, you can use the following command:
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
 ```

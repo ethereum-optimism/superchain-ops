@@ -1,6 +1,5 @@
 export TASK_PATH := invocation_directory()
 export ZERO_ADDRESS := "0x0000000000000000000000000000000000000000"
-export signatures := env_var_or_default('SIGNATURES', '')
 
 forge_fork_retries := "10"
 forge_fork_retry_backoff := "1000"
@@ -106,7 +105,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     show_usage() {
         echo
         echo "Usage: just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
-        echo "Environment: HD_PATH (default: 0), USE_KEYSTORE"
+        echo "Environment: HD_PATH (default: 0), WALLET_TYPE (default: ledger)"
     }
 
     if [ -z "{{NETWORK}}" ] || [ -z "{{TASK}}" ]; then
@@ -120,8 +119,8 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 
     HD_PATH=${HD_PATH:-0}
-    USE_KEYSTORE=${USE_KEYSTORE:-}
-    signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+    WALLET_TYPE=${WALLET_TYPE:-ledger}
+    signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$WALLET_TYPE")
     signer_args=$(echo "$signer_info" | sed -n '2p')
 
     export SIGNING_MODE_IN_PROGRESS=true
@@ -195,7 +194,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     show_usage() {
         echo
         echo "Usage: just simulate [child-safe-name-depth-1] [child-safe-name-depth-2]"
-        echo "Environment: SIMULATE_WITHOUT_LEDGER, HD_PATH (default: 0), FORK_BLOCK_NUMBER"
+        echo "Environment: SIMULATE_WITHOUT_WALLET, HD_PATH (default: 0), WALLET_TYPE (default: ledger), FORK_BLOCK_NUMBER"
     }
 
     # Set test directory if running test task
@@ -205,6 +204,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
     ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
+    WALLET_TYPE=${WALLET_TYPE:-ledger}
 
     # Get function signature and arguments using helper
     eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
@@ -230,7 +230,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     show_usage() {
         echo
         echo "Usage: just sign [child-safe-name-depth-1] [child-safe-name-depth-2]"
-        echo "Environment: HD_PATH (default: 0), USE_KEYSTORE"
+        echo "Environment: HD_PATH (default: 0), WALLET_TYPE (default: ledger)"
     }
 
     # Set test directory if running test task  
@@ -241,13 +241,13 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
     ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
-    USE_KEYSTORE=${USE_KEYSTORE:-}
+    WALLET_TYPE=${WALLET_TYPE:-ledger}
     
     # Get function signature and arguments using helper
     eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
     
     # Get signer address and arguments using helper function
-    signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+    signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$WALLET_TYPE")
     signer=$(echo "$signer_info" | sed -n '1p')
     signer_args=$(echo "$signer_info" | sed -n '2p')
     
@@ -288,12 +288,12 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   
   export DISABLE_OVERRIDE_NONCE_CHECK=1
   HD_PATH=${HD_PATH:-0}
-  USE_KEYSTORE=${USE_KEYSTORE:-}
+  WALLET_TYPE=${WALLET_TYPE:-ledger}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
   ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
-  signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+  signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$WALLET_TYPE")
   sender=$(echo "$signer_info" | sed -n '1p')
   signer_args=$(echo "$signer_info" | sed -n '2p')
   
@@ -325,12 +325,12 @@ execute:
   # prevent failures of the `just execute` command.
   export DISABLE_OVERRIDE_NONCE_CHECK=1
   HD_PATH=${HD_PATH:-0}
-  USE_KEYSTORE=${USE_KEYSTORE:-}
+  WALLET_TYPE=${WALLET_TYPE:-ledger}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
   ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
-  signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+  signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$WALLET_TYPE")
   sender=$(echo "$signer_info" | sed -n '1p')
   signer_args=$(echo "$signer_info" | sed -n '2p')
   
@@ -372,20 +372,20 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     fi
     echo "${safe}"
 
-# Get signer address and arguments (supports ledger and keystore)
+# Get signer address and arguments (supports ledger, trezor and keystore)
 # Returns: line 1=address, line 2=arguments
 [no-cd]
-_get-signer-args hdPath='0' use_keystore_flag='':
+_get-signer-args hdPath='0' wallet_type='ledger':
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     
-    if [ -z "{{use_keystore_flag}}" ]; then
+    if [ "{{wallet_type}}" != "keystore" ]; then # either 'ledger' or 'trezor'
         hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-        echo "Using ledger" >&2
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
-        signer_args="--ledger --hd-paths $hdpaths"
+        echo "Using {{wallet_type}}" >&2
+        signer=$(cast wallet address --{{wallet_type}} --mnemonic-derivation-path $hdpaths)
+        signer_args="--{{wallet_type}} --hd-paths $hdpaths"
     else
         echo "Using keystore" >&2
         signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key)
@@ -416,10 +416,17 @@ _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEP
     #!/usr/bin/env bash
     set -euo pipefail
     HD_PATH=${HD_PATH:-0}
+    wallet="${WALLET_TYPE:-ledger}"
+    root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/justfile"
     
-    if [ -z "${SIMULATE_WITHOUT_LEDGER:-}" ]; then
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}'/0/0")
-        echo "Simulating with ledger account: ${signer}" >&2
+    if [ -z "${SIMULATE_WITHOUT_WALLET:-}" ]; then
+        if [ "${wallet}" = "keystore" ]; then
+            signer=$(just --justfile "${root_just_file}" _get-signer-args "${HD_PATH}" "${wallet}" | sed -n '1p')
+        else
+            signer=$(cast wallet address --${wallet} --mnemonic-derivation-path "m/44'/60'/${HD_PATH}'/0/0")
+        fi
+        echo "Simulating with ${wallet} account: ${signer}" >&2
     else
         # Get the appropriate safe to extract signer from
         if [ "{{CHILD_SAFE_DEPTH_2}}" != "$ZERO_ADDRESS" ]; then
@@ -430,7 +437,7 @@ _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEP
             safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" "{{CONFIG_PATH}}" --fork-url "{{ETH_RPC_URL}}" --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}  --json | jq -r '.returns["0"].value')
         fi
         signer=$(cast call ${safe_for_signer} "getOwners()(address[])" -r "{{ETH_RPC_URL}}" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-        echo "Simulating without ledger using first owner from safe ${safe_for_signer}: ${signer}" >&2
+        echo "Simulating without ${wallet} using first owner from safe ${safe_for_signer}: ${signer}" >&2
     fi
     
     echo "${signer}"

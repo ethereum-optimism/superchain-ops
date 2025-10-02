@@ -30,5 +30,5 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/tasks/eth/021-U16-remove-dpm
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```

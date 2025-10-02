@@ -25,7 +25,7 @@ Navigate to the correct task directory then run the simulate command:
 
 ```bash
 cd eth/012-unpause-superchain-config \
-SIMULATE_WITHOUT_LEDGER=1 just \
+SIMULATE_WITHOUT_WALLET=1 just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../single.just \
    simulate \

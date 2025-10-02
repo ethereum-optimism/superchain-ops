@@ -137,7 +137,7 @@ to force add the file to git.
 Now your task folder is prepared. Navigate into that directory and execute the following command:
 
 ```
-SIMULATE_WITHOUT_LEDGER=1 just \
+SIMULATE_WITHOUT_WALLET=1 just \
   --dotenv-path $(pwd)/.env \
   --justfile ../../../single.just \
   simulate
@@ -225,7 +225,7 @@ just_simulate_[eth or sep]-[chain-name]-[index]-key-handover:
             go install github.com/mikefarah/yq/v4@latest
             just install
             cd tasks/[eth or sep]/[chain-name]-[index]-key-handover
-            export SIMULATE_WITHOUT_LEDGER=1
+            export SIMULATE_WITHOUT_WALLET=1
             just \
             --dotenv-path $(pwd)/.env \
             --justfile ../../../single.just \
