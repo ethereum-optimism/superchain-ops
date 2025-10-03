@@ -1,6 +1,6 @@
 # 022-U16a-opcm-upgrade-v410-base: Upgrades Base Mainnet to `op-contracts/v4.1.0` (i.e. U16a)
 
-Status: [EXECUTED](https://etherscan.io/tx/0x744cf7d28324729cace731ac736872da669439a0d380f1f52b8d31af203f7329)
+Status: [READY TO SIGN]()
 
 ## Objective
 
