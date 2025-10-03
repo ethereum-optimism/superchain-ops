@@ -11,23 +11,23 @@ absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b7
 expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
 
 [addresses]
-# Base Sepolia ProxyAdminOwner: 0x0fe884546476dDd290eC46318785046ef68a0BA9
-# The get-safe.sh script will extract these addresses when signing for each owner fo the safe.
-NestedSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner 
-NestedSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
 StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
 
 [stateOverrides]
 # Base Sepolia ProxyAdminOwner: https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46
-0x0fe884546476dDd290eC46318785046ef68a0BA9 = [ # L1PAO
+0x0fe884546476dDd290eC46318785046ef68a0BA9 = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 25}
 ]
-# First owner on the proxy admin owner (i.e. child-safe-1)
-0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [ # Child Safe 1
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 12}
-]
-# Second owner on the proxy admin owner (i.e. child-safe-2)
-0x646132A1667ca7aD00d36616AFBA1A28116C770A = [ # Child Safe 2
+# Base Nested Safe
+0x646132A1667ca7aD00d36616AFBA1A28116C770A = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 8}
+]
+# Base Council Safe
+0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 5}
+]
+# Base Operations Safe
+0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 12} # <--- THIS MUST BE CHANGED TO '13' FOR STEP 1A IN README.md FILE.
 ]
