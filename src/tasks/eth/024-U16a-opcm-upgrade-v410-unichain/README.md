@@ -1,6 +1,6 @@
 # 024-U16a-opcm-upgrade-v410-unichain: Upgrade 16a: Unichain
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xc98240172fa3950ec9c62f32cc09d0eb0ed21684b02f1b2677357674cda64ca5)
 
 ## Objective
 
