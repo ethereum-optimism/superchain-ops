@@ -22,17 +22,17 @@ the values printed to the terminal when you run the task.
 > ### Base Operations (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`)
 >
 > - Domain Hash:  `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
-> - Message Hash: `0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81`
+> - Message Hash: `0x9e9dbb169ee59c0e3e6e56fbfed85a0303e1db2b9b093363f8de01474dca4ae6`
 >
 > ### Base Council (`0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f`)
 >
 > - Domain Hash:  `0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23`
-> - Message Hash: `0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80`
+> - Message Hash: `0x44df0d41d79f2720f19d140909c7805f52ce3c2991422ee9296f391a0147a21d`
 >
 > ### Base Operations (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`) - Second Approve Hash Transaction
 >
 > - Domain Hash:  `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
-> - Message Hash: `0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9`
+> - Message Hash: `0x9e9dbb169ee59c0e3e6e56fbfed85a0303e1db2b9b093363f8de01474dca4ae6`
 
 ## Normalized State Diff Hash Attestation
 
