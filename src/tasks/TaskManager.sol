@@ -105,7 +105,7 @@ contract TaskManager is Script {
 
         string memory formattedRootSafe = vm.toString(config.rootSafe).green().bold();
 
-        setTenderlyGasEnv(config.basePath);
+        setEnv(config.basePath);
 
         string[] memory parts = vm.split(config.basePath, "/");
         string memory taskName = parts[parts.length - 1];
@@ -234,25 +234,34 @@ contract TaskManager is Script {
         );
     }
 
-    /// @notice Sets the TENDERLY_GAS environment variable for the task if it exists.
-    function setTenderlyGasEnv(string memory basePath) public {
+    /// @notice Sets environment variables from the task's .env file if it exists.
+    function setEnv(string memory basePath) public {
         string memory envFile = string.concat(basePath, "/", ".env");
         if (vm.isFile(envFile)) {
             string memory envContent = vm.readFile(envFile);
             string[] memory lines = vm.split(envContent, "\n");
 
             for (uint256 i = 0; i < lines.length; i++) {
-                if (lines[i].contains("TENDERLY_GAS=")) {
+                // Skip empty lines and comments
+                if (bytes(lines[i]).length == 0 || lines[i].startsWith("#")) {
+                    continue;
+                }
+
+                // Parse key=value pairs
+                if (lines[i].contains("=")) {
                     string[] memory keyValue = vm.split(lines[i], "=");
-                    if (keyValue.length == 2) {
-                        vm.setEnv("TENDERLY_GAS", keyValue[1]);
-                        return;
+                    if (keyValue.length >= 2) {
+                        // Trim whitespace from key and value, then set the environment variable
+                        string memory key = vm.trim(keyValue[0]);
+                        string memory value = vm.trim(keyValue[1]);
+                        vm.setEnv(key, value);
                     }
                 }
             }
+        } else {
+            // If no .env file exists, set TENDERLY_GAS to empty for backwards compatibility
+            vm.setEnv("TENDERLY_GAS", "");
         }
-        // If no TENDERLY_GAS is found, set it as empty.
-        vm.setEnv("TENDERLY_GAS", "");
     }
 
     /// @notice Useful function to tell if a task is nested or not based on the task config.
