@@ -1,6 +1,6 @@
 # 023-U16a-opcm-upgrade-v410-op-soneium-ink: Upgrade 16a: OP, Soneium, Ink on Mainnet
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x744cf7d28324729cace731ac736872da669439a0d380f1f52b8d31af203f7329)
 
 ## Objective
 
