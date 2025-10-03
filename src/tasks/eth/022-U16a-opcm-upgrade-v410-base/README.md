@@ -146,7 +146,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1just --dotenv-path $(pwd)/.env simulate foundation-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
 # Message Hash: 0x2b7f17c0100e6766aaac289acba0122860a51bdd64810626948b0f986f88efa5
