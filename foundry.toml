@@ -15,6 +15,7 @@ remappings = [
   '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts',
   '@base-contracts/=lib/base-contracts/',
   '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
+  '@op/=lib/optimism/packages/contracts-bedrock/',
   '@rari-capital/solmate/=lib/solmate',
   '@eth-optimism-superchain-registry/=lib/superchain-registry/',
   '@solady/=lib/optimism/packages/contracts-bedrock/lib/solady/src/',
