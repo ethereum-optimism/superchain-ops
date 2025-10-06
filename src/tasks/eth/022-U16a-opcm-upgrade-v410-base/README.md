@@ -25,7 +25,7 @@ cd superchain-ops
 git pull
 ```
 
-## Step 3. Install & Configure Mise 
+## Step 3. Install & Configure Mise
 
 Install Mise by executing the following commands. When the Bash script runs, follow the instructions in the log output to activate mise in your shell.
 
@@ -57,12 +57,12 @@ Base has a doubly-nested safe architecture which is supported by superchain-ops.
 ```bash
 #
 #    ┌─────────────────────────────────────────────┐       ┌─────────────────────────────────────────────┐       ┌─────────────────────────────────────────────┐
-#    │                 Base Council                │       │              Base Operations                │       │           Foundation Operations (FOS)       │ 
+#    │                 Base Council                │       │              Base Operations                │       │           Foundation Operations (FOS)       │
 #    │                  (7 of 10)                  │       │                 (3 of 6)                    │       │                 (5 of 7)                    │
 #    │  0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd │       │  0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110 │       │  0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A │
 #    └─────────────────────┬───────────────────────┘       └─────────────────────┬───────────────────────┘       └─────────────────────┬───────────────────────┘
 #                          │                                                     │                                                     │
-#                          └─────────────────┬───────────────────────────────────┘                                                     │      
+#                          └─────────────────┬───────────────────────────────────┘                                                     │
 #                                            ▼                                                                                         │
 #                             ┌─────────────────────────────────────────────┐                                                          │
 #                             │                 Base Nested                 │                                                          │
@@ -87,48 +87,48 @@ First, simulate the upgrade transaction using the command below corresponding to
 cd tasks/eth/022-U16a-opcm-upgrade-v410-base
 
 # Base Council: 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd
-#  ┌────────────────────┐      
+#  ┌────────────────────┐
 #  │ Child Safe Depth 2 │
 #  │   'base-council'   │
-#  └────────────────────┘      
-#             │                
+#  └────────────────────┘
+#             │
 #             └─────────────────┬
-#                               ▼     
+#                               ▼
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
 #                           │    'base-nested'   │
 #                           └────────────────────┘
-#                                      │          
+#                                      │
 #                                      └──────────┬
 #                                                 ▼
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
 # Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772
 # Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
 
 # Base Operations: 0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110
-#  ┌────────────────────┐      
+#  ┌────────────────────┐
 #  │ Child Safe Depth 2 │
 #  │ 'base-operations'  │
-#  └────────────────────┘      
-#             │                
+#  └────────────────────┘
+#             │
 #             └─────────────────┬
-#                               ▼     
+#                               ▼
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
 #                           │    'base-nested'   │
 #                           └────────────────────┘
-#                                      │          
+#                                      │
 #                                      └──────────┬
 #                                                 ▼
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
 # Message Hash: 0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a
@@ -140,13 +140,13 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested ba
 #                           │ Child Safe Depth 1 │
 #                           │        'FOS'       │
 #                           └────────────────────┘
-#                                      │          
+#                                      │
 #                                      └──────────┬
 #                                                 ▼
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
 # Message Hash: 0x2b7f17c0100e6766aaac289acba0122860a51bdd64810626948b0f986f88efa5
@@ -217,7 +217,7 @@ Now, perform the signing for whichever of the safes you are a member of:
 ```bash
 cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
 
-just --dotenv-path $(pwd)/.env sign base-nested base-council 
+just --dotenv-path $(pwd)/.env sign base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
 # Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772

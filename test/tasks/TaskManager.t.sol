@@ -26,23 +26,28 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     function testSetTenderlyGasEnv() public {
         TaskManager tm = new TaskManager();
 
-        tm.setTenderlyGasEnv("./src/tasks/sep/000-opcm-upgrade-v200/");
+        tm.setEnv("./src/tasks/sep/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
 
-        tm.setTenderlyGasEnv("./src/tasks/sep/001-opcm-upgrade-v200/");
+        tm.setEnv("./src/tasks/sep/001-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
-        tm.setTenderlyGasEnv("./src/tasks/sep/002-unichain-superchain-config-fix/");
+        tm.setEnv("./src/tasks/sep/002-unichain-superchain-config-fix/");
         assertEq(vm.envString("TENDERLY_GAS"), "");
 
-        tm.setTenderlyGasEnv("./src/tasks/sep/003-opcm-upgrade-v200/");
+        tm.setEnv("./src/tasks/sep/003-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
-        tm.setTenderlyGasEnv("./src/tasks/eth/000-opcm-upgrade-v200/");
+        tm.setEnv("./src/tasks/eth/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
 
-        tm.setTenderlyGasEnv("./src/tasks/eth/002-opcm-upgrade-v200/");
+        tm.setEnv("./src/tasks/eth/002-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
+
+        // Test loading multiple environment variables including FORK_BLOCK_NUMBER
+        tm.setEnv("./src/tasks/eth/022-U16a-opcm-upgrade-v410-base/");
+        assertEq(vm.envString("TENDERLY_GAS"), "15000000");
+        assertEq(vm.envString("FORK_BLOCK_NUMBER"), "23491327");
     }
 
     function createStateDiff(address who, bytes32 slot, bytes32 oldValue, bytes32 newValue)

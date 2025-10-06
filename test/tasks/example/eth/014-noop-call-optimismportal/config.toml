@@ -1,0 +1,9 @@
+templateName = "L1PortalExecuteL2Call"
+
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+# L2 call params
+l2Target = "0xcDF27F107725988f2261Ce2256bDfCdE8B382B10" # OptimismGovernor Proxy
+l2Data = "0x3659cfe6000000000000000000000000ecbf4ed9f47302f00f0f039a691e7db83bdd2624" # upgradeTo(currentImpl) -> 0xecbf4ed9f47302f00f0f039a691e7db83bdd2624
+gasLimit = 500000
+isCreation = false
