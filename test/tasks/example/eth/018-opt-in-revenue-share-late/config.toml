@@ -1,0 +1,16 @@
+templateName = "LateOptInRevenueShare"
+
+# Revenue Share Configuration
+# When using custom calculator, only the calculator address and the gas limit are required
+useOwnCalculator = false
+saltSeed = "DeploymentSalt"
+l1WithdrawerMinWithdrawalAmount = 1000000000000000000
+# TODO(17505): This address MUST be updated once the appropriate FeesDepositor is deployed
+l1WithdrawerRecipient = "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+l1WithdrawerGasLimit = 300000
+scRevShareCalcChainFeesRecipient = "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+gasLimit = 300000 # Gas limit for L2 calls through the portal
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # 2-of-2 between council and foundation
+OptimismPortal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"

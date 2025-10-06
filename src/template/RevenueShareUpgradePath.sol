@@ -39,10 +39,6 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
     using LibString for string;
     using stdToml for string;
 
-    /// @notice The gas limit for the L1 Withdrawer.
-    /// IMPORTANT: Keep this value above 200k in order to prevent finalization failures when sending fees to L1.
-    uint96 public constant L1_WITHDRAWER_MIN_GAS_LIMIT = 200_000;
-
     /// @notice Address of the Create2Deployer Preinstall on L2.
     address internal constant CREATE2_DEPLOYER = 0x13b0D85CcB8bf860b6b79AF3029fCA081AE9beF2;
     /// @notice Address of the Sequencer Fee Vault Predeploy on L2.
@@ -257,10 +253,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             require(l1WithdrawerRecipient != address(0), "l1WithdrawerRecipient must be set in config");
 
             l1WithdrawerGasLimit = uint96(_toml.readUint(".l1WithdrawerGasLimit"));
-            require(
-                l1WithdrawerGasLimit >= L1_WITHDRAWER_MIN_GAS_LIMIT,
-                "l1WithdrawerGasLimit must be greater than L1_WITHDRAWER_MIN_GAS_LIMIT"
-            );
+            require(l1WithdrawerGasLimit > 0, "l1WithdrawerGasLimit must be greater than 0");
 
             // Calculate addresses and data to deploy L1 Withdrawer
             bytes memory _l1WithdrawerInitCode = bytes.concat(
