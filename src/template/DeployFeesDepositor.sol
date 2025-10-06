@@ -6,14 +6,15 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {FeesDepositorCode} from "src/libraries/FeesDepositorCode.sol";
+import {RevShareCodeRepo} from "src/libraries/RevShareCodeRepo.sol";
 import {Proxy} from "optimism/packages/contracts-bedrock/src/universal/Proxy.sol";
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 
 /// @notice Interface for the FeesDepositor contract on L1.
 ///         This is used to deposit fees into L2.
 interface IFeesDepositor {
-    function initialize(uint96 _minDepositAmount, address _l2Recipient, address _portal, uint64 _gasLimit) external;
+    function initialize(uint96 _minDepositAmount, address _l2Recipient, address _messenger, uint32 _gasLimit)
+        external;
 }
 
 /// @notice Interface for the CREATE2 deployer contract.
@@ -39,7 +40,7 @@ contract DeployFeesDepositor is SimpleTaskBase {
     /// @notice The address of the portal contract.
     address public portal;
     /// @notice The gas limit for the deposit.
-    uint64 public gasLimit;
+    uint32 public gasLimit;
     /// @notice The address of the proxy admin owner.
     address public proxyAdminOwner;
 
@@ -82,8 +83,8 @@ contract DeployFeesDepositor is SimpleTaskBase {
 
         uint256 _gasLimitRaw = tomlContent.readUint(".gasLimit");
         require(_gasLimitRaw > 0, "gasLimit must be set");
-        require(_gasLimitRaw <= type(uint64).max, "gasLimit must be less than uint64.max");
-        gasLimit = uint64(_gasLimitRaw);
+        require(_gasLimitRaw <= type(uint32).max, "gasLimit must be less than uint32.max");
+        gasLimit = uint32(_gasLimitRaw);
 
         proxyAdminOwner = simpleAddrRegistry.get("ProxyAdminOwner");
         require(proxyAdminOwner != address(0), "proxyAdminOwner must be set");
@@ -94,8 +95,9 @@ contract DeployFeesDepositor is SimpleTaskBase {
             Create2.computeAddress(bytes32(bytes(salt)), keccak256(_proxyInitCode), CREATE2_DEPLOYER);
         vm.label(_proxyCalculatedAddress, "Proxy");
 
-        _implCalculatedAddress =
-            Create2.computeAddress(bytes32(bytes(salt)), keccak256(FeesDepositorCode.creationCode), CREATE2_DEPLOYER);
+        _implCalculatedAddress = Create2.computeAddress(
+            bytes32(bytes(salt)), keccak256(RevShareCodeRepo.feesDepositorCreationCode), CREATE2_DEPLOYER
+        );
         vm.label(_implCalculatedAddress, "FeesDepositorV100");
     }
 
@@ -108,7 +110,7 @@ contract DeployFeesDepositor is SimpleTaskBase {
     /// @param _rootSafe The address of the root safe (unused in this implementation).
     function _build(address _rootSafe) internal override {
         // Deploy the FeesDepositor implementation contract using CREATE2
-        ICreate2Deployer(CREATE2_DEPLOYER).deploy(0, bytes32(bytes(salt)), FeesDepositorCode.creationCode);
+        ICreate2Deployer(CREATE2_DEPLOYER).deploy(0, bytes32(bytes(salt)), RevShareCodeRepo.feesDepositorCreationCode);
 
         // Deploy the proxy contract using CREATE2 with the calculated initialization code
         ICreate2Deployer(CREATE2_DEPLOYER).deploy(0, bytes32(bytes(salt)), _proxyInitCode);

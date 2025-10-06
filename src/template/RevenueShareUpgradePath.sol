@@ -78,7 +78,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
     // TODO(17505): This address is expected to be set to the appropriate FeesDepositor address once deployed.
     address public l1WithdrawerRecipient;
     /// @notice The gas limit for the L1 Withdrawer.
-    uint96 public l1WithdrawerGasLimit;
+    uint32 public l1WithdrawerGasLimit;
 
     /// @notice The configuration for sc rev share calculator.
     address public scRevShareCalcChainFeesRecipient;
@@ -252,8 +252,10 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             l1WithdrawerRecipient = _toml.readAddress(".l1WithdrawerRecipient");
             require(l1WithdrawerRecipient != address(0), "l1WithdrawerRecipient must be set in config");
 
-            l1WithdrawerGasLimit = uint96(_toml.readUint(".l1WithdrawerGasLimit"));
-            require(l1WithdrawerGasLimit > 0, "l1WithdrawerGasLimit must be greater than 0");
+            uint256 _l1WithdrawerGasLimitRaw = _toml.readUint(".l1WithdrawerGasLimit");
+            require(_l1WithdrawerGasLimitRaw > 0, "l1WithdrawerGasLimit must be greater than 0");
+            require(_l1WithdrawerGasLimitRaw <= type(uint32).max, "l1WithdrawerGasLimit must be less than uint32.max");
+            l1WithdrawerGasLimit = uint32(_l1WithdrawerGasLimitRaw);
 
             // Calculate addresses and data to deploy L1 Withdrawer
             bytes memory _l1WithdrawerInitCode = bytes.concat(
@@ -494,7 +496,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal override {
         MultisigTaskPrinter.printTitle("Validating calls to portal");
-        // Expected portal calls: 10 (base vault operations)
+        // Expected portal calls: 10 (base vault operations + fee splitter)
         // + 2 (revenue share: L1 withdrawer + calculator) if opting in
         uint256 _expectedCallsToPortal = optInRevenueShare ? 12 : 10;
         uint256 _actualCallsToPortal = 0;

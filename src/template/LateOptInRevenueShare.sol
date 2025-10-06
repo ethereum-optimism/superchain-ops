@@ -87,7 +87,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
     // TODO(17505): This address is expected to be set to the appropriate FeesDepositor address once deployed.
     address public l1WithdrawerRecipient;
     /// @notice The gas limit for the L1 Withdrawer.
-    uint96 public l1WithdrawerGasLimit;
+    uint32 public l1WithdrawerGasLimit;
 
     /// @notice The salt to be used for the L2 deployments
     bytes32 public salt;
@@ -168,8 +168,10 @@ contract LateOptInRevenueShare is SimpleTaskBase {
             l1WithdrawerRecipient = _toml.readAddress(".l1WithdrawerRecipient");
             require(l1WithdrawerRecipient != address(0), "l1WithdrawerRecipient must be set in config");
 
-            l1WithdrawerGasLimit = uint96(_toml.readUint(".l1WithdrawerGasLimit"));
-            require(l1WithdrawerGasLimit > 0, "l1WithdrawerGasLimit must be greater than 0");
+            uint256 _l1WithdrawerGasLimitRaw = _toml.readUint(".l1WithdrawerGasLimit");
+            require(_l1WithdrawerGasLimitRaw > 0, "l1WithdrawerGasLimit must be greater than 0");
+            require(_l1WithdrawerGasLimitRaw <= type(uint32).max, "l1WithdrawerGasLimit must be less than uint32.max");
+            l1WithdrawerGasLimit = uint32(_l1WithdrawerGasLimitRaw);
 
             // Calculate addresses and data to deploy L1 Withdrawer
             bytes memory _l1WithdrawerInitCode = bytes.concat(

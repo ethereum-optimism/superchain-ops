@@ -57,7 +57,7 @@ contract LateOptInRevenueShareTest is Test {
     uint64 internal constant GAS_LIMIT = 300000;
     address internal constant L1_WITHDRAWER_RECIPIENT = 0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF;
     uint256 internal constant L1_WITHDRAWER_MIN_WITHDRAWAL_AMOUNT = 1000000000000000000;
-    uint96 internal constant L1_WITHDRAWER_GAS_LIMIT = 300000;
+    uint32 internal constant L1_WITHDRAWER_GAS_LIMIT = 300000;
     address internal constant SC_REV_SHARE_CALC_CHAIN_FEES_RECIPIENT = 0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF;
 
     // Test configuration
