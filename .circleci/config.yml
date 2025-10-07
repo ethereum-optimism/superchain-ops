@@ -90,8 +90,8 @@ jobs:
             just install
             cd src/
 
-            export L1_MAINNET_RPC=${L1_RPC_INFURA}
-            export L1_SEPOLIA_RPC=${L1_RPC_INFURA}
+            export L1_MAINNET_RPC=${L1_RPC_MAINNET_ALCHEMY}
+            export L1_SEPOLIA_RPC=${L1_RPC_SEPOLIA_ALCHEMY}
             
             just simulate-stack <<parameters.network>> > stack-simulation-output.txt
       - store_artifacts:
@@ -139,8 +139,8 @@ jobs:
           command: |
             just install
 
-            export L1_MAINNET_RPC=${L1_RPC_ALCHEMY}
-            export L1_SEPOLIA_RPC=${L1_RPC_ALCHEMY}
+            export L1_MAINNET_RPC=${L1_RPC_MAINNET_ALCHEMY}
+            export L1_SEPOLIA_RPC=${L1_RPC_SEPOLIA_ALCHEMY}
 
             forge --version
             forge test -vvv
@@ -160,8 +160,8 @@ jobs:
           max_auto_reruns: 3
           auto_rerun_delay: 10s
           command: |
-            export L1_MAINNET_RPC=${L1_RPC_ALCHEMY}
-            export L1_SEPOLIA_RPC=${L1_RPC_ALCHEMY}
+            export L1_MAINNET_RPC=${L1_RPC_MAINNET_ALCHEMY}
+            export L1_SEPOLIA_RPC=${L1_RPC_SEPOLIA_ALCHEMY}
 
             just --justfile src/ci.just simulate-all-templates
       - notify-failures-on-main:
