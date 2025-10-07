@@ -89,6 +89,10 @@ jobs:
           command: |
             just install
             cd src/
+
+            export L1_MAINNET_RPC=${L1_RPC_ANKR}
+            export L1_SEPOLIA_RPC=${L1_RPC_ANKR}
+            
             just simulate-stack <<parameters.network>> > stack-simulation-output.txt
       - store_artifacts:
           path: src/stack-simulation-output.txt
