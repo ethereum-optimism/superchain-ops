@@ -109,7 +109,7 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IOPContractsManagerStandardValidator.ValidationInput memory input = IOPContractsManagerStandardValidator
-            .ValidationInput({
+                .ValidationInput({
                 proxyAdmin: IProxyAdmin(proxyAdmin),
                 sysCfg: ISystemConfig(sysCfg),
                 absolutePrestate: expAbsolutePrestate,
