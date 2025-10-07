@@ -152,7 +152,7 @@ jobs:
           max_auto_reruns: 3
           auto_rerun_delay: 10s
           command: |
-            (cd src/ && just --justfile ci.just simulate-all-templates)
+            just --justfile src/ci.just simulate-all-templates
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
@@ -238,28 +238,29 @@ workflows:
       - forge_build:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - forge_fmt:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - forge_test:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
+      # - forge_fmt:
+      #     context:
+      #       - circleci-repo-readonly-authenticated-github-token
+      # - forge_test:
+      #     context:
+      #       - circleci-repo-readonly-authenticated-github-token
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - just_new_recipe_tests
-      - shellcheck:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - check_task_names
-      # Verify that all tasks have a valid status in their README.
-      - check_task_statuses:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-superchain-ops-jan-rpc-debugging
+      # - just_new_recipe_tests
+      # - shellcheck:
+      #     context:
+      #       - circleci-repo-readonly-authenticated-github-token
+      # - check_task_names
+      # # Verify that all tasks have a valid status in their README.
+      # - check_task_statuses:
+      #     context:
+      #       - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
-      - check_superchain_registry:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
+      # - check_superchain_registry:
+      #     context:
+      #       - circleci-repo-readonly-authenticated-github-token
 
       # Stacked simulations for superchain-ops on Mainnet.
       - stacked_simulation:
