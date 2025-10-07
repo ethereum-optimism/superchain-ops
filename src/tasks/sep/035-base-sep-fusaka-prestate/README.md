@@ -61,11 +61,11 @@ cd src/tasks/sep/035-base-sep-fusaka-prestate
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
- SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
+ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x44df0d41d79f2720f19d140909c7805f52ce3c2991422ee9296f391a0147a21d
-# Normalized Hash: 0xde9e5a405b63f8d2857326b95e14fccb158300a607decafd30d8f74e761d53fa
+# Message Hash: 0xc19fad79ac1847855400a77807bf3b74bd9ed4db02cac6ddf49a9c15dfe15326
+# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
 
 # Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
 #  ┌────────────────────┐      
@@ -85,28 +85,28 @@ cd src/tasks/sep/035-base-sep-fusaka-prestate
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x9e9dbb169ee59c0e3e6e56fbfed85a0303e1db2b9b093363f8de01474dca4ae6
-# Normalized Hash: 0xde9e5a405b63f8d2857326b95e14fccb158300a607decafd30d8f74e761d53fa
+# Message Hash: 0xb61c907554f9c0350350dd042808feb43e5bdaf81dbd49c900b18c350e3dc90c
+# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
 ```
 
 Now, perform the signing for both safes that are owners of 'base-nested':
 ```bash
 cd src/tasks/sep/035-base-sep-fusaka-prestate
 
-just --dotenv-path $(pwd)/.env sign base-nested base-council 
+SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0xc19fad79ac1847855400a77807bf3b74bd9ed4db02cac6ddf49a9c15dfe15326
+# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
 
-just --dotenv-path $(pwd)/.env sign base-nested base-operations
+SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0xb61c907554f9c0350350dd042808feb43e5bdaf81dbd49c900b18c350e3dc90c
+# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
 ```
 
 > **⚠️ Attention Signers:**
@@ -154,17 +154,17 @@ Once you've updated the nonce for the base-operations safe, you can now safely s
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0xc4d91b0bae0ac687de23085f37592615847d02035edcefafa0d2a58c03f5fcbc
-# Normalized Hash: 0xde9e5a405b63f8d2857326b95e14fccb158300a607decafd30d8f74e761d53fa
+# Message Hash: 0xe2f2796eb0690f09ea5473fa5c533cc9ecf390ada3ada11758e496a1758db295
+# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
 
-just --dotenv-path $(pwd)/.env sign base-operations
+SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0xe2f2796eb0690f09ea5473fa5c533cc9ecf390ada3ada11758e496a1758db295
+# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
 ```
 
 ### Step 2 (Role: Facilitator) - Base Nested Approval

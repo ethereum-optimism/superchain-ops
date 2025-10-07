@@ -6,8 +6,7 @@ name = "Base Sepolia Testnet"
 
 [[opcmUpgrades]]
 chainId = 84532
-absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc9"  # op-program/v1.6.1 - https://github.com/ethereum-optimism/superchain-registry/blob/47f21fb1291999cb9a46653dd92d7cd55b6e3821/validation/standard/standard-prestates.toml#L6C9-L6C75
-# The above prestate needs to be updated with the correct Fusaka Absolute Prestate
+absolutePrestate = "0x03f05793ed3abc475137f73b68c80593cbbf40f5d1059d2ad9b8bfcb97fa8929" # Fusaka Absolute Prestate published here https://github.com/ethereum-optimism/superchain-registry/blob/64dd80477fc855a4931b129cd1e2ba1c18da61c7/validation/standard/standard-prestates.toml#L6C7-L6C73
 expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
 
 [addresses]
