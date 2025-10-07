@@ -152,6 +152,9 @@ jobs:
           max_auto_reruns: 3
           auto_rerun_delay: 10s
           command: |
+            export L1_MAINNET_RPC=${L1_RPC_INFURA}
+            export L1_SEPOLIA_RPC=${L1_RPC_INFURA}
+
             just --justfile src/ci.just simulate-all-templates
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
