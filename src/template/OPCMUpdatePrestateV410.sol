@@ -108,13 +108,12 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-            IOPContractsManagerStandardValidator.ValidationInput memory input =
-                IOPContractsManagerStandardValidator.ValidationInput({
-                    proxyAdmin: IProxyAdmin(proxyAdmin),
-                    sysCfg: ISystemConfig(sysCfg),
-                    absolutePrestate: expAbsolutePrestate,
-                    l2ChainID: chainId
-                });
+            IOPContractsManagerStandardValidator.ValidationInput memory input = IOPContractsManagerStandardValidator.ValidationInput({
+                proxyAdmin: IProxyAdmin(proxyAdmin),
+                sysCfg: ISystemConfig(sysCfg),
+                absolutePrestate: expAbsolutePrestate,
+                l2ChainID: chainId
+            });
 
             string memory errors = STANDARD_VALIDATOR.validateWithOverrides({
                 _input: input,
