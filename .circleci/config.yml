@@ -89,6 +89,10 @@ jobs:
           command: |
             just install
             cd src/
+
+            export L1_MAINNET_RPC=${L1_RPC_INFURA}
+            export L1_SEPOLIA_RPC=${L1_RPC_INFURA}
+            
             just simulate-stack <<parameters.network>> > stack-simulation-output.txt
       - store_artifacts:
           path: src/stack-simulation-output.txt
@@ -152,8 +156,8 @@ jobs:
           max_auto_reruns: 3
           auto_rerun_delay: 10s
           command: |
-            export L1_MAINNET_RPC=${L1_RPC_INFURA}
-            export L1_SEPOLIA_RPC=${L1_RPC_INFURA}
+            export L1_MAINNET_RPC=${L1_RPC_ALCHEMY}
+            export L1_SEPOLIA_RPC=${L1_RPC_ALCHEMY}
 
             just --justfile src/ci.just simulate-all-templates
       - notify-failures-on-main:
@@ -241,12 +245,13 @@ workflows:
       - forge_build:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # - forge_fmt:
-      #     context:
-      #       - circleci-repo-readonly-authenticated-github-token
-      # - forge_test:
-      #     context:
-      #       - circleci-repo-readonly-authenticated-github-token
+      - forge_fmt:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - forge_test:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-superchain-ops-jan-rpc-debugging
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -271,6 +276,7 @@ workflows:
           network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-superchain-ops-jan-rpc-debugging
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -278,6 +284,7 @@ workflows:
           network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-superchain-ops-jan-rpc-debugging
 
   close-issue-workflow:
     when:
