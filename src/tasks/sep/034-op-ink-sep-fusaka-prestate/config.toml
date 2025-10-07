@@ -10,20 +10,16 @@ name = "Ink Sepolia Testnet"
 
 [[opcmUpgrades]]
 chainId = 11155420
-absolutePrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# The above prestate needs to be updated with the correct Fusaka Absolute Prestate which will be published here https://github.com/ethereum-optimism/superchain-registry/blob/47f21fb1291999cb9a46653dd92d7cd55b6e3821/validation/standard/standard-prestates.toml
+absolutePrestate = "0x03f05793ed3abc475137f73b68c80593cbbf40f5d1059d2ad9b8bfcb97fa8929" # Fusaka Absolute Prestate published here https://github.com/ethereum-optimism/superchain-registry/blob/64dd80477fc855a4931b129cd1e2ba1c18da61c7/validation/standard/standard-prestates.toml#L6C7-L6C73
 expectedValidationErrors = ""
 
 [[opcmUpgrades]]
 chainId = 763373
-absolutePrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# The above prestate needs to be updated with the correct Fusaka Absolute Prestate which will be published here https://github.com/ethereum-optimism/superchain-registry/blob/47f21fb1291999cb9a46653dd92d7cd55b6e3821/validation/standard/standard-prestates.toml
+absolutePrestate = "0x03f05793ed3abc475137f73b68c80593cbbf40f5d1059d2ad9b8bfcb97fa8929" # Fusaka Absolute Prestate published here https://github.com/ethereum-optimism/superchain-registry/blob/64dd80477fc855a4931b129cd1e2ba1c18da61c7/validation/standard/standard-prestates.toml#L6C7-L6C73
 expectedValidationErrors = ""
-
 
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
-StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
 
 [stateOverrides]
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
