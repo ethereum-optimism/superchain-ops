@@ -19,9 +19,6 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice The StandardValidatorV410 address
-    IStandardValidatorV410 public STANDARD_VALIDATOR_V410;
-
     /// @notice Struct to store inputs for OPCM.updatePrestate() function per l2 chain
     struct OPCMUpgrade {
         Claim absolutePrestate;
@@ -31,6 +28,12 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
 
     /// @notice Mapping of l2 chain IDs to their respective prestates
     mapping(uint256 => OPCMUpgrade) public upgrades;
+
+    /// @notice The Standard Validator returned by OPCM
+    IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
+
+    /// @notice Optional overrides to suppress known deltas (set in _templateSetup if provided)
+    IOPContractsManagerStandardValidator.ValidationOverrides private VALIDATION_OVERRIDES;
 
     /// @notice Returns the storage write permissions required for this task
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
@@ -57,19 +60,12 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
         require(IOPContractsManager(OPCM).version().eq("3.2.0"), "Incorrect OPCM - expected version 3.2.0");
         vm.label(OPCM, "OPCM");
 
-        STANDARD_VALIDATOR_V410 = IStandardValidatorV410(tomlContent.readAddress(".addresses.StandardValidatorV410"));
-        require(
-            address(STANDARD_VALIDATOR_V410).code.length > 0, "Incorrect StandardValidatorV410 - no code at address"
-        );
-        require(
-            STANDARD_VALIDATOR_V410.mipsVersion().eq("1.8.0"),
-            "Incorrect StandardValidatorV410 - expected mips version 1.8.0"
-        );
-        require(
-            STANDARD_VALIDATOR_V410.systemConfigVersion().eq("3.7.0"),
-            "Incorrect StandardValidatorV410 - expected systemConfig version 3.7.0"
-        );
-        vm.label(address(STANDARD_VALIDATOR_V410), "StandardValidatorV410");
+        // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
+        address validatorAddr = address(IOPCM(OPCM).opcmStandardValidator());
+        require(validatorAddr != address(0), "OPCM returned zero validator");
+        require(validatorAddr.code.length > 0, "Validator has no code");
+        STANDARD_VALIDATOR = IOPContractsManagerStandardValidator(validatorAddr);
+        vm.label(address(STANDARD_VALIDATOR), "OPCMStandardValidator");
     }
 
     /// @notice Before implementing the `_build` function, template developers must consider the following:
@@ -112,14 +108,19 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-            IStandardValidatorV410.InputV410 memory input = IStandardValidatorV410.InputV410({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
-                absolutePrestate: expAbsolutePrestate,
-                l2ChainID: chainId
-            });
+            IOPContractsManagerStandardValidator.ValidationInput memory input =
+                IOPContractsManagerStandardValidator.ValidationInput({
+                    proxyAdmin: IProxyAdmin(proxyAdmin),
+                    sysCfg: ISystemConfig(sysCfg),
+                    absolutePrestate: expAbsolutePrestate,
+                    l2ChainID: chainId
+                });
 
-            string memory errors = STANDARD_VALIDATOR_V410.validate({_input: input, _allowFailure: true});
+            string memory errors = STANDARD_VALIDATOR.validateWithOverrides({
+                _input: input,
+                _allowFailure: true,
+                _overrides: VALIDATION_OVERRIDES
+            });
 
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
@@ -133,17 +134,32 @@ interface IOPCMPrestateUpdate {
     function updatePrestate(IOPContractsManager.OpChainConfig[] memory _prestateUpdateInputs) external;
 }
 
-interface IStandardValidatorV410 {
-    struct InputV410 {
-        address proxyAdmin;
-        address sysCfg;
+/// @notice Interface to retrieve the standard validator from OPCM.
+interface IOPCM {
+    function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
+}
+
+/// @notice Validator interface for validateWithOverrides usage.
+interface IOPContractsManagerStandardValidator {
+    struct ValidationInput {
+        IProxyAdmin proxyAdmin;
+        ISystemConfig sysCfg;
         bytes32 absolutePrestate;
         uint256 l2ChainID;
     }
 
-    function validate(InputV410 memory _input, bool _allowFailure) external view returns (string memory);
+    struct ValidationOverrides {
+        address l1PAOMultisig;
+        address challenger;
+    }
 
-    function mipsVersion() external pure returns (string memory);
+    function validate(ValidationInput memory _input, bool _allowFailure) external view returns (string memory);
 
-    function systemConfigVersion() external pure returns (string memory);
+    function validateWithOverrides(
+        ValidationInput memory _input,
+        bool _allowFailure,
+        ValidationOverrides memory _overrides
+    ) external view returns (string memory);
+
+    function version() external view returns (string memory);
 }
