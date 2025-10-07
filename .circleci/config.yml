@@ -138,6 +138,10 @@ jobs:
           auto_rerun_delay: 10s
           command: |
             just install
+
+            export L1_MAINNET_RPC=${L1_RPC_ANKR}
+            export L1_SEPOLIA_RPC=${L1_RPC_ANKR}
+
             forge --version
             forge test -vvv
       - notify-failures-on-main:
