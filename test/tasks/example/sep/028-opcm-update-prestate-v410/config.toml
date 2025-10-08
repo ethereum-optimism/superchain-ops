@@ -7,7 +7,7 @@ name = "OP Sepolia Testnet"
 [[opcmUpgrades]]
 chainId = 11155420
 absolutePrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"  # Dummy test prestate
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used.
 
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
