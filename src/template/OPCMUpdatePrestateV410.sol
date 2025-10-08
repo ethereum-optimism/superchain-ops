@@ -32,9 +32,6 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
     /// @notice The Standard Validator returned by OPCM
     IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
-    /// @notice Optional overrides to suppress known deltas (set in _templateSetup if provided)
-    IOPContractsManagerStandardValidator.ValidationOverrides private VALIDATION_OVERRIDES;
-
     /// @notice Returns the storage write permissions required for this task
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
@@ -116,10 +113,16 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
                 l2ChainID: chainId
             });
 
+            IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ = IOPContractsManagerStandardValidator
+                .ValidationOverrides({
+                l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                challenger:    superchainAddrRegistry.getAddress("Challenger", chainId)
+            });
+
             string memory errors = STANDARD_VALIDATOR.validateWithOverrides({
                 _input: input,
                 _allowFailure: true,
-                _overrides: VALIDATION_OVERRIDES
+                _overrides: overrides_
             });
 
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
