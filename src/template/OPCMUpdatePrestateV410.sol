@@ -113,15 +113,14 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
                 l2ChainID: chainId
             });
 
-            IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ = 
+            IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ =
             IOPContractsManagerStandardValidator.ValidationOverrides({
                 l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
                 challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
             });
 
             string memory errors = 
-                STANDARD_VALIDATOR.validateWithOverrides({ _input: input, _allowFailure: true, _overrides: overrides_
-            });
+                STANDARD_VALIDATOR.validateWithOverrides({ _input: input, _allowFailure: true, _overrides: overrides_});
 
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
