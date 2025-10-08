@@ -119,8 +119,8 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
                 challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
             });
 
-            string memory errors = 
-                STANDARD_VALIDATOR.validateWithOverrides({ _input: input, _allowFailure: true, _overrides: overrides_});
+            string memory errors =
+                STANDARD_VALIDATOR.validateWithOverrides({ _input: input, _allowFailure: true, _overrides: overrides_ });
 
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
