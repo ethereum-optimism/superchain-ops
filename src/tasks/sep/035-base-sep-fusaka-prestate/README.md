@@ -64,8 +64,8 @@ cd src/tasks/sep/035-base-sep-fusaka-prestate
  SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0xc19fad79ac1847855400a77807bf3b74bd9ed4db02cac6ddf49a9c15dfe15326
-# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
+# Message Hash: 0x9442df5eb9142f3cafa0d0229a66e9da653dad5bb9b2969189b619acdb1c8671
+# Normalized Hash: 0xccb1531128009f116e4e8608f300128064ddc1585987f9e6441554260f159d8b
 
 # Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
 #  ┌────────────────────┐      
@@ -88,8 +88,8 @@ cd src/tasks/sep/035-base-sep-fusaka-prestate
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0xb61c907554f9c0350350dd042808feb43e5bdaf81dbd49c900b18c350e3dc90c
-# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
+# Message Hash: 0x6aed739b0f14aeaa148bab6f705a859224f7938c51585d96f1f67b16bb99dd80
+# Normalized Hash: 0xccb1531128009f116e4e8608f300128064ddc1585987f9e6441554260f159d8b
 ```
 
 Now, perform the signing for both safes that are owners of 'base-nested':
@@ -99,14 +99,14 @@ cd src/tasks/sep/035-base-sep-fusaka-prestate
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0xc19fad79ac1847855400a77807bf3b74bd9ed4db02cac6ddf49a9c15dfe15326
-# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
+# Message Hash: 0x9442df5eb9142f3cafa0d0229a66e9da653dad5bb9b2969189b619acdb1c8671
+# Normalized Hash: 0xccb1531128009f116e4e8608f300128064ddc1585987f9e6441554260f159d8b
 
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0xb61c907554f9c0350350dd042808feb43e5bdaf81dbd49c900b18c350e3dc90c
-# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
+# Message Hash: 0x6aed739b0f14aeaa148bab6f705a859224f7938c51585d96f1f67b16bb99dd80
+# Normalized Hash: 0xccb1531128009f116e4e8608f300128064ddc1585987f9e6441554260f159d8b
 ```
 
 > **⚠️ Attention Signers:**
@@ -157,14 +157,14 @@ Once you've updated the nonce for the base-operations safe, you can now safely s
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0xe2f2796eb0690f09ea5473fa5c533cc9ecf390ada3ada11758e496a1758db295
-# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
+# Message Hash: 0xfe147ec075ed8c65577532418953e3840f9fb26662e7dbb2576a2e778c3387a7
+# Normalized Hash: 0xccb1531128009f116e4e8608f300128064ddc1585987f9e6441554260f159d8b
 
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0xe2f2796eb0690f09ea5473fa5c533cc9ecf390ada3ada11758e496a1758db295
-# Normalized Hash: 0xfbaa356e2c751d2b0b3ac8e3b9cd8dccfd98bb5f8b9595776e543916a4b22421
+# Message Hash: 0xfe147ec075ed8c65577532418953e3840f9fb26662e7dbb2576a2e778c3387a7
+# Normalized Hash: 0xccb1531128009f116e4e8608f300128064ddc1585987f9e6441554260f159d8b
 ```
 
 ### Step 2 (Role: Facilitator) - Base Nested Approval
