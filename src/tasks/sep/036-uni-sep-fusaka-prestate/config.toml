@@ -6,12 +6,11 @@ name = "Unichain Sepolia Testnet"
 
 [[opcmUpgrades]]
 chainId = 1301
-absolutePrestate = "0x03f05793ed3abc475137f73b68c80593cbbf40f5d1059d2ad9b8bfcb97fa8929" # Fusaka Absolute Prestate published here https://github.com/ethereum-optimism/superchain-registry/blob/64dd80477fc855a4931b129cd1e2ba1c18da61c7/validation/standard/standard-prestates.toml#L6C7-L6C73
-expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+absolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91" # Fusaka Absolute Prestate published here https://github.com/ethereum-optimism/superchain-registry/blob/df5d4feb51f5d698d043a72ac2c6dfa9ce2a4afa/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used.
 
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
-StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
 
 [stateOverrides]
 # Unichain Sepolia ProxyAdminOwner:
