@@ -322,3 +322,79 @@ contract LateOptInRevenueShareTest is Test {
         }
     }
 }
+
+/// @notice Test contract for the LateOptInRevenueShare that expect reverts on misconfiguration of required fields.
+contract LateOptInRevenueShareRequiredFieldsTest is Test {
+    LateOptInRevenueShare public template;
+
+    function setUp() public {
+        vm.createSelectFork("mainnet", 23197819);
+        template = new LateOptInRevenueShare();
+    }
+
+    /// @notice Tests that the template reverts when the gasLimit is too low.
+    function test_lateOptInRevenueShare_too_low_gasLimit_reverts() public {
+        string memory configPath = "test/template/late-opt-in-rev-share/config/zero-gas-limit-config.toml";
+        vm.expectRevert("gasLimit must be set");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when the gasLimit is too high.
+    function test_lateOptInRevenueShare_too_high_gasLimit_reverts() public {
+        string memory configPath = "test/template/late-opt-in-rev-share/config/too-high-gas-limit-config.toml";
+        vm.expectRevert("gasLimit must be less than uint64.max");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when using own calculator and the calculator address is zero.
+    function test_lateOptInRevenueShare_calculator_zero_address_reverts() public {
+        string memory configPath = "test/template/late-opt-in-rev-share/config/calculator-zero-address-config.toml";
+        vm.expectRevert("calculator address must be set in config if opting to use own calculator");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when using default calculator and the salt seed is an empty string.
+    function test_lateOptInRevenueShare_saltSeed_empty_string_reverts() public {
+        string memory configPath = "test/template/late-opt-in-rev-share/config/salt-seed-empty-string-config.toml";
+        vm.expectRevert("saltSeed must be set in config");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when using default calculator and the l1 withdrawer recipient is a zero address.
+    function test_lateOptInRevenueShare_l1WithdrawerRecipient_zero_address_reverts() public {
+        string memory configPath =
+            "test/template/late-opt-in-rev-share/config/l1WithdrawerRecipient-zero-address-config.toml";
+        vm.expectRevert("l1WithdrawerRecipient must be set in config");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when using default calculator and the l1 withdrawer gas limit is zero.
+    function test_lateOptInRevenueShare_l1WithdrawerGasLimit_zero_reverts() public {
+        string memory configPath = "test/template/late-opt-in-rev-share/config/l1WithdrawerGasLimit-zero-config.toml";
+        vm.expectRevert("l1WithdrawerGasLimit must be greater than 0");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when using default calculator and the l1 withdrawer gas limit is too high.
+    function test_lateOptInRevenueShare_l1WithdrawerGasLimit_too_high_reverts() public {
+        string memory configPath =
+            "test/template/late-opt-in-rev-share/config/l1WithdrawerGasLimit-too-high-config.toml";
+        vm.expectRevert("l1WithdrawerGasLimit must be less than uint32.max");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when using default calculator and the chain fees recipient is a zero address.
+    function test_lateOptInRevenueShare_scRevShareCalcChainFeesRecipient_zero_address_reverts() public {
+        string memory configPath =
+            "test/template/late-opt-in-rev-share/config/scRevShareCalcChainFeesRecipient-zero-address-config.toml";
+        vm.expectRevert("scRevShareCalcChainFeesRecipient must be set in config");
+        template.simulate(configPath);
+    }
+
+    /// @notice Tests that the template reverts when the portal is a zero address.
+    function test_lateOptInRevenueShare_portal_zero_address_reverts() public {
+        string memory configPath = "test/template/late-opt-in-rev-share/config/portal-zero-address-config.toml";
+        vm.expectRevert("SimpleAddressRegistry: zero address for OptimismPortal");
+        template.simulate(configPath);
+    }
+}

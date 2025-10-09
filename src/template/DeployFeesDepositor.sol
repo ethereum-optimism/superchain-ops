@@ -87,7 +87,6 @@ contract DeployFeesDepositor is SimpleTaskBase {
         gasLimit = uint32(_gasLimitRaw);
 
         proxyAdminOwner = simpleAddrRegistry.get("ProxyAdminOwner");
-        require(proxyAdminOwner != address(0), "proxyAdminOwner must be set");
 
         _proxyInitCode = bytes.concat(type(Proxy).creationCode, abi.encode(proxyAdminOwner));
 

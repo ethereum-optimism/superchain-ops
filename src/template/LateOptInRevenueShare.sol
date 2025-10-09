@@ -130,7 +130,6 @@ contract LateOptInRevenueShare is SimpleTaskBase {
         string memory _toml = vm.readFile(_taskConfigFilePath);
 
         portal = simpleAddrRegistry.get("OptimismPortal");
-        require(portal != address(0), "OptimismPortal must be set in the addresses block");
 
         useOwnCalculator = _toml.readBool(".useOwnCalculator");
 

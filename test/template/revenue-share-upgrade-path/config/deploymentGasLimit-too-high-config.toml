@@ -1,0 +1,26 @@
+l2chains = []
+templateName = "RevenueShareUpgradePath"
+
+portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
+saltSeed = "test-salt"
+deploymentGasLimit = 1.9e64 # Greater than uint64.max
+optInRevenueShare = false
+
+baseFeeVaultWithdrawalNetwork = 0
+baseFeeVaultRecipient = "0xdeadbeef1234567890abcdef1234567890abcdef"
+baseFeeVaultMinWithdrawalAmount = 1000000000000000000
+
+l1FeeVaultWithdrawalNetwork = 0
+l1FeeVaultRecipient = "0xdeadbeef1234567890abcdef1234567890abcdef"
+l1FeeVaultMinWithdrawalAmount = 1000000000000000000
+
+sequencerFeeVaultWithdrawalNetwork = 0
+sequencerFeeVaultRecipient = "0xdeadbeef1234567890abcdef1234567890abcdef"
+sequencerFeeVaultMinWithdrawalAmount = 1000000000000000000
+
+operatorFeeVaultWithdrawalNetwork = 0
+operatorFeeVaultRecipient = "0xdeadbeef1234567890abcdef1234567890abcdef"
+operatorFeeVaultMinWithdrawalAmount = 1000000000000000000
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
