@@ -22,11 +22,6 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
 > - Message Hash: `0x9151c19e2511e6ddf5366deaf4592fd30dd41e0f7d3e371ed85190008ca6e566`
-## Normalized State Diff Hash Attestation
-
-The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
-
-**Normalized hash:** `0x72702882bcde0413668da3fabcb6450df3c993b1892b9d881fa750e7cb9c5b52`
 
 ## Task Calldata
 
