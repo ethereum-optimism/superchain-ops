@@ -1,4 +1,4 @@
-# 036-uni-sep-fusaka-prestate
+# 035-uni-sep-fusaka-prestate
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -10,12 +10,12 @@ This task uses `op-contract/v4.1.0` OPContractsManager to update the prestate of
 
 Simulation commands for each safe:
 ```bash
-cd src/tasks/sep/036-uni-sep-fusaka-prestate
+cd src/tasks/sep/035-uni-sep-fusaka-prestate
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/tasks/sep/036-uni-sep-fusaka-prestate
+cd src/tasks/sep/035-uni-sep-fusaka-prestate
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
 ```
