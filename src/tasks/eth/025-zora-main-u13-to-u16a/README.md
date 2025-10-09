@@ -1,6 +1,6 @@
 # 025-zora-main-u13-to-u16a
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x3c9df2c9f2502ed27df838f21bf474be0544246f8c0c3513a698d81e0c2890ae)
 
 ## Objective
 
