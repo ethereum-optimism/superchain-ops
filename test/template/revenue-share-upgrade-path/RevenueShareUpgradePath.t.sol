@@ -27,21 +27,6 @@ contract RevenueShareUpgradePathRequiredFieldsTest is Test {
         template.simulate(configPath);
     }
 
-    /// @notice Tests that the template reverts when the deployment gas limit is zero.
-    function test_revenueShareUpgradePath_deploymentGasLimit_zero_reverts() public {
-        string memory configPath = "test/template/revenue-share-upgrade-path/config/deploymentGasLimit-zero-config.toml";
-        vm.expectRevert("deploymentGasLimit must be set in config");
-        template.simulate(configPath);
-    }
-
-    /// @notice Tests that the template reverts when the deployment gas limit is too high.
-    function test_revenueShareUpgradePath_deploymentGasLimit_too_high_reverts() public {
-        string memory configPath =
-            "test/template/revenue-share-upgrade-path/config/deploymentGasLimit-too-high-config.toml";
-        vm.expectRevert("deploymentGasLimit must be less than uint64.max");
-        template.simulate(configPath);
-    }
-
     /// @notice Tests that the template reverts when the base fee vault recipient is a zero address.
     function test_revenueShareUpgradePath_baseFeeVaultRecipient_zero_address_reverts() public {
         string memory configPath =
