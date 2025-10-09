@@ -53,12 +53,15 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
     /// @notice Address of the ProxyAdmin predeploy on L2.
     address internal constant PROXY_ADMIN = 0x4200000000000000000000000000000000000018;
 
-    /// @notice Based on deployment tests, these are the average gas costs for each of the deployments:
-    ///         - L1 Withdrawer: TBD
-    ///         - SC Rev Share Calculator: 518,168
-    ///         - Fee Vaults: 757,214
-    ///         - Fee Splitter: 1,027,359
-    ///         A buffer of ~20% is applied to each value to have enough margin.
+    /// @notice Based on deployment tests, these are the average gas costs for each of the L2 operations:
+    ///         - L1Withdrawer deployment: 497,812
+    ///         - SC Rev Share Calculator deployment: 518,168
+    ///         - Fee Vaults deployment: 757,214
+    ///         - Fee Splitter deployment: 1,027,359
+    ///         - upgradeAndCall: 73,015
+    ///         - upgrade: 6,202
+    ///         A buffer of ~20% is applied to each value to have enough margin. While leaving the upgrade call
+    ///         to a fixed 150,000 gas limit.
 
     /// @notice The gas limit for the SC Rev Share Calculator deployment.
     uint64 internal constant SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT = 625_000;
@@ -69,7 +72,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
     /// @notice The gas limit for the Fee Splitter deployment.
     uint64 internal constant FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT = 1_235_000;
     /// @notice The gas limit for the upgrade calls on L2.
-    uint64 internal constant UPGRADE_GAS_LIMIT = 500_000;
+    uint64 internal constant UPGRADE_GAS_LIMIT = 150_000;
 
     /// @notice Used to validate calls made to the OptimismPortal.
     mapping(bytes32 => uint8) internal _callsToPortal;
