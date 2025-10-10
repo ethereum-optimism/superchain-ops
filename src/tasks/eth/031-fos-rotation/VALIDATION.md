@@ -6,9 +6,7 @@ signing.
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
-3. [Verifying the transaction input](#understanding-task-calldata)
-4. [Verifying the state changes](#task-state-changes)
+2. [Verifying the transaction input](#understanding-task-calldata)
 
 ## Expected Domain and Message Hashes
 
