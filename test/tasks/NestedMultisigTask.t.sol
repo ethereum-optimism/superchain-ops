@@ -72,7 +72,7 @@ contract NestedMultisigTaskTest is Test {
         string memory configFilePath =
             MultisigTaskTestHelper.createTempTomlFile(_taskConfigFilePath, TESTING_DIRECTORY, _salt);
 
-        (accountAccesses, actions,,, rootSafe) = multisigTask.simulate(configFilePath, _childSafes);
+        (accountAccesses, actions,, rootSafe) = multisigTask.simulate(configFilePath, _childSafes);
 
         MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
@@ -273,7 +273,7 @@ contract NestedMultisigTaskTest is Test {
 
         address[] memory childSafes = Solarray.addresses(foundationChildMultisig);
 
-        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,,, address rootSafe) =
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,, address rootSafe) =
             multisigTask.simulate(opcmTaskConfigFilePath, childSafes);
 
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
@@ -303,7 +303,7 @@ contract NestedMultisigTaskTest is Test {
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        (accountAccesses, actions,,,) = multisigTask.simulate(opcmTaskConfigFilePath, childSafes);
+        (accountAccesses, actions,,) = multisigTask.simulate(opcmTaskConfigFilePath, childSafes);
         bytes32 taskHash = multisigTask.getHash(
             testData.rootSafeCalldata, address(testData.rootSafe), 0, testData.originalRootSafeNonce, testData.allSafes
         );
@@ -320,7 +320,7 @@ contract NestedMultisigTaskTest is Test {
         string memory toml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
             "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
         string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(toml, TESTING_DIRECTORY, "005");
-        (,,,, address rootSafe) =
+        (,,, address rootSafe) =
             multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
         assertEq(multisigTask.isNestedSafe(rootSafe), true, "Expected isNestedSafe to be true");
         MultisigTaskTestHelper.removeFile(configFilePath);
@@ -594,7 +594,7 @@ contract NestedMultisigTaskTest is Test {
 
         string memory config = MultisigTaskTestHelper.createTempTomlFile(_taskConfigToml, TESTING_DIRECTORY, "002");
 
-        (_accountAccesses, _actions,,,) = multisigTask.simulate(config, _testData.childSafes);
+        (_accountAccesses, _actions,,) = multisigTask.simulate(config, _testData.childSafes);
 
         MultisigTaskTestHelper.removeFile(config);
 
