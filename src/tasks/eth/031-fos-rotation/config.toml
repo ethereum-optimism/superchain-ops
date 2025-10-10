@@ -1,12 +1,12 @@
 templateName = "GnosisSafeRotateSigner"
 
-safeAddressString = "FoundationOperationSafe"
+safeAddressString = "FoundationOperationsSafe"
 
-ownerToRemove = "0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8"
+ownerToRemove = "0x7cB07FE039a92B3D784f284D919503A381BEC54f"
 ownerToAdd = "0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02"
 
 [stateOverrides]
 
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 108}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 110}
 ]
