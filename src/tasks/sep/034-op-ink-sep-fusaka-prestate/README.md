@@ -1,6 +1,6 @@
 # 034-op-ink-sep-fusaka-prestate
 
-Status: [READY TO SIGN]
+Status: [[EXECUTED](https://sepolia.etherscan.io/tx/0x02d13afd79fb045ab34a05e5f9bc7f23738afd739a042f97bc314ad9e90e282e)]
 
 ## Objective
 
