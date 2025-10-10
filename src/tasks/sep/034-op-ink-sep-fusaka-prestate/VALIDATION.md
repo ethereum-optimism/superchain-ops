@@ -30,7 +30,7 @@ the values printed to the terminal when you run the task.
 > - Message Hash: `0x0100ad527dc0a5bfde1487c1e459f345375c236cdcdd25855dbe4ce4a1ea023e`
 ## Normalized State Diff Hash Attestation
 
-The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
+Ensure that the normalized state diff hash matches the output in your terminal.
 
 **Normalized hash:** `0x46c2ce3b0ad59afaa4b38c2240580cd823c763fc52dccb3b4e3631b7e500409e`
 
