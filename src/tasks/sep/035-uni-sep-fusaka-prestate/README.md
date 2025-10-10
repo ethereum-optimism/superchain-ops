@@ -1,6 +1,6 @@
 # 035-uni-sep-fusaka-prestate
 
-Status: [READY TO SIGN]
+Status: [[EXECUTED](https://sepolia.etherscan.io/tx/0xa260348e1aacf29ac53487ee3ef34b2b638adbb3589a93a1d36aec18fc156395)]
 
 ## Objective
 
