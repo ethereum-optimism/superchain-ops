@@ -97,7 +97,7 @@ contract TaskManager is Script {
 
     function executeTask(TaskConfig memory config, address[] memory _childSafes)
         public
-        returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_)
+        returns (VmSafe.AccountAccess[] memory accesses_, bytes memory dataToSign_)
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
@@ -110,16 +110,7 @@ contract TaskManager is Script {
         string[] memory parts = vm.split(config.basePath, "/");
         string memory taskName = parts[parts.length - 1];
 
-        (accesses_, normalizedHash_, dataToSign_) = execute(config, task, _childSafes, taskName, formattedRootSafe);
-        require(
-            checkNormalizedHash(normalizedHash_, config),
-            string.concat(
-                "TaskManager: Normalized hash for task: ",
-                taskName,
-                " does not match. Got: ",
-                vm.toString(normalizedHash_)
-            )
-        );
+        (accesses_, dataToSign_) = execute(config, task, _childSafes, taskName, formattedRootSafe);
         require(
             checkDataToSign(dataToSign_, config),
             string.concat(
@@ -138,7 +129,7 @@ contract TaskManager is Script {
         address[] memory _childSafes,
         string memory _taskName,
         string memory _formattedParentMultisig
-    ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_) {
+    ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes memory dataToSign_) {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         if (_config.isNested) {
@@ -153,7 +144,7 @@ contract TaskManager is Script {
             console.log("");
             address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(address(_config.rootSafe)));
             Utils.validateSafesOrder(allSafes);
-            (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, _childSafes);
+            (accesses_,, dataToSign_,) = _task.simulate(_config.configPath, _childSafes);
         } else {
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING SINGLE TASK: ", _taskName, " FOR ROOT SAFE: ", _formattedParentMultisig));
@@ -164,7 +155,7 @@ contract TaskManager is Script {
                 _childSafes.length == 0, "TaskManager: child safes provided but not expected for a single safe task."
             );
 
-            (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, new address[](0));
+            (accesses_,, dataToSign_,) = _task.simulate(_config.configPath, new address[](0));
         }
     }
 
@@ -189,17 +180,6 @@ contract TaskManager is Script {
         }
         console.log(string.concat(vm.toUppercase("[ERROR]").red().bold(), " ", customMessage, " ", targetStr));
         return false;
-    }
-
-    /// @notice Cross check most recent normalized hash with normalized hash stored in VALIDATION markdown file.
-    /// @return 'false' when VALIDATION file is empty or contains the wrong hash. 'true' when VALIDATION file does not exist or contains the correct hash.
-    function checkNormalizedHash(bytes32 _normalizedHash, TaskConfig memory _config) public view returns (bool) {
-        bytes memory normalizedHashBytes = abi.encodePacked(_normalizedHash);
-        return checkValidationFile(
-            normalizedHashBytes,
-            _config,
-            "Normalized hash does not match. Please check that you've added it to the VALIDATION markdown file."
-        );
     }
 
     /// @notice Cross check most recent data to sign with the domain and message hashes stored in VALIDATION markdown file.

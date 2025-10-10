@@ -8,9 +8,8 @@ signing.
 The steps are:
 
 1. [Expected Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Normalized State Diff Hash Attestation](#normalized-state-diff-hash-attestation)
-3. [Understanding Task Calldata](#understanding-task-calldata)
-4. [Task State Changes](#task-state-changes)
+2. [Understanding Task Calldata](#understanding-task-calldata)
+3. [Task State Changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
@@ -25,12 +24,6 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash:  `<TODO-enter-domain-hash>`
 > - Message Hash: `<TODO-enter-message-hash>`
-
-## Normalized State Diff Hash Attestation
-
-The normalized state diff hash is a single fingerprint of all the onchain state changes your task would make if executed. We “normalize” the diff first (stable ordering and encoding) so the hash only changes when the actual intended state changes do. You **MUST** ensure that the normalized hash produced from your simulation matches the normalized hash in this document.
-
-**Normalized hash:** `<TODO-enter-normalized-hash>`
 
 ## Understanding Task Calldata
 
