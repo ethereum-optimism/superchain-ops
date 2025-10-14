@@ -47,7 +47,6 @@ Learn more:
 
 - [Extended Pause release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.2.0). (This is release `op-contracts/v1.2.0`).
 - [Governance post](https://gov.optimism.io/t/upgrade-proposal-4/7534).
-- [Blog post](https://blog.oplabs.co/improved-superchain-incident-response/).
 
 ### Multi-Chain Prep (MCP) Overview (Upgrade #6)
 
