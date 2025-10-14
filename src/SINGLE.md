@@ -121,7 +121,7 @@ the transaction and the message/domain hashes.
 
 1. Run the `simulate` command for your given Superchain Ops task.
 2. Find the **`OP-TXVERIFY LINK`** section of the Superchain Ops task output.
-3. Copy the link to [`op-txverify.optimism.io`](http://op-txverify.optimism.io) and send it to another device (phone is easiest).
+3. Copy the link as shown in the output (links to `op-txverify.optimism.io`) and send it to another device (phone is easiest).
 4. Run `op-txverify qr` on your first device. This will open a QR scanner.
 5. Open the link on your second device. This will start flashing a series of QR codes.
 6. Place your second device in front of the camera of the first device. Once enough QR codes have been scanned, you’ll see a success message.
