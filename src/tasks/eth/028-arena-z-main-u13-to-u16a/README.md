@@ -1,6 +1,6 @@
 # 028-arena-z-main-u13-to-u16a
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x38010d19d63d834b95936728d49e38dbf71ae7b3a44f555b235b890cd2f40eaf)
 
 ## Objective
 
