@@ -1,0 +1,27 @@
+templateName = "RevenueShareV100UpgradePath"
+
+# Revenue Share Configuration
+optInRevenueShare = false
+
+# Portal and deployment configuration
+portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"  # OptimismPortal address
+saltSeed = "DeploymentSalt"  # Deployment salt
+deploymentGasLimit = 1000000
+
+# Vaults Configuration
+baseFeeVaultWithdrawalNetwork = 0
+baseFeeVaultRecipient = "0x3333333333333333333333333333333333333333"
+baseFeeVaultMinWithdrawalAmount = "1000000000000000000"
+l1FeeVaultWithdrawalNetwork = 0
+l1FeeVaultRecipient = "0x4444444444444444444444444444444444444444"
+l1FeeVaultMinWithdrawalAmount = "1000000000000000000"
+sequencerFeeVaultWithdrawalNetwork = 0
+sequencerFeeVaultRecipient = "0x5555555555555555555555555555555555555555"
+sequencerFeeVaultMinWithdrawalAmount = "1000000000000000000"
+operatorFeeVaultWithdrawalNetwork = 0
+operatorFeeVaultRecipient = "0x6666666666666666666666666666666666666666"
+operatorFeeVaultMinWithdrawalAmount = "1000000000000000000"
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+OptimismPortal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
