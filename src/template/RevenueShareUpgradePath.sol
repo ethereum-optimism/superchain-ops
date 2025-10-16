@@ -27,6 +27,11 @@ interface IFeeSplitter {
     function initialize(address _sharesCalculator) external;
 }
 
+/// @notice Interface for the vaults in L2.
+interface IFeeVault {
+    function initialize(address _recipient, uint256 _minWithdrawalAmount, uint8 _withdrawalNetwork) external;
+}
+
 /// @notice Interface for ProxyAdmin.
 interface IProxyAdmin {
     function upgrade(address payable _proxy, address _implementation) external;
@@ -322,12 +327,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
 
         // Calculate addresses and data to deploy vaults
         // Calculate addresses and data to deploy OperatorFeeVault
-        bytes memory _operatorFeeVaultInitCode = bytes.concat(
-            RevShareCodeRepo.operatorFeeVaultCreationCode,
-            abi.encode(
-                operatorFeeVaultRecipient, operatorFeeVaultMinWithdrawalAmount, operatorFeeVaultWithdrawalNetwork
-            )
-        );
+        bytes memory _operatorFeeVaultInitCode = RevShareCodeRepo.operatorFeeVaultCreationCode;
         _operatorFeeVaultPrecalculatedAddress =
             Utils.getCreate2Address(_getSalt(saltSeed, "OperatorFeeVault"), _operatorFeeVaultInitCode, CREATE2_DEPLOYER);
 
@@ -335,7 +335,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             ICreate2Deployer.deploy, (0, _getSalt(saltSeed, "OperatorFeeVault"), _operatorFeeVaultInitCode)
         );
 
-        // Expected calls for OperatorFeeVault: 2 (deploy + upgrade)
+        // Expected calls for OperatorFeeVault: 2 (deploy + upgradeAndCall)
         _incrementCallsToPortal(
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
@@ -351,20 +351,26 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
                     UPGRADE_GAS_LIMIT,
                     false,
                     abi.encodeCall(
-                        IProxyAdmin.upgrade,
-                        (payable(OPERATOR_FEE_VAULT), address(_operatorFeeVaultPrecalculatedAddress))
+                        IProxyAdmin.upgradeAndCall,
+                        (
+                            payable(OPERATOR_FEE_VAULT),
+                            address(_operatorFeeVaultPrecalculatedAddress),
+                            abi.encodeCall(
+                                IFeeVault.initialize,
+                                (
+                                    operatorFeeVaultRecipient,
+                                    operatorFeeVaultMinWithdrawalAmount,
+                                    operatorFeeVaultWithdrawalNetwork
+                                )
+                            )
+                        )
                     )
                 )
             )
         );
 
         // Calculate addresses and data to deploy SequencerFeeVault
-        bytes memory _sequencerFeeVaultInitCode = bytes.concat(
-            RevShareCodeRepo.sequencerFeeVaultCreationCode,
-            abi.encode(
-                sequencerFeeVaultRecipient, sequencerFeeVaultMinWithdrawalAmount, sequencerFeeVaultWithdrawalNetwork
-            )
-        );
+        bytes memory _sequencerFeeVaultInitCode = RevShareCodeRepo.sequencerFeeVaultCreationCode;
         _sequencerFeeVaultPrecalculatedAddress = Utils.getCreate2Address(
             _getSalt(saltSeed, "SequencerFeeVault"), _sequencerFeeVaultInitCode, CREATE2_DEPLOYER
         );
@@ -388,24 +394,32 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
                     UPGRADE_GAS_LIMIT,
                     false,
                     abi.encodeCall(
-                        IProxyAdmin.upgrade,
-                        (payable(SEQUENCER_FEE_VAULT), address(_sequencerFeeVaultPrecalculatedAddress))
+                        IProxyAdmin.upgradeAndCall,
+                        (
+                            payable(SEQUENCER_FEE_VAULT),
+                            address(_sequencerFeeVaultPrecalculatedAddress),
+                            abi.encodeCall(
+                                IFeeVault.initialize,
+                                (
+                                    sequencerFeeVaultRecipient,
+                                    sequencerFeeVaultMinWithdrawalAmount,
+                                    sequencerFeeVaultWithdrawalNetwork
+                                )
+                            )
+                        )
                     )
                 )
             )
         );
 
         // Calculate addresses and data to deploy BaseFeeVault
-        bytes memory _baseFeeVaultInitCode = bytes.concat(
-            RevShareCodeRepo.baseFeeVaultCreationCode,
-            abi.encode(baseFeeVaultRecipient, baseFeeVaultMinWithdrawalAmount, baseFeeVaultWithdrawalNetwork)
-        );
+        bytes memory _baseFeeVaultInitCode = RevShareCodeRepo.baseFeeVaultCreationCode;
         _baseFeeVaultPrecalculatedAddress =
             Utils.getCreate2Address(_getSalt(saltSeed, "BaseFeeVault"), _baseFeeVaultInitCode, CREATE2_DEPLOYER);
         _baseFeeVaultCalldata =
             abi.encodeCall(ICreate2Deployer.deploy, (0, _getSalt(saltSeed, "BaseFeeVault"), _baseFeeVaultInitCode));
 
-        // Expected calls for BaseFeeVault: 2 (deploy + upgrade)
+        // Expected calls for BaseFeeVault: 2 (deploy + upgradeAndCall)
         _incrementCallsToPortal(
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
@@ -421,23 +435,28 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
                     UPGRADE_GAS_LIMIT,
                     false,
                     abi.encodeCall(
-                        IProxyAdmin.upgrade, (payable(BASE_FEE_VAULT), address(_baseFeeVaultPrecalculatedAddress))
+                        IProxyAdmin.upgradeAndCall,
+                        (
+                            payable(BASE_FEE_VAULT),
+                            address(_baseFeeVaultPrecalculatedAddress),
+                            abi.encodeCall(
+                                IFeeVault.initialize,
+                                (baseFeeVaultRecipient, baseFeeVaultMinWithdrawalAmount, baseFeeVaultWithdrawalNetwork)
+                            )
+                        )
                     )
                 )
             )
         );
 
         // Calculate addresses and data to deploy L1FeeVault
-        bytes memory _l1FeeVaultInitCode = bytes.concat(
-            RevShareCodeRepo.l1FeeVaultCreationCode,
-            abi.encode(l1FeeVaultRecipient, l1FeeVaultMinWithdrawalAmount, l1FeeVaultWithdrawalNetwork)
-        );
+        bytes memory _l1FeeVaultInitCode = RevShareCodeRepo.l1FeeVaultCreationCode;
         _l1FeeVaultPrecalculatedAddress =
             Utils.getCreate2Address(_getSalt(saltSeed, "L1FeeVault"), _l1FeeVaultInitCode, CREATE2_DEPLOYER);
         _l1FeeVaultCalldata =
             abi.encodeCall(ICreate2Deployer.deploy, (0, _getSalt(saltSeed, "L1FeeVault"), _l1FeeVaultInitCode));
 
-        // Expected calls for L1FeeVault: 2 (deploy + upgrade)
+        // Expected calls for L1FeeVault: 2 (deploy + upgradeAndCall)
         _incrementCallsToPortal(
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
@@ -453,7 +472,15 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
                     UPGRADE_GAS_LIMIT,
                     false,
                     abi.encodeCall(
-                        IProxyAdmin.upgrade, (payable(L1_FEE_VAULT), address(_l1FeeVaultPrecalculatedAddress))
+                        IProxyAdmin.upgradeAndCall,
+                        (
+                            payable(L1_FEE_VAULT),
+                            address(_l1FeeVaultPrecalculatedAddress),
+                            abi.encodeCall(
+                                IFeeVault.initialize,
+                                (l1FeeVaultRecipient, l1FeeVaultMinWithdrawalAmount, l1FeeVaultWithdrawalNetwork)
+                            )
+                        )
                     )
                 )
             )
@@ -467,7 +494,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             _getSalt(saltSeed, "FeeSplitter"), RevShareCodeRepo.feeSplitterCreationCode, CREATE2_DEPLOYER
         );
 
-        // Expected calls for FeeSplitter: 2 (deploy + upgrade)
+        // Expected calls for FeeSplitter: 2 (deploy + upgradeAndCall)
         _incrementCallsToPortal(
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
@@ -561,7 +588,19 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             UPGRADE_GAS_LIMIT,
             false,
             abi.encodeCall(
-                IProxyAdmin.upgrade, (payable(OPERATOR_FEE_VAULT), address(_operatorFeeVaultPrecalculatedAddress))
+                IProxyAdmin.upgradeAndCall,
+                (
+                    payable(OPERATOR_FEE_VAULT),
+                    address(_operatorFeeVaultPrecalculatedAddress),
+                    abi.encodeCall(
+                        IFeeVault.initialize,
+                        (
+                            operatorFeeVaultRecipient,
+                            operatorFeeVaultMinWithdrawalAmount,
+                            operatorFeeVaultWithdrawalNetwork
+                        )
+                    )
+                )
             )
         );
 
@@ -575,7 +614,19 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             UPGRADE_GAS_LIMIT,
             false,
             abi.encodeCall(
-                IProxyAdmin.upgrade, (payable(SEQUENCER_FEE_VAULT), address(_sequencerFeeVaultPrecalculatedAddress))
+                IProxyAdmin.upgradeAndCall,
+                (
+                    payable(SEQUENCER_FEE_VAULT),
+                    address(_sequencerFeeVaultPrecalculatedAddress),
+                    abi.encodeCall(
+                        IFeeVault.initialize,
+                        (
+                            sequencerFeeVaultRecipient,
+                            sequencerFeeVaultMinWithdrawalAmount,
+                            sequencerFeeVaultWithdrawalNetwork
+                        )
+                    )
+                )
             )
         );
 
@@ -588,7 +639,17 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             0,
             UPGRADE_GAS_LIMIT,
             false,
-            abi.encodeCall(IProxyAdmin.upgrade, (payable(BASE_FEE_VAULT), address(_baseFeeVaultPrecalculatedAddress)))
+            abi.encodeCall(
+                IProxyAdmin.upgradeAndCall,
+                (
+                    payable(BASE_FEE_VAULT),
+                    address(_baseFeeVaultPrecalculatedAddress),
+                    abi.encodeCall(
+                        IFeeVault.initialize,
+                        (baseFeeVaultRecipient, baseFeeVaultMinWithdrawalAmount, baseFeeVaultWithdrawalNetwork)
+                    )
+                )
+            )
         );
 
         // Deploy the l1 fee vault
@@ -600,7 +661,17 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             0,
             UPGRADE_GAS_LIMIT,
             false,
-            abi.encodeCall(IProxyAdmin.upgrade, (payable(L1_FEE_VAULT), address(_l1FeeVaultPrecalculatedAddress)))
+            abi.encodeCall(
+                IProxyAdmin.upgradeAndCall,
+                (
+                    payable(L1_FEE_VAULT),
+                    address(_l1FeeVaultPrecalculatedAddress),
+                    abi.encodeCall(
+                        IFeeVault.initialize,
+                        (l1FeeVaultRecipient, l1FeeVaultMinWithdrawalAmount, l1FeeVaultWithdrawalNetwork)
+                    )
+                )
+            )
         );
     }
 

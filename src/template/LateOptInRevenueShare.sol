@@ -126,7 +126,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     ///         State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+    function _templateSetup(string memory _taskConfigFilePath, address) internal override {
         string memory _toml = vm.readFile(_taskConfigFilePath);
 
         portal = simpleAddrRegistry.get("OptimismPortal");

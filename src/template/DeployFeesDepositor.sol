@@ -70,7 +70,7 @@ contract DeployFeesDepositor is SimpleTaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+    function _templateSetup(string memory _taskConfigFilePath, address) internal override {
         string memory tomlContent = vm.readFile(_taskConfigFilePath);
         salt = tomlContent.readString(".salt");
         require(bytes(salt).length > 0, "salt must be set");
@@ -109,8 +109,7 @@ contract DeployFeesDepositor is SimpleTaskBase {
     ///      implicitly because if the calculated address of the Proxy would differ from the one we
     ///      calculated, the task would fail on the check for code to be present, since the changes
     ///      in build function revert and the parent contract validates that accessed accounts have code.
-    /// @param _rootSafe The address of the root safe (unused in this implementation).
-    function _build(address _rootSafe) internal override {
+    function _build(address) internal override {
         // Deploy the FeesDepositor implementation contract using CREATE2
         ICreate2Deployer(CREATE2_DEPLOYER).deploy(0, bytes32(bytes(salt)), RevShareCodeRepo.feesDepositorCreationCode);
 

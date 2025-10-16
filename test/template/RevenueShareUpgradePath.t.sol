@@ -26,7 +26,10 @@ interface ICreate2Deployer {
 
 interface IProxyAdmin {
     function upgrade(address _proxy, address _implementation) external;
-    function upgradeAndCall(address _proxy, address _implementation, bytes memory _data) external payable returns (bytes memory);
+    function upgradeAndCall(address _proxy, address _implementation, bytes memory _data)
+        external
+        payable
+        returns (bytes memory);
 }
 
 contract RevenueShareUpgradePathTest is Test {
@@ -338,10 +341,7 @@ contract RevenueShareUpgradePathTest is Test {
     /// @notice Verify the target address is the proxy admin
     /// @param _to The target address
     function _assertIsProxyAdmin(address _to) internal pure {
-        assertTrue(
-            _to == PROXY_ADMIN,
-            "Upgrade should target the proxy admin"
-        );
+        assertTrue(_to == PROXY_ADMIN, "Upgrade should target the proxy admin");
     }
 
     /// @notice Expect the portal events
@@ -355,7 +355,9 @@ contract RevenueShareUpgradePathTest is Test {
             bytes memory _opaqueData = abi.encodePacked(uint256(0), uint256(0), _actualGasLimit, _isCreation, _data);
 
             vm.expectEmit(true, true, true, true, PORTAL);
-            emit TransactionDeposited(AddressAliasHelper.applyL1ToL2Alias(PROXY_ADMIN_OWNER), _to, DEPOSIT_VERSION, _opaqueData);
+            emit TransactionDeposited(
+                AddressAliasHelper.applyL1ToL2Alias(PROXY_ADMIN_OWNER), _to, DEPOSIT_VERSION, _opaqueData
+            );
         }
     }
 }
