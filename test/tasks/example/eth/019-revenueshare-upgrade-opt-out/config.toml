@@ -6,7 +6,6 @@ optInRevenueShare = false
 # Portal and deployment configuration
 portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"  # OptimismPortal address
 saltSeed = "DeploymentSalt"  # Deployment salt
-deploymentGasLimit = 1000000
 
 # Vaults Configuration
 baseFeeVaultWithdrawalNetwork = 0
