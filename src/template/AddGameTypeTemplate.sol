@@ -8,7 +8,7 @@ import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-import {GameType, Claim, Duration} from "@op/src/dispute/lib/Types.sol";
+import {GameType, Claim, Duration} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {
     IOPContractsManager,
     IDisputeGameFactory,
@@ -17,7 +17,7 @@ import {
     IProxyAdmin,
     IDelayedWETH,
     ISystemConfig
-} from "@op/interfaces/L1/IOPContractsManager.sol";
+} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 
 /// @title AddGameTypeTemplate
 /// @notice This template is used to add a game type to the DisputeGameFactory contract.
