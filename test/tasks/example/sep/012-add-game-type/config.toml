@@ -1,0 +1,24 @@
+templateName = "AddGameTypeTemplate"
+
+l2chains = [    
+    {name = "Soneium Testnet Minato", chainId = 1946},
+]
+
+[[configs]]
+chainId = 1946
+saltMixer = "this is a salt mixer"
+systemConfig = "0x4Ca9608Fef202216bc21D543798ec854539bAAd3"
+proxyAdmin = "0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0"
+delayedWETH = "0xB39c1730DFF54f25F9e45667c119e0a8FeE73156"
+disputeGameType = 0
+disputeAbsolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91"
+disputeMaxGameDepth = 73
+disputeSplitDepth = 30
+disputeClockExtension = 10800
+disputeMaxClockDuration = 302400
+initialBond = 80000000000000000
+vm = "0x07babe08ee4d07dba236530183b24055535a7011"
+permissioned = false
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
