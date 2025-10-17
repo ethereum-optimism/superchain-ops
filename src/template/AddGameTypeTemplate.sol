@@ -6,6 +6,7 @@ import {stdToml} from "forge-std/StdToml.sol";
 
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 import {IDeputyGuardianModule, IOptimismPortal2} from "@op/interfaces/safe/IDeputyGuardianModule.sol";
 import {GameType, Claim, Duration} from "@op/src/dispute/lib/Types.sol";
