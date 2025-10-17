@@ -9,11 +9,9 @@ import {
 } from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-
-import {IAnchorStateRegistry} from "lib/optimism/packages/contracts-bedrock/interfaces/IAnchorStateRegistry.sol";
 
 /// @title SetRespectedGameTypeTemplate
 /// @notice This template is used to set the respected game type in the OptimismPortal2 contract
@@ -32,7 +30,7 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
 
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
-        return "FoundationOperationsSafe";
+        return "GuardianSafe";
     }
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
@@ -40,7 +38,7 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         string[] memory storageWrites = new string[](3);
         storageWrites[0] = "DeputyGuardianModule";
         storageWrites[1] = "Guardian";
-        storageWrites[2] = "AnchorStateRegistry";
+        storageWrites[2] = "AnchorStateRegistryProxy";
         return storageWrites;
     }
 
@@ -64,8 +62,10 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistry", chainId);
-            dgm.setRespectedGameType(IAnchorStateRegistry(payable(asrAddress)), cfg[chainId].gameType);
+            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
+
+            // Call ASR to set the current respected game type:
+            IAnchorStateRegistry(asrAddress).setRespectedGameType(cfg[chainId].gameType);
         }
     }
 
@@ -75,7 +75,7 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistry", chainId);
+            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
             IAnchorStateRegistry asr = IAnchorStateRegistry(payable(asrAddress));
             assertEq(asr.respectedGameType().raw(), cfg[chainId].gameType.raw());
 
@@ -84,4 +84,10 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function _getCodeExceptions() internal pure override returns (address[] memory) {}
+}
+
+// Minimal local copy; only what this template needs.
+interface IAnchorStateRegistry {
+    function respectedGameType() external view returns (GameType);
+    function setRespectedGameType(GameType _gameType) external;
 }

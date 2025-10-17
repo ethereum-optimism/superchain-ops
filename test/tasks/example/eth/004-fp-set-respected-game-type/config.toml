@@ -1,10 +1,10 @@
 l2chains = [
-  {name = "OP Mainnet", chainId = 10}
+  {name = "Soneium", chainId = 1868}
 ]
 
 templateName = "SetRespectedGameTypeTemplate"
 
 [gameTypes]
 configs = [
-  {chainId = 10, gameType = 1}
+  {chainId = 1868, gameType = 0}
 ]
