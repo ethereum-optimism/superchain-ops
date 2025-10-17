@@ -98,7 +98,7 @@ contract LateOptInRevenueShareTest is Test {
         address calculator
     ) internal {
         // Step 1: Run simulate to prepare everything and get the actions
-        (, Action[] memory actions,,, address rootSafe) = template.simulate(configPath, new address[](0));
+        (, Action[] memory actions,, address rootSafe) = template.simulate(configPath, new address[](0));
 
         // Verify we got the expected safe and action count
         assertEq(rootSafe, PROXY_ADMIN_OWNER, "Root safe should be ProxyAdminOwner");
