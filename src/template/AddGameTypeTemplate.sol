@@ -95,7 +95,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         }
 
         // Delegatecall the OPCM.addGameType() function.
-        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, configs));
+        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
         require(success, "AddGameType: failed to add game type");
     }
 
@@ -124,9 +124,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
-        return codeExceptions;
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
     }
 
     /// @notice Converts the AddGameInputWithChainId struct to the AddGameInput struct.
