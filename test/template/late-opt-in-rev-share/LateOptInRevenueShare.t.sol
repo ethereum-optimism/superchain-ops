@@ -9,6 +9,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {RevShareCodeRepo} from "src/libraries/RevShareCodeRepo.sol";
+import {RevShareGasLimits} from "src/libraries/RevShareGasLimits.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
 interface IOptimismPortal2 {
@@ -54,7 +55,6 @@ contract LateOptInRevenueShareTest is Test {
 
     // L1 Withdrawer configuration
     string internal constant SALT_SEED = "DeploymentSalt";
-    uint64 internal constant GAS_LIMIT = 300000;
     address internal constant L1_WITHDRAWER_RECIPIENT = 0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF;
     uint256 internal constant L1_WITHDRAWER_MIN_WITHDRAWAL_AMOUNT = 1000000000000000000;
     uint32 internal constant L1_WITHDRAWER_GAS_LIMIT = 300000;
@@ -198,11 +198,17 @@ contract LateOptInRevenueShareTest is Test {
         vaults[1] = SEQUENCER_FEE_VAULT;
         vaults[2] = L1_FEE_VAULT;
         vaults[3] = OPERATOR_FEE_VAULT;
-        _expectVaultSetOperations(vaults, GAS_LIMIT);
+        _expectVaultSetOperations(vaults, RevShareGasLimits.SETTERS_GAS_LIMIT);
 
         bytes memory setCalculatorCalldata = abi.encodeCall(
             IOptimismPortal2.depositTransaction,
-            (FEE_SPLITTER, 0, GAS_LIMIT, false, abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator)))
+            (
+                FEE_SPLITTER,
+                0,
+                RevShareGasLimits.SETTERS_GAS_LIMIT,
+                false,
+                abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator))
+            )
         );
         vm.expectCall(PORTAL, setCalculatorCalldata);
     }
@@ -330,20 +336,6 @@ contract LateOptInRevenueShareRequiredFieldsTest is Test {
     function setUp() public {
         vm.createSelectFork("mainnet", 23197819);
         template = new LateOptInRevenueShare();
-    }
-
-    /// @notice Tests that the template reverts when the gasLimit is too low.
-    function test_lateOptInRevenueShare_too_low_gasLimit_reverts() public {
-        string memory configPath = "test/template/late-opt-in-rev-share/config/zero-gas-limit-config.toml";
-        vm.expectRevert("gasLimit must be set");
-        template.simulate(configPath);
-    }
-
-    /// @notice Tests that the template reverts when the gasLimit is too high.
-    function test_lateOptInRevenueShare_too_high_gasLimit_reverts() public {
-        string memory configPath = "test/template/late-opt-in-rev-share/config/too-high-gas-limit-config.toml";
-        vm.expectRevert("gasLimit must be less than uint64.max");
-        template.simulate(configPath);
     }
 
     /// @notice Tests that the template reverts when using own calculator and the calculator address is zero.

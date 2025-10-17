@@ -10,6 +10,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 import {RevShareCodeRepo} from "src/libraries/RevShareCodeRepo.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
+import {RevShareGasLimits} from "src/libraries/RevShareGasLimits.sol";
 
 /// @notice Interface for the OptimismPortal2 in L1. This is the main interaction point for the template.
 interface IOptimismPortal2 {
@@ -133,11 +134,6 @@ contract LateOptInRevenueShare is SimpleTaskBase {
 
         useOwnCalculator = _toml.readBool(".useOwnCalculator");
 
-        uint256 _gasLimitRaw = _toml.readUint(".gasLimit");
-        require(_gasLimitRaw > 0, "gasLimit must be set");
-        require(_gasLimitRaw <= type(uint64).max, "gasLimit must be less than uint64.max");
-        gasLimit = uint64(_gasLimitRaw);
-
         if (useOwnCalculator) {
             calculator = _toml.readAddress(".calculator");
             require(
@@ -150,7 +146,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
                     (
                         address(FEE_SPLITTER),
                         0,
-                        gasLimit,
+                        RevShareGasLimits.SETTERS_GAS_LIMIT,
                         false,
                         abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator))
                     )
@@ -183,7 +179,13 @@ contract LateOptInRevenueShare is SimpleTaskBase {
             _incrementCallsToPortal(
                 abi.encodeCall(
                     IOptimismPortal2.depositTransaction,
-                    (address(CREATE2_DEPLOYER), 0, gasLimit, false, _l1WithdrawerCalldata)
+                    (
+                        address(CREATE2_DEPLOYER),
+                        0,
+                        RevShareGasLimits.L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT,
+                        false,
+                        _l1WithdrawerCalldata
+                    )
                 )
             );
 
@@ -205,7 +207,13 @@ contract LateOptInRevenueShare is SimpleTaskBase {
             _incrementCallsToPortal(
                 abi.encodeCall(
                     IOptimismPortal2.depositTransaction,
-                    (address(CREATE2_DEPLOYER), 0, gasLimit, false, _scRevShareCalculatorCalldata)
+                    (
+                        address(CREATE2_DEPLOYER),
+                        0,
+                        RevShareGasLimits.SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT,
+                        false,
+                        _scRevShareCalculatorCalldata
+                    )
                 )
             );
         }
@@ -223,7 +231,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
                 (
                     address(FEE_SPLITTER),
                     0,
-                    gasLimit,
+                    RevShareGasLimits.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator))
                 )
@@ -235,12 +243,20 @@ contract LateOptInRevenueShare is SimpleTaskBase {
         if (!useOwnCalculator) {
             // Deploy L1 Withdrawer
             IOptimismPortal2(payable(portal)).depositTransaction(
-                address(CREATE2_DEPLOYER), 0, gasLimit, false, _l1WithdrawerCalldata
+                address(CREATE2_DEPLOYER),
+                0,
+                RevShareGasLimits.L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT,
+                false,
+                _l1WithdrawerCalldata
             );
 
             // Deploy SC Rev Share Calculator
             IOptimismPortal2(payable(portal)).depositTransaction(
-                address(CREATE2_DEPLOYER), 0, gasLimit, false, _scRevShareCalculatorCalldata
+                address(CREATE2_DEPLOYER),
+                0,
+                RevShareGasLimits.SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT,
+                false,
+                _scRevShareCalculatorCalldata
             );
         }
 
@@ -265,7 +281,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
         bytes memory _feeSplitterSetCalculatorCalldata = abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator));
 
         IOptimismPortal2(payable(portal)).depositTransaction(
-            address(FEE_SPLITTER), 0, gasLimit, false, _feeSplitterSetCalculatorCalldata
+            address(FEE_SPLITTER), 0, RevShareGasLimits.SETTERS_GAS_LIMIT, false, _feeSplitterSetCalculatorCalldata
         );
     }
 
@@ -306,19 +322,21 @@ contract LateOptInRevenueShare is SimpleTaskBase {
             abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (_minWithdrawalAmount));
 
         IOptimismPortal2(payable(portal)).depositTransaction(
-            _vaultAddress, 0, gasLimit, false, _minWithdrawalAmountCalldata
+            _vaultAddress, 0, RevShareGasLimits.SETTERS_GAS_LIMIT, false, _minWithdrawalAmountCalldata
         );
 
         // Set the recipient calldata
         bytes memory _recipientCalldata = abi.encodeCall(IFeeVault.setRecipient, (_recipient));
 
-        IOptimismPortal2(payable(portal)).depositTransaction(_vaultAddress, 0, gasLimit, false, _recipientCalldata);
+        IOptimismPortal2(payable(portal)).depositTransaction(
+            _vaultAddress, 0, RevShareGasLimits.SETTERS_GAS_LIMIT, false, _recipientCalldata
+        );
 
         // Set the withdrawal network calldata
         bytes memory _withdrawalNetworkCalldata = abi.encodeCall(IFeeVault.setWithdrawalNetwork, (_withdrawalNetwork));
 
         IOptimismPortal2(payable(portal)).depositTransaction(
-            _vaultAddress, 0, gasLimit, false, _withdrawalNetworkCalldata
+            _vaultAddress, 0, RevShareGasLimits.SETTERS_GAS_LIMIT, false, _withdrawalNetworkCalldata
         );
     }
 
@@ -331,7 +349,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
                 (
                     _vaultAddress,
                     0,
-                    gasLimit,
+                    RevShareGasLimits.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (FEE_VAULT_MIN_WITHDRAWAL_AMOUNT))
                 )
@@ -340,7 +358,13 @@ contract LateOptInRevenueShare is SimpleTaskBase {
         _incrementCallsToPortal(
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
-                (_vaultAddress, 0, gasLimit, false, abi.encodeCall(IFeeVault.setRecipient, (FEE_VAULT_RECIPIENT)))
+                (
+                    _vaultAddress,
+                    0,
+                    RevShareGasLimits.SETTERS_GAS_LIMIT,
+                    false,
+                    abi.encodeCall(IFeeVault.setRecipient, (FEE_VAULT_RECIPIENT))
+                )
             )
         );
         _incrementCallsToPortal(
@@ -349,7 +373,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
                 (
                     _vaultAddress,
                     0,
-                    gasLimit,
+                    RevShareGasLimits.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setWithdrawalNetwork, (FEE_VAULT_WITHDRAWAL_NETWORK))
                 )

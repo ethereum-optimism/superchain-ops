@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {RevenueShareV100UpgradePath} from "src/template/RevenueShareUpgradePath.sol";
+import {LateOptInRevenueShare} from "src/template/LateOptInRevenueShare.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {IntegrationBase} from "./IntegrationBase.t.sol";
 import {Test} from "forge-std/Test.sol";
@@ -36,7 +37,8 @@ interface ISuperchainRevSharesCalculator {
 }
 
 contract RevenueShareIntegrationTest is IntegrationBase {
-    RevenueShareV100UpgradePath public template;
+    RevenueShareV100UpgradePath public revenueShareTemplate;
+    LateOptInRevenueShare public lateOptInTemplate;
 
     // Fork IDs
     uint256 internal _mainnetForkId;
@@ -59,12 +61,17 @@ contract RevenueShareIntegrationTest is IntegrationBase {
     address internal constant L1_WITHDRAWER = 0x65E05252dd7964dBb722a9fCa24c6a2D7AFbeF57;
     /// @notice Address of the Rev Share Calculator Predeploy on L2.
     address internal constant REV_SHARE_CALCULATOR = 0xa9C1d283Ab6f149853337395E18850B3fF6cf192;
+    /// @notice Address of the L1 Withdrawer Predeploy on L2 for late opt in.
+    address internal constant L1_WITHDRAWER_LATE_OPT_IN = 0x4427a644D44b1795655847ecB3795caEba83cf7C;
+    /// @notice Address of the Rev Share Calculator Predeploy on L2 for late opt in.
+    address internal constant REV_SHARE_CALCULATOR_LATE_OPT_IN = 0x28cC7ed36D4788B7248aE2a7a70efC7011DbA7c2;
 
     function setUp() public {
         _mainnetForkId = vm.createFork("http://127.0.0.1:8545");
         _l2ForkId = vm.createFork("http://127.0.0.1:9545");
         vm.selectFork(_mainnetForkId);
-        template = new RevenueShareV100UpgradePath();
+        revenueShareTemplate = new RevenueShareV100UpgradePath();
+        lateOptInTemplate = new LateOptInRevenueShare();
     }
 
     /// @notice Test the integration of the revenue share system when the chain is opting in
@@ -73,7 +80,7 @@ contract RevenueShareIntegrationTest is IntegrationBase {
 
         // Step 1: Execute L1 transaction recording logs
         vm.recordLogs();
-        template.simulate(_configPath, new address[](0));
+        revenueShareTemplate.simulate(_configPath, new address[](0));
 
         // Step 2: Relay messages from L1 to L2
         // Pass true for _isSimulate since simulate() emits events twice
@@ -102,7 +109,7 @@ contract RevenueShareIntegrationTest is IntegrationBase {
 
         // Vaults: recipient should be fee splitter, withdrawal network should be L2, min withdrawal amount 0
         // getters for legacy and the new values should be the same
-        _assertFeeVaultsState(true, _config);
+        _assertFeeVaultsState(true, ""); // No need to send the config since the chain is opting in
     }
 
     /// @notice Test the integration of the revenue share system when the chain is opting out
@@ -111,7 +118,7 @@ contract RevenueShareIntegrationTest is IntegrationBase {
 
         // Step 1: Execute L1 transaction recording logs
         vm.recordLogs();
-        template.simulate(_configPath, new address[](0));
+        revenueShareTemplate.simulate(_configPath, new address[](0));
 
         // Step 2: Relay messages from L1 to L2
         // Pass true for _isSimulate since simulate() emits events twice
@@ -126,6 +133,122 @@ contract RevenueShareIntegrationTest is IntegrationBase {
         // Vaults: vaults configuration should be the same as the ones in the config provided
         // getters for legacy and the new values should be the same
         _assertFeeVaultsState(false, _config);
+    }
+
+    /// @notice Test the integration of the revenue share system when the chain is opting out,
+    /// then running the late opt in revenue share task with the custom calculator.
+    function test_lateOptInRevenueShareCustomCalculator_integration() public {
+        string memory _configPath = "test/tasks/example/eth/019-revenueshare-upgrade-opt-out/config.toml";
+
+        // Step 1: Execute L1 transaction recording logs
+        vm.recordLogs();
+        revenueShareTemplate.simulate(_configPath, new address[](0));
+
+        // Step 2: Relay messages from L1 to L2
+        // Pass true for _isSimulate since simulate() emits events twice
+        _relayAllMessages(_l2ForkId, true);
+
+        // Step 3: Assert the state of the L2 contracts
+        string memory _config = vm.readFile(_configPath);
+
+        // Fee Splitter: check calculator is set to address(0)
+        assertEq(IFeeSplitter(FEE_SPLITTER).sharesCalculator(), address(0));
+
+        // Vaults: vaults configuration should be the same as the ones in the config provided
+        // getters for legacy and the new values should be the same
+        _assertFeeVaultsState(false, _config);
+
+        string memory _configPathCustomCalc =
+            "test/tasks/example/eth/017-opt-in-revenue-share-late-custom-calc/config.toml";
+
+        vm.selectFork(_mainnetForkId);
+
+        // Step 4: Execute the late opt in revenue share task
+        vm.recordLogs();
+        lateOptInTemplate.simulate(_configPathCustomCalc, new address[](0));
+
+        // Step 5: Relay messages from L1 to L2
+        // Pass true for _isSimulate since simulate() emits events twice
+        _relayAllMessages(_l2ForkId, true);
+
+        // Step 6: Assert the state of the L2 contracts
+        string memory _configCustomCalc = vm.readFile(_configPathCustomCalc);
+
+        // Fee Splitter: check calculator is set
+        assertEq(IFeeSplitter(FEE_SPLITTER).sharesCalculator(), vm.parseTomlAddress(_configCustomCalc, ".calculator"));
+
+        // Vaults: recipient should be fee splitter, withdrawal network should be L2, min withdrawal amount 0
+        // getters for legacy and the new values should be the same
+        _assertFeeVaultsState(true, ""); // No need to send the config since the chain is opting in
+    }
+
+    /// @notice Test the integration of the revenue share system when the chain is opting out,
+    /// then running the late opt in revenue share task with the default calculator.
+    function test_lateOptInRevenueShareDefaultCalculator_integration() public {
+        string memory _configPath = "test/tasks/example/eth/019-revenueshare-upgrade-opt-out/config.toml";
+
+        // Step 1: Execute L1 transaction recording logs
+        vm.recordLogs();
+        revenueShareTemplate.simulate(_configPath, new address[](0));
+
+        // Step 2: Relay messages from L1 to L2
+        // Pass true for _isSimulate since simulate() emits events twice
+        _relayAllMessages(_l2ForkId, true);
+
+        // Step 3: Assert the state of the L2 contracts
+        string memory _config = vm.readFile(_configPath);
+
+        // Fee Splitter: check calculator is set to address(0)
+        assertEq(IFeeSplitter(FEE_SPLITTER).sharesCalculator(), address(0));
+
+        // Vaults: vaults configuration should be the same as the ones in the config provided
+        // getters for legacy and the new values should be the same
+        _assertFeeVaultsState(false, _config);
+
+        string memory _configPathDefaultCalc = "test/tasks/example/eth/018-opt-in-revenue-share-late/config.toml";
+
+        vm.selectFork(_mainnetForkId);
+
+        // Step 4: Execute the late opt in revenue share task
+        vm.recordLogs();
+        lateOptInTemplate.simulate(_configPathDefaultCalc, new address[](0));
+
+        // Step 5: Relay messages from L1 to L2
+        // Pass true for _isSimulate since simulate() emits events twice
+        _relayAllMessages(_l2ForkId, true);
+
+        // Step 6: Assert the state of the L2 contracts
+        string memory _configDefaultCalc = vm.readFile(_configPathDefaultCalc);
+
+        // L1Withdrawer: check withdrawal threshold and fees depositor
+        assertEq(
+            IL1Withdrawer(L1_WITHDRAWER_LATE_OPT_IN).minWithdrawalAmount(),
+            vm.parseTomlUint(_configDefaultCalc, ".l1WithdrawerMinWithdrawalAmount")
+        );
+        assertEq(
+            IL1Withdrawer(L1_WITHDRAWER_LATE_OPT_IN).recipient(),
+            vm.parseTomlAddress(_configDefaultCalc, ".l1WithdrawerRecipient")
+        );
+        assertEq(
+            IL1Withdrawer(L1_WITHDRAWER_LATE_OPT_IN).withdrawalGasLimit(),
+            vm.parseTomlUint(_configDefaultCalc, ".l1WithdrawerGasLimit")
+        );
+
+        // Rev Share Calculator: check chain fees recipient and remainder recipient
+        assertEq(
+            ISuperchainRevSharesCalculator(REV_SHARE_CALCULATOR_LATE_OPT_IN).shareRecipient(), L1_WITHDRAWER_LATE_OPT_IN
+        );
+        assertEq(
+            ISuperchainRevSharesCalculator(REV_SHARE_CALCULATOR_LATE_OPT_IN).remainderRecipient(),
+            vm.parseTomlAddress(_configDefaultCalc, ".scRevShareCalcChainFeesRecipient")
+        );
+
+        // Fee Splitter: check calculator is set
+        assertEq(IFeeSplitter(FEE_SPLITTER).sharesCalculator(), REV_SHARE_CALCULATOR_LATE_OPT_IN);
+
+        // Vaults: recipient should be fee splitter, withdrawal network should be L2, min withdrawal amount 0
+        // getters for legacy and the new values should be the same
+        _assertFeeVaultsState(true, ""); // No need to send the config since the chain is opting in
     }
 
     /// @notice Assert the configuration of the fee vaults
