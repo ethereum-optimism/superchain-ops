@@ -10,6 +10,7 @@ import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {RevShareCodeRepo} from "src/libraries/RevShareCodeRepo.sol";
 import {RevShareGasLimits} from "src/libraries/RevShareGasLimits.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {RevSharePredeploys} from "src/libraries/RevSharePredeploys.sol";
 
 /// @notice Interface for the OptimismPortal2 in L1. This is the main interaction point for the template.
 interface IOptimismPortal2 {
@@ -40,24 +41,9 @@ interface IProxyAdmin {
 }
 
 /// @notice A template contract for chains to upgrade to the Revenue Share v1.0.0 implementation.
-contract RevenueShareV100UpgradePath is SimpleTaskBase {
+contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     using LibString for string;
     using stdToml for string;
-
-    /// @notice Address of the Create2Deployer Preinstall on L2.
-    address internal constant CREATE2_DEPLOYER = 0x13b0D85CcB8bf860b6b79AF3029fCA081AE9beF2;
-    /// @notice Address of the Sequencer Fee Vault Predeploy on L2.
-    address internal constant SEQUENCER_FEE_VAULT = 0x4200000000000000000000000000000000000011;
-    /// @notice Address of the Operator Fee Vault Predeploy on L2.
-    address internal constant OPERATOR_FEE_VAULT = 0x420000000000000000000000000000000000001b;
-    /// @notice Address of the Base Fee Vault Predeploy on L2.
-    address internal constant BASE_FEE_VAULT = 0x4200000000000000000000000000000000000019;
-    /// @notice Address of the L1 Fee Vault Predeploy on L2.
-    address internal constant L1_FEE_VAULT = 0x420000000000000000000000000000000000001A;
-    /// @notice Address of the FeeSplitter Predeploy on L2.
-    address internal constant FEE_SPLITTER = 0x420000000000000000000000000000000000002B;
-    /// @notice Address of the ProxyAdmin predeploy on L2.
-    address internal constant PROXY_ADMIN = 0x4200000000000000000000000000000000000018;
 
     /// @notice Used to validate calls made to the OptimismPortal.
     mapping(bytes32 => uint8) internal _callsToPortal;
@@ -393,7 +379,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
                     abi.encodeCall(
                         IProxyAdmin.upgradeAndCall,
                         (
-                            payable(SEQUENCER_FEE_VAULT),
+                            payable(SEQUENCER_FEE_WALLET),
                             address(_sequencerFeeVaultPrecalculatedAddress),
                             abi.encodeCall(
                                 IFeeVault.initialize,
@@ -643,7 +629,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase {
             abi.encodeCall(
                 IProxyAdmin.upgradeAndCall,
                 (
-                    payable(SEQUENCER_FEE_VAULT),
+                    payable(SEQUENCER_FEE_WALLET),
                     address(_sequencerFeeVaultPrecalculatedAddress),
                     abi.encodeCall(
                         IFeeVault.initialize,

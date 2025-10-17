@@ -11,6 +11,7 @@ import {RevShareCodeRepo} from "src/libraries/RevShareCodeRepo.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {RevShareGasLimits} from "src/libraries/RevShareGasLimits.sol";
+import {RevSharePredeploys} from "src/libraries/RevSharePredeploys.sol";
 
 /// @notice Interface for the OptimismPortal2 in L1. This is the main interaction point for the template.
 interface IOptimismPortal2 {
@@ -42,28 +43,14 @@ interface IFeeVault {
 ///         - Flexible Calculator: Use custom calculator or deploy default SuperchainRevSharesCalculator implementation
 ///         - Complete Vault Setup: Configures Base, Sequencer, L1, and Operator fee vaults
 ///         - L1 Withdrawer Support: Optional deployment with configurable parameters
-contract LateOptInRevenueShare is SimpleTaskBase {
+contract LateOptInRevenueShare is SimpleTaskBase, RevSharePredeploys {
     using LibString for string;
     using stdToml for string;
 
-    /// @notice Address of the Create2Deployer Preinstall on L2.
-    address internal constant CREATE2_DEPLOYER = 0x13b0D85CcB8bf860b6b79AF3029fCA081AE9beF2;
-    /// @notice Address of the Sequencer Fee Vault Predeploy on L2.
-    address internal constant SEQUENCER_FEE_VAULT = 0x4200000000000000000000000000000000000011;
-    /// @notice Address of the Operator Fee Vault Predeploy on L2.
-    address internal constant OPERATOR_FEE_VAULT = 0x420000000000000000000000000000000000001b;
-    /// @notice Address of the Base Fee Vault Predeploy on L2.
-    address internal constant BASE_FEE_VAULT = 0x4200000000000000000000000000000000000019;
-    /// @notice Address of the L1 Fee Vault Predeploy on L2.
-    address internal constant L1_FEE_VAULT = 0x420000000000000000000000000000000000001A;
-    /// @notice Address of the FeeSplitter Predeploy on L2.
-    address internal constant FEE_SPLITTER = 0x420000000000000000000000000000000000002B;
     /// @notice The default minimum withdrawal amount for the FeeVault once part of the Revenue Share system.
     uint256 public constant FEE_VAULT_MIN_WITHDRAWAL_AMOUNT = 0;
     /// @notice The default withdrawal network for the FeeVault once part of the Revenue Share system, 0 = L1, 1 = L2
     uint8 public constant FEE_VAULT_WITHDRAWAL_NETWORK = 1;
-    /// @notice The default recipient for the FeeVault once part of the Revenue Share system.
-    address public constant FEE_VAULT_RECIPIENT = FEE_SPLITTER;
 
     /// @notice The portal we are targeting for L2 calls.
     address public portal;
@@ -220,7 +207,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
 
         // Take into account the calls for setting up the vaults
         _incrementCallsForVault(BASE_FEE_VAULT);
-        _incrementCallsForVault(SEQUENCER_FEE_VAULT);
+        _incrementCallsForVault(SEQUENCER_FEE_WALLET);
         _incrementCallsForVault(L1_FEE_VAULT);
         _incrementCallsForVault(OPERATOR_FEE_VAULT);
 
@@ -266,7 +253,7 @@ contract LateOptInRevenueShare is SimpleTaskBase {
         );
 
         _setFeeVaultConfiguration(
-            SEQUENCER_FEE_VAULT, FEE_VAULT_MIN_WITHDRAWAL_AMOUNT, FEE_VAULT_RECIPIENT, FEE_VAULT_WITHDRAWAL_NETWORK
+            SEQUENCER_FEE_WALLET, FEE_VAULT_MIN_WITHDRAWAL_AMOUNT, FEE_VAULT_RECIPIENT, FEE_VAULT_WITHDRAWAL_NETWORK
         );
 
         _setFeeVaultConfiguration(
