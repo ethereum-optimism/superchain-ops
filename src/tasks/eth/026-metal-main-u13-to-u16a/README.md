@@ -1,6 +1,6 @@
 # 026-metal-main-u13-to-u16a
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x9c091d94c0f98efb21730224c89e59e50d344b74e677ee6de2b91d2a16f565d2)
 
 ## Objective
 

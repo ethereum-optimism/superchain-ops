@@ -93,45 +93,6 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         tm.requireSignerOnSafe(signer, safe);
     }
 
-    function testNormalizedHashCheck_Passes() public {
-        TaskManager tm = new TaskManager();
-        TaskConfig memory config = TaskConfig({
-            optionalL2Chains: new L2Chain[](0),
-            basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
-            configPath: "",
-            templateName: "",
-            rootSafe: address(0),
-            isNested: true,
-            task: address(0)
-        });
-        // Doesn't have a VALIDATION markdown file.
-        assertTrue(tm.checkNormalizedHash(bytes32(hex"1230"), config));
-        assertTrue(tm.checkNormalizedHash(bytes32(hex"1234"), config));
-
-        // Does have a VALIDATION markdown file and hash matches.
-        config.basePath = "src/tasks/eth/013-gas-params-op";
-        assertTrue(
-            tm.checkNormalizedHash(
-                bytes32(hex"2576512ad010b917c049a392e916bb02de1c168477fe29c4f8cbc4fcb016a4b0"), config
-            )
-        );
-    }
-
-    function testNormalizedHashCheck_Fails() public {
-        TaskManager tm = new TaskManager();
-        TaskConfig memory config = TaskConfig({
-            optionalL2Chains: new L2Chain[](0),
-            basePath: "src/tasks/eth/013-gas-params-op",
-            configPath: "",
-            templateName: "",
-            rootSafe: address(0),
-            isNested: true,
-            task: address(0)
-        });
-        // Does have a VALIDATION markdown file and hash does not match.
-        assertFalse(tm.checkNormalizedHash(bytes32(hex"10"), config));
-    }
-
     function testDataToSignCheck_Passes() public {
         vm.createSelectFork("mainnet"); // Pinning to a block.
         TaskManager tm = new TaskManager();
@@ -252,7 +213,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         TaskManager tm = new TaskManager();
         L2Chain[] memory l2Chains = new L2Chain[](1);
         l2Chains[0] = L2Chain({chainId: 10, name: "OP Mainnet"});
-        (,, bytes memory dataToSign) = tm.executeTask(
+        (, bytes memory dataToSign) = tm.executeTask(
             TaskConfig({
                 optionalL2Chains: l2Chains,
                 basePath: "test/tasks/example/eth/006-system-config-gas-params",

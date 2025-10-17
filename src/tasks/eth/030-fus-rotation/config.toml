@@ -2,7 +2,7 @@ templateName = "GnosisSafeRotateSigner"
 
 safeAddressString = "FoundationUpgradeSafe"
 
-ownerToRemove = "0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8"
+ownerToRemove = "0x7cB07FE039a92B3D784f284D919503A381BEC54f"
 ownerToAdd = "0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02"
 
 [stateOverrides]

@@ -1,0 +1,19 @@
+templateName = "OPCMUpdatePrestateV410"
+
+[[l2chains]]
+chainId = 1301
+name = "Unichain Sepolia Testnet"
+
+[[opcmUpgrades]]
+chainId = 1301
+absolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91" # Fusaka Absolute Prestate published here https://github.com/ethereum-optimism/superchain-registry/blob/df5d4feb51f5d698d043a72ac2c6dfa9ce2a4afa/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used.
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/df5d4feb51f5d698d043a72ac2c6dfa9ce2a4afa/validation/standard/standard-versions-sepolia.toml#L23
+
+[stateOverrides]
+# Unichain Sepolia ProxyAdminOwner:
+0xd363339eE47775888Df411A163c586a8BdEA9dbf = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
+]

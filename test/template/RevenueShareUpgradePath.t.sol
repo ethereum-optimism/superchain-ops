@@ -140,7 +140,7 @@ contract RevenueShareUpgradePathTest is Test {
         string memory _actionCountMessage
     ) internal {
         // Step 1: Run simulate to prepare everything and get the actions
-        (, Action[] memory _actions,,, address _rootSafe) = template.simulate(_configPath, new address[](0));
+        (, Action[] memory _actions,, address _rootSafe) = template.simulate(_configPath, new address[](0));
 
         // Verify we got the expected safe and action count
         assertEq(_rootSafe, PROXY_ADMIN_OWNER, "Root safe should be ProxyAdminOwner");
