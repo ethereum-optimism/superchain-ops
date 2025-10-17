@@ -8,7 +8,7 @@ import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-import {IDeputyGuardianModule, IOptimismPortal2} from "@op/interfaces/safe/IDeputyGuardianModule.sol";
+//import {IDeputyGuardianModule, IOptimismPortal2} from "@op/interfaces/safe/IDeputyGuardianModule.sol";
 import {GameType, Claim, Duration} from "@op/src/dispute/lib/Types.sol";
 import {
     IOPContractsManager,
@@ -49,6 +49,9 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     /// @notice Mapping of chain ID to configuration for the task.
     mapping(uint256 => AddGameInputWithChainId) private cfg;
 
+    /// @notice Address of the OPCM contract.
+    address private OPCM;
+
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         string[] memory storageWrites = new string[](3);
@@ -73,6 +76,13 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         // Load OPCM address.
         OPCM = tomlContent.readAddress(".addresses.OPCM");
         vm.label(OPCM, "OPCM");
+        require(OPCM != address(0), "OPCM not set");
+        vm.label(OPCM, "OPCM");
+
+        // Set OPCM as the target for delegatecalls.
+        OPCM_TARGETS = new address[](1);
+        OPCM_TARGETS[0] = OPCM;
+
     }
 
     /// @notice Write the calls that you want to execute for the task.
