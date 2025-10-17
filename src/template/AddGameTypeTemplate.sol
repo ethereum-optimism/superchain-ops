@@ -75,7 +75,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
         // Load OPCM address.
         OPCM = tomlContent.readAddress(".addresses.OPCM");
-        vm.label(OPCM, "OPCM");
         require(OPCM != address(0), "OPCM not set");
         vm.label(OPCM, "OPCM");
 
