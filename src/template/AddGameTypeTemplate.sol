@@ -91,7 +91,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address rootSafe) internal view override {
         // Iterate over the chains and validate the respected game type.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
