@@ -66,14 +66,15 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
-            IAnchorStateRegistry asr = IAnchorStateRegistry(payable(asrAddress));
+            IAnchorStateRegistry asr = IAnchorStateRegistry(asrAddress);
             assertEq(asr.respectedGameType().raw(), cfg[chainId].gameType.raw());
-
         }
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal pure override returns (address[] memory) {}
+    function _getCodeExceptions() internal pure override returns (address[] memory) {
+        return new address[](0);
+    }
 }
 
 // Minimal local copy; only what this template needs.
