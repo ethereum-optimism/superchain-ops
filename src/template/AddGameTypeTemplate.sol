@@ -4,8 +4,8 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 
 import {IDeputyGuardianModule, IOptimismPortal2} from "@op/interfaces/safe/IDeputyGuardianModule.sol";
 import {GameType, Claim, Duration} from "@op/src/dispute/lib/Types.sol";
