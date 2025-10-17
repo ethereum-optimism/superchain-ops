@@ -53,10 +53,8 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](3);
-        storageWrites[0] = "ProxyAdminOwner";
-        storageWrites[1] = "OPCM";
-        storageWrites[2] = "DisputeGameFactoryProxy";
+        string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "DisputeGameFactoryProxy";
         return storageWrites;
     }
 
