@@ -53,7 +53,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     address private OPCM;
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites() internal view virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](3);
         storageWrites[0] = "ProxyAdminOwner";
         storageWrites[1] = "OPCM";
@@ -81,7 +81,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         // Set OPCM as the target for delegatecalls.
         OPCM_TARGETS = new address[](1);
         OPCM_TARGETS[0] = OPCM;
-
     }
 
     /// @notice Write the calls that you want to execute for the task.
