@@ -62,8 +62,8 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
         // Load configuration.
@@ -85,7 +85,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         // Iterate over the chains pull out the configs.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.AddGameInput[] memory configs = new IOPContractsManager.AddGameInput[](chains.length);
@@ -100,7 +100,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address rootSafe) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         // Iterate over the chains and validate the respected game type.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
@@ -124,7 +124,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal pure override returns (address[] memory) {
+    function _getCodeExceptions() internal view override returns (address[] memory) {
         address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }
