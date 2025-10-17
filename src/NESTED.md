@@ -119,6 +119,22 @@ message hash: `0x1901[domain hash][message hash]`.
 Note down this value. You will need to compare it with the ones
 displayed on the Ledger screen at signing.
 
+#### 3.4 Validate with op-txverify
+
+Use [op-txverify](https://github.com/ethereum-optimism/op-txverify) to confirm
+the transaction and the message/domain hashes.
+
+1. Run the `simulate` command for your given Superchain Ops task.
+2. Find the **`OP-TXVERIFY LINK`** section of the Superchain Ops task output.
+3. Copy the link as shown in the output (links to `op-txverify.optimism.io`) and send it to another device (phone is easiest).
+4. Run `op-txverify qr` on your first device. This will open a QR scanner.
+5. Open the link on your second device. This will start flashing a series of QR codes.
+6. Place your second device in front of the camera of the first device. Once enough QR codes have been scanned, you’ll see a success message.
+7. Return to the first device and view the output of `op-txverify`.
+8. Review the transaction contents and confirm that it matches the transaction that you expect to send, including all addresses and input parameters.
+9. Review the message hash and domain hash and confirm that it matches the hashes presented in Superchain Ops.
+10. Return to Superchain Ops to complete signing.
+
 ### 4. Approve the signature on your ledger
 
 Once the validations are done, it's time to actually sign the

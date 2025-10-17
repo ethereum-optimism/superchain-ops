@@ -1,5 +1,5 @@
 > **⚠️ Important Notice: System Upgrade (August 2025)**
-> 
+>
 > The Superchain-ops system has undergone a significant upgrade. For access to historical executed tasks and previous system documentation, please refer to this [tag](https://github.com/ethereum-optimism/superchain-ops/tree/legacy-superchain-ops) for the archived tasks repository.
 >
 > • Need help? [Create an issue](https://github.com/ethereum-optimism/superchain-ops/issues) on this repo.
@@ -86,7 +86,7 @@ The `[stateOverrides]` TOML table is optional, but in most cases we use it to sp
 ```toml
 # USE HEX ENCODED STRINGS WHEN POSSIBLE.
 [stateOverrides]
-0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
     { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000017" }
 ]
 ```
@@ -95,7 +95,7 @@ However, in some cases it's possible to use the decimal value directly:
 ```toml
 # IN SOME CASES, YOU CAN USE THE DECIMAL VALUE DIRECTLY.
 [stateOverrides]
-0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
     { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 23 }
 ]
 ```
@@ -104,7 +104,7 @@ But **do not** pass the decimal value as a string—this will cause undefined be
 ```toml
 # ❌ INCORRECT: DO NOT USE STRINGIFIED DECIMALS.
 [stateOverrides]
-0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
     { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "23" }
 ]
 ```
@@ -127,7 +127,7 @@ just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-na
 - **Nested Safe Operations** (see [NESTED.md](src/NESTED.md)):
   ```bash
   just --dotenv-path $(pwd)/.env simulate foundation
-  just --dotenv-path $(pwd)/.env simulate council  
+  just --dotenv-path $(pwd)/.env simulate council
   just --dotenv-path $(pwd)/.env simulate chain-governor
   ```
 
@@ -149,7 +149,7 @@ just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-
 
 7. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations.
-    - If your task has a `VALIDATION.md` file, you **must** fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly. You **must** also fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly. Any mismatches will cause the task to revert.
+    - If your task has a `VALIDATION.md` file, you **must** fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly. Any mismatches will cause the task to revert.
 
 ## FAQ
 
@@ -163,7 +163,7 @@ Stacked simulations are supported. To use this feature, you can use the followin
 just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
-e.g. 
+e.g.
 ```bash
 just simulate-stack eth                                       # Simulate all tasks for ethereum
 just simulate-stack eth 001-example                           # Simulate specific task on root safe
@@ -282,7 +282,7 @@ By adding an address to [`addresses.toml`](./src/addresses.toml), you ensure it'
 
 ### What if I want to upgrade a chain that is not in the superchain-registry?
 
-If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide a fallback JSON file in your task's `config.toml` (as `fallbackAddressesJsonPath`). 
+If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide a fallback JSON file in your task's `config.toml` (as `fallbackAddressesJsonPath`).
 
 ```toml
 l2chains = [{name = "Unichain", chainId = 1333330}]
@@ -298,19 +298,6 @@ When the task runs, it will first attempt to use the superchain-registry. If the
 
 > ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
 
-### What is the 'Normalized State Diff Hash'?
-
-The normalized state diff hash is a single fingerprint of all the onchain state changes your task would make if executed. We “normalize” the diff first (stable ordering and encoding) so the hash only changes when the actual intended state changes do.
-
-- Why it exists: To make it easy for reviewers and signers to verify they’re approving the exact same change set that was simulated and reviewed.
-- Where to see it: It’s printed at the end of simulation/stacked simulation and recorded in each task’s `VALIDATION.md` under “Normalized State Diff Hash Attestation”.
-- When it changes: If any task state we consider meaningful changes, the hash will also change.
-
-What to do if it doesn’t match:
-- **Do not proceed or sign**.
-- Contact the task authors and update the task only after review.
-
-
 ## Available Templates
 
-All available templates can be found in the [template](src/template/) directory. 
+All available templates can be found in the [template](src/template/) directory.

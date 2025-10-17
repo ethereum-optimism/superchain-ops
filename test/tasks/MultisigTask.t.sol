@@ -153,7 +153,7 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions,,,) = task.simulate(taskConfigFilePath, Solarray.addresses(childMultisig));
+        (accountAccesses, actions,,) = task.simulate(taskConfigFilePath, Solarray.addresses(childMultisig));
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 

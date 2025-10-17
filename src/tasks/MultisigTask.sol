@@ -79,7 +79,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// This works by printing the 'data to sign' for the nested safe which is then passed to the eip712sign binary for signing.
     function simulate(string memory taskConfigFilePath, address[] memory _childSafes)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes memory, address)
     {
         return _runTask(taskConfigFilePath, "", _childSafes, true);
     }
@@ -89,7 +89,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        (VmSafe.AccountAccess[] memory accountAccesses,,,,) =
+        (VmSafe.AccountAccess[] memory accountAccesses,,,) =
             _runTask(taskConfigFilePath, signatures, _childSafes, false);
         return accountAccesses;
     }
@@ -574,16 +574,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         bytes memory _signatures,
         address[] memory _childSafes,
         bool _isSimulate
-    )
-        internal
-        returns (
-            VmSafe.AccountAccess[] memory,
-            Action[] memory,
-            bytes32 normalizedHash_,
-            bytes memory dataToSign_,
-            address rootSafe
-        )
-    {
+    ) internal returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes memory dataToSign_, address rootSafe) {
         (TaskPayload memory payload, Action[] memory actions) = _taskSetup(_taskConfigFilePath, _childSafes);
         uint256 rootSafeIndex = payload.safes.length - 1;
         rootSafe = payload.safes[rootSafeIndex];
@@ -591,14 +582,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             executeTaskStep(_signatures, payload, rootSafeIndex);
 
         validate(accountAccesses, actions, payload);
-        (normalizedHash_, dataToSign_) = print(accountAccesses, _isSimulate, txHash, payload);
+        dataToSign_ = print(accountAccesses, _isSimulate, txHash, payload);
 
         // Sanity check that the root safe is a nested safe.
         if (payload.safes.length > 1) {
             require(isNestedSafe(rootSafe), "MultisigTask: multisig must be a nested safe.");
         }
 
-        return (accountAccesses, actions, normalizedHash_, dataToSign_, rootSafe);
+        return (accountAccesses, actions, dataToSign_, rootSafe);
     }
 
     /// @notice Using the tasks config.toml file, this function configures the task.
@@ -776,7 +767,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         bool isSimulate,
         bytes32 txHash,
         TaskPayload memory payload
-    ) public returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
+    ) public returns (bytes memory dataToSign_) {
         console.log("");
         MultisigTaskPrinter.printWelcomeMessage();
         SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
@@ -810,8 +801,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             }
             _printTenderlySimulationData(payload);
         }
-        normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.safe, txHash);
-        MultisigTaskPrinter.printNormalizedStateDiffHash(normalizedHash_);
     }
 
     /// @notice Helper function to print the final safe information.

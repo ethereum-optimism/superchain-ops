@@ -283,7 +283,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
 
         MockSetEIP1967ImplTask si = new MockSetEIP1967ImplTask();
-        (,,,, address rootSafe) = si.simulate(fileName, new address[](0));
+        (,,, address rootSafe) = si.simulate(fileName, new address[](0));
 
         // Only parent overrides will be checked because child multisig is not set.
         Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, si, new address[](0), rootSafe);
@@ -555,7 +555,7 @@ contract StateOverrideManagerUnitTest is Test {
         returns (MultisigTask task, address rootSafe)
     {
         task = new MockMultisigTask();
-        (,,,, rootSafe) = task.simulate(fileName, Solarray.addresses(childMultisig));
+        (,,, rootSafe) = task.simulate(fileName, Solarray.addresses(childMultisig));
         return (task, rootSafe);
     }
 

@@ -13,7 +13,7 @@ import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
-/// `getUniqueWrites`, `getStateDiffFor`, and `normalizedStateDiffHash`. Example usage:
+/// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
 ///
 /// ```solidity
 /// contract MyContract {
@@ -37,9 +37,6 @@ import {Utils} from "src/libraries/Utils.sol";
 ///
 ///         // Get all new contracts created.
 ///         address[] memory newContracts = accountAccesses.getNewContracts();
-///
-///         // Get the normalized state diff hash.
-///         bytes32 normalizedStateDiffHash = accountAccesses.normalizedStateDiffHash(parentMultisig, txHash);
 ///     }
 /// }
 /// ```
@@ -87,14 +84,6 @@ library AccountAccessParser {
         address tokenAddress;
     }
 
-    // This struct represents a state change with the account information
-    struct AccountStateDiff {
-        address who;
-        bytes32 slot;
-        bytes32 firstOld;
-        bytes32 lastNew;
-    }
-
     // Leading underscore because some of the raw keys are reserved words in Solidity, and we need
     // the keys to be ordered alphabetically here for foundry.
     struct JsonStorageLayout {
@@ -139,7 +128,7 @@ library AccountAccessParser {
     bytes32 internal constant ANCHOR_STATE_REGISTRY_V410_PROPOSAL_ROOT_SLOT = bytes32(uint256(3));
     bytes32 internal constant ANCHOR_STATE_REGISTRY_V410_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT = bytes32(uint256(4));
     bytes32 internal constant ANCHOR_STATE_REGISTRY_V410_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
-    
+
     // op-contracts/v3.0.0 - AnchorStateRegistry version: 2.2.2
     bytes32 internal constant ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_STARTING_ANCHOR_ROOT_SLOT = bytes32(uint256(4));
     bytes32 internal constant ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_L2_BLOCK_NUMBER_SLOT = bytes32(uint256(5));
@@ -265,212 +254,6 @@ library AccountAccessParser {
         for (uint256 i = 0; i < count; i++) {
             newContracts[i] = temp[i];
         }
-    }
-
-    /// @notice Computes a hash of the normalized state diff from account accesses. The spec for
-    /// method is:
-    ///   1. The input is an array of `VmSafe.AccountAccess[]` containing all storage writes.
-    ///   2. It calls `AccountAccessParser.getUniqueWrites` to filter down all storage writes to a state diff
-    ///   3. With that state diff, we normalize it by removing data from the state diff array that
-    ///      may change between initial simulation and execution. Removal is done by simply removing
-    ///      the entry from the `AccountAccess[]` array. The set of state changes to remove is:
-    ///       1. If the state change is an EOA nonce increment, remove it.
-    ///       2. Remove the following state changes from Gnosis Safes:
-    ///           1. Nonce increments.
-    ///           2. Setting an approve hash in storage (the hash is dependent on the nonce, which may change)
-    ///       3. If the storage slot contains a timestamp, normalize that timestamp to be all zeroes.
-    ///           1. This will have to be informed by knowing the storage layouts, which is ok
-    ///           2. We should only normalize the specific section of the slot corresponding to the
-    ///              timestamp, since some timestamps are packed into slots with other data.
-    ///       4. If the slot is on the LivenessGuard, remove it.
-    ///   5. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
-    /// @return bytes32 hash of the normalized state diff
-    function normalizedStateDiffHash(
-        VmSafe.AccountAccess[] memory _accountAccesses,
-        address _parentMultisig,
-        bytes32 _txHash
-    ) internal view noGasMetering returns (bytes32) {
-        // Get all storage writes as a state diff.
-        address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
-
-        // Create a temporary array to store normalized state changes.
-        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](MAX_STATE_CHANGES);
-        uint256 normalizedCount = 0;
-
-        // Process each account with storage writes.
-        for (uint256 i = 0; i < uniqueAddresses.length; i++) {
-            address account = uniqueAddresses[i];
-            StateDiff[] memory diffs = getStateDiffFor({accesses: _accountAccesses, who: account, _sort: false});
-
-            // Process each diff and apply normalization logic.
-            for (uint256 j = 0; j < diffs.length; j++) {
-                StateDiff memory diff = diffs[j];
-                if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
-                    diff = normalizeTimestamp(account, diff); // Normalize the timestamp if present.
-                    normalizedChanges[normalizedCount] = AccountStateDiff({
-                        who: account,
-                        slot: diff.slot,
-                        firstOld: diff.oldValue,
-                        lastNew: diff.newValue
-                    });
-                    normalizedCount++;
-                    require(normalizedCount < MAX_STATE_CHANGES, "AccountAccessParser: Max state changes reached");
-                }
-            }
-        }
-
-        // Create the final array with the correct size.
-        AccountStateDiff[] memory finalArray = new AccountStateDiff[](normalizedCount);
-        for (uint256 i = 0; i < normalizedCount; i++) {
-            finalArray[i] = normalizedChanges[i];
-        }
-
-        // Return keccak256 hash of the abi-encoded normalized array.
-        return keccak256(abi.encode(finalArray));
-    }
-
-    function shouldIncludeDiff(address account, StateDiff memory diff, address _parentMultisig, bytes32 _txHash)
-        internal
-        view
-        returns (bool)
-    {
-        if (isEOANonceIncrement(account, diff)) {
-            // 1. If the state change is an EOA nonce increment, remove it.
-            return false;
-        } else if (isGnosisSafe(account)) {
-            // 2. Remove Gnosis Safe nonce increment and approve hash changes.
-            if (isGnosisSafeNonceIncrement(diff) || isGnosisSafeApproveHash(diff, _parentMultisig, _txHash)) {
-                // 2.1 Nonce increment or 2.2 Setting an approve hash in storage.
-                return false;
-            }
-        } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
-            // 4. If the slot is on the LivenessGuard, don't include it.
-            return false;
-        } else if (isOptimismPortalResourceMetering(diff)) {
-            // 5. If the slot is on the OptimismPortalResourceParams, don't include it.
-            return false;
-        } else if (isAnchorStateRegistryProposal(account, diff)) {
-            // 6. If the diff is an AnchorStateRegistry Proposal, don't include it.
-            return false;
-        }
-        return true;
-    }
-
-    /// @notice Any function in the OptimismPortal that has the 'metered' modifier will have a non-deterministic state change.
-    function isOptimismPortalResourceMetering(StateDiff memory _diff) internal view returns (bool) {
-        if (_diff.slot == OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT) {
-            // Extract prevBlockNum from the packed value. It's located in the most significant 64 bits.
-            // ResourceParams is packed as follows: prevBlockNum (64 bits) | prevBoughtGas (64 bits) | prevBaseFee (128 bits)
-            uint256 prevBlockNum = uint64(uint256(_diff.newValue) >> (128 + 64));
-            // If the current block number is equal to the new values prevBlockNum, then we should remove this
-            // state change because it means we have a nondeterministic change based on block number at simulation time
-            return block.number == prevBlockNum;
-        }
-        return false;
-    }
-
-    /// @notice Checks if the state diff represents an EOA nonce increment
-    function isEOANonceIncrement(address _account, StateDiff memory _diff) internal view returns (bool) {
-        uint256 codeSize = _account.code.length;
-        return codeSize == 0 && _diff.slot == bytes32(0) && uint256(_diff.newValue) == uint256(_diff.oldValue) + 1;
-    }
-
-    /// @notice Checks if the state diff represents a Gnosis Safe nonce increment
-    function isGnosisSafeNonceIncrement(StateDiff memory _diff) internal pure returns (bool) {
-        // In Gnosis Safe, the nonce is stored at slot 5. See `GnosisSafeStorage.sol` to verify.
-        return _diff.slot == GNOSIS_SAFE_NONCE_SLOT && uint256(_diff.newValue) == uint256(_diff.oldValue) + 1;
-    }
-
-    /// @notice Checks if the state diff represents setting an approve hash in a Gnosis Safe
-    function isGnosisSafeApproveHash(StateDiff memory _diff, address _parentMultisig, bytes32 _txHash)
-        internal
-        view
-        returns (bool)
-    {
-        bytes32[] memory hashSlots = calculateApproveHashSlots(IGnosisSafe(_parentMultisig).getOwners(), _txHash);
-        for (uint256 i = 0; i < hashSlots.length; i++) {
-            if (_diff.slot == hashSlots[i]) {
-                require(
-                    (_diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)))
-                    // Some Gnosis Safe versions set approvedHashes to zero upon execution e.g. mainnet FoundationOperationsSafe.
-                    || (_diff.oldValue == bytes32(uint256(1)) && _diff.newValue == bytes32(0)),
-                    "AccountAccessParser: Unexpected approve hash state change."
-                );
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /// @notice Checks if the given slot matches any liveness guard timestamp for the signers on child multisigs.
-    function isLivenessGuardTimestamp(address _account, StateDiff memory _diff, address _parentMultisig)
-        internal
-        view
-        returns (bool)
-    {
-        if (!isLivenessGuard(_account)) {
-            return false;
-        }
-
-        return _checkOwnersForLivenessSlot(_parentMultisig, _diff.slot);
-    }
-
-    /// @notice Checks if the given slot matches any liveness guard timestamp for owners and nested safe owners
-    function _checkOwnersForLivenessSlot(address _multisig, bytes32 _slot) internal view returns (bool) {
-        address[] memory owners = IGnosisSafe(_multisig).getOwners();
-
-        for (uint256 i = 0; i < owners.length; i++) {
-            // Check if this owner's liveness slot matches
-            if (_isOwnerLivenessSlot(owners[i], _slot)) {
-                return true;
-            }
-
-            // If this owner is a nested safe, check its owners too
-            if (isGnosisSafe(owners[i])) {
-                address[] memory nestedOwners = IGnosisSafe(owners[i]).getOwners();
-                for (uint256 j = 0; j < nestedOwners.length; j++) {
-                    if (_isOwnerLivenessSlot(nestedOwners[j], _slot)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// @notice Checks if the given slot matches the liveness guard timestamp slot for a specific owner
-    function _isOwnerLivenessSlot(address _owner, bytes32 _slot) internal pure returns (bool) {
-        bytes32 ownerSlot = keccak256(abi.encode(_owner, LIVENESS_GUARD_LAST_LIVE_SLOT));
-        return _slot == ownerSlot;
-    }
-
-    function isAnchorStateRegistryProposal(address _account, StateDiff memory _diff) internal view returns (bool) {
-        if (isAnchorStateRegistry(_account)) {
-            // The proposal is stored in slot 3 and 4.
-            if (isAnchorStateRegistryV410(_account)) {
-                return _diff.slot == ANCHOR_STATE_REGISTRY_V410_PROPOSAL_ROOT_SLOT
-                    || _diff.slot == ANCHOR_STATE_REGISTRY_V410_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT;
-            } else if (isAnchorStateRegistryV300(_account)) {
-                return _diff.slot == ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_STARTING_ANCHOR_ROOT_SLOT
-                    || _diff.slot == ANCHOR_STATE_REGISTRY_V300_OUTPUT_ROOT_L2_BLOCK_NUMBER_SLOT;
-            }
-        }
-        return false;
-    }
-
-    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
-    function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
-        if (_diff.slot == ANCHOR_STATE_REGISTRY_V410_RETIREMENT_TIMESTAMP_SLOT) {
-            if (isAnchorStateRegistry(_account)) {
-                // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
-                // Define a static mask to zero out 64 bits at offset 4 in little-endian format
-                bytes32 MASK = bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF);
-                // Apply the static mask to zero out the specified bytes in the new value
-                _diff.newValue &= MASK;
-            }
-        }
-        return _diff;
     }
 
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)

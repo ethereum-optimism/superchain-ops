@@ -104,17 +104,6 @@ library MultisigTaskPrinter {
     // ======= Verification Information ========
     // ==========================================
 
-    /// @notice Prints normalized state diff hash.
-    function printNormalizedStateDiffHash(bytes32 normalizedStateDiffHash) internal pure {
-        printTitle("NORMALIZED STATE DIFF HASH");
-        // forgefmt: disable-start
-        console.log("Ensure the normalized state diff hash from your simulation matches the hash in the VALIDATION.md file for this task.");
-        console.log("");
-        console.log("Normalized hash: %s", vm.toString(normalizedStateDiffHash));
-        console.log("");
-        // forgefmt: disable-end
-    }
-
     /// @notice Prints an OP-TxVerify link for transaction verification.
     function printOPTxVerifyLink(
         uint256 chainId,
