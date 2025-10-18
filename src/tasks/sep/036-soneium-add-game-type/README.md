@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-This task uses adds the dispute game type 0 (Permissionless) to the Dispute Game Factory on Soneium Minato Testnet.
+This task adds the dispute game type 0 (Permissionless) to the Dispute Game Factory on Soneium Minato Testnet.
 
 ## Simulation & Signing
 
