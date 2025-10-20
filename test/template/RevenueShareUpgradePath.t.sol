@@ -13,6 +13,7 @@ import {SimpleAddressRegistry} from "src/SimpleAddressRegistry.sol";
 import {Action, TaskPayload, SafeData} from "src/libraries/MultisigTypes.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
+import {RevShareGasLimits} from "src/libraries/RevShareGasLimits.sol";
 
 interface IOptimismPortal2 {
     function depositTransaction(address _to, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data)
@@ -53,40 +54,32 @@ contract RevenueShareUpgradePathTest is Test {
     address internal constant CREATE2_DEPLOYER = 0x13b0D85CcB8bf860b6b79AF3029fCA081AE9beF2;
     address internal constant FEE_SPLITTER = 0x420000000000000000000000000000000000002B;
     address internal constant PROXY_ADMIN = 0x4200000000000000000000000000000000000018;
-
-    // Gas limits, defined in the template based on the transaction simulations
-    uint64 internal constant SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT = 625_000;
-    uint64 internal constant L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT = 625_000;
-    uint64 internal constant FEE_VAULTS_DEPLOYMENT_GAS_LIMIT = 910_000;
-    uint64 internal constant FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT = 1_235_000;
-    uint64 internal constant UPGRADE_GAS_LIMIT = 150_000;
-
     uint64[12] internal EXPECTED_GAS_LIMITS_OPT_IN = [
-        L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT,
-        SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT,
-        FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT
+        RevShareGasLimits.L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT
     ];
 
     uint64[10] internal EXPECTED_GAS_LIMITS_OPT_OUT = [
-        FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT,
-        FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
-        UPGRADE_GAS_LIMIT
+        RevShareGasLimits.FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT,
+        RevShareGasLimits.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+        RevShareGasLimits.UPGRADE_GAS_LIMIT
     ];
 
     uint256 internal constant DEPOSIT_VERSION = 0;
