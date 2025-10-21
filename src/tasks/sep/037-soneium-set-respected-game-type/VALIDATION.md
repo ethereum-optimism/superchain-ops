@@ -22,7 +22,7 @@ the values printed to the terminal when you run the task.
 > ### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x7545a4aca216ca56a10f83ac072b0eb7d91ec4e6d2be0b6be1855863502e17ea`
+> - Message Hash: `0xeca82d45e57545bd4c79364adb509d98f1a248d8910d393e2599656ded51f365`
 >
 
 ## Task Calldata
