@@ -14,17 +14,26 @@ chainId = 4801
 # https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
 absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
 expectedErrorsV220 = "PROXYA-10,SYSCON-20,DF-30,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-10"
+# PROXYA-10 : ProxyAdmin owner is not set to L1 PAO multisig.
 # SYSCON-20 : SystemConfig gas limit is not set to 60,000,000.
+# DF-30 : DisputeGameFactory owner is not set to L1 PAO multisig.
 # PDDG-50 : Permissioned dispute game VM address mismatch.
+# PDDG-DWETH-30 : Permissioned dispute game delayed WETH owner mismatch.
 # PDDG-DWETH-40 : Permissioned dispute game delayed WETH delay not set to 1 week.
 # PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
 # PDDG-120: Permissioned dispute game challenger address mismatch.
 # PLDG-10 : Permissionless dispute game implementation not found.
 expectedErrorsV300 = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-10"
+# PROXYA-10 : ProxyAdmin owner is not set to L1 PAO multisig.
+# DF-30 : DisputeGameFactory owner is not set to L1 PAO multisig.
+# PDDG-DWETH-30 : Permissioned dispute game delayed WETH owner mismatch.
 # PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
 # PDDG-120: Permissioned dispute game challenger address mismatch.
 # PLDG-10 : Permissionless dispute game implementation not found.
 expectedErrorsV410 = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
+# PROXYA-10 : ProxyAdmin owner is not set to L1 PAO multisig.
+# DF-30 : DisputeGameFactory owner is not set to L1 PAO multisig.
+# PDDG-DWETH-30 : Permissioned dispute game delayed WETH owner mismatch.
 # PDDG-130: The challenger is not the standard one.
 # PLDG-10 : Permissionless dispute game implementation not found.
 
