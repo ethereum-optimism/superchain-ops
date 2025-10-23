@@ -36,7 +36,7 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev This mirrors V410 plus AnchorStateRegistry; to adapt to v5.0.0 writes.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string;
+        string[] memory storageWrites = new string[](9);
         storageWrites[0] = "ProxyAdminOwner";
         storageWrites[1] = "DisputeGameFactoryProxy";
         storageWrites[2] = "SystemConfigProxy";
@@ -68,7 +68,7 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
 
         address OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManager(OPCM).version().eq("2.4.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         STANDARD_VALIDATOR_V500 = IStandardValidatorV500(tomlContent.readAddress(".addresses.StandardValidatorV500"));
@@ -135,8 +135,4 @@ interface IStandardValidatorV500 {
     }
 
     function validate(InputV500 memory _input, bool _allowFailure) external view returns (string memory);
-
-    function mipsVersion() external pure returns (string memory);
-
-    function systemConfigVersion() external pure returns (string memory);
 }
