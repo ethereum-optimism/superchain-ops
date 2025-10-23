@@ -101,7 +101,8 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         }
 
         // Delegatecall the OPCM.addGameType() function.
-        (bool success, bytes memory returnData) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
+        (bool success, bytes memory returnData) = 
+            OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
         if (!success) {
             if (returnData.length > 0) {
                 assembly {
