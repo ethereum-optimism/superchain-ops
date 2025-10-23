@@ -36,16 +36,17 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev This mirrors V410 plus AnchorStateRegistry; to adapt to v5.0.0 writes.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](9);
+        string[] memory storageWrites = new string[](10);
         storageWrites[0] = "ProxyAdminOwner";
-        storageWrites[1] = "DisputeGameFactoryProxy";
-        storageWrites[2] = "SystemConfigProxy";
-        storageWrites[3] = "OptimismPortalProxy";
-        storageWrites[4] = "AddressManager";
-        storageWrites[5] = "L1CrossDomainMessengerProxy";
-        storageWrites[6] = "L1StandardBridgeProxy";
-        storageWrites[7] = "L1ERC721BridgeProxy";
-        storageWrites[8] = "AnchorStateRegistryProxy";
+        storageWrites[1] = "OPCM";
+        storageWrites[2] = "SuperchainConfig";
+        storageWrites[3] = "DisputeGameFactoryProxy";
+        storageWrites[4] = "SystemConfigProxy";
+        storageWrites[5] = "OptimismPortalProxy";
+        storageWrites[6] = "AddressManager";
+        storageWrites[7] = "L1CrossDomainMessengerProxy";
+        storageWrites[8] = "L1StandardBridgeProxy";
+        storageWrites[9] = "L1ERC721BridgeProxy";
         // TODO(op-contracts/v5.0.0): add any new proxies introduced in v5.0.0 if touched by the upgrade.
         return storageWrites;
     }
