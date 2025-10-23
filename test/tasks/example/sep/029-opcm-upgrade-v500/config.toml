@@ -14,4 +14,4 @@ expectedValidationErrors = ""
 
 [addresses]
 OPCM = "0x6af7ece7d6506be573841b8cf29096638df5fc4f"
-StandardValidatorV500 = "0x6af7ece7d6506be573841b8cf29096638df5fc4f"
+StandardValidatorV500 = "0x8ed9A48B40675acf9ec623aFc23DdB015Ae60df0"
