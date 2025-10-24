@@ -10,7 +10,6 @@ import {EnableDeputyPauseModuleTemplate} from "src/template/EnableDeputyPauseMod
 import {OPCMUpgradeV200} from "src/template/OPCMUpgradeV200.sol";
 import {OPCMUpgradeV300} from "src/template/OPCMUpgradeV300.sol";
 import {OPCMUpgradeV400} from "src/template/OPCMUpgradeV400.sol";
-import {OPCMUpgradeV500} from "src/template/OPCMUpgradeV500.sol";
 import {OPCMUpdatePrestateV300} from "src/template/OPCMUpdatePrestateV300.sol";
 import {OPCMUpdatePrestateV410} from "src/template/OPCMUpdatePrestateV410.sol";
 import {SetRespectedGameTypeTemplate} from "src/template/SetRespectedGameTypeTemplate.sol";
@@ -39,6 +38,7 @@ import {BlacklistGamesV400} from "src/template/BlacklistGamesV400.sol";
 import {OPCMUpgradeV220toV410} from "src/template/OPCMUpgradeV220toV410.sol";
 import {OPCMUpgradeV410} from "src/template/OPCMUpgradeV410.sol";
 import {OPCMUpgradeSuperchainConfigV410} from "src/template/OPCMUpgradeSuperchainConfigV410.sol";
+import {OPCMUpgradeSuperchainConfigV500} from "src/template/OPCMUpgradeSuperchainConfigV500.sol";
 import {L1PortalExecuteL2Call} from "src/template/L1PortalExecuteL2Call.sol";
 import {AddGameTypeTemplate} from "src/template/AddGameTypeTemplate.sol";
 
