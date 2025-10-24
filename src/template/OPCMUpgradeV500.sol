@@ -101,7 +101,7 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
 
     /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
-      {
+       {
             string memory current = SUPERCHAIN_CONFIG.version();
             address targetImpl = IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl;
             string memory target = ISuperchainConfig(targetImpl).version();
