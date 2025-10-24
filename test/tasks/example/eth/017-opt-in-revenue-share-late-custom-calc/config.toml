@@ -1,0 +1,11 @@
+templateName = "LateOptInRevenueShare"
+
+# Revenue Share Configuration
+# When using custom calculator, only the calculator address and the gas limit are required
+useOwnCalculator = true
+calculator = "0x8B0c0C8b8B0c0C8b8B0c0C8b8B0c0C8b8B0c0C8b"
+gasLimit = 300000 # Gas limit for L2 calls through the portal
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # 2-of-2 between council and foundation
+OptimismPortal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"

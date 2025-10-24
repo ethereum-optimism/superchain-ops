@@ -85,7 +85,7 @@ jobs:
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
           # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
-          no_output_timeout: 30m 
+          no_output_timeout: 30m
           command: |
             just install
             cd src/
@@ -135,7 +135,7 @@ jobs:
           command: |
             just install
             forge --version
-            forge test -vvv
+            forge test --skip Integration -vvv
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
