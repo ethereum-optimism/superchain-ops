@@ -25,6 +25,11 @@ interface ICreate2Deployer {
     function deploy(uint256 value, bytes32 salt, bytes memory code) external;
 }
 
+/// @notice Interface for the ProxyAdmin contract.
+interface IProxyAdmin {
+    function upgradeAndCall(address payable _proxy, address _implementation, bytes memory _data) external;
+}
+
 /// @notice A template contract for deploying and initializing the FeesDepositor contract.
 contract DeployFeesDepositor is SimpleTaskBase {
     using LibString for string;
@@ -44,8 +49,8 @@ contract DeployFeesDepositor is SimpleTaskBase {
     address public portal;
     /// @notice The gas limit for the deposit.
     uint32 public gasLimit;
-    /// @notice The address of the proxy admin owner.
-    address public proxyAdminOwner;
+    /// @notice The address of the proxy admin.
+    address public proxyAdmin;
 
     /// @notice The initialization code for the proxy contract. Sent to the CREATE2 deployer.
     bytes internal _proxyInitCode;
@@ -89,9 +94,10 @@ contract DeployFeesDepositor is SimpleTaskBase {
         require(_gasLimitRaw <= type(uint32).max, "gasLimit must be less than uint32.max");
         gasLimit = uint32(_gasLimitRaw);
 
-        proxyAdminOwner = simpleAddrRegistry.get("ProxyAdminOwner");
+        proxyAdmin = tomlContent.readAddress(".proxyAdmin");
+        require(proxyAdmin != address(0), "proxyAdmin must be set");
 
-        _proxyInitCode = bytes.concat(type(Proxy).creationCode, abi.encode(proxyAdminOwner));
+        _proxyInitCode = bytes.concat(type(Proxy).creationCode, abi.encode(proxyAdmin));
 
         _proxyCalculatedAddress =
             Create2.computeAddress(bytes32(bytes(salt)), keccak256(_proxyInitCode), CREATE2_DEPLOYER);
@@ -116,8 +122,9 @@ contract DeployFeesDepositor is SimpleTaskBase {
         // Deploy the proxy contract using CREATE2 with the calculated initialization code
         ICreate2Deployer(CREATE2_DEPLOYER).deploy(0, bytes32(bytes(salt)), _proxyInitCode);
 
-        // Initialize the proxy by upgrading to the implementation and calling initialize
-        Proxy(payable(_proxyCalculatedAddress)).upgradeToAndCall(
+        // Initialize the proxy by upgrading to the implementation and calling initialize via ProxyAdmin
+        IProxyAdmin(proxyAdmin).upgradeAndCall(
+            payable(_proxyCalculatedAddress),
             _implCalculatedAddress,
             abi.encodeCall(IFeesDepositor.initialize, (minDepositAmount, l2Recipient, portal, gasLimit))
         );

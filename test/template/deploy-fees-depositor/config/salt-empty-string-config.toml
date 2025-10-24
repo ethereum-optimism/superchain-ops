@@ -5,6 +5,6 @@ portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
 l2Recipient = "0xdeadbeef1234567890abcdef1234567890abcdef"
 salt = ""
 gasLimit = 1000000
-
+proxyAdmin = "0x543bA4AADBAb8f9025686Bd03993043599c6fB04"
 [addresses]
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"

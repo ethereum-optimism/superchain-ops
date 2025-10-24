@@ -69,6 +69,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     /// @notice The configuration for the l1 withdrawer
     uint256 public l1WithdrawerMinWithdrawalAmount;
     // TODO(17505): This address is expected to be set to the appropriate FeesDepositor address once deployed.
+    // The deployment is done by running the task at test/tasks/example/eth/016-deploy-fees-depositor
     address public l1WithdrawerRecipient;
     /// @notice The gas limit for the L1 Withdrawer.
     uint32 public l1WithdrawerGasLimit;

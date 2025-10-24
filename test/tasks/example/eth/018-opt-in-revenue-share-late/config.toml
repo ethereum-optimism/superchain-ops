@@ -6,8 +6,9 @@ useOwnCalculator = false
 saltSeed = "DeploymentSalt"
 l1WithdrawerMinWithdrawalAmount = 1000000000000000000
 # TODO(17505): This address MUST be updated once the appropriate FeesDepositor is deployed
+# The deployment is done by running the task at test/tasks/example/eth/016-deploy-fees-depositor
 l1WithdrawerRecipient = "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
-l1WithdrawerGasLimit = 300000
+l1WithdrawerGasLimit = 800000
 scRevShareCalcChainFeesRecipient = "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
 [addresses]

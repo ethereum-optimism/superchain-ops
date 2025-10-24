@@ -27,7 +27,7 @@ Install supersim if you haven't already:
 
 Start supersim with forked chains:
 ```bash
-supersim fork --chains=op --interop.enabled
+supersim fork --chains=op
 ```
 
 **Note:** You can use any L2 chain supported by supersim (e.g., `op`, `base`, `mode`, etc.). The default ports are:
