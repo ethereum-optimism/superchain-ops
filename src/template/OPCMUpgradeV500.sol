@@ -103,8 +103,7 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     function _build(address) internal override {
       {
             string memory current = SUPERCHAIN_CONFIG.version();
-            address targetImpl =
-                IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl;
+            address targetImpl = IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl;
             string memory target = ISuperchainConfig(targetImpl).version();
             if (keccak256(bytes(current)) != keccak256(bytes(target))) {
                 (bool ok1,) = OPCM_TARGETS[0].delegatecall(
