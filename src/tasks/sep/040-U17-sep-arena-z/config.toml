@@ -1,5 +1,5 @@
 l2chains = [
-    {name = "OP Sepolia Testnet", chainId = 11155420}
+    {name = "arena-z-testnet", chainId = 9899}
 ]
 
 templateName = "OPCMUpgradeV500"
@@ -8,12 +8,12 @@ allowOverwrite = ["SuperchainConfig"]
 
 
 
-# OP Sepolia Testnet (Permissionless)
+# Arena-Z Testnet (Permissioned)
 
 [[opcmUpgrades]]
-chainId = 11155420
+chainId = 9899
 absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
-expectedValidationErrors = "PDDG-VM-30,PLDG-VM-30"
+expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
 
 
@@ -28,11 +28,11 @@ SuperchainConfigProxyAdmin = "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc"  # Sou
 [stateOverrides]
 
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 40}
 ]
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SC
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 52}
 ]
 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FUS
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 55}
 ]
