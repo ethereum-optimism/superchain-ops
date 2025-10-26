@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-This task upgrades Arena-Z Sepolia to U16a.
+This task upgrades OP, Soneium Minato, Ink Sepolia to U17.
 
 ## Simulation & Signing
 
