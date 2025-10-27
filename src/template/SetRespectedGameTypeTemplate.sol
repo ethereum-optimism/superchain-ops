@@ -52,10 +52,19 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
+            require(cfg[chainId].chainId != 0, "SetRespectedGameType: Config not found for chain");
 
-            // Call ASR to set the current respected game type:
-            IAnchorStateRegistry(asrAddress).setRespectedGameType(cfg[chainId].gameType);
+            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
+            IAnchorStateRegistry asr = IAnchorStateRegistry(asrAddress);
+
+            // Verify that we're actually making a change to the respected game type
+            require(
+                asr.respectedGameType().raw() != cfg[chainId].gameType.raw(),
+                "SetRespectedGameType: Game type already set to target value"
+            );
+
+            // Call ASR to set the current respected game type
+            asr.setRespectedGameType(cfg[chainId].gameType);
         }
     }
 
