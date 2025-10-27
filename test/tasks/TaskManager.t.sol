@@ -45,7 +45,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
         // Test loading multiple environment variables including FORK_BLOCK_NUMBER
-        tm.setEnv("./src/tasks/eth/035-U17-unichain/");
+        tm.setEnv("./src/tasks/eth/034-U17-arena-z-swell/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
         assertEq(vm.envString("FORK_BLOCK_NUMBER"), "23669561");
     }
