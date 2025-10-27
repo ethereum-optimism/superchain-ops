@@ -15,7 +15,7 @@ the values printed to the terminal when you run the task.
 > ### Base Operations (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`)
 >
 > - Domain Hash:  `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
-> - Message Hash: `0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81`
+> - Message Hash: `0x4bd213f08ac90f036e73a1819d7d0e08f34782b8be8b6126808784642b27794b`
 >
 > ### Base Council (`0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f`)
 >
@@ -26,12 +26,6 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash:  `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
 > - Message Hash: `0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9`
-
-## Normalized State Diff Hash Attestation
-
-The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
-
-**Normalized hash:** `0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d`
 
 ## Understanding Task Calldata
 
