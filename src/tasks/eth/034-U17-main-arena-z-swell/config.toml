@@ -1,5 +1,6 @@
 l2chains = [
-    {name = "Unichain", chainId = 130}
+    {name = "arena-z", chainId = 7897},
+    {name = "Swellchain", chainId = 1923}
 ]
 
 templateName = "OPCMUpgradeV500"
@@ -8,13 +9,19 @@ allowOverwrite = ["SuperchainConfig"]
 
 
 
-# Unichain (Permissionless)
+# Arena-Z (Permissioned)
 
 [[opcmUpgrades]]
-chainId = 130
+chainId = 7897
 absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
-expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-VM-30,PLDG-DWETH-30,PLDG-VM-30"
+expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
+# Swell (Permissioned)
+
+[[opcmUpgrades]]
+chainId = 1923
+absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
+expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
 
 [addresses]
@@ -27,22 +34,15 @@ SuperchainConfigProxyAdmin = "0x543bA4AADBAb8f9025686Bd03993043599c6fB04" # Sour
 
 [stateOverrides]
 
-# Unichain 3/3 (L1PAO)
-0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
 ]
-
-# Unichain Operations Safe
-0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 14}
-]
-
-# Foundation Upgrade Safe
+# Foundation Upgrades Safe
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 46}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 45}
 ]
-
 # Security Council
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 49}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 48}
 ]
