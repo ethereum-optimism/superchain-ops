@@ -1,5 +1,6 @@
 l2chains = [
-    {name = "Base", chainId = 8453}
+    {name = "arena-z", chainId = 7897},
+    {name = "Swellchain", chainId = 1923}
 ]
 
 templateName = "OPCMUpgradeV500"
@@ -8,13 +9,19 @@ allowOverwrite = ["SuperchainConfig"]
 
 
 
-# Base (Permissionless)
+# Arena-Z (Permissioned)
 
 [[opcmUpgrades]]
-chainId = 8453
+chainId = 7897
 absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
-expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-DWETH-30,PLDG-VM-30"
+expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
+# Swell (Permissioned)
+
+[[opcmUpgrades]]
+chainId = 1923
+absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
+expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
 
 [addresses]
@@ -27,27 +34,15 @@ SuperchainConfigProxyAdmin = "0x543bA4AADBAb8f9025686Bd03993043599c6fB04" # Sour
 
 [stateOverrides]
 
-# Base Mainnet ProxyAdminOwner
-0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
 ]
-
-# Base Nested Safe
-0x9855054731540A48b28990B63DcF4f33d8AE46A1 = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 24}
+# Foundation Upgrades Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 45}
 ]
-
-# Base Council Safe
-0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 3}
-]
-
-# Base Operations Safe
-0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110 = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
-]
-
-# Foundation Operation Safe
-0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 111}
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 48}
 ]
