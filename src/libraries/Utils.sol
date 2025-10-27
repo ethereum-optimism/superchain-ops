@@ -110,7 +110,8 @@ library Utils {
 
     /// @notice Returns the address of a contract created with CREATE2 using the given CREATE2 deployer.
     function getCreate2Address(bytes32 salt, bytes memory initCode, address deployer) internal pure returns (address) {
-        return vm.computeCreate2Address(salt, keccak256(initCode), deployer);
+        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, keccak256(initCode)));
+        return address(uint160(uint256(hash)));
     }
 
     /// @notice Returns the owner that pointed to the owner to be removed in the linked list.
