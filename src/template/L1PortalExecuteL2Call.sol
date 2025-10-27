@@ -57,15 +57,13 @@ contract L1PortalExecuteL2Call is L2TaskBase {
     function _templateSetup(string memory _taskConfigFilePath, address) internal override {
         string memory _toml = vm.readFile(_taskConfigFilePath);
 
-        l2Target = _toml.readAddress(".l2Target");
-        require(l2Target != address(0), "l2Target must be set");
-
         // Read hex string and parse to bytes.
         l2Data = _toml.readBytes(".l2Data");
         require(l2Data.length > 0, "l2Data must be set");
+        require(l2Data.length <= 120000, "l2Data exceeds max message size");
 
         uint256 _gasLimitTmp = _toml.readUint(".gasLimit");
-        require(_gasLimitTmp > 0 && _gasLimitTmp <= type(uint64).max, "invalid gasLimit");
+        require(_gasLimitTmp >= 21000 && _gasLimitTmp <= type(uint64).max, "gasLimit out of valid range");
         gasLimit = uint64(_gasLimitTmp);
 
         // Optional fields
@@ -74,8 +72,13 @@ contract L1PortalExecuteL2Call is L2TaskBase {
             isCreation = _b;
         } catch {}
 
-        // early revert in case of attempted contract creation with a non-zero target
-        require(isCreation && l2Target == address(0) || !isCreation, "contract creation requires zero target address");
+        // Validate target address based on operation type
+        l2Target = _toml.readAddress(".l2Target");
+        if (isCreation) {
+            require(l2Target == address(0), "contract creation requires zero target address");
+        } else {
+            require(l2Target != address(0), "regular call requires non-zero target address");
+        }
     }
 
     /// @notice Build the portal deposit action. WARNING: State changes here are reverted after capture.
