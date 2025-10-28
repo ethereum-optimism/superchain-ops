@@ -48,23 +48,11 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     /// @notice Used to validate calls made to the OptimismPortal.
     mapping(bytes32 => uint8) internal _callsToPortal;
 
-    /// @notice The withdrawal network configuration for each fee vault.
-    uint8 baseFeeVaultWithdrawalNetwork;
-    uint8 l1FeeVaultWithdrawalNetwork;
-    uint8 sequencerFeeVaultWithdrawalNetwork;
-    uint8 operatorFeeVaultWithdrawalNetwork;
+    /// @notice The withdrawal network configuration for the fee vaults.
+    uint8 public constant FEE_VAULT_WITHDRAWAL_NETWORK = 1;
 
-    /// @notice The recipient configuration for each fee vault.
-    address baseFeeVaultRecipient;
-    address l1FeeVaultRecipient;
-    address sequencerFeeVaultRecipient;
-    address operatorFeeVaultRecipient;
-
-    /// @notice The minimum withdrawal amount configuration for each fee vault.
-    uint256 baseFeeVaultMinWithdrawalAmount;
-    uint256 l1FeeVaultMinWithdrawalAmount;
-    uint256 sequencerFeeVaultMinWithdrawalAmount;
-    uint256 operatorFeeVaultMinWithdrawalAmount;
+    /// @notice The minimum withdrawal amount configuration for the fee vaults.
+    uint256 public constant FEE_VAULT_MIN_WITHDRAWAL_AMOUNT = 0;
 
     /// @notice The configuration for the l1 withdrawer
     uint256 public l1WithdrawerMinWithdrawalAmount;
@@ -77,14 +65,18 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     /// @notice The configuration for sc rev share calculator.
     address public scRevShareCalcChainFeesRecipient;
 
+    /// @notice Whether to use the default calculator. If true, deploy the default SC Rev Share Calculator and L1Withdrawer.
+    /// If false, use the custom calculator and skip deploying the default calculator and L1Withdrawer.
+    bool public useDefaultCalculator;
+
+    /// @notice Custom calculator address.
+    address public customCalculator;
+
     /// @notice The address of the OptimismPortal through which we are making the deposit txns
     address public portal;
 
     /// @notice The salt seed to be used for the L2 deployments
     string public saltSeed;
-
-    /// @notice Config value indicating if the chain is opting in to use FeeSplitter
-    bool public optInRevenueShare;
 
     /// @notice The address the OperatorFeeVault implementation is deployed to.
     address internal _operatorFeeVaultPrecalculatedAddress;
@@ -107,13 +99,11 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     bytes internal _l1FeeVaultCalldata;
 
     /// @notice The address the L1Withdrawer implementation is deployed to.
-    /// @notice In case the chain is not opting to use the Fee Splitter this will be address(0).
     address internal _l1WithdrawerPrecalculatedAddress;
     /// @notice The calldata sent to the OptimismPortal to deploy the L1Withdrawer.
     bytes internal _l1WithdrawerCalldata;
 
     /// @notice The address the SuperchainRevenueShareCalculator implementation is deployed to.
-    /// @notice In case the chain is not opting to use the Fee Splitter this will be address(0).
     address internal _scRevShareCalculatorPrecalculatedAddress;
     /// @notice The calldata sent to the OptimismPortal to deploy the SuperchainRevenueShareCalculator.
     bytes internal _scRevShareCalculatorCalldata;
@@ -156,82 +146,11 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
         saltSeed = _toml.readString(".saltSeed");
         require(bytes(saltSeed).length != 0, "saltSeed must be set in the config");
 
-        optInRevenueShare = _toml.readBool(".optInRevenueShare");
+        // Read whether to use the default calculator
+        useDefaultCalculator = _toml.readBool(".useDefaultCalculator");
 
-        if (!optInRevenueShare) {
-            // These configs are only relevant in case the chain is not opting to use the Fee Splitter
-
-            // Check for Fee Vaults config
-            // BaseFeeVault
-            baseFeeVaultWithdrawalNetwork = uint8(_toml.readUint(".baseFeeVaultWithdrawalNetwork"));
-            require(
-                baseFeeVaultWithdrawalNetwork == 0 || baseFeeVaultWithdrawalNetwork == 1,
-                "baseFeeVaultWithdrawalNetwork must be set to either 0 (L1) or 1 (L2) in config"
-            );
-
-            baseFeeVaultRecipient = _toml.readAddress(".baseFeeVaultRecipient");
-            require(baseFeeVaultRecipient != address(0), "baseFeeVaultRecipient must be set in config");
-
-            baseFeeVaultMinWithdrawalAmount = _toml.readUint(".baseFeeVaultMinWithdrawalAmount");
-
-            // L1FeeVault
-            l1FeeVaultWithdrawalNetwork = uint8(_toml.readUint(".l1FeeVaultWithdrawalNetwork"));
-            require(
-                l1FeeVaultWithdrawalNetwork == 0 || l1FeeVaultWithdrawalNetwork == 1,
-                "l1FeeVaultWithdrawalNetwork must be set to either 0 (L1) or 1 (L2) in config"
-            );
-
-            l1FeeVaultRecipient = _toml.readAddress(".l1FeeVaultRecipient");
-            require(l1FeeVaultRecipient != address(0), "l1FeeVaultRecipient must be set in config");
-
-            l1FeeVaultMinWithdrawalAmount = _toml.readUint(".l1FeeVaultMinWithdrawalAmount");
-
-            // SequencerFeeVault
-            sequencerFeeVaultWithdrawalNetwork = uint8(_toml.readUint(".sequencerFeeVaultWithdrawalNetwork"));
-            require(
-                sequencerFeeVaultWithdrawalNetwork == 0 || sequencerFeeVaultWithdrawalNetwork == 1,
-                "sequencerFeeVaultWithdrawalNetwork must be set to either 0 (L1) or 1 (L2) in config"
-            );
-
-            sequencerFeeVaultRecipient = _toml.readAddress(".sequencerFeeVaultRecipient");
-            require(sequencerFeeVaultRecipient != address(0), "sequencerFeeVaultRecipient must be set in config");
-
-            sequencerFeeVaultMinWithdrawalAmount = _toml.readUint(".sequencerFeeVaultMinWithdrawalAmount");
-
-            // OperatorFeeVault
-            operatorFeeVaultWithdrawalNetwork = uint8(_toml.readUint(".operatorFeeVaultWithdrawalNetwork"));
-            require(
-                operatorFeeVaultWithdrawalNetwork == 0 || operatorFeeVaultWithdrawalNetwork == 1,
-                "operatorFeeVaultWithdrawalNetwork must be set to either 0 (L1) or 1 (L2) in config"
-            );
-
-            operatorFeeVaultRecipient = _toml.readAddress(".operatorFeeVaultRecipient");
-            require(operatorFeeVaultRecipient != address(0), "operatorFeeVaultRecipient must be set in config");
-
-            operatorFeeVaultMinWithdrawalAmount = _toml.readUint(".operatorFeeVaultMinWithdrawalAmount");
-        } else {
-            // Use the Fee Splitter predeploy, L2 Withdrawal Network and 0 for all the vaults
-
-            // BaseFeeVault
-            baseFeeVaultWithdrawalNetwork = 1;
-            baseFeeVaultRecipient = FEE_SPLITTER;
-            baseFeeVaultMinWithdrawalAmount = 0;
-
-            // SequencerFeeVault
-            sequencerFeeVaultWithdrawalNetwork = 1;
-            sequencerFeeVaultRecipient = FEE_SPLITTER;
-            sequencerFeeVaultMinWithdrawalAmount = 0;
-
-            // L1FeeVault
-            l1FeeVaultWithdrawalNetwork = 1;
-            l1FeeVaultRecipient = FEE_SPLITTER;
-            l1FeeVaultMinWithdrawalAmount = 0;
-
-            // OperatorFeeVault
-            operatorFeeVaultWithdrawalNetwork = 1;
-            operatorFeeVaultRecipient = FEE_SPLITTER;
-            operatorFeeVaultMinWithdrawalAmount = 0;
-
+        // If useDefaultCalculator is true, deploy the default calculator and L1Withdrawer
+        if (useDefaultCalculator) {
             l1WithdrawerMinWithdrawalAmount = _toml.readUint(".l1WithdrawerMinWithdrawalAmount");
 
             l1WithdrawerRecipient = _toml.readAddress(".l1WithdrawerRecipient");
@@ -296,6 +215,11 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                     )
                 )
             );
+        } else {
+            // Use custom calculator, read it from config and set it as the calculator address for the fee splitter
+            customCalculator = _toml.readAddress(".customCalculator");
+            require(customCalculator != address(0), "customCalculator must be set when useDefaultCalculator is false");
+            _scRevShareCalculatorPrecalculatedAddress = customCalculator;
         }
 
         // Calculate addresses and data to deploy vaults
@@ -336,9 +260,9 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                             abi.encodeCall(
                                 IFeeVault.initialize,
                                 (
-                                    operatorFeeVaultRecipient,
-                                    operatorFeeVaultMinWithdrawalAmount,
-                                    operatorFeeVaultWithdrawalNetwork
+                                    FEE_VAULT_RECIPIENT,
+                                    FEE_VAULT_MIN_WITHDRAWAL_AMOUNT,
+                                    FEE_VAULT_WITHDRAWAL_NETWORK
                                 )
                             )
                         )
@@ -385,9 +309,9 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                             abi.encodeCall(
                                 IFeeVault.initialize,
                                 (
-                                    sequencerFeeVaultRecipient,
-                                    sequencerFeeVaultMinWithdrawalAmount,
-                                    sequencerFeeVaultWithdrawalNetwork
+                                    FEE_VAULT_RECIPIENT,
+                                    FEE_VAULT_MIN_WITHDRAWAL_AMOUNT,
+                                    FEE_VAULT_WITHDRAWAL_NETWORK
                                 )
                             )
                         )
@@ -431,7 +355,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                             address(_baseFeeVaultPrecalculatedAddress),
                             abi.encodeCall(
                                 IFeeVault.initialize,
-                                (baseFeeVaultRecipient, baseFeeVaultMinWithdrawalAmount, baseFeeVaultWithdrawalNetwork)
+                                (FEE_VAULT_RECIPIENT, FEE_VAULT_MIN_WITHDRAWAL_AMOUNT, FEE_VAULT_WITHDRAWAL_NETWORK)
                             )
                         )
                     )
@@ -474,7 +398,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                             address(_l1FeeVaultPrecalculatedAddress),
                             abi.encodeCall(
                                 IFeeVault.initialize,
-                                (l1FeeVaultRecipient, l1FeeVaultMinWithdrawalAmount, l1FeeVaultWithdrawalNetwork)
+                                (FEE_VAULT_RECIPIENT, FEE_VAULT_MIN_WITHDRAWAL_AMOUNT, FEE_VAULT_WITHDRAWAL_NETWORK)
                             )
                         )
                     )
@@ -536,7 +460,8 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     /// WARNING: Any state written to in this function will be reverted after the build function has been run.
     /// Do not rely on setting global variables in this function.
     function _build(address) internal override {
-        if (optInRevenueShare) {
+        // Only deploy L1 Withdrawer and SC Rev Share Calculator if using default calculator
+        if (useDefaultCalculator) {
             // Deploy L1 Withdrawer
             IOptimismPortal2(payable(portal)).depositTransaction(
                 address(CREATE2_DEPLOYER),
@@ -563,9 +488,10 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal override {
         MultisigTaskPrinter.printTitle("Validating calls to portal");
-        // Expected portal calls: 10 (base vault operations + fee splitter)
-        // + 2 (revenue share: L1 withdrawer + calculator) if opting in
-        uint256 _expectedCallsToPortal = optInRevenueShare ? 12 : 10;
+        // Expected portal calls:
+        // - 10 (base vault operations + fee splitter)
+        // - 12 if using default calculator (+ L1 withdrawer + calculator)
+        uint256 _expectedCallsToPortal = useDefaultCalculator ? 12 : 10;
         uint256 _actualCallsToPortal = 0;
         for (uint256 i = 0; i < _actions.length; i++) {
             Action memory action = _actions[i];
@@ -605,9 +531,9 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                     abi.encodeCall(
                         IFeeVault.initialize,
                         (
-                            operatorFeeVaultRecipient,
-                            operatorFeeVaultMinWithdrawalAmount,
-                            operatorFeeVaultWithdrawalNetwork
+                            FEE_VAULT_RECIPIENT,
+                            FEE_VAULT_MIN_WITHDRAWAL_AMOUNT,
+                            FEE_VAULT_WITHDRAWAL_NETWORK
                         )
                     )
                 )
@@ -635,9 +561,9 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                     abi.encodeCall(
                         IFeeVault.initialize,
                         (
-                            sequencerFeeVaultRecipient,
-                            sequencerFeeVaultMinWithdrawalAmount,
-                            sequencerFeeVaultWithdrawalNetwork
+                            FEE_VAULT_RECIPIENT,
+                            FEE_VAULT_MIN_WITHDRAWAL_AMOUNT,
+                            FEE_VAULT_WITHDRAWAL_NETWORK
                         )
                     )
                 )
@@ -664,7 +590,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                     address(_baseFeeVaultPrecalculatedAddress),
                     abi.encodeCall(
                         IFeeVault.initialize,
-                        (baseFeeVaultRecipient, baseFeeVaultMinWithdrawalAmount, baseFeeVaultWithdrawalNetwork)
+                        (FEE_VAULT_RECIPIENT, FEE_VAULT_MIN_WITHDRAWAL_AMOUNT, FEE_VAULT_WITHDRAWAL_NETWORK)
                     )
                 )
             )
@@ -686,7 +612,7 @@ contract RevenueShareV100UpgradePath is SimpleTaskBase, RevSharePredeploys {
                     address(_l1FeeVaultPrecalculatedAddress),
                     abi.encodeCall(
                         IFeeVault.initialize,
-                        (l1FeeVaultRecipient, l1FeeVaultMinWithdrawalAmount, l1FeeVaultWithdrawalNetwork)
+                        (FEE_VAULT_RECIPIENT, FEE_VAULT_MIN_WITHDRAWAL_AMOUNT, FEE_VAULT_WITHDRAWAL_NETWORK)
                     )
                 )
             )

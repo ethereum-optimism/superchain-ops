@@ -114,8 +114,7 @@ assertEq(
 
 See [RevenueShareIntegration.t.sol](../../test/integration/RevenueShareIntegration.t.sol) for a complete example that:
 
-- Tests both opt-in and opt-out scenarios
-- Tests late opt-in scenarios
+- Tests opt-in scenarios
 - Validates multiple L2 contracts (L1Withdrawer, RevShareCalculator, FeeSplitter, FeeVaults)
 - Asserts complex state relationships between contracts
 
@@ -185,8 +184,7 @@ After running integration tests and generating Tenderly simulations, document th
 ## Troubleshooting
 
 ### Failed Tenderly Transactions but working in the Supersim integration
-Something that sucks on the Tenderly simulations is that it is very hard (actually I don't know how) to keep the state changes of previously simulated transactions. So if you are testing the transactions of a task that first -> upgrades a contract to have setters and then -> calls that setter, when simulating the setter transaction, it will revert. This is the reason why the rev share late opt in transactions don't have tenderly simulations linked
-
+Something that sucks on the Tenderly simulations is that it is very hard (actually I don't know how) to keep the state changes of previously simulated transactions. So if you are testing the transactions of a task that first -> upgrades a contract to have setters and then -> calls that setter, when simulating the setter transaction, it will revert.
 
 ### Fork Issues
 When first running the fork test against supersim, do it with a `--match-test` that does only one fork for caching the network states. If you try to run more than one at the same time by, for example, using `--match-contract`, you might get timeout issues
