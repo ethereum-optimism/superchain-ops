@@ -196,7 +196,10 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 
 **Environment variables:**
 - `HD_PATH` - Hardware wallet derivation path index (default: 0). The value is inserted into the [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) Ethereum path as `m/44'/60'/$HD_PATH'/0/0` (e.g. `0` -> `m/44'/60'/0'/0/0`, `1` -> `m/44'/60'/1'/0/0`). Use this to select the desired Ethereum account on your hardware wallet.
-- `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
+- `WALLET_TYPE` - Type of wallet to use for signing: `ledger` (default), `trezor`, or `keystore`. By default, keys are stored under `~/.foundry/keystores`.
+- `SIMULATE_WITHOUT_WALLET` - If set, simulates without requiring a hardware wallet connection (uses safe owner address instead).
+- `USE_KEYSTORE` - (Deprecated, use `WALLET_TYPE=keystore` instead) If set, uses keystore instead of ledger.
+- `SIMULATE_WITHOUT_LEDGER` - (Deprecated, use `SIMULATE_WITHOUT_WALLET` instead) If set, simulates without ledger.
 
 **Examples:**
 
@@ -212,16 +215,22 @@ To use a custom HD path:
 HD_PATH=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
 ```
 
-To use keystore instead of ledger:
+To use Trezor instead of Ledger:
 
 ```bash
-USE_KEYSTORE=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
+WALLET_TYPE=trezor just sign-stack eth 002-opcm-upgrade-v200 foundation
+```
+
+To use keystore instead of hardware wallet:
+
+```bash
+WALLET_TYPE=keystore just sign-stack eth 002-opcm-upgrade-v200 foundation
 ```
 
 The command will then:
 1. List all the tasks that will be simulated in the stack.
 2. Simulate the tasks in order.
-3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
+3. Prompt you to approve the transaction on your hardware wallet (Ledger or Trezor) for the final task (`002-opcm-upgrade-v200` in this example).
 
 ### How do I perform a contract upgrade directly on an L2?
 

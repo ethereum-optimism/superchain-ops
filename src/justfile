@@ -408,7 +408,7 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     fi
     echo "${safe}"
 
-# Get signer address and arguments (supports ledger and keystore)
+# Get signer address and arguments (supports ledger, trezor, and keystore)
 # Returns: line 1=address, line 2=arguments
 [no-cd]
 _get-signer-args hdPath='0' use_keystore_flag='':
@@ -416,19 +416,47 @@ _get-signer-args hdPath='0' use_keystore_flag='':
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
-    
-    if [ -z "{{use_keystore_flag}}" ]; then
+
+    # Determine wallet type with backwards compatibility
+    wallet_type="ledger"  # default
+
+    # Error if both old and new flags are set
+    if [ -n "{{use_keystore_flag}}" ] && [ -n "${WALLET_TYPE:-}" ]; then
+        echo "Error: Cannot set both USE_KEYSTORE and WALLET_TYPE." >&2
+        echo "USE_KEYSTORE is deprecated. Please use WALLET_TYPE only." >&2
+        exit 1
+    fi
+
+    # Check deprecated USE_KEYSTORE flag (backwards compat)
+    if [ -n "{{use_keystore_flag}}" ]; then
+        echo -e "\033[33mWarning: USE_KEYSTORE is deprecated. Please use WALLET_TYPE=keystore instead.\033[0m" >&2
+        wallet_type="keystore"
+    # Check new WALLET_TYPE env var
+    elif [ -n "${WALLET_TYPE:-}" ]; then
+        wallet_type="${WALLET_TYPE}"
+    fi
+
+    # Execute based on wallet type
+    if [ "$wallet_type" = "keystore" ]; then
+        echo "Using keystore" >&2
+        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key)
+        signer=$(cast wallet address --private-key ${signer_private_key})
+        signer_args="--private-key ${signer_private_key#0x}"
+    elif [ "$wallet_type" = "trezor" ]; then
+        hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+        echo "Using trezor" >&2
+        signer=$(cast wallet address --trezor --mnemonic-derivation-path $hdpaths)
+        signer_args="--trezor --hd-paths $hdpaths"
+    elif [ "$wallet_type" = "ledger" ]; then
         hdpaths="m/44'/60'/{{hdPath}}'/0/0"
         echo "Using ledger" >&2
         signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
         signer_args="--ledger --hd-paths $hdpaths"
     else
-        echo "Using keystore" >&2
-        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key)
-        signer=$(cast wallet address --private-key ${signer_private_key})
-        signer_args="--private-key ${signer_private_key#0x}"
+        echo "Error: Invalid WALLET_TYPE='$wallet_type'. Supported options are 'ledger', 'trezor', 'keystore'." >&2
+        exit 1
     fi
-    
+
     echo "Signing with: ${signer}" >&2
     echo "${signer}"
     echo "${signer_args}"
@@ -446,29 +474,63 @@ _get-fork-block-args:
         echo "--fork-block-number ${FORK_BLOCK_NUMBER}"
     fi
 
-# Configure signer for simulation (ledger or safe owner)
+# Configure signer for simulation (hardware wallet or safe owner)
 [no-cd]
 _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEPTH_2:
     #!/usr/bin/env bash
     set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/justfile"
     HD_PATH=${HD_PATH:-0}
-    
-    if [ -z "${SIMULATE_WITHOUT_LEDGER:-}" ]; then
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}'/0/0")
-        echo "Simulating with ledger account: ${signer}" >&2
+    WALLET_TYPE=${WALLET_TYPE:-ledger}
+
+    # Check if we should skip hardware wallet (backwards compatibility)
+    skip_hardware_wallet=""
+
+    # Error if both old and new flags are set
+    if [ -n "${SIMULATE_WITHOUT_LEDGER:-}" ] && [ -n "${SIMULATE_WITHOUT_WALLET:-}" ]; then
+        echo "Error: Cannot set both SIMULATE_WITHOUT_LEDGER and SIMULATE_WITHOUT_WALLET." >&2
+        echo "SIMULATE_WITHOUT_LEDGER is deprecated. Please use SIMULATE_WITHOUT_WALLET only." >&2
+        exit 1
+    fi
+
+    if [ -n "${SIMULATE_WITHOUT_LEDGER:-}" ]; then
+        echo -e "\033[33mWarning: SIMULATE_WITHOUT_LEDGER is deprecated. Please use SIMULATE_WITHOUT_WALLET instead.\033[0m" >&2
+        skip_hardware_wallet="1"
+    elif [ -n "${SIMULATE_WITHOUT_WALLET:-}" ]; then
+        skip_hardware_wallet="1"
+    fi
+
+    if [ -z "$skip_hardware_wallet" ]; then
+        # Use wallet based on WALLET_TYPE to get signer address
+        if [ "$WALLET_TYPE" = "keystore" ]; then
+            echo "Using keystore for simulation" >&2
+            signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key)
+            signer=$(cast wallet address --private-key ${signer_private_key})
+            echo "Simulating with keystore account: ${signer}" >&2
+        elif [ "$WALLET_TYPE" = "trezor" ]; then
+            signer=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/${HD_PATH}'/0/0")
+            echo "Simulating with trezor account: ${signer}" >&2
+        elif [ "$WALLET_TYPE" = "ledger" ]; then
+            signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}'/0/0")
+            echo "Simulating with ledger account: ${signer}" >&2
+        else
+            echo "Error: Invalid WALLET_TYPE='$WALLET_TYPE'. Supported: 'ledger', 'trezor', 'keystore'." >&2
+            exit 1
+        fi
     else
         # Get the appropriate safe to extract signer from
         if [ "{{CHILD_SAFE_DEPTH_2}}" != "$ZERO_ADDRESS" ]; then
             safe_for_signer="{{CHILD_SAFE_DEPTH_2}}"
         elif [ "{{CHILD_SAFE_DEPTH_1}}" != "$ZERO_ADDRESS" ]; then
-            safe_for_signer="{{CHILD_SAFE_DEPTH_1}}" 
+            safe_for_signer="{{CHILD_SAFE_DEPTH_1}}"
         else
             safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" "{{CONFIG_PATH}}" --fork-url "{{ETH_RPC_URL}}" --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}  --json | jq -r '.returns["0"].value')
         fi
         signer=$(cast call ${safe_for_signer} "getOwners()(address[])" -r "{{ETH_RPC_URL}}" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-        echo "Simulating without ledger using first owner from safe ${safe_for_signer}: ${signer}" >&2
+        echo "Simulating without hardware wallet using first owner from safe ${safe_for_signer}: ${signer}" >&2
     fi
-    
+
     echo "${signer}"
 
 # Handle keystore selection and private key extraction
