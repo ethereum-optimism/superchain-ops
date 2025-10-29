@@ -107,7 +107,7 @@ cd tasks/eth/036-U17-main-base
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
-# Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772
+# Message Hash: 0x97ef70b5b6eec14b0d2f75b513b4e8ab4c07421632dd90e59a352dbd224681ce
 
 # Base Operations: 0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110
 #  ┌────────────────────┐
@@ -130,8 +130,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
-# Message Hash: 0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a
-# Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
+# Message Hash: 0x03dff21f308db45f0bad8ba995255a78169a7906d68410b7e76f5faedeaabaf0
 
 
 # Foundation Operations: 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
@@ -148,8 +147,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
-# Message Hash: 0x2b7f17c0100e6766aaac289acba0122860a51bdd64810626948b0f986f88efa5
-# Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
+# Message Hash: 0x31d9a76536f91fcfa5497cec2b486520de0062060f61e1e47d85e35416a430da
 ```
 
 You will see a `Simulation link` in the output (yes, it's a big link). Paste this URL from your terminal in your browser. A prompt may ask you to choose a project, any project will do. You can create one if necessary.
@@ -189,13 +187,7 @@ Make sure you are on the "Summary" tab of the Tenderly simulation. To validate t
 
 Now click on the "State" tab.
 
-- If you are a **Base Security Council Signer** refer to the [Base Security Council State Validations](./BASE_SC_VALIDATION.md) instructions for the transaction you are signing.
-
-- If you are a **Base Operations Signer** refer to the [Base Operations State Validations](./BASE_OPS_VALIDATION.md) instructions for the transaction you are signing.
-
-- If you are a **Foundation Operations Signer** refer to the [Foundation Operations State Validations](./FND_OPS_VALIDATION.md) instructions for the transaction you are signing.
-
-Please ensure that you verify all state diffs listed in the "Task State Changes" section of your respective State Validations instructions.
+Please ensure that you verify all state diffs listed in the "Task State Changes" section.
 
 Once you have completed the verification checks corresponding to your role, return to this document to continue the process.
 
@@ -214,25 +206,22 @@ Confirm that these values match the values listed in the "Expected Domain and Me
 Now, perform the signing for whichever of the safes you are a member of:
 
 ```bash
-cd src/tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd src/tasks/eth/036-U17-main-base
 
 just --dotenv-path $(pwd)/.env sign base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
-# Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772
-# Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
+# Message Hash: 0x97ef70b5b6eec14b0d2f75b513b4e8ab4c07421632dd90e59a352dbd224681ce
 
 just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
-# Message Hash: 0x5ae6e3b8fe66bd6cbe5fae6374222b43a874c13ca850745926ecc430cafdb21a
-# Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
+# Message Hash: 0x03dff21f308db45f0bad8ba995255a78169a7906d68410b7e76f5faedeaabaf0
 
 just --dotenv-path $(pwd)/.env sign foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
-# Message Hash: 0x2b7f17c0100e6766aaac289acba0122860a51bdd64810626948b0f986f88efa5
-# Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
+# Message Hash: 0x31d9a76536f91fcfa5497cec2b486520de0062060f61e1e47d85e35416a430da
 ```
 
 > **⚠️ Attention Signers:**
