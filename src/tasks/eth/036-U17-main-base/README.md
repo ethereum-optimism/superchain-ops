@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-Upgrade Base Mainnet to U17. More context on U16a can be found in the Optimism docs [here](https://docs.optimism.io/notices/upgrade-16a).
+Upgrade Base Mainnet to U17. More context on U16a can be found in the Optimism docs.
 
 ## Step 1. Tenderly Account
 
@@ -84,7 +84,7 @@ In this section, you will simulate, validate, and sign the upgrade transactions 
 First, simulate the upgrade transaction using the command below corresponding to the safe you are a member of (Base Council, Base Operations, or Foundations Operations) and take note of the resulting hashes and output:
 
 ```bash
-cd tasks/eth/022-U16a-opcm-upgrade-v410-base
+cd tasks/eth/036-U17-main-base
 
 # Base Council: 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd
 #  ┌────────────────────┐
@@ -108,7 +108,6 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
 # Message Hash: 0x520aeeb85997f9db884ae07d1da74b5251550f49ab662b9ada3fa34572ece772
-# Normalized Hash: 0x1040a2a57a0fc30a1ff18d3c0e35898dbf98c89dc172945b99a0f3b65508c659
 
 # Base Operations: 0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110
 #  ┌────────────────────┐
