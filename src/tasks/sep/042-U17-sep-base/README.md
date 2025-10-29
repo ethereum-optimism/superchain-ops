@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-Upgrade Base Sepolia to U16a. More context on U16a can be found in the Optimism docs [here](https://docs.optimism.io/notices/upgrade-16a).
+Upgrade Base Sepolia to U17. More context on U17 can be found in the Optimism docs.
 
 The [VALIDATION.md](./VALIDATION.md) file contains the calldata and various hashes for this task.
 
@@ -41,7 +41,7 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 In this section, through a sequence of commands, we will successfully sign this task’s upgrade transaction from the 'base-nested' (`0x646132A1667ca7aD00d36616AFBA1A28116C770A`) safe. 
 
 ```bash
-cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/tasks/sep/042-U17-sep-base
 
 # Base Council: 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f
 #  ┌────────────────────┐      
@@ -64,8 +64,7 @@ cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
  SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0x1410609732b5c870459041e7c1557d1e6442e2ffaadaf66dc36592185510d443
 
 # Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
 #  ┌────────────────────┐      
@@ -88,25 +87,22 @@ cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0x7e3f1098b920980a54a4229ea9ed1e3bdaf574a1b6a5473ad3c317bde0153d42
 ```
 
 Now, perform the signing for both safes that are owners of 'base-nested':
 ```bash
-cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/tasks/sep/042-U17-sep-base
 
 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x2101962158503cfe04f7fc3fb3db310076c262dd27acc4a1922b03b723d9da80
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0x1410609732b5c870459041e7c1557d1e6442e2ffaadaf66dc36592185510d443
 
 just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0x7e3f1098b920980a54a4229ea9ed1e3bdaf574a1b6a5473ad3c317bde0153d42
 ```
 
 > **⚠️ Attention Signers:**
@@ -124,19 +120,19 @@ Your [config.toml](./config.toml) file **MUST** match the data below:
 [stateOverrides]
 # Base Sepolia ProxyAdminOwner
 0x0fe884546476dDd290eC46318785046ef68a0BA9 = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 24}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 26}
 ]
 # Base Nested Safe
 0x646132A1667ca7aD00d36616AFBA1A28116C770A = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9}
 ]
 # Base Council Safe
 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
 ]
 # Base Operations Safe
 0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [ 
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11} # <--- THIS IS THE ONLY CHANGE
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 15} # <--- THIS IS THE ONLY CHANGE
 ]
 ```
 
@@ -157,14 +153,12 @@ Once you've updated the nonce for the base-operations safe, you can now safely s
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0x5ebd0e919700d0bd2d507988be826cd586115117d8f8bcb02386c1efd30722bf
 
 just --dotenv-path $(pwd)/.env sign base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x1efd160c418041038c6a9e0396ed887fdbbf6f11aef6aa0f93a527fb9a8b95d9
-# Normalized Hash: 0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d
+# Message Hash: 0x5ebd0e919700d0bd2d507988be826cd586115117d8f8bcb02386c1efd30722bf
 ```
 
 ### Step 2 (Role: Facilitator) - Base Nested Approval
@@ -236,6 +230,6 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1a> just approv
 
 Execute command: 
 ```bash
-cd src/tasks/sep/029-U16a-opcm-upgrade-v410-base
+cd src/tasks/sep/042-U17-sep-base
 just --dotenv-path $(pwd)/.env execute
 ```
