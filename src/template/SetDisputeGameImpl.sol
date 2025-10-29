@@ -64,20 +64,21 @@ contract SetDisputeGameImpl is L2TaskBase {
             uint256 chainId = chains[i].chainId;
             GameImplConfig memory c = cfg[chainId];
 
+            // Validate that configuration exists for this chain
+            require(c.chainId != 0, "SetDisputeGameImpl: Config not found for chain");
+
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             IDisputeGameFactory factory = IDisputeGameFactory(dgf);
 
-            // Set FDG (CANNON) implementation if TOML is different from current on-chain
+            // Verify that we're actually making a change for FDG (catch configuration errors)
             address currentFDG = address(factory.gameImpls(CANNON));
-            if (currentFDG != c.fdgImpl) {
-                factory.setImplementation(CANNON, c.fdgImpl);
-            }
+            require(currentFDG != c.fdgImpl, "SetDisputeGameImpl: FDG already set to target value");
+            factory.setImplementation(CANNON, c.fdgImpl);
 
-            // Set PDG (PERMISSIONED_CANNON) implementation if TOML is different from current on-chain
+            // Verify that we're actually making a change for PDG (catch configuration errors)
             address currentPDG = address(factory.gameImpls(PERMISSIONED_CANNON));
-            if (currentPDG != c.pdgImpl) {
-                factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl);
-            }
+            require(currentPDG != c.pdgImpl, "SetDisputeGameImpl: PDG already set to target value");
+            factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl);
 
             // Set FDG bond if not already set or needs update
             if (c.fdgBond != 0 && factory.initBonds(CANNON) != c.fdgBond) {
@@ -102,7 +103,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             GameImplConfig memory c = cfg[chainId];
-            if (c.chainId == 0) continue; // Skip chains without configurations
+            require(c.chainId != 0, "SetDisputeGameImpl: Config not found for chain");
 
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             IDisputeGameFactory factory = IDisputeGameFactory(dgf);

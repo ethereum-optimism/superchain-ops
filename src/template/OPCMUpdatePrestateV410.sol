@@ -81,6 +81,8 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+            require(upgrades[chainId].chainId != 0, "OPCMUpdatePrestate: Config not found for chain");
+
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
                 proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
@@ -88,10 +90,17 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
             });
         }
 
-        (bool success,) = OPCM_TARGETS[0].delegatecall(
+        (bool success, bytes memory returnData) = OPCM_TARGETS[0].delegatecall(
             abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs)
         );
-        require(success, "OPCM.updatePrestate() failed");
+        if (!success) {
+            if (returnData.length > 0) {
+                assembly {
+                    revert(add(returnData, 32), mload(returnData))
+                }
+            }
+            revert("OPCM.updatePrestate() failed");
+        }
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
