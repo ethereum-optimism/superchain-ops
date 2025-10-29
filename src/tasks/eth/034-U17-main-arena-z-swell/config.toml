@@ -13,14 +13,14 @@ allowOverwrite = ["SuperchainConfig"]
 
 [[opcmUpgrades]]
 chainId = 7897
-absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
+absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
 expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
 # Swell (Permissioned)
 
 [[opcmUpgrades]]
 chainId = 1923
-absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"  # prestates."1.7.0-rc.5" https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
+absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
 expectedValidationErrors = "PDDG-VM-30,PLDG-10"
 
 
