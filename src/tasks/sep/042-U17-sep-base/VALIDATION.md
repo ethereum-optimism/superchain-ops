@@ -29,7 +29,7 @@ the values printed to the terminal when you run the task.
 
 ## Understanding Task Calldata
 
-This document provides a detailed analysis of the final calldata executed on-chain for the OPCM upgrade to v4.1.0.
+This document provides a detailed analysis of the final calldata executed on-chain for the OPCM upgrade to v5.0.0.
 
 By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
 
@@ -39,7 +39,7 @@ For each chain being upgraded, the `opcm.upgrade()` function is called with a tu
 
 - SystemConfigProxy: [0xf272670eb55e895584501d564AfEB048bEd26194](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/base.toml#L60)
 - ProxyAdmin: [0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/base.toml#L61)
-- AbsolutePrestate: [0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3](https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5)
+- AbsolutePrestate: [0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3](https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6)
 
 
 Thus, the command to encode the calldata is:
@@ -56,7 +56,7 @@ This function is called with a tuple of three elements:
 
 Call3 struct for Multicall3DelegateCall:
 
-- `target`: [0x6af7ece7d6506be573841b8cf29096638df5fc4f](https://sepolia.etherscan.io/address/0x3bb6437aba031afbf9cb3538fa064161e2bf2d78) - Sepolia OPContractsManager v4.1.0
+- `target`: [0x6af7ece7d6506be573841b8cf29096638df5fc4f](https://sepolia.etherscan.io/address/0x6af7ece7d6506be573841b8cf29096638df5fc4f) - Sepolia OPContractsManager v5.0.0
 - `allowFailure`: false
 - `callData`: `0xff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f272670eb55e895584501d564afeb048bed261940000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f303799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3` (output from the previous section)
 
