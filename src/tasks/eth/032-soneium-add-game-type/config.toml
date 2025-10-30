@@ -12,7 +12,7 @@ systemConfig = "0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3"
 proxyAdmin = "0x89889B569c3a505f3640ee1Bd0ac1D557f436D2a"
 delayedWETH = "0x372dC0B87b790D6e1308CF9e7f73F0F1fcbD3754"
 disputeGameType = 0
-disputeAbsolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91" # Absolute Prestate 1.7.0-rc.3 https://github.com/ethereum-optimism/superchain-registry/blob/851f7bb60edc53373fc961d237c7175aa130fba3/validation/standard/standard-prestates.toml#L6
+disputeAbsolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3" # Absolute Prestate 1.8.0-rc.3 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml
 disputeMaxGameDepth = 73
 disputeSplitDepth = 30
 disputeClockExtension = 10800
@@ -22,20 +22,20 @@ vm = "0x07babe08ee4d07dba236530183b24055535a7011"
 permissioned = false
 
 [addresses]
-OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
+OPCM = "0x8123739c1368c2dedc8c564255bc417feeebff9d"
 
 [stateOverrides]
 # ProxyAdminOwner
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 29}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 28}
 ]
 
 # Foundation Upgrades Safe
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43}
 ]
 
 # Security Council
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 46}
 ]
