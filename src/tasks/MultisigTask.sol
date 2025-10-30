@@ -531,20 +531,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         require(gasInfo.gasRefunded >= 0, "MultisigTask: negative gas refund is invalid");
         uint256 gasRefunded = uint256(uint64(gasInfo.gasRefunded));
         uint256 gasConsumedBeforeRefund = uint256(gasInfo.gasTotalUsed) + gasRefunded;
-        require(
-            gasConsumedBeforeRefund <= MAX_GAS_LIMIT,
-            string.concat(
-                "MultisigTask: transaction exceeds 14M gas limit (consumed before refund: ",
-                vm.toString(gasConsumedBeforeRefund),
-                ", refunded: ",
-                vm.toString(gasRefunded),
-                ", final used: ",
-                vm.toString(gasInfo.gasTotalUsed),
-                ", limit: ",
-                vm.toString(MAX_GAS_LIMIT),
-                "). Fusaka EIP-7825 cap is 16,777,216 gas."
-            )
-        );
+        if (gasConsumedBeforeRefund > MAX_GAS_LIMIT) {
+            console.log("Gas consumed before refund:", gasConsumedBeforeRefund);
+            console.log("Gas refunded:", gasRefunded);
+            console.log("Gas final used:", gasInfo.gasTotalUsed);
+            console.log("Gas limit:", MAX_GAS_LIMIT);
+            console.log("Fusaka EIP-7825 cap: 16,777,216 gas");
+            revert("MultisigTask: transaction exceeds 14M gas limit");
+        }
 
         if (!success) {
             MultisigTaskPrinter.printErrorExecutingMultisigTransaction(returnData);
