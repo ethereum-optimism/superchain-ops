@@ -22,7 +22,7 @@ vm = "0x07babe08ee4d07dba236530183b24055535a7011"
 permissioned = false
 
 [addresses]
-OPCM = "0x56ebc5c4870f5367b836081610592241ad3e0734"
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
 
 [stateOverrides]
 # ProxyAdminOwner
