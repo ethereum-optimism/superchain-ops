@@ -30,6 +30,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
 
+    /// @notice Maximum gas limit for transactions (14M gas to leave margin below Fusaka EIP-7825 cap of 16,777,216)
+    uint256 internal constant MAX_GAS_LIMIT = 14_000_000;
+
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
 
@@ -518,6 +521,29 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         MultisigTaskPrinter.printGasForExecTransaction(gas);
 
         (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
+
+        // Check that the transaction did not exceed the maximum gas limit.
+        // We must check gas consumed BEFORE refunds, because the EVM requires enough gas upfront,
+        // therefore we check gasTotalUsed + gasRefunded
+        // Note: gasRefunded is int64, but should always be >= 0 in practice, unsure why this is
+        // an int64 in forge.
+        VmSafe.Gas memory gasInfo = vm.lastCallGas();
+        uint256 gasRefunded = gasInfo.gasRefunded >= 0 ? uint256(uint64(gasInfo.gasRefunded)) : 0;
+        uint256 gasConsumedBeforeRefund = uint256(gasInfo.gasTotalUsed) + gasRefunded;
+        require(
+            gasConsumedBeforeRefund <= MAX_GAS_LIMIT,
+            string.concat(
+                "MultisigTask: transaction exceeds 14M gas limit (consumed before refund: ",
+                vm.toString(gasConsumedBeforeRefund),
+                ", refunded: ",
+                vm.toString(gasRefunded),
+                ", final used: ",
+                vm.toString(gasInfo.gasTotalUsed),
+                ", limit: ",
+                vm.toString(MAX_GAS_LIMIT),
+                "). Fusaka EIP-7825 cap is 16,777,216 gas."
+            )
+        );
 
         if (!success) {
             MultisigTaskPrinter.printErrorExecutingMultisigTransaction(returnData);
