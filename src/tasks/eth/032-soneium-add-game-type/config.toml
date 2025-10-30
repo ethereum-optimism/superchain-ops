@@ -1,0 +1,41 @@
+templateName = "AddGameTypeTemplate"
+
+l2chains = [    
+    {name = "Soneium", chainId = 1868},
+]
+
+[[configs]]
+# The below addresses can be found in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/851f7bb60edc53373fc961d237c7175aa130fba3/superchain/extra/addresses/addresses.json#L402
+chainId = 1868
+saltMixer = "this is a salt mixer"
+systemConfig = "0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3"
+proxyAdmin = "0x89889B569c3a505f3640ee1Bd0ac1D557f436D2a"
+delayedWETH = "0x372dC0B87b790D6e1308CF9e7f73F0F1fcbD3754"
+disputeGameType = 0
+disputeAbsolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91" # Absolute Prestate 1.7.0-rc.3 https://github.com/ethereum-optimism/superchain-registry/blob/851f7bb60edc53373fc961d237c7175aa130fba3/validation/standard/standard-prestates.toml#L6
+disputeMaxGameDepth = 73
+disputeSplitDepth = 30
+disputeClockExtension = 10800
+disputeMaxClockDuration = 302400
+initialBond = 80000000000000000
+vm = "0x07babe08ee4d07dba236530183b24055535a7011"
+permissioned = false
+
+[addresses]
+OPCM = "0x56ebc5c4870f5367b836081610592241ad3e0734"
+
+[stateOverrides]
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
+]
+
+# Foundation Upgrades Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44}
+]
+
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47}
+]
