@@ -7,6 +7,7 @@ l2chains = [
 # Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/pull/170/files
 fallbackAddressesJsonPath = "src/tasks/sep/038-U17-op-betanets/addresses.json"
 templateName = "OPCMUpgradeV500"
+allowOverwrite = ["SuperchainConfig", "SuperchainConfigProxyAdmin"]
 
 [[opcmUpgrades]]
 chainId = 420110019
@@ -23,8 +24,8 @@ expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PL
 [addresses]
 OPCM = "0x6af7ece7d6506be573841b8cf29096638df5fc4f"  # Source: https://www.notion.so/oplabs/op-contracts-release-for-U17-Jovian-294f153ee16280b99539c5b6de67c72f?source=copy_link#295f153ee162800a84c7f37811ecf3ec
 StandardValidatorV500 = "0x8ed9A48B40675acf9ec623aFc23DdB015Ae60df0"  # Source: cast call validator's from OPCM above
-SuperchainConfig = "0xCe28685EB204186b557133766eCA00334EB441E4"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/6748f8050bfab9930abdfc46288f9629af2f7b38/superchain/configs/sepolia/superchain.toml#L3C27-L3C69
-SuperchainConfigProxyAdmin = "0xFf112a58983aD809EE998d6A7652988fC93228E8"  # Source: cast call ProxyAdmin address from SuperchainConfig above
+SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/6748f8050bfab9930abdfc46288f9629af2f7b38/superchain/configs/sepolia/superchain.toml#L3C27-L3C69
+SuperchainConfigProxyAdmin = "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc"  # Source: cast call ProxyAdmin address from SuperchainConfig above
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
