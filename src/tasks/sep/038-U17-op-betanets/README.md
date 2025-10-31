@@ -1,4 +1,4 @@
-# 002-U17-op-betanets
+# 038-U17-op-betanets
 
 Status: [DRAFT, NOT READY TO SIGN]()
 
@@ -9,7 +9,7 @@ Updates OP Labs Betanets (both Permissioned and Permissionless networks) to U17.
 ## Simulation & Signing
 
 ```bash
-cd src/tasks/opsep/002-U17-op-betanets
+cd src/tasks/opsep/038-U17-op-betanets
 
 # Testing
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
