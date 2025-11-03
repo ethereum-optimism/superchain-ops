@@ -1,6 +1,6 @@
 # 037-soneium-set-respected-game-type
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 
