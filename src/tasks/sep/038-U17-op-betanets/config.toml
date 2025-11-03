@@ -14,27 +14,27 @@ chainId = 420110019
 # Jovian prestate:
 absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-10"
-# PROXYA-10:
-# SYSCON-140:
-# DF-30:
-# PDDG-DWETH-30:
-# PDDG-VM-30:
-# PDDG-130:
-# PLDG-10:
+# PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig
+# SYSCON-140: SystemConfig superchainConfig is invalid
+# DF-30: DisputeGameFactory owner is not set to L1 PAO multisig
+# PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch
+# PDDG-VM-30: PermissionedDisputeGame VM's state version is invalid
+# PDDG-130: Challenger is specific to the PermissionedDisputeGame contract
+# PLDG-10: Permissionless dispute game implementation not found
 
 [[opcmUpgrades]]
 chainId = 420110020
 # Jovian prestate:
 absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-DWETH-30,PLDG-VM-30"
-# PROXYA-10:
-# SYSCON-140:
-# DF-30:
-# PDDG-DWETH-30:
-# PDDG-VM-30:
-# PDDG-130:
-# PLDG-DWETH-30:
-# PLDG-VM-30:
+# PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig
+# SYSCON-140: SystemConfig superchainConfig is invalid
+# DF-30: DisputeGameFactory owner is not set to L1 PAO multisig
+# PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch
+# PDDG-VM-30: PermissionedDisputeGame VM's state version is invalid
+# PDDG-130: Challenger is specific to the PermissionedDisputeGame contract
+# PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch
+# PLDG-VM-30: PermissionedDisputeGame VM's state version is invalid
 
 [addresses]
 OPCM = "0x6af7ece7d6506be573841b8cf29096638df5fc4f"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/7ec506447493842273f45b6d3ca7d347d314debe/validation/standard/standard-versions-sepolia.toml#L23
