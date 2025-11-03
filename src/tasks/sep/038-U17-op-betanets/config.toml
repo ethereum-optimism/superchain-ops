@@ -13,13 +13,13 @@ allowOverwrite = ["SuperchainConfig", "SuperchainConfigProxyAdmin"]
 chainId = 420110019
 # Jovian prestate:
 absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
-expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-10"
 
 [[opcmUpgrades]]
 chainId = 420110020
 # Jovian prestate:
 absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
-expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-DWETH-30,PLDG-VM-30"
 
 [addresses]
 OPCM = "0x6af7ece7d6506be573841b8cf29096638df5fc4f"  # Source: https://www.notion.so/oplabs/op-contracts-release-for-U17-Jovian-294f153ee16280b99539c5b6de67c72f?source=copy_link#295f153ee162800a84c7f37811ecf3ec
