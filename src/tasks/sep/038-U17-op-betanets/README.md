@@ -1,6 +1,6 @@
 # 038-U17-op-betanets
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 

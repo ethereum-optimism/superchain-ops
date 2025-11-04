@@ -4,7 +4,6 @@ l2chains = [
     {name = "jovian-beta-1", chainId = 420110020}
 ]
 
-# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/pull/170/files
 fallbackAddressesJsonPath = "src/tasks/sep/038-U17-op-betanets/addresses.json"
 templateName = "OPCMUpgradeV500"
 allowOverwrite = ["SuperchainConfig", "SuperchainConfigProxyAdmin"]
@@ -12,33 +11,30 @@ allowOverwrite = ["SuperchainConfig", "SuperchainConfigProxyAdmin"]
 [[opcmUpgrades]]
 chainId = 420110019
 # Jovian prestate:
-absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
-expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-10"
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://www.notion.so/oplabs/U17-2a1f153ee162804f94d0c10d0a1e1258
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
 # PROXYA-10: ProxyAdmin owner is not set to the Standard PAO multisig
 # SYSCON-140: The SYSCON is not the standard one
 # DF-30: DisputeGameFactory owner is not set to the Standard PAO multisig
 # PDDG-DWETH-30: The PDDG is not the standard one
-# PDDG-VM-30: PermissionedDisputeGame VM's state version is invalid
 # PDDG-130: The PDDG is not the standard one
 # PLDG-10: Permissionless dispute game implementation not found
 
 [[opcmUpgrades]]
 chainId = 420110020
 # Jovian prestate:
-absolutePrestate = "0x03799051d2bfe459127d4597f469f535ff1bd2a6e1e2134443167620871c11f3"  # prestates."1.8.0-rc.3" https://github.com/ethereum-optimism/superchain-registry/blob/c9881d543174ff00b8f3a9ad3f31bf4630b9743b/validation/standard/standard-prestates.toml#L6
-expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-VM-30,PDDG-130,PLDG-DWETH-30,PLDG-VM-30"
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://www.notion.so/oplabs/U17-2a1f153ee162804f94d0c10d0a1e1258
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
 # PROXYA-10: ProxyAdmin owner is not set to the Standard PAO multisig
 # SYSCON-140: The SYSCON is not the standard one
 # DF-30: DisputeGameFactory owner is not set to the Standard PAO multisig
 # PDDG-DWETH-30: The PDDG is not the standard one
-# PDDG-VM-30: PermissionedDisputeGame VM's state version is invalid
 # PDDG-130: The PDDG is not the standard one
 # PLDG-DWETH-30: The PLDG is not the standard one
-# PLDG-VM-30: PermissionedDisputeGame VM's state version is invalid
 
 [addresses]
-OPCM = "0x6af7ece7d6506be573841b8cf29096638df5fc4f"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/7ec506447493842273f45b6d3ca7d347d314debe/validation/standard/standard-versions-sepolia.toml#L23
-StandardValidatorV500 = "0x8ed9A48B40675acf9ec623aFc23DdB015Ae60df0"  # Source: validator from OPCM above, can be checked https://sepolia.etherscan.io/address/0x6af7ece7d6506be573841b8cf29096638df5fc4f#readContract
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: to add reference
+StandardValidatorV500 = "0x757bfa3aaabce60112cee3239dcd05b5f6efae3a"  # Source: validator from OPCM above, can be checked on etherscan
 SuperchainConfig = "0x1FdE152a794701A86B38f8f657E591C3c7979Cde"  # Source: https://github.com/ethereum-optimism/devnets/pull/170/files#diff-0c8aaa2fab40915fae70ed0b990ef55226c132d348477e314457d759961b5c59R7
 SuperchainConfigProxyAdmin = "0xFf112a58983aD809EE998d6A7652988fC93228E8"  # Source: ProxyAdmin from the contract above https://sepolia.etherscan.io/address/0x1FdE152a794701A86B38f8f657E591C3c7979Cde#readProxyContract
 
