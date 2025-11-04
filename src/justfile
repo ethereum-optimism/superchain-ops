@@ -365,11 +365,11 @@ execute:
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
   ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
-  
+
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
   sender=$(echo "$signer_info" | sed -n '1p')
   signer_args=$(echo "$signer_info" | sed -n '2p')
-  
+
   echo "Executing with sender: ${sender}"
 
   forge build
@@ -379,6 +379,8 @@ execute:
     --fork-retry-backoff {{forge_fork_retry_backoff}} \
     --broadcast \
     --sender ${sender} \
+    --skip-simulation \
+    --disable-block-gas-limit \
     --sig "execute(string,bytes,address[])" \
     ${signer_args} \
     ${config_path} \
