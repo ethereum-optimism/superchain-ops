@@ -157,10 +157,8 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            
             bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
-            
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
