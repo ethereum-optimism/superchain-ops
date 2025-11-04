@@ -15,7 +15,7 @@ chainId = 420110019
 absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://www.notion.so/oplabs/U17-2a1f153ee162804f94d0c10d0a1e1258
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
 # PROXYA-10: ProxyAdmin owner is not set to the Standard PAO multisig
-# SYSCON-140: The SYSCON is not the standard one
+# SYSCON-140: The SystemConfig.SuperchainConfig is not the standard one
 # DF-30: DisputeGameFactory owner is not set to the Standard PAO multisig
 # PDDG-DWETH-30: The PDDG is not the standard one
 # PDDG-130: The PDDG is not the standard one
@@ -27,7 +27,7 @@ chainId = 420110020
 absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://www.notion.so/oplabs/U17-2a1f153ee162804f94d0c10d0a1e1258
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
 # PROXYA-10: ProxyAdmin owner is not set to the Standard PAO multisig
-# SYSCON-140: The SYSCON is not the standard one
+# SYSCON-140: The SystemConfig.SuperchainConfig is not the standard one
 # DF-30: DisputeGameFactory owner is not set to the Standard PAO multisig
 # PDDG-DWETH-30: The PDDG is not the standard one
 # PDDG-130: The PDDG is not the standard one
