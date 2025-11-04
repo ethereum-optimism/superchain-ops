@@ -87,12 +87,30 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         IOPContractsManager.AddGameInput[] memory configs = new IOPContractsManager.AddGameInput[](chains.length);
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+
+            // Validate that configuration exists for this chain
+            require(cfg[chainId].chainId != 0, "AddGameType: Config not found for chain");
+
+            // Validate critical addresses are non-zero
+            require(address(cfg[chainId].delayedWETH) != address(0), "AddGameType: delayedWETH is zero address");
+            require(address(cfg[chainId].proxyAdmin) != address(0), "AddGameType: proxyAdmin is zero address");
+            require(address(cfg[chainId].systemConfig) != address(0), "AddGameType: systemConfig is zero address");
+            require(address(cfg[chainId].vm) != address(0), "AddGameType: vm is zero address");
+
             configs[i] = _toAddGameInput(cfg[chainId]);
         }
 
         // Delegatecall the OPCM.addGameType() function.
-        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
-        require(success, "AddGameType: failed to add game type");
+        (bool success, bytes memory returnData) =
+            OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
+        if (!success) {
+            if (returnData.length > 0) {
+                assembly {
+                    revert(add(returnData, 32), mload(returnData))
+                }
+            }
+            revert("AddGameType: failed to add game type");
+        }
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
@@ -105,6 +123,9 @@ contract AddGameTypeTemplate is OPCMTaskBase {
             IDisputeGameFactory factory = IDisputeGameFactory(factoryAddress);
             IFaultDisputeGame game = IFaultDisputeGame(address(factory.gameImpls(cfg[chainId].disputeGameType)));
 
+            // Assert that the game implementation was successfully added (non-zero address)
+            require(address(game) != address(0), "AddGameType: Game implementation not set");
+
             // Assert that everything is as expected.
             assertEq(address(game.weth()), address(cfg[chainId].delayedWETH));
             assertEq(game.gameType().raw(), cfg[chainId].disputeGameType.raw());
@@ -113,6 +134,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
             assertEq(game.splitDepth(), cfg[chainId].disputeSplitDepth);
             assertEq(game.clockExtension().raw(), cfg[chainId].disputeClockExtension.raw());
             assertEq(game.maxClockDuration().raw(), cfg[chainId].disputeMaxClockDuration.raw());
+            assertEq(address(game.vm()), address(cfg[chainId].vm));
 
             // Assert that the bond is set correctly.
             assertEq(factory.initBonds(cfg[chainId].disputeGameType), cfg[chainId].initialBond);
