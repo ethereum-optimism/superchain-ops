@@ -36,7 +36,6 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     /// @notice The Standard Validator returned by OPCM
     IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
-
     /// @notice Shared SuperchainConfig proxy to upgrade first.
     ISuperchainConfig public SUPERCHAIN_CONFIG;
     IProxyAdmin public SUPERCHAIN_CONFIG_PROXY_ADMIN;
@@ -190,7 +189,6 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
-
 /* ---------- Interfaces ---------- */
 
 interface IOPContractManagerV500 {
@@ -227,4 +225,3 @@ interface IOPContractsManagerStandardValidator {
 
     function version() external view returns (string memory);
 }
-
