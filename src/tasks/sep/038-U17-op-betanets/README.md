@@ -9,7 +9,7 @@ Updates OP Labs Betanets (both Permissioned and Permissionless networks) to U17.
 ## Simulation & Signing
 
 ```bash
-cd src/tasks/opsep/038-U17-op-betanets
+cd src/tasks/sep/038-U17-op-betanets
 
 # Testing
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
