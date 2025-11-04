@@ -377,8 +377,6 @@ execute:
     --fork-retry-backoff {{forge_fork_retry_backoff}} \
     --broadcast \
     --sender ${sender} \
-    --skip-simulation \
-    --disable-block-gas-limit \
     --sig "execute(string,bytes,address[])" \
     ${signer_args} \
     ${config_path} \
