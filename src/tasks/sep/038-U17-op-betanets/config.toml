@@ -29,7 +29,7 @@ expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PL
 # PROXYA-10: ProxyAdmin owner is not set to the Standard PAO multisig
 # SYSCON-140: The SystemConfig.SuperchainConfig is not the standard one
 # DF-30: DisputeGameFactory owner is not set to the Standard PAO multisig
-# PDDG-DWETH-30: The PDDG is not the standard one
+# PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch
 # PDDG-130: The PDDG Challenger is not the standard one
 # PLDG-DWETH-30: The PLDG is not the standard one
 
