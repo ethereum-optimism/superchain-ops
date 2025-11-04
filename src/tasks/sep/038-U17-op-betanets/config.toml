@@ -4,6 +4,7 @@ l2chains = [
     {name = "jovian-beta-1", chainId = 420110020}
 ]
 
+# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/pull/170/files
 fallbackAddressesJsonPath = "src/tasks/sep/038-U17-op-betanets/addresses.json"
 templateName = "OPCMUpgradeV500"
 allowOverwrite = ["SuperchainConfig", "SuperchainConfigProxyAdmin"]
