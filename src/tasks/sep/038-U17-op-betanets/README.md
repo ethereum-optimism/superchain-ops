@@ -1,6 +1,6 @@
 # 038-U17-op-betanets
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x4c9be011326c86d030e1d1973f06522fc447049e37a8febfe970c72dc2f3ae56)
 
 ## Objective
 
