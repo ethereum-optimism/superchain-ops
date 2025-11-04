@@ -34,7 +34,7 @@ expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PL
 # PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch
 
 [addresses]
-OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: to add reference
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: https://github.com/ethereum-optimism/superchain-registry/pull/1141/files
 StandardValidatorV500 = "0x757bfa3aaabce60112cee3239dcd05b5f6efae3a"  # Source: validator from OPCM above, can be checked on etherscan
 SuperchainConfig = "0x1FdE152a794701A86B38f8f657E591C3c7979Cde"  # Source: https://github.com/ethereum-optimism/devnets/pull/170/files#diff-0c8aaa2fab40915fae70ed0b990ef55226c132d348477e314457d759961b5c59R7
 SuperchainConfigProxyAdmin = "0xFf112a58983aD809EE998d6A7652988fC93228E8"  # Source: ProxyAdmin from the contract above https://sepolia.etherscan.io/address/0x1FdE152a794701A86B38f8f657E591C3c7979Cde#readProxyContract
