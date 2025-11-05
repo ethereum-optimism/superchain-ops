@@ -1,6 +1,6 @@
 # 035-U17-main-unichain
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
