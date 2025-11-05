@@ -4,21 +4,18 @@ l2chains = [
 
 templateName = "OPCMUpgradeV500"
 
-allowOverwrite = ["SuperchainConfig"]
 
 [[opcmUpgrades]]
 # OP Mainnet
 chainId = 10
-# prestates."1.7.0-rc.5"
-# https://github.com/ethereum-optimism/devnets/issues/123#issuecomment-3444735369
-absolutePrestate = "0x038dca684026d946d1d0ddb05d50685d1a0dab350b89d10b6705e83c41ec8755"
-expectedValidationErrors = "PDDG-VM-30,PLDG-VM-30"
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used.
+
 
 [addresses]
-OPCM = "0x9e86a129e86a570fb13e89bd5e9aa98b642ae4c5" # Source: https://www.notion.so/oplabs/op-contracts-release-for-U17-Jovian-294f153ee16280b99539c5b6de67c72f?source=copy_link#295f153ee16280fe9c9af13970a5fac6
-StandardValidatorV500 = "0xE0b673cB5Da8DaC181d4D712eA563c4B14230286" # Source: cast call validator's from OPCM above
-SuperchainConfig = "0x95703e0982140D16f8ebA6d158FccEde42f04a4C" # Source: https://github.com/ethereum-optimism/superchain-registry/blob/6748f8050bfab9930abdfc46288f9629af2f7b38/superchain/configs/mainnet/superchain.toml#L3C27-L3C69
-SuperchainConfigProxyAdmin = "0x543bA4AADBAb8f9025686Bd03993043599c6fB04" # Source: cast call ProxyAdmin address from SuperchainConfig above
+OPCM = "0xfa1ef97fb02b0da2ee2346b8e310907ab5519449"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-versions-mainnet.toml#L23C56-L23C98
+
 
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
