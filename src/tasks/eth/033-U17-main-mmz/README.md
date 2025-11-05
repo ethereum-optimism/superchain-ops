@@ -1,6 +1,6 @@
 # 033-U17-main-mmz
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
