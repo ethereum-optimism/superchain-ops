@@ -23,8 +23,6 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
-    IStandardValidatorV500 public STANDARD_VALIDATOR_V500;
-
     /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
         Claim absolutePrestate;
@@ -34,6 +32,9 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
 
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     mapping(uint256 => OPCMUpgrade) public upgrades;
+
+    /// @notice The Standard Validator returned by OPCM
+    IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
     /// @notice Shared SuperchainConfig proxy to upgrade first.
     ISuperchainConfig public SUPERCHAIN_CONFIG;
@@ -69,34 +70,39 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
         super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        // Load shared SuperchainConfig proxy
-        SUPERCHAIN_CONFIG = ISuperchainConfig(tomlContent.readAddress(".addresses.SuperchainConfig"));
+        // Fetch SuperchainConfig from the registry
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        uint256 anyChainId = chains.length > 0 ? chains[0].chainId : 0;
+        SUPERCHAIN_CONFIG = ISuperchainConfig(superchainAddrRegistry.getAddress("SuperchainConfig", anyChainId));
+        require(address(SUPERCHAIN_CONFIG) != address(0), "SuperchainConfig not found in registry");
         require(address(SUPERCHAIN_CONFIG).code.length > 0, "SuperchainConfig has no code");
         vm.label(address(SUPERCHAIN_CONFIG), "SuperchainConfig");
 
-        SUPERCHAIN_CONFIG_PROXY_ADMIN = IProxyAdmin(tomlContent.readAddress(".addresses.SuperchainConfigProxyAdmin"));
-        require(
-            address(SUPERCHAIN_CONFIG_PROXY_ADMIN).code.length > 0,
-            "Incorrect SuperchainConfigProxyAdmin - no code at address"
-        );
+        // Derive SuperchainConfig ProxyAdmin on-chain via EIP-1967 admin slot.
+        address scAdmin = EIP1967Helper.getAdmin(address(SUPERCHAIN_CONFIG));
+        require(scAdmin != address(0), "SuperchainConfig admin is zero");
+        require(scAdmin.code.length > 0, "SuperchainConfig admin has no code");
+        SUPERCHAIN_CONFIG_PROXY_ADMIN = IProxyAdmin(scAdmin);
         vm.label(address(SUPERCHAIN_CONFIG_PROXY_ADMIN), "SuperchainConfigProxyAdmin");
 
-        // OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
+        // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
+        // OPCM from TOML; must be v4.2.0
         OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
         require(IOPContractsManager(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
-        STANDARD_VALIDATOR_V500 = IStandardValidatorV500(tomlContent.readAddress(".addresses.StandardValidatorV500"));
-        require(
-            address(STANDARD_VALIDATOR_V500).code.length > 0, "Incorrect StandardValidatorV500 - no code at address"
-        );
-        vm.label(address(STANDARD_VALIDATOR_V500), "StandardValidatorV500");
+        // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
+        address validatorAddr = address(IOPCM(OPCM).opcmStandardValidator());
+        require(validatorAddr != address(0), "OPCM returned zero validator");
+        require(validatorAddr.code.length > 0, "Validator has no code");
+        STANDARD_VALIDATOR = IOPContractsManagerStandardValidator(validatorAddr);
+        vm.label(address(STANDARD_VALIDATOR), "OPCMStandardValidator");
     }
 
     /// @notice Builds the actions for executing the operations.
@@ -122,6 +128,7 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+            require(upgrades[chainId].chainId != 0, "OPCMUpgradeV500: Config not found for chain");
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
                 proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
@@ -155,14 +162,22 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-            IStandardValidatorV500.InputV500 memory input = IStandardValidatorV500.InputV500({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
+            IOPContractsManagerStandardValidator.ValidationInput memory input = IOPContractsManagerStandardValidator
+                .ValidationInput({
+                proxyAdmin: IProxyAdmin(proxyAdmin),
+                sysCfg: ISystemConfig(sysCfg),
                 absolutePrestate: expAbsolutePrestate,
                 l2ChainID: chainId
             });
 
-            string memory errors = STANDARD_VALIDATOR_V500.validate({_input: input, _allowFailure: true});
+            IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ =
+            IOPContractsManagerStandardValidator.ValidationOverrides({
+                l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
+            });
+
+            string memory errors =
+                STANDARD_VALIDATOR.validateWithOverrides({_input: input, _allowFailure: true, _overrides: overrides_});
 
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
@@ -172,18 +187,39 @@ contract OPCMUpgradeV500 is OPCMTaskBase {
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
+/* ---------- Interfaces ---------- */
+
 interface IOPContractManagerV500 {
     function upgradeSuperchainConfig(ISuperchainConfig _superchainConfig, IProxyAdmin _superchainConfigProxyAdmin)
         external;
 }
 
-interface IStandardValidatorV500 {
-    struct InputV500 {
-        address proxyAdmin;
-        address sysCfg;
+/// @notice Interface to retrieve the standard validator from OPCM.
+interface IOPCM {
+    function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
+}
+
+/// @notice Validator interface for validateWithOverrides usage.
+interface IOPContractsManagerStandardValidator {
+    struct ValidationInput {
+        IProxyAdmin proxyAdmin;
+        ISystemConfig sysCfg;
         bytes32 absolutePrestate;
         uint256 l2ChainID;
     }
 
-    function validate(InputV500 memory _input, bool _allowFailure) external view returns (string memory);
+    struct ValidationOverrides {
+        address l1PAOMultisig;
+        address challenger;
+    }
+
+    function validate(ValidationInput memory _input, bool _allowFailure) external view returns (string memory);
+
+    function validateWithOverrides(
+        ValidationInput memory _input,
+        bool _allowFailure,
+        ValidationOverrides memory _overrides
+    ) external view returns (string memory);
+
+    function version() external view returns (string memory);
 }
