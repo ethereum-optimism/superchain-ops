@@ -1,10 +1,10 @@
 # 036-U17-main-base: Upgrades Base Mainnet to `op-contracts/v5.0.0` (i.e. U17)
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
-Upgrade Base Mainnet to U17. More context on U16a can be found in the Optimism docs.
+Upgrade Base Mainnet to U17. More context on U17 can be found in the Optimism docs.
 
 ## Step 1. Tenderly Account
 
@@ -107,7 +107,7 @@ cd tasks/eth/036-U17-main-base
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
-# Message Hash: 0x97ef70b5b6eec14b0d2f75b513b4e8ab4c07421632dd90e59a352dbd224681ce
+# Message Hash: 0x6d55b9a2f22dbc0280930a2800465d93570c7bcf69747baab4cdb6ab03cb48fa
 
 # Base Operations: 0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110
 #  ┌────────────────────┐
@@ -130,7 +130,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
-# Message Hash: 0x03dff21f308db45f0bad8ba995255a78169a7906d68410b7e76f5faedeaabaf0
+# Message Hash: 0xda46ae8404c84e5ab5a1823b3c4b3379a1c610e7f9c5cfd43c3388c88457023d
 
 
 # Foundation Operations: 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
@@ -147,7 +147,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
-# Message Hash: 0x31d9a76536f91fcfa5497cec2b486520de0062060f61e1e47d85e35416a430da
+# Message Hash: 0xb509e266fe97416f0dc1820a83c4384e11584d4a166dbb5dca348a2a6ac83929
 ```
 
 You will see a `Simulation link` in the output (yes, it's a big link). Paste this URL from your terminal in your browser. A prompt may ask you to choose a project, any project will do. You can create one if necessary.
@@ -211,17 +211,17 @@ cd src/tasks/eth/036-U17-main-base
 just --dotenv-path $(pwd)/.env sign base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
-# Message Hash: 0x97ef70b5b6eec14b0d2f75b513b4e8ab4c07421632dd90e59a352dbd224681ce
+# Message Hash: 0x6d55b9a2f22dbc0280930a2800465d93570c7bcf69747baab4cdb6ab03cb48fa
 
 just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
-# Message Hash: 0x03dff21f308db45f0bad8ba995255a78169a7906d68410b7e76f5faedeaabaf0
+# Message Hash: 0xda46ae8404c84e5ab5a1823b3c4b3379a1c610e7f9c5cfd43c3388c88457023d
 
 just --dotenv-path $(pwd)/.env sign foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
-# Message Hash: 0x31d9a76536f91fcfa5497cec2b486520de0062060f61e1e47d85e35416a430da
+# Message Hash: 0xb509e266fe97416f0dc1820a83c4384e11584d4a166dbb5dca348a2a6ac83929
 ```
 
 > **⚠️ Attention Signers:**
