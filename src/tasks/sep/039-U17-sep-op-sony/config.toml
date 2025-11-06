@@ -11,27 +11,24 @@ allowOverwrite = ["SuperchainConfig"]
 # OP Sepolia Testnet (Permissionless)
 [[opcmUpgrades]]
 chainId = 11155420
-absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://www.notion.so/oplabs/U17-2a1f153ee162804f94d0c10d0a1e1258
-expectedValidationErrors = ""
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
 
 
 # Soneium Testnet Minato (Permissioned)
 [[opcmUpgrades]]
 chainId = 1946
-absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://www.notion.so/oplabs/U17-2a1f153ee162804f94d0c10d0a1e1258
-expectedValidationErrors = "PDDG-130,PLDG-10"
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PLDG-10"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
 
 
 [addresses]
-
-OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: to add reference
-StandardValidatorV500 = "0x757bfa3aaabce60112cee3239dcd05b5f6efae3a"  # Source: check validator from OPCM above
-SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/6748f8050bfab9930abdfc46288f9629af2f7b38/superchain/configs/sepolia/superchain.toml#L3C27-L3C69
-SuperchainConfigProxyAdmin = "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc"  # Source: check ProxyAdmin address from SuperchainConfig above
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/7380dcd87c000394e5528b237de0845779e8d6dd/validation/standard/standard-versions-sepolia.toml#L23
 
 
 [stateOverrides]
-
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
 ]
