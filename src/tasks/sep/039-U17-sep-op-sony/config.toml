@@ -5,8 +5,6 @@ l2chains = [
 
 templateName = "OPCMUpgradeV500"
 
-allowOverwrite = ["SuperchainConfig"]
-
 
 # OP Sepolia Testnet (Permissionless)
 [[opcmUpgrades]]
