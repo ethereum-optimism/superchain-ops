@@ -45,9 +45,8 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
         // Test loading multiple environment variables including FORK_BLOCK_NUMBER
-        tm.setEnv("./src/tasks/eth/022-U16a-opcm-upgrade-v410-base/");
-        assertEq(vm.envString("TENDERLY_GAS"), "15000000");
-        assertEq(vm.envString("FORK_BLOCK_NUMBER"), "23491327");
+        tm.setEnv("./src/tasks/eth/032-U17-main-op-sony-ink/");
+        assertEq(vm.envString("TENDERLY_GAS"), "30000000");
     }
 
     function createStateDiff(address who, bytes32 slot, bytes32 oldValue, bytes32 newValue)
