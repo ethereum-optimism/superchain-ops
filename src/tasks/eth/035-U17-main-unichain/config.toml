@@ -1,0 +1,39 @@
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+templateName = "OPCMUpgradeV500"
+
+
+# Unichain (Permissionless)
+[[opcmUpgrades]]
+chainId = 130
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
+
+
+[addresses]
+OPCM = "0xfa1ef97fb02b0da2ee2346b8e310907ab5519449"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-versions-mainnet.toml#L23C56-L23C98
+
+
+[stateOverrides]
+# Unichain 3/3 (L1PAO)
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+]
+
+# Unichain Operations Safe
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 14}
+]
+
+# Foundation Upgrade Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 46}
+]
+
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 49}
+]

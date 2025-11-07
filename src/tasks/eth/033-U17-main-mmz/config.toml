@@ -1,0 +1,48 @@
+l2chains = [
+    {name = "Metal L2", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777}
+]
+
+templateName = "OPCMUpgradeV500"
+
+
+# Metal (Permissioned)
+[[opcmUpgrades]]
+chainId = 1750
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PLDG-10"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
+
+# Mode (Permissioned)
+[[opcmUpgrades]]
+chainId = 34443
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PLDG-10"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
+
+# Zora (Permissioned)
+[[opcmUpgrades]]
+chainId = 7777777
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PLDG-10"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
+
+
+[addresses]
+OPCM = "0xfa1ef97fb02b0da2ee2346b8e310907ab5519449"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-versions-mainnet.toml#L23C56-L23C98
+
+
+[stateOverrides]
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 29}
+]
+# Foundation Upgrades Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44}
+]
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47}
+]
