@@ -104,7 +104,7 @@ cd tasks/eth/036-U17-main-base
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just simulate-stack eth 036-U17-main-base base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x1fbfdc61ceb715f63cb17c56922b88c3a980f1d83873df2b9325a579753e8aa3
 # Message Hash: 0x6d55b9a2f22dbc0280930a2800465d93570c7bcf69747baab4cdb6ab03cb48fa
@@ -127,7 +127,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just simulate-stack eth 036-U17-main-base base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0xfb308368b8deca582e84a807d31c1bfcec6fda754061e2801b4d6be5cb52a8ac
 # Message Hash: 0xda46ae8404c84e5ab5a1823b3c4b3379a1c610e7f9c5cfd43c3388c88457023d
@@ -144,7 +144,7 @@ SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate foundation-operations
+SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just simulate-stack eth 036-U17-main-base foundation-operations
 # Expected Hashes
 # Domain Hash: 0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
 # Message Hash: 0xb509e266fe97416f0dc1820a83c4384e11584d4a166dbb5dca348a2a6ac83929
