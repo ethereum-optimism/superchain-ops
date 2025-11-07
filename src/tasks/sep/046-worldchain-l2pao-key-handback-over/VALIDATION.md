@@ -1,0 +1,86 @@
+# Validation
+
+This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are signing.
+
+The steps are:
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
+3. [Verifying the transaction input](#understanding-task-calldata)
+4. [Verifying the state changes](#task-state-changes)
+
+## Expected Domain and Message Hashes
+
+First, we need to validate the domain and message hashes. These values should match both the values on your ledger and the values printed to the terminal when you run the task.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Standard L2 Proxy Admin Owner (Unaliased)
+  ### Worldchain has their L2PAO transferred to the standard address but retained controrl of their L1PAO
+(`0x1Eb2fFc903729a0F03966B917003800b145F56E2`)
+
+>### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
+>
+> - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `0xaaaccdbf1800e8718477851aa8b91ff9477e4ca5d80b2abd848a4e02ad3419a0`
+>
+> ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
+>
+> - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0xafa8fa98686b901c166bf0656a9cf6b1de80e1ce3475f2626ca490838c142e77`
+
+
+## Understanding Task Calldata
+
+The transaction initiates a deposit transaction via the OptimismPortal on L1 Sepolia, which will be executed on L2 (Worldchain Sepolia) to transfer the L2 ProxyAdmin ownership to an EOA.
+
+### Decoding the depositTransaction call:
+```bash
+# The outer multicall to OptimismPortal
+cast calldata-decode "depositTransaction(address,uint256,uint64,bool,bytes)" \
+   0xe9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b000000000000000000000000e78a0a96c5d6ae6c606418ed4a9ced378cb030a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041000000000000000000000000f64bc17485f0b4ea5f06a96514182fc4cb56197700000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000
+```
+
+Returns:
+- `_to`: `0x4200000000000000000000000000000000000018` (L2 ProxyAdmin predeploy)
+- `_value`: `0` (no ETH sent)
+- `_gasLimit`: `200000` (gas for L2 execution)
+- `_isCreation`: `false` (not a contract creation)
+- `_data`: `0xf2fde38b000000000000000000000000e78a0a96c5d6ae6c606418ed4a9ced378cb030a0`
+
+### Decoding the inner transferOwnership call:
+```bash
+cast calldata-decode "transferOwnership(address)" \
+  0xf2fde38b000000000000000000000000e78a0a96c5d6ae6c606418ed4a9ced378cb030a0
+```
+
+Returns:
+- `newOwnerEOA`: `0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0` (the target EOA)
+
+# State Validations
+
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
+
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
+
+
+## Manual L2 Verification Steps
+
+After the L1 transaction is executed, you must verify that the L2 deposit transaction successfully transfers ownership:
+
+1. **Find the L2 deposit transaction**: Look for a transaction on Worldchain Sepolia from the L1 caller to the L2 ProxyAdmin at `0x4200000000000000000000000000000000000018`.
+
+2. **Verify the OwnershipTransferred event**: Confirm that the event shows:
+   - `previousOwner`: `0x2FC3ffc903729a0f03966b917003800B145F67F3` (aliased 2/2 safe)
+   - `newOwnerEOA`: `0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0` (target EOA)
+
+3. **Verify final state**: Call `owner()` on the L2 ProxyAdmin to confirm it returns `0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0`.
+
+```bash
+# After L2 execution, verify the new owner
+cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url worldchain-sepolia
+# Should return: 0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0
+```
