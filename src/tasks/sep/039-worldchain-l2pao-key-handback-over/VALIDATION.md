@@ -16,16 +16,20 @@ First, we need to validate the domain and message hashes. These values should ma
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Worldchain Sepolia L2 Proxy Admin Owner (Unaliased) (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`)
+> ### Standard L2 Proxy Admin Owner (Unaliased)
+  ### Worldchain has their L2PAO transferred to the standard address but retained controrl of their L1PAO
+(`0x1Eb2fFc903729a0F03966B917003800b145F56E2`)
+
+>### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
 > - Message Hash: `0xaaaccdbf1800e8718477851aa8b91ff9477e4ca5d80b2abd848a4e02ad3419a0`
+>
+> ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
+>
+> - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0xafa8fa98686b901c166bf0656a9cf6b1de80e1ce3475f2626ca490838c142e77`
 
-## Normalized State Diff Hash Attestation
-
-The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
-
-**Normalized hash:** `0x569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd`
 
 ## Understanding Task Calldata
 
@@ -62,33 +66,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-### State Overrides
-
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [SINGLE-VALIDATION.md](../../../../../SINGLE-VALIDATION.md) file.
-
-### Task State Changes
-
----
-
-### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` ([Worldchain Sepolia ProxyAdminOwner](https://github.com/ethereum-optimism/superchain-registry/blob/1ff0df40c7602761c55ab2cb693614ca0382bd64/superchain/configs/sepolia/worldchain.toml#L44)) - Chain ID: 11155111
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000030`
-  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000031`
-  - **Summary:** Safe nonce increment
-  - **Detail:** The nonce is incremented by 1 as the safe executes the transaction to initiate the L2 ProxyAdmin ownership transfer.
-
----
-
-### `0xff6eba109271fe6d4237eeed4bab1dd9a77dd1a4` ([OptimismPortal](https://sepolia.etherscan.io/address/0xff6eba109271fe6d4237eeed4bab1dd9a77dd1a4)) - Chain ID: 11155111
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Decoded Kind:** `struct ResourceMetering.ResourceParams`
-  - **Before:** `0x00000000008cc5de0000000000090a010000000000000000000000003b9aca00`
-  - **After:** `0x00000000008cc78a0000000000030d400000000000000000000000003b9aca00`
-  - **Summary:** Resource metering params update
-  - **Detail:** The OptimismPortal's resource metering parameters are updated as part of processing the deposit transaction. This is an expected side effect of calling `depositTransaction`.
 
 ## Manual L2 Verification Steps
 
