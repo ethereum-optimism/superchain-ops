@@ -11,7 +11,7 @@ This task upgrades Metal, Mode, Zora Mainnets to U17.
 Simulation commands for each safe:
 ```bash
 cd src/tasks/eth/033-U17-main-mmz
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|foundation>
+just simulate stack eth 033-U17-main-mmz
 ```
 
 Signing commands for each safe:
