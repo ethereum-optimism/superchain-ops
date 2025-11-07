@@ -1,22 +1,21 @@
-# 041-U17-sep-mmz
+# 041-U17-ink
 
 Status: [READY TO SIGN]
 
 ## Objective
 
-This task upgrades Metal, Mode and Zora Sepolia to U17.
+This task upgrades Ink Sepolia to U17.
 
 ## Simulation & Signing
 
 Simulation commands for each safe:
 ```bash
-cd src/tasks/sep/041-U17-sep-mmz
-just simulate-stack sep 041-U17-sep-mmz <council|foundation>
+cd src/tasks/sep/041-U17-ink
+just simulate-stack sep 041-U17-ink <council|foundation>
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/tasks/sep/041-U17-sep-mmz
-
+cd src/tasks/sep/041-U17-ink
 just --dotenv-path $(pwd)/.env sign <council|foundation>
 ```

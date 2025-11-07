@@ -11,7 +11,7 @@ This task upgrades Unichain Sepolia to U17.
 Simulation commands for each safe:
 ```bash
 cd src/tasks/sep/041-U17-sep-uni
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|foundation>
+just simulate-stack eth 034-U17-main-arena-z-swell <council|foundation>
 ```
 
 Signing commands for each safe:

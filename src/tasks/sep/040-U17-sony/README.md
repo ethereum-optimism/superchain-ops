@@ -1,4 +1,4 @@
-# 039-U17-sep-sony
+# 040-U17-sony
 
 Status: [READY TO SIGN]
 
@@ -10,12 +10,12 @@ This task upgrades Soneium Minato Sepolia to U17.
 
 Simulation commands for each safe:
 ```bash
-cd src/tasks/sep/040-U17-sep-sony
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|foundation>
+cd src/tasks/sep/040-U17-sony
+just simulate-stack sep 040-U17-sony <council|foundation>
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/tasks/sep/040-U17-sep-sony
+cd src/tasks/sep/040-U17-sony
 just --dotenv-path $(pwd)/.env sign <council|foundation>
 ```
