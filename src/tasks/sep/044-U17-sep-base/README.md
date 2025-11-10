@@ -1,6 +1,6 @@
-# 042-U17-sep-base: Upgrades Base Sepolia to `op-contracts/v5.0.0` (i.e. U17)
+# 044-U17-sep-base: Upgrades Base Sepolia to `op-contracts/v5.0.0` (i.e. U17)
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -41,7 +41,7 @@ You **MUST** ensure the hashes you generate from running the commands below matc
 In this section, through a sequence of commands, we will successfully sign this task’s upgrade transaction from the 'base-nested' (`0x646132A1667ca7aD00d36616AFBA1A28116C770A`) safe. 
 
 ```bash
-cd src/tasks/sep/042-U17-sep-base
+cd src/tasks/sep/044-U17-sep-base
 
 # Base Council: 0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f
 #  ┌────────────────────┐      
@@ -64,7 +64,7 @@ cd src/tasks/sep/042-U17-sep-base
  SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x1410609732b5c870459041e7c1557d1e6442e2ffaadaf66dc36592185510d443
+# Message Hash: 0xb3fe0a134286bb6386c1224eeba2430a8fc6578a68303223338dbfec538c4f45
 
 # Base Operations: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
 #  ┌────────────────────┐      
@@ -87,22 +87,22 @@ cd src/tasks/sep/042-U17-sep-base
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x7e3f1098b920980a54a4229ea9ed1e3bdaf574a1b6a5473ad3c317bde0153d42
+# Message Hash: 0xd864a7823d1209dfb3879f5cc42f3196c458452c1236d1b58d4128138309c331
 ```
 
 Now, perform the signing for both safes that are owners of 'base-nested':
 ```bash
-cd src/tasks/sep/042-U17-sep-base
+cd src/tasks/sep/044-U17-sep-base
 
 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
 # Domain Hash: 0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23
-# Message Hash: 0x1410609732b5c870459041e7c1557d1e6442e2ffaadaf66dc36592185510d443
+# Message Hash: 0xb3fe0a134286bb6386c1224eeba2430a8fc6578a68303223338dbfec538c4f45
 
 just --dotenv-path $(pwd)/.env sign base-nested base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x7e3f1098b920980a54a4229ea9ed1e3bdaf574a1b6a5473ad3c317bde0153d42
+# Message Hash: 0xd864a7823d1209dfb3879f5cc42f3196c458452c1236d1b58d4128138309c331
 ```
 
 > **⚠️ Attention Signers:**
@@ -153,12 +153,12 @@ Once you've updated the nonce for the base-operations safe, you can now safely s
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x5ebd0e919700d0bd2d507988be826cd586115117d8f8bcb02386c1efd30722bf
+# Message Hash: 0x33562e40883b96b77bb83390e16f0a2872cb34ff0b6df979c42b0679b29a9d78
 
 just --dotenv-path $(pwd)/.env sign base-operations
 # Expected Hashes
 # Domain Hash: 0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa
-# Message Hash: 0x5ebd0e919700d0bd2d507988be826cd586115117d8f8bcb02386c1efd30722bf
+# Message Hash: 0x33562e40883b96b77bb83390e16f0a2872cb34ff0b6df979c42b0679b29a9d78
 ```
 
 ### Step 2 (Role: Facilitator) - Base Nested Approval
@@ -230,6 +230,6 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1a> just approv
 
 Execute command: 
 ```bash
-cd src/tasks/sep/042-U17-sep-base
+cd src/tasks/sep/044-U17-sep-base
 just --dotenv-path $(pwd)/.env execute
 ```
