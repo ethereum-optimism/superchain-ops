@@ -1,6 +1,9 @@
 # 036-soneium-add-game-type
 
-Status: [CANCELLED]
+Status: [CANCELLED] 
+
+This task has been delayed (date TBD).
+
 
 ## Objective
 
