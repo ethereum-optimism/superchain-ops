@@ -4,7 +4,7 @@ Status: [READY TO SIGN]
 
 ## Objective
 
-This task upgrades Metal, Mode and Zora Sepolia to U17.
+This task upgrades Metal and Mode Sepolia to U17.
 
 ## Simulation & Signing
 

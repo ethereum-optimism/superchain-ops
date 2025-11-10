@@ -10,13 +10,13 @@ This task upgrades Zora Sepolia to U17.
 
 Simulation commands for each safe:
 ```bash
-cd src/tasks/sep/044-U17-sep-mmz
-just simulate-stack sep 044-U17-sep-mmz <council|foundation>
+cd src/tasks/sep/044-U17-zora
+just simulate-stack sep 044-U17-zora <council|foundation>
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/tasks/sep/044-U17-sep-mmz
+cd src/tasks/sep/044-U17-zora
 
 just --dotenv-path $(pwd)/.env sign <council|foundation>
 ```
