@@ -20,7 +20,7 @@ the values printed to the terminal when you run the task.
 > ### Base Council (`0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f`)
 >
 > - Domain Hash:  `0x0127bbb910536860a0757a9c0ffcdf9e4452220f566ed83af1f27f9e833f0e23`
-> - Message Hash: `0x1410609732b5c870459041e7c1557d1e6442e2ffaadaf66dc36592185510d443`
+> - Message Hash: `0xb3fe0a134286bb6386c1224eeba2430a8fc6578a68303223338dbfec538c4f45`
 >
 > ### Base Operations (`0x6AF0674791925f767060Dd52f7fB20984E8639d8`) - Second Approve Hash Transaction
 >
