@@ -35,9 +35,9 @@ Run the commands below to set up your environment. `mise` is a **one-time setup*
 cd src/
 ./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
 mise activate   # Activate mise for the current shell; if it doesn’t take effect, restart your terminal.
-mise trust ../../mise.toml
+mise trust ../mise.toml
 mise install
-just --justfile ../../justfile install
+just --justfile ../justfile install
 ```
 
 > For more information on `mise`, please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
@@ -79,9 +79,9 @@ allowOverwrite = ["<enter-address-name-here>"] # We may want to overwrite an add
 
 The `allowOverwrite` TOML [array](https://toml.io/en/v1.0.0#array) is optional. It can be used to specify the addresses that we want to overwrite. You can see an example of its use in this [task](src/tasks/sep/020-gas-params-rehearsal-1-bn-0/config.toml). It's used when the user is adding an address to the `[addresses]` table that is already defined in the `addresses.toml` file.
 
-The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](src/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml).
+The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](src/tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
 
-The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](src/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml). If you're unsure about the format of the `key` and `value` fields, you must default to using 66-character hex strings (i.e. `0x` followed by 64 hex characters). For example, setting the nonce for a Safe to `23` would look like:
+The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](src/tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml). If you're unsure about the format of the `key` and `value` fields, you must default to using 66-character hex strings (i.e. `0x` followed by 64 hex characters). For example, setting the nonce for a Safe to `23` would look like:
 
 ```toml
 # USE HEX ENCODED STRINGS WHEN POSSIBLE.
@@ -290,7 +290,7 @@ fallbackAddressesJsonPath = "test/tasks/example/eth/010-transfer-owners-local/ad
 templateName = "TransferOwners"
 ```
 
-See: [example/eth/010-transfer-owners-local/config.toml](../../test/tasks/example/eth/010-transfer-owners-local/config.toml) for an example.
+See: [example/eth/010-transfer-owners-local/config.toml](test/tasks/example/eth/010-transfer-owners-local/config.toml) for an example.
 
 The fallback JSON file must be structured with the chain ID as the top-level key, containing all contract addresses for that chain. It takes the same structure as the superchain-registry's [addresses.json](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json) file.
 
