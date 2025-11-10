@@ -1,4 +1,4 @@
-# 044-U17-sep-base: Upgrades Base Sepolia to `op-contracts/v5.0.0` (i.e. U17)
+# 046-U17-base: Upgrades Base Sepolia to `op-contracts/v5.0.0` (i.e. U17)
 
 Status: [READY TO SIGN]
 
@@ -92,7 +92,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested ba
 
 Now, perform the signing for both safes that are owners of 'base-nested':
 ```bash
-cd src/tasks/sep/044-U17-sep-base
+cd src/tasks/sep/046-U17-base
 
 just --dotenv-path $(pwd)/.env sign base-nested base-council 
 # Expected Hashes
@@ -230,6 +230,6 @@ SIGNATURES=0x<concatenated-sigs-from-base-operations-members-step1a> just approv
 
 Execute command: 
 ```bash
-cd src/tasks/sep/044-U17-sep-base
+cd src/tasks/sep/046-U17-base
 just --dotenv-path $(pwd)/.env execute
 ```
