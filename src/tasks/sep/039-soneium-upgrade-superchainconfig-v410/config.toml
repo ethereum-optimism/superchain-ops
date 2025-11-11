@@ -1,0 +1,21 @@
+# Soneium Devnet SuperchainConfig update
+l2chains = [
+    {name = "Soneium devnet", chainId = 179182},
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/039-soneium-upgrade-superchainconfig-v410/addresses.json"
+
+templateName = "OPCMUpgradeSuperchainConfigV410"
+
+allowOverwrite = ["SuperchainConfig"]
+
+[addresses]
+OPCM = "0xd07a89cf19869ce185a5ec173568ae8acd5d8c02"
+StandardValidatorV410 = "0x44b5B4E785aFb3Ee5654Dfeb2Eff014ca435C1b4"
+SuperchainConfig = "0xc92831eB4544053Dc330AB2cD4164e1EB3157A8E"
+SuperchainConfigProxyAdmin = "0x664e70e3d58eee0eef8b6b192015f43ab7323007"
+
+[stateOverrides]
+0xFB0F8937A0d6999C67E8a01310eBf7fe1859205F = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 39}
+]
