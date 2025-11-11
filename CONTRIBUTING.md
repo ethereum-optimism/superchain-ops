@@ -26,6 +26,8 @@ Once properly installed, `mise` will provide the correct versions for each tool.
 replace any other installations of these binaries and will only serve these binaries when you are
 working inside of the `optimism` directory.
 
+> **Linux users:** See the [System Requirements](README.md#system-requirements-linux-only) section in the README for required system packages.
+
 #### Install `mise`
 
 > ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`.

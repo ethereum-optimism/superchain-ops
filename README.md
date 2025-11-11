@@ -29,6 +29,22 @@ superchain-ops/
 
 > ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`. You **must** use the `install-mise.sh` script to install `mise`.
 
+### System Requirements (Linux Only)
+
+If you're on Linux, you'll need to install `libudev` development headers for hardware wallet support (macOS users don't need this dependency).
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install -y libudev-dev
+
+# Fedora/RHEL
+sudo dnf install systemd-devel
+
+# Arch Linux
+# Headers are typically already present. If compilation fails, install:
+sudo pacman -S systemd-libs
+```
+
 1. Install dependencies:
 Run the commands below to set up your environment. `mise` is a **one-time setup** that ensures all signers and developers use the same dependency versions.
 ```bash
