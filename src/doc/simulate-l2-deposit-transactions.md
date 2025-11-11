@@ -21,9 +21,8 @@ This automated approach is particularly useful for complex tasks that emit multi
 You'll need to run supersim with forked chains to test against real network state. Supersim is a lightweight tool that runs local L1 and L2 nodes with forking capabilities.
 
 Install supersim if you haven't already:
-```bash
-# Installation instructions: https://github.com/ethereum-optimism/supersim
-```
+
+ https://github.com/ethereum-optimism/supersim
 
 Start supersim with forked chains:
 ```bash
