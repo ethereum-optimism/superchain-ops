@@ -9,24 +9,47 @@ import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasH
 /// @title IntegrationBase
 /// @notice Base contract for integration tests with L1->L2 deposit transaction replay functionality
 abstract contract IntegrationBase is Test {
-    /// @notice Replay all deposit transactions from L1 to L2
-    /// @param _forkId The fork ID to switch to for L2 execution
+    /// @notice Replay all deposit transactions from L1 to multiple L2s
+    /// @param _forkIds Array of fork IDs for each L2 chain
     /// @param _isSimulate If true, only process the second half of logs to avoid duplicates.
     ///                    Task simulations emit events twice: once during the initial dry-run
     ///                    and once during the actual simulation. Taking the second half ensures
     ///                    we only process the final simulation results.
-    function _relayAllMessages(uint256 _forkId, bool _isSimulate) internal {
+    /// @param _portals Array of Portal addresses corresponding to each fork.
+    ///                 Only events emitted by each portal will be replayed on its corresponding L2.
+    function _relayAllMessages(uint256[] memory _forkIds, bool _isSimulate, address[] memory _portals) internal {
+        require(_forkIds.length == _portals.length, "Fork IDs and portals length mismatch");
+
+        // Get logs from L1 execution (currently active fork should be L1)
+        Vm.Log[] memory _allLogs = vm.getRecordedLogs();
+
+        // Process each L2 chain
+        for (uint256 _chainIdx; _chainIdx < _forkIds.length; _chainIdx++) {
+            _relayMessagesForChain(_allLogs, _forkIds[_chainIdx], _isSimulate, _portals[_chainIdx]);
+        }
+    }
+
+    /// @notice Replay deposit transactions for a single L2 chain
+    /// @param _allLogs All recorded logs from L1 execution
+    /// @param _forkId The fork ID to switch to for L2 execution
+    /// @param _isSimulate If true, only process the second half of logs
+    /// @param _portal The Portal address to filter events by
+    function _relayMessagesForChain(
+        Vm.Log[] memory _allLogs,
+        uint256 _forkId,
+        bool _isSimulate,
+        address _portal
+    ) internal {
+        // Switch to L2 fork for execution
         vm.selectFork(_forkId);
 
         console2.log("\n");
         console2.log("================================================================================");
         console2.log("=== Replaying Deposit Transactions on L2                                    ===");
+        console2.log("=== Portal:", _portal);
         console2.log("=== Each transaction includes Tenderly simulation link                      ===");
-        console2.log("=== Network is set to 10 (OP Mainnet) - adjust if testing on different L2  ===");
+        console2.log("=== Network is set to", block.chainid, "- adjust if testing on different L2  ===");
         console2.log("================================================================================");
-
-        // Get logs from L1 execution
-        Vm.Log[] memory _allLogs = vm.getRecordedLogs();
 
         // If this is a simulation, only take the second half of logs to avoid processing duplicates
         // Simulations emit events twice, so we skip the first half
@@ -34,7 +57,7 @@ abstract contract IntegrationBase is Test {
         uint256 _logsCount = _isSimulate ? _allLogs.length - _startIndex : _allLogs.length;
 
         Vm.Log[] memory _logs = new Vm.Log[](_logsCount);
-        for (uint256 _i = 0; _i < _logsCount; _i++) {
+        for (uint256 _i; _i < _logsCount; _i++) {
             _logs[_i] = _allLogs[_startIndex + _i];
         }
 
@@ -45,9 +68,9 @@ abstract contract IntegrationBase is Test {
         uint256 _successCount;
         uint256 _failureCount;
 
-        for (uint256 _i = 0; _i < _logs.length; _i++) {
-            // Check if this is a TransactionDeposited event
-            if (_logs[_i].topics[0] == _transactionDepositedHash) {
+        for (uint256 _i; _i < _logs.length; _i++) {
+            // Check if this is a TransactionDeposited event AND it was emitted by the specified portal
+            if (_logs[_i].topics[0] == _transactionDepositedHash && _logs[_i].emitter == _portal) {
                 // Decode indexed parameters
                 address _from = address(uint160(uint256(_logs[_i].topics[1])));
                 address _to = address(uint160(uint256(_logs[_i].topics[2])));
@@ -69,7 +92,7 @@ abstract contract IntegrationBase is Test {
         }
 
         console2.log("\n=== Summary ===");
-        console2.log("Total transactions:", _transactionCount);
+        console2.log("Total transactions processed:", _transactionCount);
         console2.log("Successful transactions:", _successCount);
         console2.log("Failed transactions:", _failureCount);
 
@@ -127,7 +150,7 @@ abstract contract IntegrationBase is Test {
     /// @notice Helper function to slice bytes
     function _slice(bytes memory _data, uint256 _start, uint256 _length) internal pure returns (bytes memory) {
         bytes memory _result = new bytes(_length);
-        for (uint256 _i = 0; _i < _length; _i++) {
+        for (uint256 _i; _i < _length; _i++) {
             _result[_i] = _data[_start + _i];
         }
         return _result;
@@ -165,7 +188,7 @@ abstract contract IntegrationBase is Test {
     /// @notice Convert address to lowercase hex string without 0x prefix
     function _toAsciiString(address _addr) internal pure returns (string memory) {
         bytes memory _s = new bytes(40);
-        for (uint256 _i = 0; _i < 20; _i++) {
+        for (uint256 _i; _i < 20; _i++) {
             bytes1 _b = bytes1(uint8(uint256(uint160(_addr)) / (2 ** (8 * (19 - _i)))));
             bytes1 _hi = bytes1(uint8(_b) / 16);
             bytes1 _lo = bytes1(uint8(_b) - 16 * uint8(_hi));
@@ -179,7 +202,7 @@ abstract contract IntegrationBase is Test {
     function _bytesToHexString(bytes memory _data) internal pure returns (string memory) {
         bytes memory _hexChars = "0123456789abcdef";
         bytes memory _result = new bytes(_data.length * 2);
-        for (uint256 _i = 0; _i < _data.length; _i++) {
+        for (uint256 _i; _i < _data.length; _i++) {
             _result[_i * 2] = _hexChars[uint8(_data[_i] >> 4)];
             _result[_i * 2 + 1] = _hexChars[uint8(_data[_i] & 0x0f)];
         }
