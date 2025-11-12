@@ -47,6 +47,7 @@ contract RevShareUpgradeAndSetup is OPCMTaskBase {
 
         // Load RevShareContractsUpgrader address from TOML
         REV_SHARE_UPGRADER = tomlContent.readAddress(".revShareUpgrader");
+        require(REV_SHARE_UPGRADER != address(0), "RevShareContractsUpgrader address cannot be zero");
         require(REV_SHARE_UPGRADER.code.length > 0, "RevShareContractsUpgrader has no code");
         vm.label(REV_SHARE_UPGRADER, "RevShareContractsUpgrader");
 
@@ -69,6 +70,37 @@ contract RevShareUpgradeAndSetup is OPCMTaskBase {
                 && portals.length == l1WithdrawerRecipients.length && portals.length == gasLimits.length,
             "Config arrays length mismatch"
         );
+
+        // Validate individual configuration values and check for duplicates
+        for (uint256 i; i < portals.length; i++) {
+            // Validate portal address
+            require(portals[i] != address(0), string.concat("Portal address cannot be zero at index ", vm.toString(i)));
+            require(portals[i].code.length > 0, string.concat("Portal has no code at index ", vm.toString(i)));
+
+            // Check for duplicate portals
+            for (uint256 j; j < i; j++) {
+                require(portals[i] != portals[j], string.concat("Duplicate portal address at index ", vm.toString(i)));
+            }
+
+            // Validate chain fees recipient
+            require(
+                chainFeesRecipients[i] != address(0),
+                string.concat("Chain fees recipient cannot be zero at index ", vm.toString(i))
+            );
+
+            // Validate L1 withdrawer recipient
+            require(
+                l1WithdrawerRecipients[i] != address(0),
+                string.concat("L1 withdrawer recipient cannot be zero at index ", vm.toString(i))
+            );
+
+            // Validate gas limit bounds
+            require(gasLimits[i] > 0, string.concat("Gas limit must be greater than 0 at index ", vm.toString(i)));
+            require(
+                gasLimits[i] <= type(uint32).max,
+                string.concat("Gas limit exceeds uint32 max at index ", vm.toString(i))
+            );
+        }
 
         // Construct RevShare configs array from flattened arrays
         for (uint256 i; i < portals.length; i++) {
