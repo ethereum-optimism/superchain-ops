@@ -8,8 +8,10 @@ import {Test} from "forge-std/Test.sol";
 import {RevShareContractsUpgrader} from "src/RevShareContractsUpgrader.sol";
 
 // Libraries
-import {RevShareLibrary} from "src/libraries/RevShareLibrary.sol";
+import {FeeVaultUpgrader} from "src/libraries/FeeVaultUpgrader.sol";
+import {FeeSplitterSetup} from "src/libraries/FeeSplitterSetup.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {RevShareCommon} from "src/libraries/RevShareCommon.sol";
 
 // Interfaces
 import {IOptimismPortal2} from "@eth-optimism-bedrock/interfaces/L1/IOptimismPortal2.sol";
@@ -64,7 +66,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
     ) internal pure returns (RevShareContractsUpgrader.RevShareConfig memory) {
         return RevShareContractsUpgrader.RevShareConfig({
             portal: _portal,
-            l1WithdrawerConfig: RevShareLibrary.L1WithdrawerConfig({
+            l1WithdrawerConfig: FeeSplitterSetup.L1WithdrawerConfig({
                 minWithdrawalAmount: _minWithdrawalAmount,
                 recipient: _l1Recipient,
                 gasLimit: _gasLimit
@@ -80,7 +82,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
         returns (address _expectedAddress)
     {
         bytes32 salt = keccak256(abi.encodePacked("RevShare", ":", _suffix));
-        _expectedAddress = Utils.getCreate2Address(salt, _initCode, RevShareLibrary.CREATE2_DEPLOYER);
+        _expectedAddress = Utils.getCreate2Address(salt, _initCode, RevShareCommon.CREATE2_DEPLOYER);
         assumeNotZeroAddress(_expectedAddress);
     }
 
@@ -92,7 +94,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
         uint32 _gasLimit
     ) internal {
         bytes memory l1WithdrawerInitCode = bytes.concat(
-            RevShareLibrary.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _recipient, _gasLimit)
+            FeeSplitterSetup.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _recipient, _gasLimit)
         );
         bytes32 salt = keccak256(abi.encodePacked("RevShare", ":", "L1Withdrawer"));
 
@@ -101,9 +103,9 @@ contract RevShareContractsUpgrader_TestInit is Test {
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
                 (
-                    RevShareLibrary.CREATE2_DEPLOYER,
+                    RevShareCommon.CREATE2_DEPLOYER,
                     0,
-                    RevShareLibrary.L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT,
+                    FeeSplitterSetup.L1_WITHDRAWER_DEPLOYMENT_GAS_LIMIT,
                     false,
                     abi.encodeCall(ICreate2Deployer.deploy, (0, salt, l1WithdrawerInitCode))
                 )
@@ -117,7 +119,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
         internal
     {
         bytes memory calculatorInitCode = bytes.concat(
-            RevShareLibrary.scRevShareCalculatorCreationCode, abi.encode(_l1Withdrawer, _chainFeesRecipient)
+            FeeSplitterSetup.scRevShareCalculatorCreationCode, abi.encode(_l1Withdrawer, _chainFeesRecipient)
         );
         bytes32 salt = keccak256(abi.encodePacked("RevShare", ":", "SCRevShareCalculator"));
 
@@ -126,9 +128,9 @@ contract RevShareContractsUpgrader_TestInit is Test {
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
                 (
-                    RevShareLibrary.CREATE2_DEPLOYER,
+                    RevShareCommon.CREATE2_DEPLOYER,
                     0,
-                    RevShareLibrary.SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT,
+                    FeeSplitterSetup.SC_REV_SHARE_CALCULATOR_DEPLOYMENT_GAS_LIMIT,
                     false,
                     abi.encodeCall(ICreate2Deployer.deploy, (0, salt, calculatorInitCode))
                 )
@@ -146,11 +148,11 @@ contract RevShareContractsUpgrader_TestInit is Test {
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
                 (
-                    RevShareLibrary.CREATE2_DEPLOYER,
+                    RevShareCommon.CREATE2_DEPLOYER,
                     0,
-                    RevShareLibrary.FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
+                    FeeSplitterSetup.FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
                     false,
-                    abi.encodeCall(ICreate2Deployer.deploy, (0, salt, RevShareLibrary.feeSplitterCreationCode))
+                    abi.encodeCall(ICreate2Deployer.deploy, (0, salt, FeeSplitterSetup.feeSplitterCreationCode))
                 )
             ),
             abi.encode()
@@ -158,12 +160,12 @@ contract RevShareContractsUpgrader_TestInit is Test {
 
         // Initialize FeeSplitter with calculator deposit
         address feeSplitterImpl =
-            _calculateExpectedCreate2Address("FeeSplitter", RevShareLibrary.feeSplitterCreationCode);
+            _calculateExpectedCreate2Address("FeeSplitter", FeeSplitterSetup.feeSplitterCreationCode);
 
         bytes memory upgradeCall = abi.encodeCall(
             IProxyAdmin.upgradeAndCall,
             (
-                payable(RevShareLibrary.FEE_SPLITTER),
+                payable(RevShareCommon.FEE_SPLITTER),
                 feeSplitterImpl,
                 abi.encodeCall(IFeeSplitter.initialize, (_calculator))
             )
@@ -173,7 +175,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             _portal,
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
-                (RevShareLibrary.PROXY_ADMIN, 0, RevShareLibrary.UPGRADE_GAS_LIMIT, false, upgradeCall)
+                (RevShareCommon.PROXY_ADMIN, 0, RevShareCommon.UPGRADE_GAS_LIMIT, false, upgradeCall)
             ),
             abi.encode()
         );
@@ -187,7 +189,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             _portal,
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
-                (RevShareLibrary.FEE_SPLITTER, 0, RevShareLibrary.SETTERS_GAS_LIMIT, false, setCalculatorCall)
+                (RevShareCommon.FEE_SPLITTER, 0, FeeVaultUpgrader.SETTERS_GAS_LIMIT, false, setCalculatorCall)
             ),
             abi.encode()
         );
@@ -207,9 +209,9 @@ contract RevShareContractsUpgrader_TestInit is Test {
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
                 (
-                    RevShareLibrary.CREATE2_DEPLOYER,
+                    RevShareCommon.CREATE2_DEPLOYER,
                     0,
-                    RevShareLibrary.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
+                    FeeVaultUpgrader.FEE_VAULTS_DEPLOYMENT_GAS_LIMIT,
                     false,
                     abi.encodeCall(ICreate2Deployer.deploy, (0, salt, _creationCode))
                 )
@@ -224,7 +226,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             (
                 payable(_vault),
                 vaultImpl,
-                abi.encodeCall(IFeeVault.initialize, (RevShareLibrary.FEE_SPLITTER, 0, IFeeVault.WithdrawalNetwork.L2))
+                abi.encodeCall(IFeeVault.initialize, (RevShareCommon.FEE_SPLITTER, 0, IFeeVault.WithdrawalNetwork.L2))
             )
         );
 
@@ -232,7 +234,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             _portal,
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
-                (RevShareLibrary.PROXY_ADMIN, 0, RevShareLibrary.UPGRADE_GAS_LIMIT, false, vaultUpgradeCall)
+                (RevShareCommon.PROXY_ADMIN, 0, RevShareCommon.UPGRADE_GAS_LIMIT, false, vaultUpgradeCall)
             ),
             abi.encode()
         );
@@ -248,9 +250,9 @@ contract RevShareContractsUpgrader_TestInit is Test {
                 (
                     _vault,
                     0,
-                    RevShareLibrary.SETTERS_GAS_LIMIT,
+                    FeeVaultUpgrader.SETTERS_GAS_LIMIT,
                     false,
-                    abi.encodeCall(IFeeVault.setRecipient, (RevShareLibrary.FEE_SPLITTER))
+                    abi.encodeCall(IFeeVault.setRecipient, (RevShareCommon.FEE_SPLITTER))
                 )
             ),
             abi.encode()
@@ -264,7 +266,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
                 (
                     _vault,
                     0,
-                    RevShareLibrary.SETTERS_GAS_LIMIT,
+                    FeeVaultUpgrader.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (0))
                 )
@@ -280,7 +282,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
                 (
                     _vault,
                     0,
-                    RevShareLibrary.SETTERS_GAS_LIMIT,
+                    FeeVaultUpgrader.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setWithdrawalNetwork, (IFeeVault.WithdrawalNetwork.L2))
                 )
@@ -309,7 +311,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             (
                 payable(_vault),
                 vaultImpl,
-                abi.encodeCall(IFeeVault.initialize, (RevShareLibrary.FEE_SPLITTER, 0, IFeeVault.WithdrawalNetwork.L2))
+                abi.encodeCall(IFeeVault.initialize, (RevShareCommon.FEE_SPLITTER, 0, IFeeVault.WithdrawalNetwork.L2))
             )
         );
 
@@ -317,7 +319,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             _portal,
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
-                (RevShareLibrary.PROXY_ADMIN, 0, RevShareLibrary.UPGRADE_GAS_LIMIT, false, vaultUpgradeCall)
+                (RevShareCommon.PROXY_ADMIN, 0, RevShareCommon.UPGRADE_GAS_LIMIT, false, vaultUpgradeCall)
             ),
             abi.encode()
         );
@@ -329,36 +331,36 @@ contract RevShareContractsUpgrader_TestInit is Test {
         // Deploy and upgrade OperatorFeeVault
         _mockAndExpectVaultUpgrade(
             _portal,
-            RevShareLibrary.OPERATOR_FEE_VAULT,
+            FeeVaultUpgrader.OPERATOR_FEE_VAULT,
             "OperatorFeeVault",
-            RevShareLibrary.operatorFeeVaultCreationCode
+            FeeVaultUpgrader.operatorFeeVaultCreationCode
         );
 
         // Deploy and upgrade SequencerFeeVault
         _mockAndExpectVaultUpgrade(
             _portal,
-            RevShareLibrary.SEQUENCER_FEE_WALLET,
+            FeeVaultUpgrader.SEQUENCER_FEE_WALLET,
             "SequencerFeeVault",
-            RevShareLibrary.sequencerFeeVaultCreationCode
+            FeeVaultUpgrader.sequencerFeeVaultCreationCode
         );
 
         // Deploy and upgrade BaseFeeVault (this deployment is shared with L1FeeVault)
         _mockAndExpectVaultUpgrade(
-            _portal, RevShareLibrary.BASE_FEE_VAULT, "BaseFeeVault", RevShareLibrary.defaultFeeVaultCreationCode
+            _portal, FeeVaultUpgrader.BASE_FEE_VAULT, "BaseFeeVault", FeeVaultUpgrader.defaultFeeVaultCreationCode
         );
 
         // L1FeeVault upgrade only (reuses BaseFeeVault's implementation, no deployment)
         _mockAndExpectVaultUpgradeOnly(
-            _portal, RevShareLibrary.L1_FEE_VAULT, "BaseFeeVault", RevShareLibrary.defaultFeeVaultCreationCode
+            _portal, FeeVaultUpgrader.L1_FEE_VAULT, "BaseFeeVault", FeeVaultUpgrader.defaultFeeVaultCreationCode
         );
     }
 
     /// @notice Helper to mock all vault setters (4 vaults, 3 calls each = 12 calls total)
     function _mockAndExpectAllVaultSetters(address _portal) internal {
-        _mockAndExpectVaultSetter(_portal, RevShareLibrary.OPERATOR_FEE_VAULT);
-        _mockAndExpectVaultSetter(_portal, RevShareLibrary.SEQUENCER_FEE_WALLET);
-        _mockAndExpectVaultSetter(_portal, RevShareLibrary.BASE_FEE_VAULT);
-        _mockAndExpectVaultSetter(_portal, RevShareLibrary.L1_FEE_VAULT);
+        _mockAndExpectVaultSetter(_portal, FeeVaultUpgrader.OPERATOR_FEE_VAULT);
+        _mockAndExpectVaultSetter(_portal, FeeVaultUpgrader.SEQUENCER_FEE_WALLET);
+        _mockAndExpectVaultSetter(_portal, FeeVaultUpgrader.BASE_FEE_VAULT);
+        _mockAndExpectVaultSetter(_portal, FeeVaultUpgrader.L1_FEE_VAULT);
     }
 }
 
@@ -432,13 +434,13 @@ contract RevShareContractsUpgrader_UpgradeAndSetupRevShare_Test is RevShareContr
 
         // Calculate expected L1Withdrawer address
         bytes memory l1WithdrawerInitCode = bytes.concat(
-            RevShareLibrary.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _l1Recipient, _gasLimit)
+            FeeSplitterSetup.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _l1Recipient, _gasLimit)
         );
         address expectedL1Withdrawer = _calculateExpectedCreate2Address("L1Withdrawer", l1WithdrawerInitCode);
 
         // Calculate expected Calculator address
         bytes memory calculatorInitCode = bytes.concat(
-            RevShareLibrary.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, _chainFeesRecipient)
+            FeeSplitterSetup.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, _chainFeesRecipient)
         );
         address expectedCalculator = _calculateExpectedCreate2Address("SCRevShareCalculator", calculatorInitCode);
 
@@ -484,12 +486,12 @@ contract RevShareContractsUpgrader_UpgradeAndSetupRevShare_Test is RevShareContr
 
             // Calculate expected addresses for this chain
             bytes memory l1WithdrawerInitCode = bytes.concat(
-                RevShareLibrary.l1WithdrawerCreationCode, abi.encode(minWithdrawalAmount, l1Recipient, gasLimit)
+                FeeSplitterSetup.l1WithdrawerCreationCode, abi.encode(minWithdrawalAmount, l1Recipient, gasLimit)
             );
             address expectedL1Withdrawer = _calculateExpectedCreate2Address("L1Withdrawer", l1WithdrawerInitCode);
 
             bytes memory calculatorInitCode = bytes.concat(
-                RevShareLibrary.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, chainFeeRecipient)
+                FeeSplitterSetup.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, chainFeeRecipient)
             );
             address expectedCalculator = _calculateExpectedCreate2Address("SCRevShareCalculator", calculatorInitCode);
 
@@ -580,12 +582,12 @@ contract RevShareContractsUpgrader_SetupRevShare_Test is RevShareContractsUpgrad
 
         // Calculate expected addresses
         bytes memory l1WithdrawerInitCode = bytes.concat(
-            RevShareLibrary.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _l1Recipient, _gasLimit)
+            FeeSplitterSetup.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _l1Recipient, _gasLimit)
         );
         address expectedL1Withdrawer = _calculateExpectedCreate2Address("L1Withdrawer", l1WithdrawerInitCode);
 
         bytes memory calculatorInitCode = bytes.concat(
-            RevShareLibrary.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, _chainFeesRecipient)
+            FeeSplitterSetup.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, _chainFeesRecipient)
         );
         address expectedCalculator = _calculateExpectedCreate2Address("SCRevShareCalculator", calculatorInitCode);
 
@@ -631,12 +633,12 @@ contract RevShareContractsUpgrader_SetupRevShare_Test is RevShareContractsUpgrad
 
             // Calculate expected addresses for this chain
             bytes memory l1WithdrawerInitCode = bytes.concat(
-                RevShareLibrary.l1WithdrawerCreationCode, abi.encode(minWithdrawalAmount, l1Recipient, gasLimit)
+                FeeSplitterSetup.l1WithdrawerCreationCode, abi.encode(minWithdrawalAmount, l1Recipient, gasLimit)
             );
             address expectedL1Withdrawer = _calculateExpectedCreate2Address("L1Withdrawer", l1WithdrawerInitCode);
 
             bytes memory calculatorInitCode = bytes.concat(
-                RevShareLibrary.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, chainFeeRecipient)
+                FeeSplitterSetup.scRevShareCalculatorCreationCode, abi.encode(expectedL1Withdrawer, chainFeeRecipient)
             );
             address expectedCalculator = _calculateExpectedCreate2Address("SCRevShareCalculator", calculatorInitCode);
 

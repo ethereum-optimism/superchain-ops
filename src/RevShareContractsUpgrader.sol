@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {RevShareLibrary} from "src/libraries/RevShareLibrary.sol";
+import {FeeVaultUpgrader} from "src/libraries/FeeVaultUpgrader.sol";
+import {FeeSplitterSetup} from "src/libraries/FeeSplitterSetup.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {RevShareCommon} from "src/libraries/RevShareCommon.sol";
 
 // Interfaces
 import {IOptimismPortal2} from "@eth-optimism-bedrock/interfaces/L1/IOptimismPortal2.sol";
@@ -18,9 +20,6 @@ import {IFeeVault} from "src/interfaces/IFeeVault.sol";
 ///         2. upgradeAndSetupRevShare() - Combined upgrade + setup (most efficient)
 ///         All operations use the default calculator (L1Withdrawer + SuperchainRevenueShareCalculator).
 contract RevShareContractsUpgrader {
-    /// @notice Base salt seed for CREATE2 deployments
-    string private constant SALT_SEED = "RevShare";
-
     /// @notice Thrown when portal address is zero
     error PortalCannotBeZeroAddress();
 
@@ -47,7 +46,7 @@ contract RevShareContractsUpgrader {
     /// @param chainFeesRecipient Chain fees recipient address for the calculator
     struct RevShareConfig {
         address portal;
-        RevShareLibrary.L1WithdrawerConfig l1WithdrawerConfig;
+        FeeSplitterSetup.L1WithdrawerConfig l1WithdrawerConfig;
         address chainFeesRecipient;
     }
 
@@ -65,38 +64,15 @@ contract RevShareContractsUpgrader {
             if (config.l1WithdrawerConfig.gasLimit == 0) revert GasLimitCannotBeZero();
 
             // Deploy L1Withdrawer and SuperchainRevenueShareCalculator
-            address precalculatedCalculator = RevShareLibrary.deployRevSharePeriphery(
+            address precalculatedCalculator = FeeSplitterSetup.deployRevSharePeriphery(
                 config.portal, config.l1WithdrawerConfig, config.chainFeesRecipient
             );
 
-            // Upgrade fee splitter and initialize with calculator FIRST
-            // This prevents the edge case where fees could be sent to an uninitialized FeeSplitter
-            bytes32 feeSplitterSalt = RevShareLibrary.getSalt("FeeSplitter");
-            address feeSplitterImpl = Utils.getCreate2Address(
-                feeSplitterSalt, RevShareLibrary.feeSplitterCreationCode, RevShareLibrary.CREATE2_DEPLOYER
-            );
-            RevShareLibrary.depositCreate2(
-                config.portal,
-                RevShareLibrary.FEE_SPLITTER_DEPLOYMENT_GAS_LIMIT,
-                feeSplitterSalt,
-                RevShareLibrary.feeSplitterCreationCode
-            );
-            RevShareLibrary.depositCall(
-                config.portal,
-                address(RevShareLibrary.PROXY_ADMIN),
-                RevShareLibrary.UPGRADE_GAS_LIMIT,
-                abi.encodeCall(
-                    IProxyAdmin.upgradeAndCall,
-                    (
-                        payable(RevShareLibrary.FEE_SPLITTER),
-                        feeSplitterImpl,
-                        abi.encodeCall(IFeeSplitter.initialize, (precalculatedCalculator))
-                    )
-                )
-            );
+            // Deploy and setup FeeSplitter
+            FeeSplitterSetup.deployAndSetupFeeSplitter(config.portal, precalculatedCalculator);
 
             // Upgrade all 4 vaults with RevShare configuration (recipient=FeeSplitter, minWithdrawal=0, network=L2)
-            RevShareLibrary.upgradeVaultsWithRevShareConfig(config.portal);
+            FeeVaultUpgrader.upgradeVaultsWithRevShareConfig(config.portal);
 
             emit ChainProcessed(config.portal, i);
         }
@@ -116,20 +92,20 @@ contract RevShareContractsUpgrader {
             if (config.l1WithdrawerConfig.gasLimit == 0) revert GasLimitCannotBeZero();
 
             // Deploy L1Withdrawer and SuperchainRevenueShareCalculator
-            address calculator = RevShareLibrary.deployRevSharePeriphery(
+            address calculator = FeeSplitterSetup.deployRevSharePeriphery(
                 config.portal, config.l1WithdrawerConfig, config.chainFeesRecipient
             );
 
             // Set calculator on fee splitter
-            RevShareLibrary.depositCall(
+            RevShareCommon.depositCall(
                 config.portal,
-                RevShareLibrary.FEE_SPLITTER,
-                RevShareLibrary.SETTERS_GAS_LIMIT,
+                RevShareCommon.FEE_SPLITTER,
+                FeeVaultUpgrader.SETTERS_GAS_LIMIT,
                 abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator))
             );
 
             // Configure all 4 vaults for revenue sharing
-            RevShareLibrary.configureVaultsForRevShare(config.portal);
+            FeeVaultUpgrader.configureVaultsForRevShare(config.portal);
 
             emit ChainProcessed(config.portal, i);
         }
