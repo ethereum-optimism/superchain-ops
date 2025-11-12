@@ -244,9 +244,9 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # - template_regression_tests:
-      #     context:
-      #       - circleci-repo-readonly-authenticated-github-token
+      - template_regression_tests:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       - just_new_recipe_tests
       - shellcheck:
           context:
