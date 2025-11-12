@@ -64,7 +64,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
     ) internal pure returns (RevShareContractsUpgrader.RevShareConfig memory) {
         return RevShareContractsUpgrader.RevShareConfig({
             portal: _portal,
-            l1WithdrawerConfig: RevShareContractsUpgrader.L1WithdrawerConfig({
+            l1WithdrawerConfig: RevShareLibrary.L1WithdrawerConfig({
                 minWithdrawalAmount: _minWithdrawalAmount,
                 recipient: _l1Recipient,
                 gasLimit: _gasLimit
