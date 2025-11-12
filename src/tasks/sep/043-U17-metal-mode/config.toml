@@ -1,0 +1,39 @@
+l2chains = [
+    {name = "Metal L2 Testnet", chainId = 1740},
+    {name = "Mode Testnet", chainId = 919}
+]
+
+templateName = "OPCMUpgradeV500"
+
+
+# Metal L2 Testnet (Permissioned)
+[[opcmUpgrades]]
+chainId = 1740
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PLDG-10"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
+
+
+# Mode Testnet (Permissioned)
+[[opcmUpgrades]]
+chainId = 919
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PLDG-10"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used. PLDG-10 (missing Permissionless implementation) is expected as this is a permissioned chain.
+
+
+
+[addresses]
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/7380dcd87c000394e5528b237de0845779e8d6dd/validation/standard/standard-versions-sepolia.toml#L23
+
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SC
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 54}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FUS
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 57}
+]
