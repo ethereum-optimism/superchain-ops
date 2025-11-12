@@ -1,0 +1,38 @@
+l2chains = [
+    {name = "Base Sepolia Testnet", chainId = 84532}
+]
+
+templateName = "OPCMUpgradeV500"
+
+# Base Sepolia Testnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 84532
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used.
+
+
+[addresses]
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/7380dcd87c000394e5528b237de0845779e8d6dd/validation/standard/standard-versions-sepolia.toml#L23
+
+
+[stateOverrides]
+# Base Sepolia ProxyAdminOwner
+0x0fe884546476dDd290eC46318785046ef68a0BA9 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 26}
+]
+
+# Base Nested Safe
+0x646132A1667ca7aD00d36616AFBA1A28116C770A = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9}
+]
+
+# Base Council Safe
+0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
+]
+
+# Base Operations Safe
+0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 14} # <--- THIS MUST BE CHANGED TO '15' FOR STEP 1A IN README.md FILE.
+]
