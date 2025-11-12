@@ -60,12 +60,7 @@ Returns:
 
 # State Validations
 
-For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
-
-- The following state changes (and none others) are made to that contract. This validates that no unexpected state changes occur.
-- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
-- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
-
+For a complete walkthrough of validating the state changes on L1 and L2 follow [the steps in this doc](https://github.com/ethereum-optimism/superchain-ops/blob/main/src/doc/simulate-l2-ownership-transfer.md)
 
 ## Manual L2 Verification Steps
 
