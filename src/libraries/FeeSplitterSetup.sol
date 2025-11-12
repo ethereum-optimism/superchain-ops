@@ -9,6 +9,7 @@ import {ICreate2Deployer} from "src/interfaces/ICreate2Deployer.sol";
 import {IFeeSplitter} from "src/interfaces/IFeeSplitter.sol";
 
 /// @notice Library for deploying and setting up FeeSplitter and periphery contracts
+/// @dev The creation codes where obtained from https://github.com/ethereum-optimism/optimism/commit/0f21af947798a94aa50e797c61f576ca18b1334d
 library FeeSplitterSetup {
     /// @notice Struct for L1Withdrawer configuration.
     /// @param minWithdrawalAmount Minimum withdrawal amount
