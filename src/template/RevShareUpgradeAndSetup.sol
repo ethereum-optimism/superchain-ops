@@ -62,15 +62,19 @@ contract RevShareUpgradeAndSetup is OPCMTaskBase {
         // So we need to read each field separately and construct the struct manually
         for (uint256 i; i < portals.length; i++) {
             string memory basePath = string.concat(".configs[", vm.toString(i), "]");
-            revShareConfigs.push(RevShareContractsUpgrader.RevShareConfig({
-                portal: tomlContent.readAddress(string.concat(basePath, ".portal")),
-                l1WithdrawerConfig: RevShareContractsUpgrader.L1WithdrawerConfig({
-                    minWithdrawalAmount: tomlContent.readUint(string.concat(basePath, ".l1WithdrawerConfig.minWithdrawalAmount")),
-                    recipient: tomlContent.readAddress(string.concat(basePath, ".l1WithdrawerConfig.recipient")),
-                    gasLimit: uint32(tomlContent.readUint(string.concat(basePath, ".l1WithdrawerConfig.gasLimit")))
-                }),
-                chainFeesRecipient: tomlContent.readAddress(string.concat(basePath, ".chainFeesRecipient"))
-            }));
+            revShareConfigs.push(
+                RevShareContractsUpgrader.RevShareConfig({
+                    portal: tomlContent.readAddress(string.concat(basePath, ".portal")),
+                    l1WithdrawerConfig: RevShareContractsUpgrader.L1WithdrawerConfig({
+                        minWithdrawalAmount: tomlContent.readUint(
+                            string.concat(basePath, ".l1WithdrawerConfig.minWithdrawalAmount")
+                        ),
+                        recipient: tomlContent.readAddress(string.concat(basePath, ".l1WithdrawerConfig.recipient")),
+                        gasLimit: uint32(tomlContent.readUint(string.concat(basePath, ".l1WithdrawerConfig.gasLimit")))
+                    }),
+                    chainFeesRecipient: tomlContent.readAddress(string.concat(basePath, ".chainFeesRecipient"))
+                })
+            );
         }
     }
 
@@ -127,25 +131,17 @@ contract RevShareUpgradeAndSetup is OPCMTaskBase {
             require(config.portal != address(0), "Portal address cannot be zero");
 
             // Validate L1 withdrawer config
-            require(
-                config.l1WithdrawerConfig.recipient != address(0),
-                "L1 withdrawer recipient cannot be zero"
-            );
-            require(
-                config.l1WithdrawerConfig.gasLimit > 0,
-                "Gas limit must be greater than 0"
-            );
+            require(config.l1WithdrawerConfig.recipient != address(0), "L1 withdrawer recipient cannot be zero");
+            require(config.l1WithdrawerConfig.gasLimit > 0, "Gas limit must be greater than 0");
 
             // Validate chain fees recipient
-            require(
-                config.chainFeesRecipient != address(0),
-                "Chain fees recipient cannot be zero"
-            );
+            require(config.chainFeesRecipient != address(0), "Chain fees recipient cannot be zero");
 
             // Validate config matches the expected config from template setup
             require(config.portal == revShareConfigs[i].portal, "Portal address mismatch");
             require(
-                config.l1WithdrawerConfig.minWithdrawalAmount == revShareConfigs[i].l1WithdrawerConfig.minWithdrawalAmount,
+                config.l1WithdrawerConfig.minWithdrawalAmount
+                    == revShareConfigs[i].l1WithdrawerConfig.minWithdrawalAmount,
                 "Min withdrawal amount mismatch"
             );
             require(
@@ -156,10 +152,7 @@ contract RevShareUpgradeAndSetup is OPCMTaskBase {
                 config.l1WithdrawerConfig.gasLimit == revShareConfigs[i].l1WithdrawerConfig.gasLimit,
                 "Gas limit mismatch"
             );
-            require(
-                config.chainFeesRecipient == revShareConfigs[i].chainFeesRecipient,
-                "Chain fees recipient mismatch"
-            );
+            require(config.chainFeesRecipient == revShareConfigs[i].chainFeesRecipient, "Chain fees recipient mismatch");
         }
     }
 

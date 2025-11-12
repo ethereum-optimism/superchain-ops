@@ -97,11 +97,25 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
 
         // Step 4: Assert the state of the OP Mainnet contracts
         vm.selectFork(_opMainnetForkId);
-        _assertL2State(OP_L1_WITHDRAWER, OP_REV_SHARE_CALCULATOR, OP_MIN_WITHDRAWAL_AMOUNT, OP_L1_WITHDRAWAL_RECIPIENT, OP_WITHDRAWAL_GAS_LIMIT, OP_CHAIN_FEES_RECIPIENT);
+        _assertL2State(
+            OP_L1_WITHDRAWER,
+            OP_REV_SHARE_CALCULATOR,
+            OP_MIN_WITHDRAWAL_AMOUNT,
+            OP_L1_WITHDRAWAL_RECIPIENT,
+            OP_WITHDRAWAL_GAS_LIMIT,
+            OP_CHAIN_FEES_RECIPIENT
+        );
 
         // Step 5: Assert the state of the Ink Mainnet contracts
         vm.selectFork(_inkMainnetForkId);
-        _assertL2State(INK_L1_WITHDRAWER, INK_REV_SHARE_CALCULATOR, INK_MIN_WITHDRAWAL_AMOUNT, INK_L1_WITHDRAWAL_RECIPIENT, INK_WITHDRAWAL_GAS_LIMIT, INK_CHAIN_FEES_RECIPIENT);
+        _assertL2State(
+            INK_L1_WITHDRAWER,
+            INK_REV_SHARE_CALCULATOR,
+            INK_MIN_WITHDRAWAL_AMOUNT,
+            INK_L1_WITHDRAWAL_RECIPIENT,
+            INK_WITHDRAWAL_GAS_LIMIT,
+            INK_CHAIN_FEES_RECIPIENT
+        );
     }
 
     /// @notice Assert the state of all L2 contracts after upgrade
@@ -118,7 +132,11 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
         address _chainFeesRecipient
     ) internal view {
         // L1Withdrawer: check configuration
-        assertEq(IL1Withdrawer(_l1Withdrawer).minWithdrawalAmount(), _minWithdrawalAmount, "L1Withdrawer minWithdrawalAmount mismatch");
+        assertEq(
+            IL1Withdrawer(_l1Withdrawer).minWithdrawalAmount(),
+            _minWithdrawalAmount,
+            "L1Withdrawer minWithdrawalAmount mismatch"
+        );
         assertEq(IL1Withdrawer(_l1Withdrawer).recipient(), _l1Recipient, "L1Withdrawer recipient mismatch");
         assertEq(IL1Withdrawer(_l1Withdrawer).withdrawalGasLimit(), _gasLimit, "L1Withdrawer gasLimit mismatch");
 

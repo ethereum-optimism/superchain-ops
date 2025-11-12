@@ -34,12 +34,9 @@ abstract contract IntegrationBase is Test {
     /// @param _forkId The fork ID to switch to for L2 execution
     /// @param _isSimulate If true, only process the second half of logs
     /// @param _portal The Portal address to filter events by
-    function _relayMessagesForChain(
-        Vm.Log[] memory _allLogs,
-        uint256 _forkId,
-        bool _isSimulate,
-        address _portal
-    ) internal {
+    function _relayMessagesForChain(Vm.Log[] memory _allLogs, uint256 _forkId, bool _isSimulate, address _portal)
+        internal
+    {
         // Switch to L2 fork for execution
         vm.selectFork(_forkId);
 

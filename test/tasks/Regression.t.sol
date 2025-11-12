@@ -981,8 +981,6 @@ contract RegressionTest is Test {
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
-
-
     /// @notice Internal function to set up the fork and run the simulate method. Requires a gas limit to be passed to it.
     function _setupAndSimulate(
         string memory taskConfigFilePath,

@@ -7,7 +7,8 @@ interface IFeeVault {
         L2
     }
 
-    function initialize(address _recipient, uint256 _minWithdrawalAmount, WithdrawalNetwork _withdrawalNetwork) external;
+    function initialize(address _recipient, uint256 _minWithdrawalAmount, WithdrawalNetwork _withdrawalNetwork)
+        external;
 
     function RECIPIENT() external view returns (address);
     function MIN_WITHDRAWAL_AMOUNT() external view returns (uint256);
