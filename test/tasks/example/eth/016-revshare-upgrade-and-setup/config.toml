@@ -10,22 +10,21 @@ safeAddress = "ProxyAdminOwner"
 # RevShareContractsUpgrader address
 revShareUpgrader = "0x0000000000000000000000000000000000001337"
 
-# RevShare configurations (one per chain)
-[[configs]]
-portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed" # OP Mainnet Portal
-chainFeesRecipient = "0x0000000000000000000000000000000000000001" # OP Mainnet chain fees recipient
-[configs.l1WithdrawerConfig]
-minWithdrawalAmount = 350000
-recipient = "0x0000000000000000000000000000000000000001"
-gasLimit = 800000
-
-[[configs]]
-portal = "0x5d66C1782664115999C47c9fA5cd031f495D3e4F" # Ink Mainnet Portal
-chainFeesRecipient = "0x0000000000000000000000000000000000000002" # Ink Mainnet chain fees recipient
-[configs.l1WithdrawerConfig]
-minWithdrawalAmount = 500000
-recipient = "0x0000000000000000000000000000000000000002"
-gasLimit = 1000000
+# RevShare configurations (one per chain) - flattened arrays
+portals = [
+  "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed", # OP Mainnet Portal
+  "0x5d66C1782664115999C47c9fA5cd031f495D3e4F"  # Ink Mainnet Portal
+]
+chainFeesRecipients = [
+  "0x0000000000000000000000000000000000000001", # OP Mainnet chain fees recipient
+  "0x0000000000000000000000000000000000000002"  # Ink Mainnet chain fees recipient
+]
+l1WithdrawerMinWithdrawalAmounts = [350000, 500000]
+l1WithdrawerRecipients = [
+  "0x0000000000000000000000000000000000000001",
+  "0x0000000000000000000000000000000000000002"
+]
+l1WithdrawerGasLimits = [800000, 1000000]
 
 [addresses]
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"

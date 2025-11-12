@@ -53,27 +53,34 @@ contract RevShareUpgradeAndSetup is OPCMTaskBase {
         // Set RevShareContractsUpgrader as the allowed target for delegatecall
         OPCM_TARGETS.push(REV_SHARE_UPGRADER);
 
-        // Get the length of the configs array by parsing just the portal addresses
-        address[] memory portals = abi.decode(tomlContent.parseRaw(".configs[*].portal"), (address[]));
-        require(portals.length > 0, "No configs found");
+        // Load flattened arrays from TOML
+        address[] memory portals = abi.decode(tomlContent.parseRaw(".portals"), (address[]));
+        address[] memory chainFeesRecipients = abi.decode(tomlContent.parseRaw(".chainFeesRecipients"), (address[]));
+        uint256[] memory minWithdrawalAmounts =
+            abi.decode(tomlContent.parseRaw(".l1WithdrawerMinWithdrawalAmounts"), (uint256[]));
+        address[] memory l1WithdrawerRecipients =
+            abi.decode(tomlContent.parseRaw(".l1WithdrawerRecipients"), (address[]));
+        uint256[] memory gasLimits = abi.decode(tomlContent.parseRaw(".l1WithdrawerGasLimits"), (uint256[]));
 
-        // Load RevShare configs by reading each field individually
-        // Note: We can't use parseRaw + abi.decode directly because TOML inline tables
-        // sort keys alphabetically, which doesn't match the struct field order
-        // So we need to read each field separately and construct the struct manually
+        // Validate all arrays have the same length
+        require(portals.length > 0, "No configs found");
+        require(
+            portals.length == chainFeesRecipients.length && portals.length == minWithdrawalAmounts.length
+                && portals.length == l1WithdrawerRecipients.length && portals.length == gasLimits.length,
+            "Config arrays length mismatch"
+        );
+
+        // Construct RevShare configs array from flattened arrays
         for (uint256 i; i < portals.length; i++) {
-            string memory basePath = string.concat(".configs[", vm.toString(i), "]");
             revShareConfigs.push(
                 RevShareContractsUpgrader.RevShareConfig({
-                    portal: tomlContent.readAddress(string.concat(basePath, ".portal")),
+                    portal: portals[i],
                     l1WithdrawerConfig: FeeSplitterSetup.L1WithdrawerConfig({
-                        minWithdrawalAmount: tomlContent.readUint(
-                            string.concat(basePath, ".l1WithdrawerConfig.minWithdrawalAmount")
-                        ),
-                        recipient: tomlContent.readAddress(string.concat(basePath, ".l1WithdrawerConfig.recipient")),
-                        gasLimit: uint32(tomlContent.readUint(string.concat(basePath, ".l1WithdrawerConfig.gasLimit")))
+                        minWithdrawalAmount: minWithdrawalAmounts[i],
+                        recipient: l1WithdrawerRecipients[i],
+                        gasLimit: uint32(gasLimits[i])
                     }),
-                    chainFeesRecipient: tomlContent.readAddress(string.concat(basePath, ".chainFeesRecipient"))
+                    chainFeesRecipient: chainFeesRecipients[i]
                 })
             );
         }
