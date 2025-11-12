@@ -7,16 +7,16 @@ import {console2} from "forge-std/console2.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
 
 /// @title IntegrationBase
-/// @notice Base contract for integration tests with L1->L2 deposit transaction replay functionality
+/// @notice Base contract for integration tests with L1->L2 deposit transaction relay functionality
 abstract contract IntegrationBase is Test {
-    /// @notice Replay all deposit transactions from L1 to multiple L2s
+    /// @notice Relay all deposit transactions from L1 to multiple L2s
     /// @param _forkIds Array of fork IDs for each L2 chain
     /// @param _isSimulate If true, only process the second half of logs to avoid duplicates.
     ///                    Task simulations emit events twice: once during the initial dry-run
     ///                    and once during the actual simulation. Taking the second half ensures
     ///                    we only process the final simulation results.
     /// @param _portals Array of Portal addresses corresponding to each fork.
-    ///                 Only events emitted by each portal will be replayed on its corresponding L2.
+    ///                 Only events emitted by each portal will be relayed on its corresponding L2.
     function _relayAllMessages(uint256[] memory _forkIds, bool _isSimulate, address[] memory _portals) internal {
         require(_forkIds.length == _portals.length, "Fork IDs and portals length mismatch");
 
@@ -29,7 +29,7 @@ abstract contract IntegrationBase is Test {
         }
     }
 
-    /// @notice Replay deposit transactions for a single L2 chain
+    /// @notice Relay deposit transactions for a single L2 chain
     /// @param _allLogs All recorded logs from L1 execution
     /// @param _forkId The fork ID to switch to for L2 execution
     /// @param _isSimulate If true, only process the second half of logs
@@ -42,7 +42,7 @@ abstract contract IntegrationBase is Test {
 
         console2.log("\n");
         console2.log("================================================================================");
-        console2.log("=== Replaying Deposit Transactions on L2                                    ===");
+        console2.log("=== Relaying Deposit Transactions on L2                                    ===");
         console2.log("=== Portal:", _portal);
         console2.log("=== Each transaction includes Tenderly simulation link                      ===");
         console2.log("=== Network is set to", block.chainid, "- adjust if testing on different L2  ===");
