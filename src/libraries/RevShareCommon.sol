@@ -27,7 +27,7 @@ library RevShareCommon {
     /// @param _gasLimit Gas limit for the L2 transaction
     /// @param _salt Salt for CREATE2 deployment
     /// @param _initCode Contract creation code (creationCode + constructor args)
-    function depositCreate2(address _portal, uint64 _gasLimit, bytes32 _salt, bytes memory _initCode) public {
+    function depositCreate2(address _portal, uint64 _gasLimit, bytes32 _salt, bytes memory _initCode) internal {
         IOptimismPortal2(payable(_portal)).depositTransaction({
             _to: CREATE2_DEPLOYER,
             _value: 0,
@@ -42,7 +42,7 @@ library RevShareCommon {
     /// @param _target Target contract address on L2
     /// @param _gasLimit Gas limit for the L2 transaction
     /// @param _data Calldata for the L2 transaction
-    function depositCall(address _portal, address _target, uint64 _gasLimit, bytes memory _data) public {
+    function depositCall(address _portal, address _target, uint64 _gasLimit, bytes memory _data) internal {
         IOptimismPortal2(payable(_portal)).depositTransaction({
             _to: _target,
             _value: 0,
@@ -55,7 +55,7 @@ library RevShareCommon {
     /// @notice Generates a salt for CREATE2 deployments
     /// @param _suffix Suffix to append to the salt seed
     /// @return Salt for CREATE2 deployment
-    function getSalt(string memory _suffix) public pure returns (bytes32) {
+    function getSalt(string memory _suffix) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(SALT_SEED, ":", _suffix));
     }
 }
