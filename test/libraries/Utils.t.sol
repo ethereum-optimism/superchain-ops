@@ -8,12 +8,12 @@ import {TestCreate2Deployer} from "test/mock/TestCreate2Deployer.sol";
 contract UtilsTest is Test {
     using Utils for address[];
 
-    function test_getCreate2Address(uint256 _saltSeed) public {
+    function testFuzz_getCreate2Address(uint256 _saltSeed, bytes memory _initCode) public {
         bytes32 salt = bytes32(uint256(_saltSeed));
-        bytes memory initCode = abi.encode(0x6080);
         TestCreate2Deployer deployer = new TestCreate2Deployer();
-        address create2Address = Utils.getCreate2Address(salt, initCode, address(deployer));
-        assertEq(create2Address, deployer.deploy(0, salt, initCode));
+        _initCode = abi.encode(bytes.concat("0x6080"), _initCode);
+        address create2Address = Utils.getCreate2Address(salt, _initCode, address(deployer));
+        assertEq(create2Address, deployer.deploy(0, salt, _initCode));
     }
 
     function test_isFeatureEnabled() public {
