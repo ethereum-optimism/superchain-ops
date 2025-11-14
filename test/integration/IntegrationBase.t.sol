@@ -98,10 +98,7 @@ abstract contract IntegrationBase is Test {
     }
 
     /// @notice Process and execute a deposit transaction
-    function _processDepositTransaction(address _from, address _to, bytes memory _opaqueData)
-        internal
-        returns (bool)
-    {
+    function _processDepositTransaction(address _from, address _to, bytes memory _opaqueData) internal returns (bool) {
         // Extract value (bytes 0-31)
         uint256 _value = uint256(bytes32(_slice(_opaqueData, 0, 32)));
 
