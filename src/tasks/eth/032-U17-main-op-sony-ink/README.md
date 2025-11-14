@@ -17,5 +17,5 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|found
 Signing commands for each safe:
 ```bash
 cd src/tasks/eth/032-U17-main-op-sony-ink
-just --dotenv-path $(pwd)/.env sign <council|foundation>
+just sign <council|foundation>
 ```
