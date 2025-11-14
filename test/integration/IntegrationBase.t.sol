@@ -44,8 +44,7 @@ abstract contract IntegrationBase is Test {
         console2.log("================================================================================");
         console2.log("=== Relaying Deposit Transactions on L2                                    ===");
         console2.log("=== Portal:", _portal);
-        console2.log("=== Each transaction includes Tenderly simulation link                      ===");
-        console2.log("=== Network is set to", block.chainid, "- adjust if testing on different L2  ===");
+        console2.log("=== Network is set to", block.chainid);
         console2.log("================================================================================");
 
         // If this is a simulation, only take the second half of logs to avoid processing duplicates
@@ -78,7 +77,7 @@ abstract contract IntegrationBase is Test {
                 _transactionCount++;
 
                 // Process and execute the transaction
-                bool _success = _processDepositTransaction(_from, _to, _opaqueData, _transactionCount);
+                bool _success = _processDepositTransaction(_from, _to, _opaqueData);
 
                 if (_success) {
                     _successCount++;
@@ -99,7 +98,7 @@ abstract contract IntegrationBase is Test {
     }
 
     /// @notice Process and execute a deposit transaction
-    function _processDepositTransaction(address _from, address _to, bytes memory _opaqueData, uint256 _txNumber)
+    function _processDepositTransaction(address _from, address _to, bytes memory _opaqueData)
         internal
         returns (bool)
     {
@@ -112,36 +111,11 @@ abstract contract IntegrationBase is Test {
         // Extract data (bytes 73 onwards)
         bytes memory _data = _slice(_opaqueData, 73, _opaqueData.length - 73);
 
-        // Print Tenderly simulation parameters
-        _logTransactionDetails(_from, _to, _value, _gasLimit, _data, _txNumber);
-
         // Execute the transaction on L2 as if it came from the aliased address
         vm.prank(_from);
         (bool _success,) = _to.call{value: _value, gas: _gasLimit}(_data);
 
         return _success;
-    }
-
-    /// @notice Log transaction details and Tenderly link
-    function _logTransactionDetails(
-        address _from,
-        address _to,
-        uint256 _value,
-        uint64 _gasLimit,
-        bytes memory _data,
-        uint256 _txNumber
-    ) internal pure {
-        if (_data.length >= 4) {
-            bytes4 _selector;
-            assembly {
-                _selector := mload(add(_data, 32))
-            }
-        }
-
-        // Generate Tenderly simulation link
-        string memory _tenderlyLink = _generateTenderlyLink(_to, _from, uint256(_gasLimit), _value, _data);
-        console2.log("\nTenderly Simulation Link for transaction #", _txNumber);
-        console2.log(_tenderlyLink);
     }
 
     /// @notice Helper function to slice bytes
@@ -151,64 +125,5 @@ abstract contract IntegrationBase is Test {
             _result[_i] = _data[_start + _i];
         }
         return _result;
-    }
-
-    /// @notice Generate Tenderly simulation link for L2 transaction
-    function _generateTenderlyLink(
-        address _contractAddress,
-        address _from,
-        uint256 _gas,
-        uint256 _value,
-        bytes memory _rawFunctionInput
-    ) internal pure returns (string memory) {
-        // Convert bytes to hex string
-        string memory _calldataHex = _bytesToHexString(_rawFunctionInput);
-
-        // Build the Tenderly URL
-        // network=10 for OP Mainnet (change if testing on different L2)
-        return string.concat(
-            "https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new",
-            "?network=10",
-            "&contractAddress=0x",
-            _toAsciiString(_contractAddress),
-            "&from=0x",
-            _toAsciiString(_from),
-            "&gas=",
-            vm.toString(_gas),
-            "&value=",
-            vm.toString(_value),
-            "&rawFunctionInput=0x",
-            _calldataHex
-        );
-    }
-
-    /// @notice Convert address to lowercase hex string without 0x prefix
-    function _toAsciiString(address _addr) internal pure returns (string memory) {
-        bytes memory _s = new bytes(40);
-        for (uint256 _i; _i < 20; _i++) {
-            bytes1 _b = bytes1(uint8(uint256(uint160(_addr)) / (2 ** (8 * (19 - _i)))));
-            bytes1 _hi = bytes1(uint8(_b) / 16);
-            bytes1 _lo = bytes1(uint8(_b) - 16 * uint8(_hi));
-            _s[2 * _i] = _char(_hi);
-            _s[2 * _i + 1] = _char(_lo);
-        }
-        return string(_s);
-    }
-
-    /// @notice Convert bytes to hex string without 0x prefix
-    function _bytesToHexString(bytes memory _data) internal pure returns (string memory) {
-        bytes memory _hexChars = "0123456789abcdef";
-        bytes memory _result = new bytes(_data.length * 2);
-        for (uint256 _i; _i < _data.length; _i++) {
-            _result[_i * 2] = _hexChars[uint8(_data[_i] >> 4)];
-            _result[_i * 2 + 1] = _hexChars[uint8(_data[_i] & 0x0f)];
-        }
-        return string(_result);
-    }
-
-    /// @notice Convert nibble to hex character
-    function _char(bytes1 _b) internal pure returns (bytes1) {
-        if (uint8(_b) < 10) return bytes1(uint8(_b) + 0x30);
-        else return bytes1(uint8(_b) + 0x57);
     }
 }
