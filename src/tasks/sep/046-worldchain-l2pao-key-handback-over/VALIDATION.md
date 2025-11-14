@@ -17,7 +17,7 @@ First, we need to validate the domain and message hashes. These values should ma
 > Before signing, ensure the below hashes match what is on your ledger.
 >
 > ### Standard L2 Proxy Admin Owner (Unaliased)
-  ### Worldchain has their L2PAO transferred to the standard address but retained controrl of their L1PAO
+  ### Worldchain has their L2PAO transferred to the standard address but retained control of their L1PAO
 (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`)
 
 >### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
