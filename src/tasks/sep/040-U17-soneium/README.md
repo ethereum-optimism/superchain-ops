@@ -17,5 +17,5 @@ just simulate-stack sep 040-U17-soneium <council|foundation>
 Signing commands for each safe:
 ```bash
 cd src/tasks/sep/040-U17-soneium
-just --dotenv-path $(pwd)/.env sign <council|foundation>
+just sign-stack sep 040-U17-soneium <council|foundation>
 ```

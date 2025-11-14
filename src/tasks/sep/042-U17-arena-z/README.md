@@ -17,5 +17,5 @@ just simulate-stack sep 042-U17-arena-z <council|foundation>
 Signing commands for each safe:
 ```bash
 cd src/tasks/sep/042-U17-arena-z
-just --dotenv-path $(pwd)/.env sign <council|foundation>
+just sign-stack sep 042-U17-arena-z <council|foundation>
 ```

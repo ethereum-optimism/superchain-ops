@@ -18,5 +18,5 @@ Signing commands for each safe:
 ```bash
 cd src/tasks/sep/044-U17-zora
 
-just --dotenv-path $(pwd)/.env sign <council|foundation>
+just sign-stack sep 044-U17-zora <council|foundation>
 ```
