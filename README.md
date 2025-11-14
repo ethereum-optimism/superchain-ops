@@ -35,9 +35,9 @@ Run the commands below to set up your environment. `mise` is a **one-time setup*
 cd src/
 ./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
 mise activate   # Activate mise for the current shell; if it doesn’t take effect, restart your terminal.
-mise trust ../../mise.toml
+mise trust ../mise.toml
 mise install
-just --justfile ../../justfile install
+just --justfile ../justfile install
 ```
 
 > For more information on `mise`, please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
