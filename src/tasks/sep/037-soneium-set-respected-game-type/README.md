@@ -4,7 +4,6 @@ Status: [CANCELLED]
 
 This task has been delayed (date TBD).
 
-
 ## Objective
 
 This task sets the respected dispute game type to game type 0 (Permissionless) on Soneium Minato Testnet.
