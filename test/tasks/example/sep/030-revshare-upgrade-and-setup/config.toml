@@ -8,7 +8,7 @@ l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}]
 safeAddress = "ProxyAdminOwner"
 
 # RevShareContractsUpgrader address
-revShareUpgrader = "0x9C524DcEa18587e24976A82f05c2065e14DB7B3A"
+revShareUpgrader = "0x890C61C7F3f40B851EbCAacFA879C6075426419D"
 
 # RevShare configurations (one per chain) - flattened arrays
 portals = ["0x16Fc5058F25648194471939df75CF27A2fdC48BC"] # OP Sepolia Testnet Portal

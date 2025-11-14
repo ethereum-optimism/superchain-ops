@@ -7,7 +7,7 @@ import {RevShareContractsUpgrader} from "src/RevShareContractsUpgrader.sol";
 
 /// @notice Deploys the RevShareContractsUpgrader contract.
 /// @dev Uses CREATE2 for deterministic deployment. If already deployed, returns existing address.
-/// @dev Deployed at https://sepolia.etherscan.io/address/0x343312031f639B9e68D7E01535E4c5FAD9c76D42
+/// @dev Deployed at https://sepolia.etherscan.io/address/0x890C61C7F3f40B851EbCAacFA879C6075426419D
 /// @dev Usage:
 ///      forge script src/script/DeployRevSharesUpgrader.s.sol:DeployRevSharesUpgrader \
 ///          --rpc-url https://ethereum-sepolia.rpc.subquery.network/public \
@@ -17,7 +17,7 @@ import {RevShareContractsUpgrader} from "src/RevShareContractsUpgrader.sol";
 /// @dev The libraries were verified from the etherscan's UI as single file using `forge flatten`
 contract DeployRevSharesUpgrader is Script {
     /// @notice Salt used for deterministic deployment
-    bytes32 internal constant SALT = keccak256("RevShareContractsUpgrader");
+    bytes32 internal constant SALT = keccak256("SaltRevShareContractsUpgrader");
 
     /// @notice Deploys the RevShareContractsUpgrader contract deterministically using CREATE2
     /// @return upgrader The deployed RevShareContractsUpgrader contract
