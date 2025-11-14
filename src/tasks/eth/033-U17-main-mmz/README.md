@@ -17,5 +17,5 @@ just simulate-stack eth 033-U17-main-mmz <council|foundation>
 Signing commands for each safe:
 ```bash
 cd src/tasks/eth/033-U17-main-mmz
-just --dotenv-path $(pwd)/.env sign <council|foundation>
+just sign-stack eth 033-U17-main-mmz <council|foundation>
 ```

@@ -18,5 +18,5 @@ Signing commands for each safe:
 ```bash
 cd src/tasks/sep/043-U17-metal-mode
 
-just --dotenv-path $(pwd)/.env sign <council|foundation>
+just sign-stack sep 043-U17-metal-mode <council|foundation>
 ```
