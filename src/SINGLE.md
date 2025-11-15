@@ -33,17 +33,18 @@ just --justfile ../../justfile install
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 ```
 
-### 2. Setup Ledger
+### 2. Setup Hardware Wallet
 
-Your Ledger needs to be connected and unlocked. The Ethereum
-application needs to be opened on Ledger with the message "Application
-is ready".
+Your hardware wallet (Ledger or Trezor) needs to be connected and unlocked.
+
+- **For Ledger**: The Ethereum application needs to be opened on Ledger with the message "Application is ready".
+- **For Trezor**: Ensure your device is connected and unlocked. Set `WALLET_TYPE=trezor` in your environment to use Trezor instead of Ledger.
 
 ### 3. Simulate and validate the transaction
 
-Make sure your ledger is still unlocked and run the following command.
+Make sure your hardware wallet is still unlocked and run the following command.
 
-**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_LEDGER=1` to your command or `.env` file.
+**Note:** The default simulation requires either a hardware wallet (Ledger/Trezor) or keystore. For development/testing without any wallet, you can add `SIMULATE_WITHOUT_WALLET=1` to your command or `.env` file.
 
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
 If you wish to use a different account, set the `HD_PATH` environment variable. For example, `HD_PATH=1` will derive the address using `m/44'/60'/1'/0/0` instead.
@@ -52,10 +53,16 @@ If you wish to use a different account, set the `HD_PATH` environment variable. 
 # Default: simulate with ledger
 just --dotenv-path $(pwd)/.env simulate
 
+# To use Trezor instead of Ledger:
+WALLET_TYPE=trezor just --dotenv-path $(pwd)/.env simulate
+
 # To use a different HD derivation path (e.g. path 1):
 HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
 
-# Alternative: simulate without ledger (useful for development/testing):
+# Alternative: simulate without hardware wallet (useful for development/testing):
+SIMULATE_WITHOUT_WALLET=1 just --dotenv-path $(pwd)/.env simulate
+
+# Deprecated (still works but will show a warning):
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
@@ -66,7 +73,7 @@ You will also see a "Simulation link" from the output.
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
 
-Click "Simulate Transaction". Please note that in some cases, when the calldata is very large, you may have to complete an additional step. 
+Click "Simulate Transaction". Please note that in some cases, when the calldata is very large, you may have to complete an additional step.
 This involves copying and pasting the 'Raw Input data' field from the terminal into the Raw input data field in the Tenderly simulation, then clicking "Simulate Transaction".
 
 We will be performing 3 validations and extract the domain hash and
@@ -130,19 +137,26 @@ the transaction and the message/domain hashes.
 9. Review the message hash and domain hash and confirm that it matches the hashes presented in Superchain Ops.
 10. Return to Superchain Ops to complete signing.
 
-### 4. Approve the signature on your ledger
+### 4. Approve the signature on your hardware wallet
 
 Once the validations are done, it's time to actually sign the
-transaction. Make sure your ledger is still unlocked and run the
+transaction. Make sure your hardware wallet is still unlocked and run the
 following:
 
 ```shell
+# Default: sign with ledger
 just --dotenv-path $(pwd)/.env sign
+
+# To use Trezor instead of Ledger:
+WALLET_TYPE=trezor just --dotenv-path $(pwd)/.env sign
 
 # To use a different HD derivation path (e.g. path 1):
 HD_PATH=1 just --dotenv-path $(pwd)/.env sign
 
-# To use keystore instead of ledger:
+# To use keystore instead of hardware wallet:
+WALLET_TYPE=keystore just --dotenv-path $(pwd)/.env sign
+
+# Deprecated (still works but will show a warning):
 USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
 ```
 
