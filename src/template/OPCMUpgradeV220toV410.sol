@@ -24,9 +24,9 @@ contract OPCMUpgradeV220toV410 is OPCMTaskBase {
     using LibString for string;
 
     /// @notice Validators
+    /// Note that as of v4.1.0 the StandardValidator contract is integrated with the OPCM.
     IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
-    IStandardValidatorV410 public STANDARD_VALIDATOR_V410;
 
     /// @notice Address of the OPCM for U13, U14, U15 and U16a.
     address public OPCM_V220;
@@ -123,11 +123,6 @@ contract OPCMUpgradeV220toV410 is OPCMTaskBase {
         STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
         require(address(STANDARD_VALIDATOR_V300).code.length > 0, "ValidatorV300 not deployed");
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
-
-        // === Standard Validator for U16a ===
-        STANDARD_VALIDATOR_V410 = IStandardValidatorV410(tomlContent.readAddress(".addresses.StandardValidatorV410"));
-        require(address(STANDARD_VALIDATOR_V410).code.length > 0, "ValidatorV410 not deployed");
-        vm.label(address(STANDARD_VALIDATOR_V410), "StandardValidatorV410");
     }
 
     /// @notice Performs the atomic upgrade (U12 to U16a) for all chains
@@ -252,7 +247,12 @@ contract OPCMUpgradeV220toV410 is OPCMTaskBase {
                 l2ChainID: chainId
             });
 
-            string memory errors = STANDARD_VALIDATOR_V410.validate(input, true);
+            IStandardValidatorV410.ValidationOverrides memory overrides = IStandardValidatorV410.ValidationOverrides({
+                l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
+            });
+
+            string memory errors = IStandardValidatorV410(OPCM_V410).validateWithOverrides(input, true, overrides);
             require(errors.eq(expErrors), string.concat("U16a validation failed: ", errors, "; expected: ", expErrors));
         }
     }
@@ -286,6 +286,20 @@ interface IStandardValidatorV410 {
         bytes32 absolutePrestate;
         uint256 l2ChainID;
     }
+
+    struct ValidationOverrides {
+        address l1PAOMultisig;
+        address challenger;
+    }
+
+    function validateWithOverrides(
+        InputV410 memory _input,
+        bool _allowFailure,
+        ValidationOverrides memory _overrides
+    )
+        external
+        view
+        returns (string memory);
 
     function validate(InputV410 memory _input, bool _allowFailure) external view returns (string memory);
     function mipsVersion() external pure returns (string memory);
