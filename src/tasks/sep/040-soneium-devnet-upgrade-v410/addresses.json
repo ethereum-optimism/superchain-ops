@@ -1,0 +1,16 @@
+{
+  "179182": {
+    "ProxyAdmin": "0x4f0bb1e5f8d98078636f9c38af61128381762dbd",
+    "ProxyAdminOwner": "0xfb0f8937a0d6999c67e8a01310ebf7fe1859205f",
+    "SystemConfigProxy": "0xe4a8f005bc30ebd2b2ebb69843baef97c597dc00",
+    "L1CrossDomainMessengerProxy": "0xa623de2d9352c75c2e10f6cbf50e101deed3a301",
+    "L1StandardBridgeProxy": "0xc1d449c21883f05451c3cec0c1ed22d876eb0289",
+    "OptimismPortalProxy": "0x5f2667d343ef0681621fda2d80682c1903672751",
+    "DisputeGameFactoryProxy": "0xef77ae71ff7f533970910342c71692a3bdc74eac",
+    "DelayedWETHProxy": "0x3E3A920043D2201FcbB89F72843A53e7453f0e8D",
+    "PermissionedDelayedWETHProxy": "0x3E3A920043D2201FcbB89F72843A53e7453f0e8D",
+    "AnchorStateRegistryProxy": "0x4e61ff0524bb9d1ec8f3fb5e42d196bdad030f5e",
+    "AddressManager": "0x524a22c07597aba5ae02fe0a5735ca82277cc6da",
+    "L1ERC721BridgeProxy": "0x31e21180cf37994d0dd35bf20ecafe85563e1e13"
+  }
+}
