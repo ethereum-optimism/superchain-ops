@@ -4,6 +4,7 @@ Status: [CANCELLED]
 
 This task has been delayed (date TBD).
 
+
 ## Objective
 
 This task adds the dispute game type 0 (Permissionless) to the Dispute Game Factory on Soneium Minato Testnet.
