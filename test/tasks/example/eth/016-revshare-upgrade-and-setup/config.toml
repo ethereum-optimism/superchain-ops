@@ -8,7 +8,7 @@ l2chains = [{name = "OP Mainnet", chainId = 10}, {name = "Ink", chainId = 57073}
 safeAddress = "ProxyAdminOwner"
 
 # RevShareContractsUpgrader address
-# TODO: Update to the corresponding address once deployed
+# TODO: Update to the corresponding address after audit
 revShareUpgrader = "0x6fee65A372d63295E8EB12574652F0BfEb913149" 
 
 # RevShare configurations (one per chain) - flattened arrays
