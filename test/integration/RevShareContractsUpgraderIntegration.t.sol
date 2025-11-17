@@ -116,6 +116,29 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
             INK_WITHDRAWAL_GAS_LIMIT,
             INK_CHAIN_FEES_RECIPIENT
         );
+
+        // Step 6: Do a withdrawal flow
+
+        // Fund vaults with amount > minWithdrawalAmount
+        _fundVaults(1 ether, _opMainnetForkId);
+        _fundVaults(1 ether, _inkMainnetForkId);
+
+        // Disburse fees in both chains and expect the L1Withdrawer to trigger the withdrawal
+        vm.selectFork(_opMainnetForkId);
+        vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
+        IFeeSplitter(FEE_SPLITTER).disburseFees();
+
+        vm.selectFork(_inkMainnetForkId);
+        vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
+        IFeeSplitter(FEE_SPLITTER).disburseFees();
+    }
+
+    function _fundVaults(uint256 _amount, uint256 _forkId) internal {
+        vm.selectFork(_forkId);
+        vm.deal(SEQUENCER_FEE_VAULT, _amount);
+        vm.deal(OPERATOR_FEE_VAULT, _amount);
+        vm.deal(BASE_FEE_VAULT, _amount);
+        vm.deal(L1_FEE_VAULT, _amount);
     }
 
     /// @notice Assert the state of all L2 contracts after upgrade
