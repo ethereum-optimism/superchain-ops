@@ -453,7 +453,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
                 VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
-                uint256 value = uint256(storageAccess.newValue);Tel
+                uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
                 if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
                     // Log account, slot, and value if there is no code.
