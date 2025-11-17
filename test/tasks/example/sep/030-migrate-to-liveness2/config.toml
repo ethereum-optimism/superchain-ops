@@ -1,0 +1,10 @@
+templateName = "MigrateToLiveness2"
+
+
+[addresses]
+saferSafes = "0xc69e4c24db479191676611a25d977203c3bdca62"
+safe = ""
+
+[livenessModule]
+livenessResponsePeriod = ""
+fallbackOwner = ""
