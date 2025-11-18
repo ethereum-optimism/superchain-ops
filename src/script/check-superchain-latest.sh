@@ -55,24 +55,24 @@ curl -sL "$remote_url" -o "$remote_file"
 comparison=$(jq -n -r --slurpfile L "$local_file" --slurpfile R "$remote_file" '
   reduce ($L[0] | keys[]) as $chain (""; . +
     (
-      ["L1StandardBridgeProxy","SystemConfigProxy"]         # List of proxy keys to check
+      ["L1StandardBridgeProxy","SystemConfigProxy"]                    # List of proxy keys to check
       | map(
-          ($chain as $ch                                       # For each proxy under this chain
-           | . as $proxy
-           | ($L[0][$ch][$proxy] // null) as $laddr              # Get local address or null
-           | ($R[0][$ch][$proxy] // null) as $raddr              # Get remote address or null
-           | if $laddr == null then                            # If local missing
+          ($chain as $ch | . as $proxy                                 # For each proxy under this chain
+           
+           | ($L[0][$ch][$proxy] // null) as $laddr                    # Get local address or null
+           | ($R[0][$ch][$proxy] // null) as $raddr                    # Get remote address or null
+           | if $laddr == null then                                    # If local missing
                "Error: local missing \($proxy) on chain \($ch)\n"
-             elif $raddr == null then                          # If remote missing
+             elif $raddr == null then                                  # If remote missing
                "Error: remote missing \($proxy) on chain \($ch)\n"
-             elif $laddr != $raddr then                        # If addresses differ
+             elif $laddr != $raddr then                                # If addresses differ
                "Error: address mismatch for \($proxy) on chain \($ch)\n  Local:  \($laddr)\n  Remote: \($raddr)\n"
-             else                                              # No error if they match
+             else                                                      # No error if they match
                ""
              end
           )
       )
-      | join("")                                             # Concatenate both proxy checks
+      | join("")                                                       # Concatenate both proxy checks
     )
   )
 ')
