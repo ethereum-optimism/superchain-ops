@@ -129,6 +129,7 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
 
         // Disburse fees in both chains and expect the L1Withdrawer to trigger the withdrawal
         // Expected L1Withdrawer share = 3 ether * 15% = 0.45 ether
+        // It is 3 ether instead of 4 because net revenue doesn't count L1FeeVault's balance
         // For details on the rev share calculation, check the SuperchainRevSharesCalculator contract.
         // https://github.com/ethereum-optimism/optimism/blob/f392d4b7e8bc5d1c8d38fcf19c8848764f8bee3b/packages/contracts-bedrock/src/L2/SuperchainRevSharesCalculator.sol#L67-L101
         uint256 expectedWithdrawalAmount = 0.45 ether;
