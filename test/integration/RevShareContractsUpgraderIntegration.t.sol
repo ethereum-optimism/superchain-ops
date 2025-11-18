@@ -234,7 +234,7 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
         );
     }
 
-    /// @notice Assert that disburseFees triggers a withdrawal with the expected amount
+    /// @notice Execute disburseFees and assert that it triggers a withdrawal with the expected amount
     /// @param _forkId The fork ID of the chain to test
     /// @param _l1WithdrawalRecipient The expected recipient of the withdrawal
     /// @param _expectedWithdrawalAmount The expected withdrawal amount
