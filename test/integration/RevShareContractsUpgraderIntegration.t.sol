@@ -134,31 +134,8 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
         // https://github.com/ethereum-optimism/optimism/blob/f392d4b7e8bc5d1c8d38fcf19c8848764f8bee3b/packages/contracts-bedrock/src/L2/SuperchainRevSharesCalculator.sol#L67-L101
         uint256 expectedWithdrawalAmount = 0.45 ether;
 
-        vm.selectFork(_opMainnetForkId);
-        vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
-
-        uint256 balanceBefore = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
-        vm.expectEmit(true, true, true, true);
-        emit WithdrawalInitiated(OP_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
-        IFeeSplitter(FEE_SPLITTER).disburseFees();
-
-        uint256 balanceAfter = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
-        assertEq(balanceAfter - balanceBefore, expectedWithdrawalAmount);
-
-        vm.selectFork(_inkMainnetForkId);
-        vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
-
-        balanceBefore = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
-        vm.expectEmit(true, true, true, true);
-        emit WithdrawalInitiated(INK_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
-        IFeeSplitter(FEE_SPLITTER).disburseFees();
-
-        balanceAfter = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
-        assertEq(balanceAfter - balanceBefore, expectedWithdrawalAmount);
+        _executeDisburseAndAssertWithdrawal(_opMainnetForkId, OP_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
+        _executeDisburseAndAssertWithdrawal(_inkMainnetForkId, INK_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
     }
 
     function _fundVaults(uint256 _amount, uint256 _forkId) internal {
@@ -255,5 +232,28 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
             _minWithdrawalAmount,
             "Vault MIN_WITHDRAWAL_AMOUNT (legacy) mismatch"
         );
+    }
+
+    /// @notice Assert that disburseFees triggers a withdrawal with the expected amount
+    /// @param _forkId The fork ID of the chain to test
+    /// @param _l1WithdrawalRecipient The expected recipient of the withdrawal
+    /// @param _expectedWithdrawalAmount The expected withdrawal amount
+    function _executeDisburseAndAssertWithdrawal(
+        uint256 _forkId,
+        address _l1WithdrawalRecipient,
+        uint256 _expectedWithdrawalAmount
+    ) internal {
+        vm.selectFork(_forkId);
+        vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
+
+        uint256 balanceBefore = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
+
+        vm.expectEmit(true, true, true, true);
+        emit WithdrawalInitiated(_l1WithdrawalRecipient, _expectedWithdrawalAmount);
+        IFeeSplitter(FEE_SPLITTER).disburseFees();
+
+        uint256 balanceAfter = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
+
+        assertEq(balanceAfter - balanceBefore, _expectedWithdrawalAmount);
     }
 }
