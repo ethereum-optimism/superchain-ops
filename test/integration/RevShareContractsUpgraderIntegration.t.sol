@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {RevShareContractsUpgrader} from "src/RevShareContractsUpgrader.sol";
 import {RevShareUpgradeAndSetup} from "src/template/RevShareUpgradeAndSetup.sol";
 import {IntegrationBase} from "./IntegrationBase.t.sol";
+import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Test} from "forge-std/Test.sol";
 
 // Interfaces
@@ -18,6 +19,9 @@ import {ISuperchainRevSharesCalculator} from "src/interfaces/ISuperchainRevShare
 contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
     RevShareContractsUpgrader public revShareUpgrader;
     RevShareUpgradeAndSetup public revShareTask;
+
+    // Events for testing
+    event WithdrawalInitiated(address indexed recipient, uint256 amount);
 
     // Fork IDs
     uint256 internal _mainnetForkId;
@@ -116,6 +120,30 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
             INK_WITHDRAWAL_GAS_LIMIT,
             INK_CHAIN_FEES_RECIPIENT
         );
+
+        // Step 6: Do a withdrawal flow
+
+        // Fund vaults with amount > minWithdrawalAmount
+        _fundVaults(1 ether, _opMainnetForkId);
+        _fundVaults(1 ether, _inkMainnetForkId);
+
+        // Disburse fees in both chains and expect the L1Withdrawer to trigger the withdrawal
+        // Expected L1Withdrawer share = 3 ether * 15% = 0.45 ether
+        // It is 3 ether instead of 4 because net revenue doesn't count L1FeeVault's balance
+        // For details on the rev share calculation, check the SuperchainRevSharesCalculator contract.
+        // https://github.com/ethereum-optimism/optimism/blob/f392d4b7e8bc5d1c8d38fcf19c8848764f8bee3b/packages/contracts-bedrock/src/L2/SuperchainRevSharesCalculator.sol#L67-L101
+        uint256 expectedWithdrawalAmount = 0.45 ether;
+
+        _executeDisburseAndAssertWithdrawal(_opMainnetForkId, OP_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
+        _executeDisburseAndAssertWithdrawal(_inkMainnetForkId, INK_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
+    }
+
+    function _fundVaults(uint256 _amount, uint256 _forkId) internal {
+        vm.selectFork(_forkId);
+        vm.deal(SEQUENCER_FEE_VAULT, _amount);
+        vm.deal(OPERATOR_FEE_VAULT, _amount);
+        vm.deal(BASE_FEE_VAULT, _amount);
+        vm.deal(L1_FEE_VAULT, _amount);
     }
 
     /// @notice Assert the state of all L2 contracts after upgrade
@@ -204,5 +232,28 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
             _minWithdrawalAmount,
             "Vault MIN_WITHDRAWAL_AMOUNT (legacy) mismatch"
         );
+    }
+
+    /// @notice Execute disburseFees and assert that it triggers a withdrawal with the expected amount
+    /// @param _forkId The fork ID of the chain to test
+    /// @param _l1WithdrawalRecipient The expected recipient of the withdrawal
+    /// @param _expectedWithdrawalAmount The expected withdrawal amount
+    function _executeDisburseAndAssertWithdrawal(
+        uint256 _forkId,
+        address _l1WithdrawalRecipient,
+        uint256 _expectedWithdrawalAmount
+    ) internal {
+        vm.selectFork(_forkId);
+        vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
+
+        uint256 balanceBefore = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
+
+        vm.expectEmit(true, true, true, true);
+        emit WithdrawalInitiated(_l1WithdrawalRecipient, _expectedWithdrawalAmount);
+        IFeeSplitter(FEE_SPLITTER).disburseFees();
+
+        uint256 balanceAfter = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
+
+        assertEq(balanceAfter - balanceBefore, _expectedWithdrawalAmount);
     }
 }
