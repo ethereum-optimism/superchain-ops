@@ -1,0 +1,34 @@
+# RevShare Setup Configuration
+
+templateName = "RevShareUpgradeAndSetup"
+
+# L2 chains to target
+l2chains = [{name = "OP Mainnet", chainId = 10}, {name = "Ink", chainId = 57073}]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+# TODO: Update to the corresponding address after audit
+revShareUpgrader = "0x6fee65A372d63295E8EB12574652F0BfEb913149" 
+
+# RevShare configurations (one per chain) - flattened arrays
+portals = [
+  "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed", # OP Mainnet Portal
+  "0x5d66C1782664115999C47c9fA5cd031f495D3e4F"  # Ink Mainnet Portal
+]
+chainFeesRecipients = [
+  "0x0000000000000000000000000000000000000001", # TODO: Update to the corresponding address once defined
+  "0x0000000000000000000000000000000000000002"  # TODO: Update to the corresponding address once defined
+]
+l1WithdrawerMinWithdrawalAmounts = [350000, 500000]
+
+l1WithdrawerRecipients = [
+  # TODO: Update to the corresponding (e.g. FeesDepositor) address once defined
+  "0x0000000000000000000000000000000000000001", 
+  # TODO: Update to the corresponding (e.g. FeesDepositor) address once defined
+  "0x0000000000000000000000000000000000000002"
+]
+l1WithdrawerGasLimits = [800000, 1000000]
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"

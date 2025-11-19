@@ -1,6 +1,6 @@
 # 039-U17-op
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xfb6e8295b69caa19b285df3275e9bccd04296dbca0fa4214539e7eb2728b2224)
 
 ## Objective
 

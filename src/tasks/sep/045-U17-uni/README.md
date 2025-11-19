@@ -1,6 +1,6 @@
 # 045-U17-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xb438e78730e07f12bebaa3678e2cfae57f24fd6f45391e18c9136651b3605f75)
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # 040-U17-soneium
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa9cc5dddea20614f02ab53f620b39a4bc86033b38058e26d7421bd4ccbab8f19)
 
 ## Objective
 

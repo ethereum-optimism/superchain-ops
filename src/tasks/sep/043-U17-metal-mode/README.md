@@ -1,6 +1,6 @@
 # 043-U17-metal-mode
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x33ad5899ce5a0b311da6bf1e453781b16e590a3f45decfdc33ed19e3f8e2a89c)
 
 ## Objective
 

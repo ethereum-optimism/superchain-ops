@@ -1,6 +1,6 @@
 # 042-U17-arena-z
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x42fa36a969db872eed0bfdee7c44ecb472bfb15f6919e49818caf2d02d55c570)
 
 ## Objective
 

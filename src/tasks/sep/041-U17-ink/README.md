@@ -1,6 +1,6 @@
 # 041-U17-ink
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xbf41d603dbc75a1fedd1fac67d1c10279fb4a2f22b8afbd99c0c9a44a43034a0)
 
 ## Objective
 

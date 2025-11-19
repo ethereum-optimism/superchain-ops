@@ -3,9 +3,18 @@ pragma solidity ^0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {TestCreate2Deployer} from "test/mock/TestCreate2Deployer.sol";
 
 contract UtilsTest is Test {
     using Utils for address[];
+
+    function testFuzz_getCreate2Address(uint256 _saltSeed, bytes memory _initCode) public {
+        bytes32 salt = bytes32(uint256(_saltSeed));
+        TestCreate2Deployer deployer = new TestCreate2Deployer();
+        _initCode = abi.encode(bytes.concat("0x6080"), _initCode);
+        address create2Address = Utils.getCreate2Address(salt, _initCode, address(deployer));
+        assertEq(create2Address, deployer.deploy(0, salt, _initCode));
+    }
 
     function test_isFeatureEnabled() public {
         string memory randomFeature = "RANDOM_FEATURE";
