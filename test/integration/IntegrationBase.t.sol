@@ -67,6 +67,7 @@ abstract contract IntegrationBase is Test {
     ///                    we only process the final simulation results.
     /// @param _portals Array of Portal addresses corresponding to each fork.
     ///                 Only events emitted by each portal will be relayed on its corresponding L2.
+
     function _relayAllMessages(uint256[] memory _forkIds, bool _isSimulate, address[] memory _portals) internal {
         require(_forkIds.length == _portals.length, "Fork IDs and portals length mismatch");
 
