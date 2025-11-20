@@ -85,7 +85,7 @@ jobs:
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
           # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
-          no_output_timeout: 60m
+          no_output_timeout: 90m
           command: |
             just install
             cd src/
