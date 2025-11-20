@@ -17,15 +17,15 @@ portals = [
   "0x5d66C1782664115999C47c9fA5cd031f495D3e4F"  # Ink Mainnet Portal
 ]
 chainFeesRecipients = [
-  "0x0000000000000000000000000000000000000001", # TODO: Update to the corresponding address once defined
-  "0x0000000000000000000000000000000000000002"  # TODO: Update to the corresponding address once defined
+  "0x0000000000000000000000000000000000000001", # Update to the corresponding address once defined
+  "0x0000000000000000000000000000000000000002"  # Update to the corresponding address once defined
 ]
 l1WithdrawerMinWithdrawalAmounts = [350000, 500000]
 
 l1WithdrawerRecipients = [
-  # TODO: Update to the corresponding (e.g. FeesDepositor) address once defined
+  # TODO(17505): Update to the corresponding (e.g. FeesDepositor) address once defined
   "0x0000000000000000000000000000000000000001", 
-  # TODO: Update to the corresponding (e.g. FeesDepositor) address once defined
+  # TODO(17505): Update to the corresponding (e.g. FeesDepositor) address once defined
   "0x0000000000000000000000000000000000000002"
 ]
 l1WithdrawerGasLimits = [800000, 1000000]
