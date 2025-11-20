@@ -6,7 +6,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {LibString} from "@solady/utils/LibString.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
@@ -15,6 +14,7 @@ import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
+import {HighGasMultisigTask} from "test/tasks/mock/HighGasMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
@@ -406,6 +406,21 @@ contract MultisigTaskUnitTest is Test {
         bytes32 hash =
             task.getHash(result[result.length - 1], root, 0, allOriginalNonces[allOriginalNonces.length - 1], allSafes);
         assertNestedCalldata(result[0], root, abi.encodeCall(IGnosisSafe(root).approveHash, (hash)));
+    }
+
+    /// @notice Tests that MultisigTask reverts when a transaction exceeds the 14M gas limit
+    function test_simulate_revertsOnHighGasUsage_fails() public {
+        string memory highGasToml =
+            "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"HighGasMultisigTask\"\n" "\n";
+
+        string memory taskConfigFilePath =
+            MultisigTaskTestHelper.createTempTomlFile(highGasToml, TESTING_DIRECTORY, "highgas");
+
+        HighGasMultisigTask highGasTask = new HighGasMultisigTask();
+
+        vm.expectRevert("MultisigTask: transaction exceeds 14M gas limit");
+        highGasTask.simulate(taskConfigFilePath);
+        MultisigTaskTestHelper.removeFile(taskConfigFilePath);
     }
 
     /// @notice Asserts that the root safe calldata is correct.
