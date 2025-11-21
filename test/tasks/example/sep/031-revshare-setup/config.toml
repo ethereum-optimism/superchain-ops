@@ -1,0 +1,22 @@
+# RevShare Setup Configuration
+
+templateName = "RevShareSetup"
+
+# L2 chains to target
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+# TODO: Update to the corresponding address after audit
+revShareUpgrader = "0x890C61C7F3f40B851EbCAacFA879C6075426419D"
+
+# RevShare configurations (one per chain) - flattened arrays
+portals = ["0x16Fc5058F25648194471939df75CF27A2fdC48BC"] # OP Sepolia Testnet Portal
+chainFeesRecipients = ["0x0000000000000000000000000000000000000001"] # OP Sepolia Testnet chain fees recipient
+l1WithdrawerMinWithdrawalAmounts = [350000]
+l1WithdrawerRecipients = ["0x0000000000000000000000000000000000000001"]
+l1WithdrawerGasLimits = [800000]
+
+[addresses]
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
