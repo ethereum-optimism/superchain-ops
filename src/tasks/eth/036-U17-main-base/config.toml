@@ -1,0 +1,44 @@
+l2chains = [
+    {name = "Base", chainId = 8453}
+]
+
+templateName = "OPCMUpgradeV500"
+
+
+# Base (Permissionless)
+[[opcmUpgrades]]
+chainId = 8453
+# Jovian prestate:
+absolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b"  # prestates."1.8.0-rc.4" https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-prestates.toml#L6C7-L6C73
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"  # The template provides PAO and Challenger overrides to the validator from the SCR. These simply indicate overrides were used.
+
+
+[addresses]
+OPCM = "0xfa1ef97fb02b0da2ee2346b8e310907ab5519449"  # Source: https://github.com/ethereum-optimism/superchain-registry/blob/9e3f71cee0e4e2acb4864cb00f5fbee3555d8e9f/validation/standard/standard-versions-mainnet.toml#L23C56-L23C98
+
+
+[stateOverrides]
+# Base Mainnet ProxyAdminOwner
+0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+]
+
+# Base Nested Safe
+0x9855054731540A48b28990B63DcF4f33d8AE46A1 = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 24}
+]
+
+# Base Council Safe
+0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 3}
+]
+
+# Base Operations Safe
+0x9C4a57Feb77e294Fd7BF5EBE9AB01CAA0a90A110 = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
+]
+
+# Foundation Operation Safe
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [ 
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 111}
+]
