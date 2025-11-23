@@ -135,7 +135,11 @@ jobs:
           command: |
             just install
             forge --version
-            forge test -vvv
+            # Skip integration tests - they require RPC endpoints for L1/L2 fork simulation, and for now the unique
+            # test we have is for revenue sharing and is not the standard way of testing, for now we are excluding it
+            # from the CI.
+            # Run manually with: forge test --match-contract Integration
+            forge test --skip Integration -vvv
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
