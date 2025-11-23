@@ -9,17 +9,19 @@ import {Action, TemplateConfig, TaskType, TaskPayload, SafeData} from "src/libra
 
 interface ISaferSafes {
     struct ModuleConfig {
-          uint256 livenessResponsePeriod;
-          address fallbackOwner;
-      }
-
+        uint256 livenessResponsePeriod;
+        address fallbackOwner;
+    }
 
     function enableModule(address _module) external;
     function setGuard(address _guard) external;
     function configureTimelockGuard(uint256 _timelockDelay) external;
     function configureLivenessModule(ModuleConfig memory _moduleConfig) external;
     function version() external view returns (string memory);
-    function getModulesPaginated(address start, uint256 pageSize) external view returns (address[] memory array, address next);
+    function getModulesPaginated(address start, uint256 pageSize)
+        external
+        view
+        returns (address[] memory array, address next);
     function disableModule(address prevModule, address module) external;
     function isModuleEnabled(address module) external view returns (bool);
     function getGuard() external view returns (address);
@@ -44,13 +46,15 @@ contract MigrateToLiveness2 is SimpleTaskBase {
 
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         string[] memory writes = new string[](2);
-        writes[0] = "targetSafe";      // Safe being modified (enableModule, etc.)
-        writes[1] = "saferSafes";      // SaferSafes contract (configureLivenessModule)
+        writes[0] = "targetSafe"; // Safe being modified (enableModule, etc.)
+        writes[1] = "saferSafes"; // SaferSafes contract (configureLivenessModule)
         return writes;
     }
+
     function _getCodeExceptions() internal view override returns (address[] memory) {}
+
     function safeAddressString() public pure override returns (string memory) {
-        return "targetSafe";  // References the custom safe from config.toml
+        return "targetSafe"; // References the custom safe from config.toml
     }
 
     /// @notice Find the previous module in the linked list
@@ -79,7 +83,7 @@ contract MigrateToLiveness2 is SimpleTaskBase {
     function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
         super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
-    
+
         saferSafes = tomlContent.readAddress(".addresses.saferSafes");
         multisig = tomlContent.readAddress(".addresses.targetSafe");
         currentLivenessModule = tomlContent.readAddress(".addresses.currentLivenessModule");
@@ -100,10 +104,8 @@ contract MigrateToLiveness2 is SimpleTaskBase {
         ISaferSafes(multisig).enableModule(saferSafes);
 
         // Configure the liveness module on SaferSafes
-        ISaferSafes.ModuleConfig memory moduleConfig = ISaferSafes.ModuleConfig({
-            livenessResponsePeriod: livenessResponsePeriod,
-            fallbackOwner: fallbackOwner
-        });
+        ISaferSafes.ModuleConfig memory moduleConfig =
+            ISaferSafes.ModuleConfig({livenessResponsePeriod: livenessResponsePeriod, fallbackOwner: fallbackOwner});
         ISaferSafes(saferSafes).configureLivenessModule(moduleConfig);
 
         // Remove the old liveness module
@@ -113,8 +115,7 @@ contract MigrateToLiveness2 is SimpleTaskBase {
 
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         require(
-            ISaferSafes(multisig).isModuleEnabled(saferSafes),
-            "Validation failed: SaferSafes module is not enabled"
+            ISaferSafes(multisig).isModuleEnabled(saferSafes), "Validation failed: SaferSafes module is not enabled"
         );
 
         require(
@@ -128,10 +129,7 @@ contract MigrateToLiveness2 is SimpleTaskBase {
         assembly {
             guardAddress := value
         }
-        require(
-            guardAddress == address(0),
-            "Validation failed: Guard was not removed"
-        );
+        require(guardAddress == address(0), "Validation failed: Guard was not removed");
 
         ISaferSafes.ModuleConfig memory config = ISaferSafes(saferSafes).livenessSafeConfiguration(multisig);
 
@@ -140,9 +138,6 @@ contract MigrateToLiveness2 is SimpleTaskBase {
             "Validation failed: Liveness response period mismatch"
         );
 
-        require(
-            config.fallbackOwner == fallbackOwner,
-            "Validation failed: Fallback owner mismatch"
-        );
+        require(config.fallbackOwner == fallbackOwner, "Validation failed: Fallback owner mismatch");
     }
 }
