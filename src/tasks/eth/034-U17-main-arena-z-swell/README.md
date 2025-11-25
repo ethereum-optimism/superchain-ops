@@ -1,6 +1,6 @@
 # 034-U17-main-arena-z-swell
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xc1c52a6b223c21ad02f12e115b3b872ca858298de141528c019401811fbb822a)
 
 ## Objective
 
