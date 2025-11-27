@@ -27,11 +27,13 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
     uint256 internal _mainnetForkId;
     uint256 internal _opMainnetForkId;
     uint256 internal _inkMainnetForkId;
+    uint256 internal _soneiumMainnetForkId;
 
     // L1 addresses
     address internal constant PROXY_ADMIN_OWNER = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address internal constant OP_MAINNET_PORTAL = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed;
     address internal constant INK_MAINNET_PORTAL = 0x5d66C1782664115999C47c9fA5cd031f495D3e4F;
+    address internal constant SONEIUM_MAINNET_PORTAL = 0x88e529A6ccd302c948689Cd5156C83D4614FAE92;
     address internal constant REV_SHARE_UPGRADER_ADDRESS = 0x0000000000000000000000000000000000001337;
 
     // L2 predeploys (same across all OP Stack chains)
@@ -40,13 +42,6 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
     address internal constant BASE_FEE_VAULT = 0x4200000000000000000000000000000000000019;
     address internal constant L1_FEE_VAULT = 0x420000000000000000000000000000000000001A;
     address internal constant FEE_SPLITTER = 0x420000000000000000000000000000000000002B;
-
-    // Expected deployed contracts (deterministic CREATE2 addresses)
-    address internal constant OP_L1_WITHDRAWER = 0xB3AeB34b88D73Fb4832f65BEa5Bd865017fB5daC;
-    address internal constant OP_REV_SHARE_CALCULATOR = 0x3E806Fd8592366E850197FEC8D80608b5526Bba2;
-
-    address internal constant INK_L1_WITHDRAWER = 0x70e26B12a578176BccCD3b7e7f58f605871c5eF7;
-    address internal constant INK_REV_SHARE_CALCULATOR = 0xd7a5307B4Ce92B0269903191007b95dF42552Dfa;
 
     // Test configuration - OP Mainnet
     uint256 internal constant OP_MIN_WITHDRAWAL_AMOUNT = 350000;
@@ -57,16 +52,23 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
     // Test configuration - Ink Mainnet
     uint256 internal constant INK_MIN_WITHDRAWAL_AMOUNT = 500000;
     address internal constant INK_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000002;
-    uint32 internal constant INK_WITHDRAWAL_GAS_LIMIT = 1000000;
+    uint32 internal constant INK_WITHDRAWAL_GAS_LIMIT = 800000;
     address internal constant INK_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000002;
+
+    // Test configuration - Soneium Mainnet
+    uint256 internal constant SONEIUM_MIN_WITHDRAWAL_AMOUNT = 500000;
+    address internal constant SONEIUM_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000003;
+    uint32 internal constant SONEIUM_WITHDRAWAL_GAS_LIMIT = 800000;
+    address internal constant SONEIUM_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000003;
 
     bool internal constant IS_SIMULATE = true;
 
     function setUp() public {
-        // Create forks for L1 (mainnet) and L2 (OP Mainnet)
+        // Create forks for L1 (mainnet) and L2s
         _mainnetForkId = vm.createFork("http://127.0.0.1:8545");
         _opMainnetForkId = vm.createFork("http://127.0.0.1:9545");
         _inkMainnetForkId = vm.createFork("http://127.0.0.1:9546");
+        _soneiumMainnetForkId = vm.createFork("http://127.0.0.1:9547");
 
         // Deploy contracts on L1
         vm.selectFork(_mainnetForkId);
@@ -89,21 +91,26 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
         revShareTask.simulate("test/tasks/example/eth/016-revshare-upgrade-and-setup/config.toml");
 
         // Step 3: Relay deposit transactions from L1 to all L2s
-        uint256[] memory forkIds = new uint256[](2);
+        uint256[] memory forkIds = new uint256[](3);
         forkIds[0] = _opMainnetForkId;
         forkIds[1] = _inkMainnetForkId;
+        forkIds[2] = _soneiumMainnetForkId;
 
-        address[] memory portals = new address[](2);
+        address[] memory portals = new address[](3);
         portals[0] = OP_MAINNET_PORTAL;
         portals[1] = INK_MAINNET_PORTAL;
+        portals[2] = SONEIUM_MAINNET_PORTAL;
 
         _relayAllMessages(forkIds, IS_SIMULATE, portals);
 
         // Step 4: Assert the state of the OP Mainnet contracts
         vm.selectFork(_opMainnetForkId);
+        address opL1Withdrawer =
+            _computeL1WithdrawerAddress(OP_MIN_WITHDRAWAL_AMOUNT, OP_L1_WITHDRAWAL_RECIPIENT, OP_WITHDRAWAL_GAS_LIMIT);
+        address opRevShareCalculator = _computeRevShareCalculatorAddress(opL1Withdrawer, OP_CHAIN_FEES_RECIPIENT);
         _assertL2State(
-            OP_L1_WITHDRAWER,
-            OP_REV_SHARE_CALCULATOR,
+            opL1Withdrawer,
+            opRevShareCalculator,
             OP_MIN_WITHDRAWAL_AMOUNT,
             OP_L1_WITHDRAWAL_RECIPIENT,
             OP_WITHDRAWAL_GAS_LIMIT,
@@ -112,22 +119,42 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
 
         // Step 5: Assert the state of the Ink Mainnet contracts
         vm.selectFork(_inkMainnetForkId);
+        address inkL1Withdrawer =
+            _computeL1WithdrawerAddress(INK_MIN_WITHDRAWAL_AMOUNT, INK_L1_WITHDRAWAL_RECIPIENT, INK_WITHDRAWAL_GAS_LIMIT);
+        address inkRevShareCalculator = _computeRevShareCalculatorAddress(inkL1Withdrawer, INK_CHAIN_FEES_RECIPIENT);
         _assertL2State(
-            INK_L1_WITHDRAWER,
-            INK_REV_SHARE_CALCULATOR,
+            inkL1Withdrawer,
+            inkRevShareCalculator,
             INK_MIN_WITHDRAWAL_AMOUNT,
             INK_L1_WITHDRAWAL_RECIPIENT,
             INK_WITHDRAWAL_GAS_LIMIT,
             INK_CHAIN_FEES_RECIPIENT
         );
 
-        // Step 6: Do a withdrawal flow
+        // Step 6: Assert the state of the Soneium Mainnet contracts
+        vm.selectFork(_soneiumMainnetForkId);
+        address soneiumL1Withdrawer = _computeL1WithdrawerAddress(
+            SONEIUM_MIN_WITHDRAWAL_AMOUNT, SONEIUM_L1_WITHDRAWAL_RECIPIENT, SONEIUM_WITHDRAWAL_GAS_LIMIT
+        );
+        address soneiumRevShareCalculator =
+            _computeRevShareCalculatorAddress(soneiumL1Withdrawer, SONEIUM_CHAIN_FEES_RECIPIENT);
+        _assertL2State(
+            soneiumL1Withdrawer,
+            soneiumRevShareCalculator,
+            SONEIUM_MIN_WITHDRAWAL_AMOUNT,
+            SONEIUM_L1_WITHDRAWAL_RECIPIENT,
+            SONEIUM_WITHDRAWAL_GAS_LIMIT,
+            SONEIUM_CHAIN_FEES_RECIPIENT
+        );
+
+        // Step 7: Do a withdrawal flow
 
         // Fund vaults with amount > minWithdrawalAmount
         _fundVaults(1 ether, _opMainnetForkId);
         _fundVaults(1 ether, _inkMainnetForkId);
+        _fundVaults(1 ether, _soneiumMainnetForkId);
 
-        // Disburse fees in both chains and expect the L1Withdrawer to trigger the withdrawal
+        // Disburse fees in all chains and expect the L1Withdrawer to trigger the withdrawal
         // Expected L1Withdrawer share = 3 ether * 15% = 0.45 ether
         // It is 3 ether instead of 4 because net revenue doesn't count L1FeeVault's balance
         // For details on the rev share calculation, check the SuperchainRevSharesCalculator contract.
@@ -136,6 +163,9 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
 
         _executeDisburseAndAssertWithdrawal(_opMainnetForkId, OP_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
         _executeDisburseAndAssertWithdrawal(_inkMainnetForkId, INK_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
+        _executeDisburseAndAssertWithdrawal(
+            _soneiumMainnetForkId, SONEIUM_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount
+        );
     }
 
     function _fundVaults(uint256 _amount, uint256 _forkId) internal {

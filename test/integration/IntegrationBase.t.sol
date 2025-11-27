@@ -5,6 +5,9 @@ import {Test} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {console2} from "forge-std/console2.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
+import {FeeSplitterSetup} from "src/libraries/FeeSplitterSetup.sol";
+import {RevShareCommon} from "src/libraries/RevShareCommon.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @title IntegrationBase
 /// @notice Base contract for integration tests with L1->L2 deposit transaction relay functionality
@@ -122,5 +125,31 @@ abstract contract IntegrationBase is Test {
             _result[_i] = _data[_start + _i];
         }
         return _result;
+    }
+
+    /// @notice Compute deterministic L1Withdrawer address using CREATE2
+    function _computeL1WithdrawerAddress(uint256 _minWithdrawalAmount, address _recipient, uint32 _gasLimit)
+        internal
+        pure
+        returns (address)
+    {
+        bytes memory _initCode = bytes.concat(
+            FeeSplitterSetup.l1WithdrawerCreationCode, abi.encode(_minWithdrawalAmount, _recipient, _gasLimit)
+        );
+        bytes32 _salt = RevShareCommon.getSalt("L1Withdrawer");
+        return Utils.getCreate2Address(_salt, _initCode, RevShareCommon.CREATE2_DEPLOYER);
+    }
+
+    /// @notice Compute deterministic RevShareCalculator address using CREATE2
+    function _computeRevShareCalculatorAddress(address _l1Withdrawer, address _chainFeesRecipient)
+        internal
+        pure
+        returns (address)
+    {
+        bytes memory _initCode = bytes.concat(
+            FeeSplitterSetup.scRevShareCalculatorCreationCode, abi.encode(_l1Withdrawer, _chainFeesRecipient)
+        );
+        bytes32 _salt = RevShareCommon.getSalt("SCRevShareCalculator");
+        return Utils.getCreate2Address(_salt, _initCode, RevShareCommon.CREATE2_DEPLOYER);
     }
 }
