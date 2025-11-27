@@ -16,8 +16,8 @@ check_status() {
   # Extract the status line
   status_line=$(awk '/^Status: /{print; exit}' "$file_path")
   
-  # If status is not EXECUTED or CANCELLED, add to tasks to run
-  if [[ "$status_line" != *"EXECUTED"* ]] && [[ "$status_line" != *"CANCELLED"* ]]; then
+  # If status is not EXECUTED, CANCELLED, or APPROVED, add to tasks to run
+  if [[ "$status_line" != *"EXECUTED"* ]] && [[ "$status_line" != *"CANCELLED"* ]] && [[ "$status_line" != *"APPROVED"* ]]; then
     # Get the task directory path
     task_dir=$(dirname "$file_path")
     # Add to array if config.toml exists
