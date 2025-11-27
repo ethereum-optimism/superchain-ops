@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-VALID_STATUSES=("DRAFT, NOT READY TO SIGN" "CONTINGENCY TASK, SIGN AS NEEDED" "READY TO SIGN" "SIGNED" "EXECUTED" "CANCELLED")
+VALID_STATUSES=("DRAFT, NOT READY TO SIGN" "CONTINGENCY TASK, SIGN AS NEEDED" "READY TO SIGN" "SIGNED" "EXECUTED" "CANCELLED" "APPROVED")
 errors=() # We collect all errors then print them at the end.
 
 # Function to check status and hyperlinks for a single file.
