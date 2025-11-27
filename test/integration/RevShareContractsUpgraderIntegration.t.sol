@@ -119,8 +119,9 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
 
         // Step 5: Assert the state of the Ink Mainnet contracts
         vm.selectFork(_inkMainnetForkId);
-        address inkL1Withdrawer =
-            _computeL1WithdrawerAddress(INK_MIN_WITHDRAWAL_AMOUNT, INK_L1_WITHDRAWAL_RECIPIENT, INK_WITHDRAWAL_GAS_LIMIT);
+        address inkL1Withdrawer = _computeL1WithdrawerAddress(
+            INK_MIN_WITHDRAWAL_AMOUNT, INK_L1_WITHDRAWAL_RECIPIENT, INK_WITHDRAWAL_GAS_LIMIT
+        );
         address inkRevShareCalculator = _computeRevShareCalculatorAddress(inkL1Withdrawer, INK_CHAIN_FEES_RECIPIENT);
         _assertL2State(
             inkL1Withdrawer,
