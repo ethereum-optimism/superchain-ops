@@ -19,6 +19,9 @@ library RevShareCommon {
     /// @notice The gas limit for the upgrade calls on L2.
     uint64 internal constant UPGRADE_GAS_LIMIT = 150_000;
 
+    /// @notice The gas limit for setter calls on L2.
+    uint64 internal constant SETTERS_GAS_LIMIT = 75_000;
+
     /// @notice The salt prefix for the RevShare system.
     string internal constant SALT_SEED = "RevShare";
 
