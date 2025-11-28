@@ -126,66 +126,66 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
     }
 
     /// @notice Etch implementation bytecode at addresses on the current fork
-    /// @param _operatorFeeVaultImpl OperatorFeeVault implementation address
-    /// @param _sequencerFeeVaultImpl SequencerFeeVault implementation address
-    /// @param _defaultFeeVaultImpl Default FeeVault implementation address
-    /// @param _feeSplitterImpl FeeSplitter implementation address
-    /// @param _operatorFeeVaultImplCode OperatorFeeVault implementation bytecode
-    /// @param _sequencerFeeVaultImplCode SequencerFeeVault implementation bytecode
-    /// @param _defaultFeeVaultImplCode Default FeeVault implementation bytecode
-    /// @param _feeSplitterImplCode FeeSplitter implementation bytecode
+    /// @param operatorFeeVaultImplAddr OperatorFeeVault implementation address
+    /// @param sequencerFeeVaultImplAddr SequencerFeeVault implementation address
+    /// @param defaultFeeVaultImplAddr Default FeeVault implementation address
+    /// @param feeSplitterImplAddr FeeSplitter implementation address
+    /// @param operatorFeeVaultImplCode OperatorFeeVault implementation bytecode
+    /// @param sequencerFeeVaultImplCode SequencerFeeVault implementation bytecode
+    /// @param defaultFeeVaultImplCode Default FeeVault implementation bytecode
+    /// @param feeSplitterImplCode FeeSplitter implementation bytecode
     function _etchImplementations(
-        address _operatorFeeVaultImpl,
-        address _sequencerFeeVaultImpl,
-        address _defaultFeeVaultImpl,
-        address _feeSplitterImpl,
-        bytes memory _operatorFeeVaultImplCode,
-        bytes memory _sequencerFeeVaultImplCode,
-        bytes memory _defaultFeeVaultImplCode,
-        bytes memory _feeSplitterImplCode
+        address operatorFeeVaultImplAddr,
+        address sequencerFeeVaultImplAddr,
+        address defaultFeeVaultImplAddr,
+        address feeSplitterImplAddr,
+        bytes memory operatorFeeVaultImplCode,
+        bytes memory sequencerFeeVaultImplCode,
+        bytes memory defaultFeeVaultImplCode,
+        bytes memory feeSplitterImplCode
     ) internal {
-        vm.etch(_operatorFeeVaultImpl, _operatorFeeVaultImplCode);
-        vm.etch(_sequencerFeeVaultImpl, _sequencerFeeVaultImplCode);
-        vm.etch(_defaultFeeVaultImpl, _defaultFeeVaultImplCode);
-        vm.etch(_feeSplitterImpl, _feeSplitterImplCode);
+        vm.etch(operatorFeeVaultImplAddr, operatorFeeVaultImplCode);
+        vm.etch(sequencerFeeVaultImplAddr, sequencerFeeVaultImplCode);
+        vm.etch(defaultFeeVaultImplAddr, defaultFeeVaultImplCode);
+        vm.etch(feeSplitterImplAddr, feeSplitterImplCode);
     }
 
     /// @notice Setup proxy predeploys pointing to implementations
-    /// @param _proxyCode Proxy runtime bytecode
-    /// @param _operatorFeeVaultImpl OperatorFeeVault implementation address
-    /// @param _sequencerFeeVaultImpl SequencerFeeVault implementation address
-    /// @param _defaultFeeVaultImpl Default FeeVault implementation address (for Base and L1)
-    /// @param _feeSplitterImpl FeeSplitter implementation address
+    /// @param proxyCode Proxy runtime bytecode
+    /// @param operatorFeeVaultImplAddr OperatorFeeVault implementation address
+    /// @param sequencerFeeVaultImplAddr SequencerFeeVault implementation address
+    /// @param defaultFeeVaultImplAddr Default FeeVault implementation address (for Base and L1)
+    /// @param feeSplitterImplAddr FeeSplitter implementation address
     function _setupProxyPredeploys(
-        bytes memory _proxyCode,
-        address _operatorFeeVaultImpl,
-        address _sequencerFeeVaultImpl,
-        address _defaultFeeVaultImpl,
-        address _feeSplitterImpl
+        bytes memory proxyCode,
+        address operatorFeeVaultImplAddr,
+        address sequencerFeeVaultImplAddr,
+        address defaultFeeVaultImplAddr,
+        address feeSplitterImplAddr
     ) internal {
         // Setup OperatorFeeVault proxy
-        vm.etch(OPERATOR_FEE_VAULT, _proxyCode);
-        vm.store(OPERATOR_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(_operatorFeeVaultImpl))));
+        vm.etch(OPERATOR_FEE_VAULT, proxyCode);
+        vm.store(OPERATOR_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(operatorFeeVaultImplAddr))));
         vm.store(OPERATOR_FEE_VAULT, PROXY_OWNER_SLOT, bytes32(uint256(uint160(RevShareCommon.PROXY_ADMIN))));
 
         // Setup SequencerFeeVault proxy
-        vm.etch(SEQUENCER_FEE_VAULT, _proxyCode);
-        vm.store(SEQUENCER_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(_sequencerFeeVaultImpl))));
+        vm.etch(SEQUENCER_FEE_VAULT, proxyCode);
+        vm.store(SEQUENCER_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(sequencerFeeVaultImplAddr))));
         vm.store(SEQUENCER_FEE_VAULT, PROXY_OWNER_SLOT, bytes32(uint256(uint160(RevShareCommon.PROXY_ADMIN))));
 
         // Setup BaseFeeVault proxy
-        vm.etch(BASE_FEE_VAULT, _proxyCode);
-        vm.store(BASE_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(_defaultFeeVaultImpl))));
+        vm.etch(BASE_FEE_VAULT, proxyCode);
+        vm.store(BASE_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(defaultFeeVaultImplAddr))));
         vm.store(BASE_FEE_VAULT, PROXY_OWNER_SLOT, bytes32(uint256(uint160(RevShareCommon.PROXY_ADMIN))));
 
         // Setup L1FeeVault proxy
-        vm.etch(L1_FEE_VAULT, _proxyCode);
-        vm.store(L1_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(_defaultFeeVaultImpl))));
+        vm.etch(L1_FEE_VAULT, proxyCode);
+        vm.store(L1_FEE_VAULT, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(defaultFeeVaultImplAddr))));
         vm.store(L1_FEE_VAULT, PROXY_OWNER_SLOT, bytes32(uint256(uint160(RevShareCommon.PROXY_ADMIN))));
 
         // Setup FeeSplitter proxy
-        vm.etch(FEE_SPLITTER, _proxyCode);
-        vm.store(FEE_SPLITTER, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(_feeSplitterImpl))));
+        vm.etch(FEE_SPLITTER, proxyCode);
+        vm.store(FEE_SPLITTER, PROXY_IMPLEMENTATION_SLOT, bytes32(uint256(uint160(feeSplitterImplAddr))));
         vm.store(FEE_SPLITTER, PROXY_OWNER_SLOT, bytes32(uint256(uint160(RevShareCommon.PROXY_ADMIN))));
     }
 
