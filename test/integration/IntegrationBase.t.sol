@@ -25,6 +25,7 @@ abstract contract IntegrationBase is Test {
     uint256 internal _mainnetForkId;
     uint256 internal _opMainnetForkId;
     uint256 internal _inkMainnetForkId;
+    uint256 internal _soneiumMainnetForkId;
 
     // Shared upgrader contract
     RevShareContractsUpgrader public revShareUpgrader;
@@ -33,6 +34,7 @@ abstract contract IntegrationBase is Test {
     address internal constant PROXY_ADMIN_OWNER = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address internal constant OP_MAINNET_PORTAL = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed;
     address internal constant INK_MAINNET_PORTAL = 0x5d66C1782664115999C47c9fA5cd031f495D3e4F;
+    address internal constant SONEIUM_MAINNET_PORTAL = 0x88e529A6ccd302c948689Cd5156C83D4614FAE92;
     address internal constant REV_SHARE_UPGRADER_ADDRESS = 0x0000000000000000000000000000000000001337;
 
     // L2 predeploys (same across all OP Stack chains)
@@ -41,13 +43,6 @@ abstract contract IntegrationBase is Test {
     address internal constant BASE_FEE_VAULT = 0x4200000000000000000000000000000000000019;
     address internal constant L1_FEE_VAULT = 0x420000000000000000000000000000000000001A;
     address internal constant FEE_SPLITTER = 0x420000000000000000000000000000000000002B;
-
-    // Expected deployed contracts (deterministic CREATE2 addresses)
-    address internal constant OP_L1_WITHDRAWER = 0xB3AeB34b88D73Fb4832f65BEa5Bd865017fB5daC;
-    address internal constant OP_REV_SHARE_CALCULATOR = 0x3E806Fd8592366E850197FEC8D80608b5526Bba2;
-
-    address internal constant INK_L1_WITHDRAWER = 0x70e26B12a578176BccCD3b7e7f58f605871c5eF7;
-    address internal constant INK_REV_SHARE_CALCULATOR = 0xd7a5307B4Ce92B0269903191007b95dF42552Dfa;
 
     // Test configuration - OP Mainnet
     uint256 internal constant OP_MIN_WITHDRAWAL_AMOUNT = 350000;
@@ -58,8 +53,14 @@ abstract contract IntegrationBase is Test {
     // Test configuration - Ink Mainnet
     uint256 internal constant INK_MIN_WITHDRAWAL_AMOUNT = 500000;
     address internal constant INK_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000002;
-    uint32 internal constant INK_WITHDRAWAL_GAS_LIMIT = 1000000;
+    uint32 internal constant INK_WITHDRAWAL_GAS_LIMIT = 800000;
     address internal constant INK_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000002;
+
+    // Test configuration - Soneium Mainnet
+    uint256 internal constant SONEIUM_MIN_WITHDRAWAL_AMOUNT = 500000;
+    address internal constant SONEIUM_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000003;
+    uint32 internal constant SONEIUM_WITHDRAWAL_GAS_LIMIT = 800000;
+    address internal constant SONEIUM_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000003;
 
     bool internal constant IS_SIMULATE = true;
     /// @notice Relay all deposit transactions from L1 to multiple L2s
