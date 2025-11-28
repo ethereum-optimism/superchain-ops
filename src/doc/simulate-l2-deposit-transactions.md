@@ -29,14 +29,15 @@ https://github.com/ethereum-optimism/supersim
 Start supersim with forked chains for multiple L2s:
 
 ```bash
-supersim fork --chains=op,ink
+supersim fork --chains=op,ink,soneium
 ```
 
-**Note:** You can specify any L2 chains supported by supersim (e.g., `op`, `base`, `mode`, `ink`, etc.). The default ports are:
+**Note:** You can specify any L2 chains supported by supersim (e.g., `op`, `base`, `mode`, `ink`, `soneium`, etc.). The default ports are:
 - L1 (Ethereum): `http://127.0.0.1:8545`
 - L2 (OP Mainnet): `http://127.0.0.1:9545`
 - L2 (Ink Mainnet): `http://127.0.0.1:9546`
-- Additional L2s will increment the port (9547, 9548, etc.)
+- L2 (Soneium Mainnet): `http://127.0.0.1:9547`
+- Additional L2s will increment the port (9548, 9549, etc.)
 
 For different L2 chains, adjust the RPC URLs and network IDs accordingly.
 
