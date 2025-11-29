@@ -1,0 +1,53 @@
+templateName = "OPCMUpgradeV220toV410"
+
+OPCMUpgradeV220_PRESTATE = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9"
+OPCMUpgradeV300_PRESTATE = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+OPCMUpgradeV300_UPDATE_PRESTATE = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
+
+[[l2chains]]
+chainId = 4801
+name = "World Chain Sepolia Testnet"
+
+[[opcmUpgrades]]
+chainId = 4801
+# prestates."1.7.0-rc.3"
+# https://github.com/ethereum-optimism/superchain-registry/blob/6748f8050bfab9930abdfc46288f9629af2f7b38/validation/standard/standard-prestates.toml#L6C7-L6C73
+absolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91"
+expectedErrorsV220 = "PROXYA-10,SYSCON-20,DF-30,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-10"
+# PROXYA-10 : ProxyAdmin owner is not set to L1 PAO multisig.
+# SYSCON-20 : SystemConfig gas limit is not set to 60,000,000.
+# DF-30 : DisputeGameFactory owner is not set to L1 PAO multisig.
+# PDDG-50 : Permissioned dispute game VM address mismatch.
+# PDDG-DWETH-30 : Permissioned dispute game delayed WETH owner mismatch.
+# PDDG-DWETH-40 : Permissioned dispute game delayed WETH delay not set to 1 week.
+# PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
+# PDDG-120: Permissioned dispute game challenger address mismatch.
+# PLDG-10 : Permissionless dispute game implementation not found.
+expectedErrorsV300 = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-10"
+# PROXYA-10 : ProxyAdmin owner is not set to L1 PAO multisig.
+# DF-30 : DisputeGameFactory owner is not set to L1 PAO multisig.
+# PDDG-DWETH-30 : Permissioned dispute game delayed WETH owner mismatch.
+# PDDG-ANCHORP-40 : Permissioned dispute game anchor state registry root hash mismatch.
+# PDDG-120: Permissioned dispute game challenger address mismatch.
+# PLDG-10 : Permissionless dispute game implementation not found.
+expectedErrorsV410 = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
+# PROXYA-10 : ProxyAdmin owner is not set to L1 PAO multisig.
+# DF-30 : DisputeGameFactory owner is not set to L1 PAO multisig.
+# PDDG-DWETH-30 : Permissioned dispute game delayed WETH owner mismatch.
+# PDDG-130: The challenger is not the standard one.
+# PLDG-10 : Permissionless dispute game implementation not found.
+
+[addresses]
+OPCMUpgradeV220 = "0x6b6f9129efb1b7a48f84e3b787333d1dca02ee34" # version 1.7.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L160
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+
+OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L102
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c"
+
+OPCMUpgradeV410 = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # version 3.2.0 https://github.com/ethereum-optimism/superchain-registry/blob/40526b1288534f6b84b7aae21d13c0b5f5b12f47/validation/standard/standard-versions-sepolia.toml#L23
+StandardValidatorV410 = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
+
+[stateOverrides]
+0x945185C01fb641bA3E63a9bdF66575e35a407837 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53 }
+]
