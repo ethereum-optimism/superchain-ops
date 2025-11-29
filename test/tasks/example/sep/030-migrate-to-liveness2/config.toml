@@ -1,0 +1,16 @@
+templateName = "MigrateToLiveness2"
+
+[addresses]
+saferSafes="0xdffFe9Dc096938fb156A54e67D09f73f5514Eb16"
+targetSafe="0xB2DEfc35a51E4f2126667A9FC8D941202077aC0E"
+currentLivenessModule="0xB78eA2a288fca20D7f499F8a9eE48ff506609855"
+
+
+[livenessModule]
+livenessResponsePeriod="1"
+fallbackOwner="0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
+
+[stateOverrides]
+0xB2DEfc35a51E4f2126667A9FC8D941202077aC0E = [ # targetSafe - temporarily remove guard for simulation
+     {key = "0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8", value = 0}  # guard slot
+]
