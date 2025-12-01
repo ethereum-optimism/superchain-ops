@@ -1,6 +1,6 @@
 # 036-U17-main-base: Upgrades Base Mainnet to `op-contracts/v5.0.0` (i.e. U17)
 
-Status: [READY TO SIGN]
+Status: [APPROVED]
 
 ## Objective
 

@@ -100,7 +100,7 @@ contract RevShareContractsUpgrader {
             RevShareCommon.depositCall(
                 config.portal,
                 RevShareCommon.FEE_SPLITTER,
-                FeeVaultUpgrader.SETTERS_GAS_LIMIT,
+                RevShareCommon.SETTERS_GAS_LIMIT,
                 abi.encodeCall(IFeeSplitter.setSharesCalculator, (calculator))
             );
 
