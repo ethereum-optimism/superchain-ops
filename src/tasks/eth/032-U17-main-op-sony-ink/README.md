@@ -1,6 +1,6 @@
 # 032-U17-main-op-sony-ink
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xf556934cb4de1ab40a4cfba17856cd601cbc8b875b96a9ccd8ee32bcd363abf5)
 
 ## Objective
 

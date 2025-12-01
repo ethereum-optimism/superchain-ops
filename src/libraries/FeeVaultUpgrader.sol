@@ -25,9 +25,6 @@ library FeeVaultUpgrader {
     /// @notice The gas limit for the Fee Vaults deployment.
     uint64 internal constant FEE_VAULTS_DEPLOYMENT_GAS_LIMIT = 1_200_000;
 
-    /// @notice The gas limit for the Fee Vaults setters.
-    uint64 internal constant SETTERS_GAS_LIMIT = 50_000;
-
     /// @notice Address of the Operator Fee Vault Predeploy on L2.
     address internal constant OPERATOR_FEE_VAULT = 0x420000000000000000000000000000000000001b;
 
@@ -103,16 +100,19 @@ library FeeVaultUpgrader {
             RevShareCommon.depositCall(
                 _portal,
                 vaults[i],
-                SETTERS_GAS_LIMIT,
+                RevShareCommon.SETTERS_GAS_LIMIT,
                 abi.encodeCall(IFeeVault.setRecipient, (RevShareCommon.FEE_SPLITTER))
-            );
-            RevShareCommon.depositCall(
-                _portal, vaults[i], SETTERS_GAS_LIMIT, abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (0))
             );
             RevShareCommon.depositCall(
                 _portal,
                 vaults[i],
-                SETTERS_GAS_LIMIT,
+                RevShareCommon.SETTERS_GAS_LIMIT,
+                abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (0))
+            );
+            RevShareCommon.depositCall(
+                _portal,
+                vaults[i],
+                RevShareCommon.SETTERS_GAS_LIMIT,
                 abi.encodeCall(IFeeVault.setWithdrawalNetwork, (IFeeVault.WithdrawalNetwork.L2))
             );
         }

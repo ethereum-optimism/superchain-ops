@@ -189,7 +189,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
             _portal,
             abi.encodeCall(
                 IOptimismPortal2.depositTransaction,
-                (RevShareCommon.FEE_SPLITTER, 0, FeeVaultUpgrader.SETTERS_GAS_LIMIT, false, setCalculatorCall)
+                (RevShareCommon.FEE_SPLITTER, 0, RevShareCommon.SETTERS_GAS_LIMIT, false, setCalculatorCall)
             ),
             abi.encode()
         );
@@ -250,7 +250,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
                 (
                     _vault,
                     0,
-                    FeeVaultUpgrader.SETTERS_GAS_LIMIT,
+                    RevShareCommon.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setRecipient, (RevShareCommon.FEE_SPLITTER))
                 )
@@ -266,7 +266,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
                 (
                     _vault,
                     0,
-                    FeeVaultUpgrader.SETTERS_GAS_LIMIT,
+                    RevShareCommon.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (0))
                 )
@@ -282,7 +282,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
                 (
                     _vault,
                     0,
-                    FeeVaultUpgrader.SETTERS_GAS_LIMIT,
+                    RevShareCommon.SETTERS_GAS_LIMIT,
                     false,
                     abi.encodeCall(IFeeVault.setWithdrawalNetwork, (IFeeVault.WithdrawalNetwork.L2))
                 )
