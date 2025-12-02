@@ -1,6 +1,6 @@
 # 036-U17-main-base: Upgrades Base Mainnet to `op-contracts/v5.0.0` (i.e. U17)
 
-Status: [APPROVED]
+Status: [EXECUTED](https://etherscan.io/tx/0x9b9aa2d8e857e1a28e55b124e931eac706b3ae04c1b33ba949f0366359860993)
 
 ## Objective
 
