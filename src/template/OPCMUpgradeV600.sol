@@ -8,7 +8,6 @@ import {
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
@@ -36,27 +35,22 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
     /// @notice The Standard Validator returned by OPCM
     IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
-    /// @notice Shared SuperchainConfig proxy to upgrade first.
-    ISuperchainConfig public SUPERCHAIN_CONFIG;
-    IProxyAdmin public SUPERCHAIN_CONFIG_PROXY_ADMIN;
-
     /// @notice OPCM we delegatecall into (must be v4.2.0).
     address public OPCM;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](11);
-        storageWrites[0] = "SuperchainConfig";
-        storageWrites[1] = "DisputeGameFactoryProxy";
-        storageWrites[2] = "SystemConfigProxy";
-        storageWrites[3] = "OptimismPortalProxy";
-        storageWrites[4] = "OptimismMintableERC20FactoryProxy";
-        storageWrites[5] = "AddressManager";
-        storageWrites[6] = "L1CrossDomainMessengerProxy";
-        storageWrites[7] = "L1StandardBridgeProxy";
-        storageWrites[8] = "L1ERC721BridgeProxy";
-        storageWrites[9] = "ProxyAdminOwner";
-        storageWrites[10] = "AnchorStateRegistryProxy";
+        string;
+        storageWrites[0] = "DisputeGameFactoryProxy";
+        storageWrites[1] = "SystemConfigProxy";
+        storageWrites[2] = "OptimismPortalProxy";
+        storageWrites[3] = "OptimismMintableERC20FactoryProxy";
+        storageWrites[4] = "AddressManager";
+        storageWrites[5] = "L1CrossDomainMessengerProxy";
+        storageWrites[6] = "L1StandardBridgeProxy";
+        storageWrites[7] = "L1ERC721BridgeProxy";
+        storageWrites[8] = "ProxyAdminOwner";
+        storageWrites[9] = "AnchorStateRegistryProxy";
         return storageWrites;
     }
 
@@ -70,21 +64,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
         super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        // Fetch SuperchainConfig from the registry
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        uint256 anyChainId = chains.length > 0 ? chains[0].chainId : 0;
-        SUPERCHAIN_CONFIG = ISuperchainConfig(superchainAddrRegistry.getAddress("SuperchainConfig", anyChainId));
-        require(address(SUPERCHAIN_CONFIG) != address(0), "SuperchainConfig not found in registry");
-        require(address(SUPERCHAIN_CONFIG).code.length > 0, "SuperchainConfig has no code");
-        vm.label(address(SUPERCHAIN_CONFIG), "SuperchainConfig");
-
-        // Derive SuperchainConfig ProxyAdmin on-chain via EIP-1967 admin slot.
-        address scAdmin = EIP1967Helper.getAdmin(address(SUPERCHAIN_CONFIG));
-        require(scAdmin != address(0), "SuperchainConfig admin is zero");
-        require(scAdmin.code.length > 0, "SuperchainConfig admin has no code");
-        SUPERCHAIN_CONFIG_PROXY_ADMIN = IProxyAdmin(scAdmin);
-        vm.label(address(SUPERCHAIN_CONFIG_PROXY_ADMIN), "SuperchainConfigProxyAdmin");
-
+        
         // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
@@ -107,21 +87,6 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
 
     /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
-        {
-            string memory current = SUPERCHAIN_CONFIG.version();
-            address targetImpl = IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl;
-            string memory target = ISuperchainConfig(targetImpl).version();
-            if (keccak256(bytes(current)) != keccak256(bytes(target))) {
-                (bool ok1,) = OPCM_TARGETS[0].delegatecall(
-                    abi.encodeCall(
-                        IOPContractManagerV600.upgradeSuperchainConfig,
-                        (SUPERCHAIN_CONFIG, SUPERCHAIN_CONFIG_PROXY_ADMIN)
-                    )
-                );
-                require(ok1, "OPCMUpgradeSuperchainConfigV600: Delegatecall failed in _build.");
-            }
-        }
-
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
             new IOPContractsManager.OpChainConfig[](chains.length);
@@ -144,16 +109,6 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
-        require(
-            EIP1967Helper.getImplementation(address(SUPERCHAIN_CONFIG))
-                == IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl,
-            "OPCMUpgradeSuperchainConfigV600: Incorrect SuperchainConfig implementation after upgradeSuperchainConfig"
-        );
-        require(
-            SUPERCHAIN_CONFIG.version().eq("2.4.0"),
-            "OPCMUpgradeSuperchainConfigV600: Incorrect SuperchainConfig version after upgradeSuperchainConfig"
-        );
-
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -188,12 +143,6 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
 }
 
 /* ---------- Interfaces ---------- */
-
-interface IOPContractManagerV600 {
-    function upgradeSuperchainConfig(ISuperchainConfig _superchainConfig, IProxyAdmin _superchainConfigProxyAdmin)
-        external;
-}
-
 /// @notice Interface to retrieve the standard validator from OPCM.
 interface IOPCM {
     function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
