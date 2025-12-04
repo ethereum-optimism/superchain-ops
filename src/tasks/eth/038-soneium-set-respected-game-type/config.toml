@@ -1,0 +1,21 @@
+l2chains = [    
+    {name = "Soneium", chainId = 1868},
+]
+
+templateName = "SetRespectedGameTypeTemplate"
+
+[gameTypes]
+configs = [
+  {chainId = 1868, gameType = 0}
+]
+
+[stateOverrides]
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 29}
+]
+
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47}
+]
