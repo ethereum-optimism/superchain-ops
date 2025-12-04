@@ -1,0 +1,33 @@
+templateName = "AddGameTypeTemplateV500"
+
+l2chains = [
+    {name = "U18-Alpha", chainId = 420100007},
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/046-u18-alpha-add-game-type/addresses.json"
+
+[[configs]]
+chainId = 420100007
+saltMixer = "this is a salt mixer"
+systemConfig = "0x683AFd1a0756Ad9E44942BF72369A4860E64679a"
+proxyAdmin = "0x60Bd2033CeB47640b6F2b034A8B815CF0f7cd367"
+#proxyAdmin = "0x00df35851ac177b1a19eb590a8ebdc101dcc4643"
+delayedWETH = "0x0000000000000000000000000000000000000000"
+disputeGameType = 0
+disputeAbsolutePrestate = "0x03064b25632ef099eb400dfb83d33c77bc49701144fbf381aa7e9d8c3056ca50"
+disputeMaxGameDepth = 73
+disputeSplitDepth = 30
+disputeClockExtension = 10800
+disputeMaxClockDuration = 302400
+initialBond = 80000000000000000
+vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908"
+permissioned = false
+
+[addresses]
+OPCM = "0x4Cbe36C9CB6407610a865D7d4397fF14800bF4B0"
+
+[stateOverrides]
+# ProxyAdminOwner
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 49}
+]
