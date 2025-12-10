@@ -6,9 +6,8 @@ signing.
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
-3. [Verifying the transaction input](#understanding-task-calldata)
-4. [Verifying the state changes](#task-state-changes)
+2. [Verifying the transaction input](#understanding-task-calldata)
+3. [Verifying the state changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
@@ -17,12 +16,11 @@ the values printed to the terminal when you run the task.
 
 > [!CAUTION]
 >
-> Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
+> ### Betanet EOA (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0xeca82d45e57545bd4c79364adb509d98f1a248d8910d393e2599656ded51f365`
+> - Message Hash: `0x67060414e1617ef70777db275e9b27086a8ad00395f28214b4b9d1099a6d99df`
 >
 
 ## Task Calldata

@@ -6,26 +6,26 @@ l2chains = [
 ]
 
 [[configs]]
-# The below addresses can be found in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/851f7bb60edc53373fc961d237c7175aa130fba3/superchain/extra/addresses/addresses.json#L402
+# The below addresses can be found here https://github.com/ethereum-optimism/devnets/blob/main/betanets/u18-beta/u18-beta-1/chain.yaml
 chainId = 420110022
 saltMixer = "this is a salt mixer"
-systemConfig = "0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
+systemConfig = "0x5babF93aC7AFfeaE25dc1a7ad4587fDeEbba44C2"
 proxyAdmin = "0xcd18a0C04286Eba52Bb168Fa1D79133Da4856bEf"
 delayedWETH = "0x62841F5E03a56f818BC8818c5130757acA2541A7"
 disputeGameType = 0
-disputeAbsolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91" # Absolute Prestate 1.7.0-rc.3 https://github.com/ethereum-optimism/superchain-registry/blob/851f7bb60edc53373fc961d237c7175aa130fba3/validation/standard/standard-prestates.toml#L6
+disputeAbsolutePrestate = "0x0339db503776757491b9f3038bf6f1d37b7988a2f75e823fe2656c1352ef2f91" # to update
 disputeMaxGameDepth = 73
 disputeSplitDepth = 30
 disputeClockExtension = 10800
 disputeMaxClockDuration = 302400
 initialBond = 80000000000000000
-vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908"
+vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908" # to update
 permissioned = false
 
 [addresses]
-OPCM = "0x60FD34b4652a4126932D5f14bf995BA9f8C2899F"
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62" # https://github.com/ethereum-optimism/superchain-registry/blob/74d9bb4ad4cd8d6fd453f2e9dfe5380d97c07ca9/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 55}
 ]

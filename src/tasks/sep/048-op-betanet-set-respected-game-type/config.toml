@@ -1,5 +1,5 @@
 l2chains = [
-  {name = "Soneium Testnet Minato", chainId = 1946}
+  {name = "u18-beta-1", chainId = 420110022}
 ]
 
 fallbackAddressesJsonPath = "src/tasks/sep/048-op-betanet-set-respected-game-type/addresses.json"
@@ -7,10 +7,10 @@ templateName = "SetRespectedGameTypeTemplate"
 
 [gameTypes]
 configs = [
-  {chainId = 1946, gameType = 0}
+  {chainId = 420110022, gameType = 0}
 ]
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 56}
 ]
