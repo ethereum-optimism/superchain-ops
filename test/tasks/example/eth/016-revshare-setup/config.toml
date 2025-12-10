@@ -2,20 +2,20 @@
 
 templateName = "RevShareSetup"
 
-# L2 chains to target (OP Sepolia only - proxies already upgraded)
-l2chains = [{name = "OP Sepolia", chainId = 11155420}]
+# L2 chains to target (OP Mainnet only - proxies already upgraded)
+l2chains = [{name = "OP Mainnet", chainId = 10}]
 
 safeAddress = "ProxyAdminOwner"
 
 # RevShareContractsUpgrader address
-revShareUpgrader = "0x71241bbae674967dD523e621c272Ea32cf33119A"
+revShareUpgrader = "0x71241bbae674967dd523e621c272ea32cf33119a"
 
 # RevShare configurations (one per chain) - flattened arrays
 portals = [
-  "0x16Fc5058F25648194471939df75CF27A2fdC48BC" # OP Sepolia Portal
+  "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed" # OP Mainnet Portal
 ]
 chainFeesRecipients = [
-  "0x7ca800c55ad9C745AC84FdeEfaf4522F4Df07577"
+  "0x16A27462B4D61BDD72CbBabd3E43e11791F7A28c"
 ]
 
 # 2 ether
@@ -28,4 +28,4 @@ l1WithdrawerRecipients = [
 l1WithdrawerGasLimits = [800000]
 
 [addresses]
-ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
