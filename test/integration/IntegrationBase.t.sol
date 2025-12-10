@@ -67,12 +67,6 @@ abstract contract IntegrationBase is Test {
     uint32 internal constant SONEIUM_WITHDRAWAL_GAS_LIMIT = DEFAULT_WITHDRAWAL_GAS_LIMIT;
     address internal constant SONEIUM_CHAIN_FEES_RECIPIENT = 0xF07b3169ffF67A8AECdBb18d9761AEeE34591112;
 
-    // Test configuration - Soneium Mainnet
-    uint256 internal constant SONEIUM_MIN_WITHDRAWAL_AMOUNT = 500000;
-    address internal constant SONEIUM_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000003;
-    uint32 internal constant SONEIUM_WITHDRAWAL_GAS_LIMIT = 800000;
-    address internal constant SONEIUM_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000003;
-
     bool internal constant IS_SIMULATE = true;
     /// @notice Relay all deposit transactions from L1 to multiple L2s
     /// @param _forkIds Array of fork IDs for each L2 chain
