@@ -15,7 +15,7 @@
   },
   "420110022": {
     "ProxyAdmin": "0xcd18a0C04286Eba52Bb168Fa1D79133Da4856bEf",
-    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff ",
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
     "SystemConfigProxy": "0x5babF93aC7AFfeaE25dc1a7ad4587fDeEbba44C2",
     "L1CrossDomainMessengerProxy": "0xF0e4aAcC6D039C05B827994C3FfBBBcf00085D11",
     "L1StandardBridgeProxy": "0x3756BF0380E7fdABcB81f2cFb1d8022e8B798a8F",
