@@ -1,6 +1,6 @@
 # 046-worldchain-l2pao-key-handback-over
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x28f74a6314e34f4d94e35ca9194656044d259855b014da943db3ab4cc6a64dcc)
 
 ## Objective
 
