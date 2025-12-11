@@ -1,6 +1,6 @@
 # 049-op-betanet-add-game-type
 
-Status: [DRAFT]
+Status: [READY TO SIGN]
 
 ## Objective
 

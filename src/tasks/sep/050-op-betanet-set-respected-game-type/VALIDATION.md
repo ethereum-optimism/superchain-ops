@@ -5,9 +5,9 @@ signing.
 
 The steps are:
 
-1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the transaction input](#understanding-task-calldata)
-3. [Verifying the state changes](#task-state-changes)
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes):
+2. [Transaction Inputs](config.toml): inputs can be verified in the config.toml file, which includes links to the relevant Superchain Registry sources.
+3. State Changes: the template’s _validate block includes assertions to confirm the task ran correctly. State Changes can also be manually reviewed in Tenderly, using the link shown in the terminal during simulation.
 
 ## Expected Domain and Message Hashes
 
@@ -19,7 +19,7 @@ the values printed to the terminal when you run the task.
 >
 > ### Betanet EOA (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
-> - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
 > - Message Hash: `0x67060414e1617ef70777db275e9b27086a8ad00395f28214b4b9d1099a6d99df`
 >
 
