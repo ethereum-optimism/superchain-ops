@@ -18,11 +18,11 @@ disputeSplitDepth = 30
 disputeClockExtension = 10800
 disputeMaxClockDuration = 302400
 initialBond = 80000000000000000
-vm = "0x6463dee3828677f6270d83d45408044fc5edb908"
+vm = "0x6463dee3828677f6270d83d45408044fc5edb908" # Source: https://github.com/ethereum-optimism/superchain-registry/blob/ad5becd08007b80988679b8f0c08d415e1294066/validation/standard/standard-versions-sepolia.toml#L11
 permissioned = false
 
 [addresses]
-OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62"
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62" # Source: https://github.com/ethereum-optimism/superchain-registry/blob/ad5becd08007b80988679b8f0c08d415e1294066/validation/standard/standard-versions-sepolia.toml#L23
 
 [stateOverrides]
 # ProxyAdminOwner

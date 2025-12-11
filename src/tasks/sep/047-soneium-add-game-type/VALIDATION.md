@@ -6,9 +6,8 @@ signing.
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
-3. [Verifying the transaction input](#understanding-task-calldata)
-4. [Verifying the state changes](#task-state-changes)
+2. Transaction Inputs: inputs can be verified in the config.toml file, which includes links to the relevant Superchain Registry sources.
+3. State Changes: the template’s _validate block includes assertions to confirm the task ran correctly. State Changes can also be manually reviewed in Tenderly, using the link shown in the terminal during simulation.
 
 ## Expected Domain and Message Hashes
 
