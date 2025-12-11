@@ -21,9 +21,17 @@ Target chains:
 
 ## Simulation & Signing
 
+> **Note:** This task depends on prior tasks in the Sepolia stack (047, 048). The hashes in VALIDATION.md
+> were generated using `simulate-stack` which simulates all tasks in sequence. Running `simulate` individually
+> may show different hashes because it doesn't account for nonce increments from prior tasks.
+
 Simulation commands for each safe:
 
 ```bash
+# For stacked simulation (recommended for validation):
+just simulate-stack sep 049-rev-share-ink-soneium <council|foundation>
+
+# For individual simulation:
 cd src/tasks/sep/049-rev-share-ink-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile simulate <council|foundation>
 ```

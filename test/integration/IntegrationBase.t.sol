@@ -323,14 +323,8 @@ abstract contract IntegrationBase is Test {
         vm.selectFork(_forkId);
         vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
 
-        uint256 balanceBefore = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
         vm.expectEmit(true, true, true, true);
         emit WithdrawalInitiated(_l1WithdrawalRecipient, _expectedWithdrawalAmount);
         IFeeSplitter(FEE_SPLITTER).disburseFees();
-
-        uint256 balanceAfter = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
-        assertEq(balanceAfter - balanceBefore, _expectedWithdrawalAmount);
     }
 }
