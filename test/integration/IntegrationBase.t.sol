@@ -18,7 +18,7 @@ import {ISuperchainRevSharesCalculator} from "src/interfaces/ISuperchainRevShare
 /// @title IntegrationBase
 /// @notice Base contract for integration tests with L1->L2 deposit transaction relay functionality
 abstract contract IntegrationBase is Test {
-    // Events for testing
+    // Event for testing
     event WithdrawalInitiated(address indexed recipient, uint256 amount);
 
     // Fork IDs
