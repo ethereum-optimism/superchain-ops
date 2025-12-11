@@ -1,6 +1,6 @@
 # 050-op-betanet-set-respected-game-type
 
-Status: [DRAFT]
+Status: [READY TO SIGN]
 
 ## Objective
 
