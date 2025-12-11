@@ -1,4 +1,4 @@
-# Freya Devnet on u15
+# Betanet on U18
 l2chains = [
     {name = "u18-beta-1", chainId = 420110022},
 ]
@@ -10,8 +10,8 @@ allowOverwrite = ["SuperchainConfig"]
 
 [addresses]
 # Source for the addresses below: https://github.com/ethereum-optimism/devnets/blob/main/betanets/u18-beta/u18-beta-1/chain.yaml
-OPCM = "0x60FD34b4652a4126932D5f14bf995BA9f8C2899F"
-StandardValidatorV600 = "0xA3d0BfF9B7ccE767A36D82881B89fBEF1f14EABB"
+OPCM = "0x60FD34b4652a4126932D5f14bf995BA9f8C2899F" # To update with v600 OPCM
+StandardValidatorV600 = "0xA3d0BfF9B7ccE767A36D82881B89fBEF1f14EABB" # To update with v600 OPCM
 SuperchainConfig = "0xBC64837fbFC57946F11a4148EBa89C48812c8dF4"
 SuperchainConfigProxyAdmin = "0x0D6A1A07193B222C938C568b0B9A3C691C809760"
 
