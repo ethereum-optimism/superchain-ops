@@ -2,11 +2,10 @@
 pragma solidity 0.8.15;
 
 import {
-    IOPContractsManager,
     ISuperchainConfig,
-    ISystemConfig,
-    IProxyAdmin
+    ISystemConfig
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import { IProxyAdmin } from "interfaces/universal/IProxyAdmin.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
@@ -24,7 +23,8 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
 
     /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
-        Claim absolutePrestate;
+        Claim cannonPrestate;
+        Claim cannonKonaPrestate;
         uint256 chainId;
         string expectedValidationErrors;
     }
@@ -74,7 +74,7 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
         // OPCM from TOML; must be v4.2.0
         OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManager(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
+        require(IOPContractsManagerV600(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
@@ -88,22 +88,33 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
     /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        IOPContractsManager.OpChainConfig[] memory opChainConfigs =
-            new IOPContractsManager.OpChainConfig[](chains.length);
+        IOPContractsManagerV600.OpChainConfig[] memory opChainConfigs =
+            new IOPContractsManagerV600.OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             require(upgrades[chainId].chainId != 0, "OPCMUpgradeV600: Config not found for chain");
-            opChainConfigs[i] = IOPContractsManager.OpChainConfig({
+
+            // Optional: enforce non-zero prestates, per U18 notes
+            require(
+                Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0),
+                "OPCMUpgradeV600: cannonPrestate is zero"
+            );
+            require(
+                Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0),
+                "OPCMUpgradeV600: cannonKonaPrestate is zero"
+            );
+
+            opChainConfigs[i] = IOPContractsManagerV600.OpChainConfig({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
-                absolutePrestate: upgrades[chainId].absolutePrestate
+                cannonPrestate: upgrades[chainId].cannonPrestate,
+                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate
             });
         }
 
-        // Delegatecall the OPCM.upgrade() function
+        // Delegatecall the OPCM.upgrade() function (new U18 signature)
         (bool ok2,) =
-            OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+            OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs));
         require(ok2, "OPCMUpgradeV600: Delegatecall failed in _build.");
     }
 
@@ -112,7 +123,7 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
+            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].cannonPrestate);
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
@@ -143,6 +154,21 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
 }
 
 /* ---------- Interfaces ---------- */
+/// @notice OPCM Interface.
+interface IOPContractsManagerV600 {
+    struct OpChainConfig {
+        ISystemConfig systemConfigProxy;
+        Claim cannonPrestate;
+        Claim cannonKonaPrestate;
+    }
+
+    function version() external view returns (string memory);
+
+    function upgrade(OpChainConfig[] memory _opChainConfigs) external;
+
+    function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
+}
+
 /// @notice Interface to retrieve the standard validator from OPCM.
 interface IOPCM {
     function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);

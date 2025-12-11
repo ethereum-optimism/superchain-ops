@@ -3,9 +3,7 @@ pragma solidity 0.8.15;
 
 import {
     IOPContractsManager,
-    ISuperchainConfig,
-    ISystemConfig,
-    IProxyAdmin
+    ISuperchainConfig
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {VmSafe} from "forge-std/Vm.sol";
@@ -23,7 +21,6 @@ contract OPCMUpgradeSuperchainConfigV600 is OPCMTaskBase {
     using LibString for string;
 
     ISuperchainConfig public SUPERCHAIN_CONFIG;
-    IProxyAdmin public SUPERCHAIN_CONFIG_PROXY_ADMIN;
 
     /// @notice Returns the storage write permissions required for this task. This is an array of
     /// contract names that are expected to be written to during the execution of the task.
@@ -46,26 +43,19 @@ contract OPCMUpgradeSuperchainConfigV600 is OPCMTaskBase {
 
         address OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManager(OPCM).version().eq("3.2.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         SUPERCHAIN_CONFIG = ISuperchainConfig(tomlContent.readAddress(".addresses.SuperchainConfig"));
         require(address(SUPERCHAIN_CONFIG).code.length > 0, "Incorrect SuperchainConfig - no code at address");
         vm.label(address(SUPERCHAIN_CONFIG), "SuperchainConfig");
-
-        SUPERCHAIN_CONFIG_PROXY_ADMIN = IProxyAdmin(tomlContent.readAddress(".addresses.SuperchainConfigProxyAdmin"));
-        require(
-            address(SUPERCHAIN_CONFIG_PROXY_ADMIN).code.length > 0,
-            "Incorrect SuperchainConfigProxyAdmin - no code at address"
-        );
-        vm.label(address(SUPERCHAIN_CONFIG_PROXY_ADMIN), "SuperchainConfigProxyAdmin");
     }
 
     /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         (bool success,) = OPCM_TARGETS[0].delegatecall(
             abi.encodeCall(
-                IOPContractManagerV600.upgradeSuperchainConfig, (SUPERCHAIN_CONFIG, SUPERCHAIN_CONFIG_PROXY_ADMIN)
+                IOPContractManagerV600.upgradeSuperchainConfig, (SUPERCHAIN_CONFIG)
             )
         );
         require(success, "OPCMUpgradeSuperchainConfigV600: Delegatecall failed in _build.");
@@ -76,11 +66,11 @@ contract OPCMUpgradeSuperchainConfigV600 is OPCMTaskBase {
         require(
             EIP1967Helper.getImplementation(address(SUPERCHAIN_CONFIG))
                 == IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl,
-            "OPCMUpgradeSuperchainConfigV410: Incorrect SuperchainConfig implementation after upgradeSuperchainConfig"
+            "OPCMUpgradeSuperchainConfigV600: Incorrect SuperchainConfig implementation after upgradeSuperchainConfig"
         );
         require(
-            SUPERCHAIN_CONFIG.version().eq("2.3.0"),
-            "OPCMUpgradeSuperchainConfigV410: Incorrect SuperchainConfig version after upgradeSuperchainConfig"
+            SUPERCHAIN_CONFIG.version().eq("2.4.0"),
+            "OPCMUpgradeSuperchainConfigV600: Incorrect SuperchainConfig version after upgradeSuperchainConfig"
         );
     }
 
@@ -89,6 +79,6 @@ contract OPCMUpgradeSuperchainConfigV600 is OPCMTaskBase {
 }
 
 interface IOPContractManagerV600 {
-    function upgradeSuperchainConfig(ISuperchainConfig _superchainConfig, IProxyAdmin _superchainConfigProxyAdmin)
+    function upgradeSuperchainConfig(ISuperchainConfig _superchainConfig)
         external;
 }
