@@ -3,7 +3,7 @@ l2chains = [
     {name = "u18-beta-1", chainId = 420110022},
 ]
 
-fallbackAddressesJsonPath = "src/tasks/sep/049-U18-op-betanet-superchainconfig/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/051-U18-op-betanet-superchainconfig/addresses.json"
 templateName = "OPCMUpgradeSuperchainConfigV600"
 
 allowOverwrite = ["SuperchainConfig"]

@@ -1,4 +1,4 @@
-# 048-op-betanet-set-respected-game-type
+# 050-op-betanet-set-respected-game-type
 
 Status: [DRAFT]
 
@@ -10,12 +10,12 @@ This task sets the respected dispute game type to game type 0 (Permissionless) o
 
 Simulation commands for each safe:
 ```bash
-cd src/tasks/sep/048-op-betanet-set-respected-game-type
+cd src/tasks/sep/050-op-betanet-set-respected-game-type
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/tasks/sep/048-op-betanet-set-respected-game-type
+cd src/tasks/sep/050-op-betanet-set-respected-game-type
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
 ```

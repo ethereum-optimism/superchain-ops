@@ -1,4 +1,4 @@
-# 047-op-betanet-add-game-type
+# 049-op-betanet-add-game-type
 
 Status: [DRAFT]
 
@@ -10,12 +10,12 @@ This task adds the dispute game type 0 (Permissionless) to the Dispute Game Fact
 
 Simulation commands for each safe:
 ```bash
-cd src/tasks/sep/047-op-betanet-add-game-type
+cd src/tasks/sep/049-op-betanet-add-game-type
 SIMULATE_WITHOUT_LEDGER=1 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 Signing commands for each safe:
 ```bash
-cd src/tasks/sep/047-op-betanet-add-game-type
+cd src/tasks/sep/049-op-betanet-add-game-type
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
 ```
