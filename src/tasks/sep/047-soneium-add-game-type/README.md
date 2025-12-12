@@ -1,6 +1,6 @@
 # 047-soneium-add-game-type
 
-Status: [READY TO SIGN] 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8ae45c6eed7fc5e821c2da10e4f0414ff96df0bd77fa4c531b50ee0ceda1e787) 
 
 ## Objective
 
