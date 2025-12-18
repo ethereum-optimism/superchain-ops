@@ -1,0 +1,39 @@
+# RevShare Upgrade and Setup Configuration
+
+templateName = "RevShareUpgradeAndSetup"
+
+# L2 chains to target
+l2chains = [
+  {name = "Ink Sepolia", chainId = 763373},
+  {name = "Soneium Testnet Minato", chainId = 1946}
+]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+revShareUpgrader = "0x71241bbae674967dD523e621c272Ea32cf33119A"
+
+# RevShare configurations (one per chain) - flattened arrays
+portals = [
+  "0x5c1d29C6c9C8b0800692acC95D700bcb4966A1d7", # Ink Sepolia Portal
+  "0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3"  # Soneium Testnet Minato Portal
+]
+
+chainFeesRecipients = [
+  "0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb",
+  "0x660203DD7E933646905DfDc2C3c0Bb156d51000A"
+]
+
+# 2 ether
+l1WithdrawerMinWithdrawalAmounts = [2000000000000000000, 2000000000000000000]
+
+# FeesDepositor address in mainnet
+l1WithdrawerRecipients = [
+  "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd",
+  "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"
+]
+l1WithdrawerGasLimits = [800000, 800000]
+
+[addresses]
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+

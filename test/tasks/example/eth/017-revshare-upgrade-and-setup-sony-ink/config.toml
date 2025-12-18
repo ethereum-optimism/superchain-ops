@@ -1,0 +1,36 @@
+# RevShare Upgrade And Setup Configuration
+
+templateName = "RevShareUpgradeAndSetup"
+
+# L2 chains to target
+l2chains = [{name = "Ink", chainId = 57073}, {name = "Soneium", chainId = 1868}]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+revShareUpgrader = "0x71241bbae674967dd523e621c272ea32cf33119a" 
+
+# RevShare configurations (one per chain) - flattened arrays
+portals = [
+  "0x5d66C1782664115999C47c9fA5cd031f495D3e4F", # Ink Mainnet Portal
+  "0x88e529A6ccd302c948689Cd5156C83D4614FAE92"  # Soneium Mainnet Portal
+]
+
+chainFeesRecipients = [
+  "0x5f077b4c3509C2c192e50B6654d924Fcb8126A60", # L1Withdrawer to send funds in Mainnet to address 0xa6f0F94C13C4255231958079E7331694205F6c93
+  "0xF07b3169ffF67A8AECdBb18d9761AEeE34591112"
+]
+
+# 2 ether
+l1WithdrawerMinWithdrawalAmounts = [2000000000000000000, 2000000000000000000]
+
+# FeesDepositor address in mainnet
+l1WithdrawerRecipients = [
+  "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd",
+  "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"
+]
+l1WithdrawerGasLimits = [800000, 800000]
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
