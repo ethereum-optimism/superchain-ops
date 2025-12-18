@@ -1,6 +1,6 @@
 # 048-soneium-set-respected-game-type
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x9a84f81eb22d116eab397dbd5d8f8b42de6dfd7e3f54ef430ea925885c3c5e53)
 
 ## Objective
 
