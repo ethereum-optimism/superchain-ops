@@ -2,4 +2,4 @@
 
 /runbooks           @ethereum-optimism/solutions @ethereum-optimism/evm-safety
 /src                @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety
-/src/tasks/sep      @ethereum-optimism/solutions
+/src/tasks/sep      @ethereum-optimism/solutions @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety
