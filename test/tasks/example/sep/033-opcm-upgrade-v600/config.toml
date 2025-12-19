@@ -5,7 +5,7 @@ l2chains = [
 
 # Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/tree/main/betanets/u18-beta
 
-fallbackAddressesJsonPath = "test/tasks/example/sep/034-opcm-upgrade-v600/addresses.json"
+fallbackAddressesJsonPath = "test/tasks/example/sep/033-opcm-upgrade-v600/addresses.json"
 
 templateName = "OPCMUpgradeV600"
 
