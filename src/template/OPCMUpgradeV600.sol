@@ -127,8 +127,6 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
             address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
 
-            require(proposer != address(0), "OPCMUpgradeV600: proposer is zero");
-
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
                 .ValidationInputDev({
                 sysCfg: ISystemConfig(sysCfg),
