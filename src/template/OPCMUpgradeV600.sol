@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {
-    ISystemConfig
-} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
@@ -37,7 +35,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
     address public OPCM;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
-function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](10);
         storageWrites[0] = "DisputeGameFactoryProxy";
         storageWrites[1] = "SystemConfigProxy";
@@ -62,7 +60,6 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
         super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        
         // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
@@ -95,12 +92,10 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
 
             // Optional: enforce non-zero prestates, per U18 notes
             require(
-                Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0),
-                "OPCMUpgradeV600: cannonPrestate is zero"
+                Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0), "OPCMUpgradeV600: cannonPrestate is zero"
             );
             require(
-                Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0),
-                "OPCMUpgradeV600: cannonKonaPrestate is zero"
+                Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0), "OPCMUpgradeV600: cannonKonaPrestate is zero"
             );
 
             opChainConfigs[i] = IOPContractsManagerV600.OpChainConfig({
@@ -111,8 +106,9 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
         }
 
         // Delegatecall the OPCM.upgrade() function (new U18 signature)
-        (bool ok2,) =
-            OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs));
+        (bool ok2,) = OPCM_TARGETS[0].delegatecall(
+            abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs)
+        );
         require(ok2, "OPCMUpgradeV600: Delegatecall failed in _build.");
     }
 
