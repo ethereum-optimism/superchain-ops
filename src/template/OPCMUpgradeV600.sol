@@ -2,10 +2,8 @@
 pragma solidity 0.8.15;
 
 import {
-    ISuperchainConfig,
     ISystemConfig
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
-import { IProxyAdmin } from "interfaces/universal/IProxyAdmin.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
@@ -35,7 +33,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
     /// @notice The Standard Validator returned by OPCM
     IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
-    /// @notice OPCM we delegatecall into (must be v4.2.0).
+    /// @notice OPCM we delegatecall into (must be v6.0.0).
     address public OPCM;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
@@ -71,7 +69,7 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
-        // OPCM from TOML; must be v4.2.0
+        // OPCM from TOML; must be v6.0.0
         OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
         require(IOPContractsManagerV600(OPCM).version().eq("6.0.0"), "Incorrect OPCM");
@@ -123,17 +121,21 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].cannonPrestate);
+            bytes32 expCannonPrestate = Claim.unwrap(upgrades[chainId].cannonPrestate);
+            bytes32 expCannonKonaPrestate = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
-            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+            address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
 
-            IOPContractsManagerStandardValidator.ValidationInput memory input = IOPContractsManagerStandardValidator
-                .ValidationInput({
-                proxyAdmin: IProxyAdmin(proxyAdmin),
+            require(proposer != address(0), "OPCMUpgradeV600: proposer is zero");
+
+            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
+                .ValidationInputDev({
                 sysCfg: ISystemConfig(sysCfg),
-                absolutePrestate: expAbsolutePrestate,
-                l2ChainID: chainId
+                cannonPrestate: expCannonPrestate,
+                cannonKonaPrestate: expCannonKonaPrestate,
+                l2ChainID: chainId,
+                proposer: proposer
             });
 
             IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ =
@@ -176,11 +178,12 @@ interface IOPCM {
 
 /// @notice Validator interface for validateWithOverrides usage.
 interface IOPContractsManagerStandardValidator {
-    struct ValidationInput {
-        IProxyAdmin proxyAdmin;
+    struct ValidationInputDev {
         ISystemConfig sysCfg;
-        bytes32 absolutePrestate;
+        bytes32 cannonPrestate;
+        bytes32 cannonKonaPrestate;
         uint256 l2ChainID;
+        address proposer;
     }
 
     struct ValidationOverrides {
@@ -188,10 +191,10 @@ interface IOPContractsManagerStandardValidator {
         address challenger;
     }
 
-    function validate(ValidationInput memory _input, bool _allowFailure) external view returns (string memory);
+    function validate(ValidationInputDev memory _input, bool _allowFailure) external view returns (string memory);
 
     function validateWithOverrides(
-        ValidationInput memory _input,
+        ValidationInputDev memory _input,
         bool _allowFailure,
         ValidationOverrides memory _overrides
     ) external view returns (string memory);
