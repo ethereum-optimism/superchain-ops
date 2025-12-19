@@ -894,7 +894,7 @@ contract RegressionTest is Test {
             "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbbdebb61a012c61cc79de4251db4172889f9c2bea3593fdb3cf79b7016d90b88d8";
         // Security Council
         expectedDataToSign[1] =
-            "0x1901260bd5f92cfcb40d079b1c6f6a7ff07df436553ba65d01934e15aabe1b88657f4e963e0bcb79be82f46969be1cf158ae8956aca4503dc21ee8e499c83a60ce81";
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b85338af46bfe0ef8d4c4dcd740b727f664c01b5d0ee612f67383466fdebaff9ae1fb";
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
