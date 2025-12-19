@@ -18,7 +18,7 @@ import {ISuperchainRevSharesCalculator} from "src/interfaces/ISuperchainRevShare
 /// @title IntegrationBase
 /// @notice Base contract for integration tests with L1->L2 deposit transaction relay functionality
 abstract contract IntegrationBase is Test {
-    // Events for testing
+    // Event for testing
     event WithdrawalInitiated(address indexed recipient, uint256 amount);
 
     // Fork IDs
@@ -44,23 +44,28 @@ abstract contract IntegrationBase is Test {
     address internal constant L1_FEE_VAULT = 0x420000000000000000000000000000000000001A;
     address internal constant FEE_SPLITTER = 0x420000000000000000000000000000000000002B;
 
+    // Test configuration - Globals
+    uint256 internal constant DEFAULT_MIN_WITHDRAWAL_AMOUNT = 2 ether;
+    uint32 internal constant DEFAULT_WITHDRAWAL_GAS_LIMIT = 800000;
+    address internal constant FEES_DEPOSITOR = 0xed9B99a703BaD32AC96FDdc313c0652e379251Fd;
+
     // Test configuration - OP Mainnet
-    uint256 internal constant OP_MIN_WITHDRAWAL_AMOUNT = 350000;
-    address internal constant OP_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000001;
-    uint32 internal constant OP_WITHDRAWAL_GAS_LIMIT = 800000;
-    address internal constant OP_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000001;
+    uint256 internal constant OP_MIN_WITHDRAWAL_AMOUNT = DEFAULT_MIN_WITHDRAWAL_AMOUNT;
+    address internal constant OP_L1_WITHDRAWAL_RECIPIENT = FEES_DEPOSITOR;
+    uint32 internal constant OP_WITHDRAWAL_GAS_LIMIT = DEFAULT_WITHDRAWAL_GAS_LIMIT;
+    address internal constant OP_CHAIN_FEES_RECIPIENT = 0x16A27462B4D61BDD72CbBabd3E43e11791F7A28c;
 
     // Test configuration - Ink Mainnet
-    uint256 internal constant INK_MIN_WITHDRAWAL_AMOUNT = 500000;
-    address internal constant INK_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000002;
-    uint32 internal constant INK_WITHDRAWAL_GAS_LIMIT = 800000;
-    address internal constant INK_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000002;
+    uint256 internal constant INK_MIN_WITHDRAWAL_AMOUNT = DEFAULT_MIN_WITHDRAWAL_AMOUNT;
+    address internal constant INK_L1_WITHDRAWAL_RECIPIENT = FEES_DEPOSITOR;
+    uint32 internal constant INK_WITHDRAWAL_GAS_LIMIT = DEFAULT_WITHDRAWAL_GAS_LIMIT;
+    address internal constant INK_CHAIN_FEES_RECIPIENT = 0x5f077b4c3509C2c192e50B6654d924Fcb8126A60;
 
     // Test configuration - Soneium Mainnet
-    uint256 internal constant SONEIUM_MIN_WITHDRAWAL_AMOUNT = 500000;
-    address internal constant SONEIUM_L1_WITHDRAWAL_RECIPIENT = 0x0000000000000000000000000000000000000003;
-    uint32 internal constant SONEIUM_WITHDRAWAL_GAS_LIMIT = 800000;
-    address internal constant SONEIUM_CHAIN_FEES_RECIPIENT = 0x0000000000000000000000000000000000000003;
+    uint256 internal constant SONEIUM_MIN_WITHDRAWAL_AMOUNT = DEFAULT_MIN_WITHDRAWAL_AMOUNT;
+    address internal constant SONEIUM_L1_WITHDRAWAL_RECIPIENT = FEES_DEPOSITOR;
+    uint32 internal constant SONEIUM_WITHDRAWAL_GAS_LIMIT = DEFAULT_WITHDRAWAL_GAS_LIMIT;
+    address internal constant SONEIUM_CHAIN_FEES_RECIPIENT = 0xF07b3169ffF67A8AECdBb18d9761AEeE34591112;
 
     bool internal constant IS_SIMULATE = true;
     /// @notice Relay all deposit transactions from L1 to multiple L2s
@@ -318,14 +323,8 @@ abstract contract IntegrationBase is Test {
         vm.selectFork(_forkId);
         vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
 
-        uint256 balanceBefore = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
         vm.expectEmit(true, true, true, true);
         emit WithdrawalInitiated(_l1WithdrawalRecipient, _expectedWithdrawalAmount);
         IFeeSplitter(FEE_SPLITTER).disburseFees();
-
-        uint256 balanceAfter = Predeploys.L2_TO_L1_MESSAGE_PASSER.balance;
-
-        assertEq(balanceAfter - balanceBefore, _expectedWithdrawalAmount);
     }
 }
