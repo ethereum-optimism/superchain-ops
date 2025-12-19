@@ -95,7 +95,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
                 Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0), "OPCMUpgradeV600: cannonPrestate is zero"
             );
             require(
-                Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0), 
+                Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0),
                 "OPCMUpgradeV600: cannonKonaPrestate is zero"
             );
 
