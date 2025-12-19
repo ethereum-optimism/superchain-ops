@@ -4,8 +4,6 @@ l2chains = [
 
 templateName = "OPCMUpgradeV600"
 
-allowOverwrite = ["SuperchainConfig", "SuperchainConfigProxyAdmin"]
-
 [[opcmUpgrades]]
 chainId = 11155420
 # U18 betanet prestate:
