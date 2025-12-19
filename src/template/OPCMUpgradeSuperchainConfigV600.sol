@@ -43,7 +43,7 @@ contract OPCMUpgradeSuperchainConfigV600 is OPCMTaskBase {
 
         address OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManager(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("6.0.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         SUPERCHAIN_CONFIG = ISuperchainConfig(tomlContent.readAddress(".addresses.SuperchainConfig"));

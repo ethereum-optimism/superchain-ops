@@ -74,7 +74,7 @@ function _taskStorageWrites() internal pure virtual override returns (string[] m
         // OPCM from TOML; must be v4.2.0
         OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManagerV600(OPCM).version().eq("4.2.0"), "Incorrect OPCM");
+        require(IOPContractsManagerV600(OPCM).version().eq("6.0.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
