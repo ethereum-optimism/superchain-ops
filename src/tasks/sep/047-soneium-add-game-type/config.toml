@@ -1,0 +1,41 @@
+templateName = "AddGameTypeTemplate"
+
+l2chains = [    
+    {name = "Soneium Testnet Minato", chainId = 1946},
+]
+
+[[configs]]
+# The below addresses can be found in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/851f7bb60edc53373fc961d237c7175aa130fba3/superchain/extra/addresses/addresses.json#L402
+chainId = 1946
+saltMixer = "this is a salt mixer"
+systemConfig = "0x4Ca9608Fef202216bc21D543798ec854539bAAd3"
+proxyAdmin = "0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0"
+delayedWETH = "0xB39c1730DFF54f25F9e45667c119e0a8FeE73156"
+disputeGameType = 0
+disputeAbsolutePrestate = "0x03caa1871bb9fe7f9b11217c245c16e4ded33367df5b3ccb2c6d0a847a217d1b" # Absolute Prestate 1.8.0 https://github.com/ethereum-optimism/superchain-registry/blob/9205709c8823c65cdb3d186b9afa7d8effb943a8/validation/standard/standard-prestates.toml#L12
+disputeMaxGameDepth = 73
+disputeSplitDepth = 30
+disputeClockExtension = 10800
+disputeMaxClockDuration = 302400
+initialBond = 80000000000000000
+vm = "0x6463dee3828677f6270d83d45408044fc5edb908" # Source: https://github.com/ethereum-optimism/superchain-registry/blob/ad5becd08007b80988679b8f0c08d415e1294066/validation/standard/standard-versions-sepolia.toml#L11
+permissioned = false
+
+[addresses]
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62" # Source: https://github.com/ethereum-optimism/superchain-registry/blob/ad5becd08007b80988679b8f0c08d415e1294066/validation/standard/standard-versions-sepolia.toml#L23
+
+[stateOverrides]
+# ProxyAdminOwner
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 45}
+]
+
+# Foundation Upgrades Safe
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
+
+# Security Council
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+]

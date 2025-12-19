@@ -30,11 +30,9 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
     address internal _feeSplitterImpl;
 
     function setUp() public {
-        // Create forks for L1 (mainnet) and L2s (OP Mainnet, Ink, Soneium)
+        // Create forks for L1 (mainnet) and L2 (OP Mainnet only - proxies already upgraded)
         _mainnetForkId = vm.createFork("http://127.0.0.1:8545");
         _opMainnetForkId = vm.createFork("http://127.0.0.1:9545");
-        _inkMainnetForkId = vm.createFork("http://127.0.0.1:9546");
-        _soneiumMainnetForkId = vm.createFork("http://127.0.0.1:9547");
 
         // Deploy contracts on L1
         vm.selectFork(_mainnetForkId);
@@ -63,40 +61,8 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
         Proxy proxyTemplate = new Proxy(address(this));
         bytes memory proxyCode = address(proxyTemplate).code;
 
-        // Etch predeploys on OP Mainnet fork
+        // Etch predeploys on OP Mainnet fork (proxies already upgraded, just need setup)
         vm.selectFork(_opMainnetForkId);
-        _etchImplementations(
-            _operatorFeeVaultImpl,
-            _sequencerFeeVaultImpl,
-            _defaultFeeVaultImpl,
-            _feeSplitterImpl,
-            operatorFeeVaultImplCode,
-            sequencerFeeVaultImplCode,
-            defaultFeeVaultImplCode,
-            feeSplitterImplCode
-        );
-        _setupProxyPredeploys(
-            proxyCode, _operatorFeeVaultImpl, _sequencerFeeVaultImpl, _defaultFeeVaultImpl, _feeSplitterImpl
-        );
-
-        // Etch predeploys on Ink Mainnet fork
-        vm.selectFork(_inkMainnetForkId);
-        _etchImplementations(
-            _operatorFeeVaultImpl,
-            _sequencerFeeVaultImpl,
-            _defaultFeeVaultImpl,
-            _feeSplitterImpl,
-            operatorFeeVaultImplCode,
-            sequencerFeeVaultImplCode,
-            defaultFeeVaultImplCode,
-            feeSplitterImplCode
-        );
-        _setupProxyPredeploys(
-            proxyCode, _operatorFeeVaultImpl, _sequencerFeeVaultImpl, _defaultFeeVaultImpl, _feeSplitterImpl
-        );
-
-        // Etch predeploys on Soneium Mainnet fork
-        vm.selectFork(_soneiumMainnetForkId);
         _etchImplementations(
             _operatorFeeVaultImpl,
             _sequencerFeeVaultImpl,
@@ -189,24 +155,20 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
         vm.store(FEE_SPLITTER, PROXY_OWNER_SLOT, bytes32(uint256(uint160(RevShareCommon.PROXY_ADMIN))));
     }
 
-    /// @notice Test the integration of setupRevShare
+    /// @notice Test the integration of setupRevShare (OP Mainnet only - proxies already upgraded)
     function test_setupRevShare_integration() public {
         // Step 1: Record logs for L1→L2 message replay
         vm.recordLogs();
 
         // Step 2: Execute task simulation
-        revShareTask.simulate("test/tasks/example/eth/017-revshare-setup/config.toml");
+        revShareTask.simulate("test/tasks/example/eth/016-revshare-setup/config.toml");
 
-        // Step 3: Relay deposit transactions from L1 to all L2s
-        uint256[] memory forkIds = new uint256[](3);
+        // Step 3: Relay deposit transactions from L1 to OP Mainnet
+        uint256[] memory forkIds = new uint256[](1);
         forkIds[0] = _opMainnetForkId;
-        forkIds[1] = _inkMainnetForkId;
-        forkIds[2] = _soneiumMainnetForkId;
 
-        address[] memory portals = new address[](3);
+        address[] memory portals = new address[](1);
         portals[0] = OP_MAINNET_PORTAL;
-        portals[1] = INK_MAINNET_PORTAL;
-        portals[2] = SONEIUM_MAINNET_PORTAL;
 
         _relayAllMessages(forkIds, IS_SIMULATE, portals);
 
@@ -224,55 +186,19 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
             OP_CHAIN_FEES_RECIPIENT
         );
 
-        // Step 5: Assert the state of the Ink Mainnet contracts
-        vm.selectFork(_inkMainnetForkId);
-        address inkL1Withdrawer = _computeL1WithdrawerAddress(
-            INK_MIN_WITHDRAWAL_AMOUNT, INK_L1_WITHDRAWAL_RECIPIENT, INK_WITHDRAWAL_GAS_LIMIT
-        );
-        address inkRevShareCalculator = _computeRevShareCalculatorAddress(inkL1Withdrawer, INK_CHAIN_FEES_RECIPIENT);
-        _assertL2State(
-            inkL1Withdrawer,
-            inkRevShareCalculator,
-            INK_MIN_WITHDRAWAL_AMOUNT,
-            INK_L1_WITHDRAWAL_RECIPIENT,
-            INK_WITHDRAWAL_GAS_LIMIT,
-            INK_CHAIN_FEES_RECIPIENT
-        );
-
-        // Step 6: Assert the state of the Soneium Mainnet contracts
-        vm.selectFork(_soneiumMainnetForkId);
-        address soneiumL1Withdrawer = _computeL1WithdrawerAddress(
-            SONEIUM_MIN_WITHDRAWAL_AMOUNT, SONEIUM_L1_WITHDRAWAL_RECIPIENT, SONEIUM_WITHDRAWAL_GAS_LIMIT
-        );
-        address soneiumRevShareCalculator =
-            _computeRevShareCalculatorAddress(soneiumL1Withdrawer, SONEIUM_CHAIN_FEES_RECIPIENT);
-        _assertL2State(
-            soneiumL1Withdrawer,
-            soneiumRevShareCalculator,
-            SONEIUM_MIN_WITHDRAWAL_AMOUNT,
-            SONEIUM_L1_WITHDRAWAL_RECIPIENT,
-            SONEIUM_WITHDRAWAL_GAS_LIMIT,
-            SONEIUM_CHAIN_FEES_RECIPIENT
-        );
-
-        // Step 7: Do a withdrawal flow
+        // Step 5: Do a withdrawal flow
 
         // Fund vaults with amount > minWithdrawalAmount
-        _fundVaults(1 ether, _opMainnetForkId);
-        _fundVaults(1 ether, _inkMainnetForkId);
-        _fundVaults(1 ether, _soneiumMainnetForkId);
+        // It disburses 5 ether to each of the 4 vaults, so total sent is 20 ether
+        _fundVaults(5 ether, _opMainnetForkId);
 
-        // Disburse fees in all chains and expect the L1Withdrawer to trigger the withdrawal
-        // Expected L1Withdrawer share = 3 ether * 15% = 0.45 ether
-        // It is 3 ether instead of 4 because net revenue doesn't count L1FeeVault's balance
+        // Disburse fees and expect the L1Withdrawer to trigger the withdrawal
+        // Expected L1Withdrawer share = 15 ether * 15% = 2.25 ether
+        // It is 15 ether instead of 20 because net revenue doesn't count L1FeeVault's balance
         // For details on the rev share calculation, check the SuperchainRevSharesCalculator contract.
         // https://github.com/ethereum-optimism/optimism/blob/f392d4b7e8bc5d1c8d38fcf19c8848764f8bee3b/packages/contracts-bedrock/src/L2/SuperchainRevSharesCalculator.sol#L67-L101
-        uint256 expectedWithdrawalAmount = 0.45 ether;
+        uint256 expectedWithdrawalAmount = 2.25 ether;
 
         _executeDisburseAndAssertWithdrawal(_opMainnetForkId, OP_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
-        _executeDisburseAndAssertWithdrawal(_inkMainnetForkId, INK_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
-        _executeDisburseAndAssertWithdrawal(
-            _soneiumMainnetForkId, SONEIUM_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount
-        );
     }
 }
