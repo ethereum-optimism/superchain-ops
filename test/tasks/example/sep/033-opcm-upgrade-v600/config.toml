@@ -3,7 +3,7 @@ l2chains = [
     {name = "u18-beta-0", chainId = 420110021}
 ]
 
-# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/tree/main/betanets/u18-beta
+# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/blob/main/betanets/u18-beta/u18-beta-0/chain.yaml
 
 fallbackAddressesJsonPath = "test/tasks/example/sep/033-opcm-upgrade-v600/addresses.json"
 
