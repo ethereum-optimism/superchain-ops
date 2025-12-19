@@ -97,7 +97,7 @@ contract TaskManager is Script {
 
     function executeTask(TaskConfig memory config, address[] memory _childSafes)
         public
-        returns (VmSafe.AccountAccess[] memory accesses_, bytes memory dataToSign_)
+        returns (VmSafe.AccountAccess[] memory accesses_, bytes[] memory dataToSign_)
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
@@ -111,15 +111,19 @@ contract TaskManager is Script {
         string memory taskName = parts[parts.length - 1];
 
         (accesses_, dataToSign_) = execute(config, task, _childSafes, taskName, formattedRootSafe);
-        require(
-            checkDataToSign(dataToSign_, config),
-            string.concat(
-                "TaskManager: Data to sign for task: ",
-                taskName,
-                " does not match Domain and Message hashes in VALIDATION.md. Got: ",
-                vm.toString(dataToSign_)
-            )
-        );
+
+        // Validate ALL dataToSign hashes against VALIDATION.md
+        for (uint256 i = 0; i < dataToSign_.length; i++) {
+            require(
+                checkDataToSign(dataToSign_[i], config),
+                string.concat(
+                    "TaskManager: Data to sign for task: ",
+                    taskName,
+                    " does not match Domain and Message hashes in VALIDATION.md. Got: ",
+                    vm.toString(dataToSign_[i])
+                )
+            );
+        }
     }
 
     /// @notice Executes a task based on its configuration.
@@ -129,7 +133,7 @@ contract TaskManager is Script {
         address[] memory _childSafes,
         string memory _taskName,
         string memory _formattedParentMultisig
-    ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes memory dataToSign_) {
+    ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes[] memory dataToSign_) {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         if (_config.isNested) {
