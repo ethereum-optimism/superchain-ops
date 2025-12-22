@@ -30,8 +30,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
 
-    /// @notice Maximum gas limit for transactions (14M gas to leave margin below Fusaka EIP-7825 cap of 16,777,216)
-    uint256 internal constant MAX_GAS_LIMIT = 14_000_000;
+    /// @notice Maximum gas limit for transactions, 15M gas is ~90% of the limit
+    uint256 internal constant MAX_GAS_LIMIT = 15_000_000;
 
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
@@ -537,7 +537,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             console.log("Gas final used:", gasInfo.gasTotalUsed);
             console.log("Gas limit:", MAX_GAS_LIMIT);
             console.log("Fusaka EIP-7825 cap: 16,777,216 gas");
-            revert("MultisigTask: transaction exceeds 14M gas limit");
+            revert("MultisigTask: transaction exceeds 15M gas limit");
         }
 
         if (!success) {

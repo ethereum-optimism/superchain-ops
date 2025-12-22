@@ -53,12 +53,12 @@ simulate-all-templates:
             task_name=$(basename "$task")
             task_path="$root_dir/test/tasks/example/$network/$task_name"
 
-            # Skip tasks that exceed the 14M gas limit
+            # Skip tasks that exceed the 15M gas limit
             # 023-u13-to-u16a: OPCMUpgradeV220toV410 performs 4 sequential upgrades (U13 through U16a)
-            # consuming ~21.7M gas, which exceeds the 14M safety limit for Fusaka EIP-7825 compatibility.
+            # consuming ~21.7M gas, which exceeds the 15M safety limit for Fusaka EIP-7825 compatibility.
             # This template is not actively used and can be skipped in CI.
             if [ "$task_name" = "023-u13-to-u16a" ]; then
-                echo "Skipping $task_name (exceeds 14M gas limit)"
+                echo "Skipping $task_name (exceeds 15M gas limit)"
                 continue
             fi
 

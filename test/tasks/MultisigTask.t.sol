@@ -408,7 +408,7 @@ contract MultisigTaskUnitTest is Test {
         assertNestedCalldata(result[0], root, abi.encodeCall(IGnosisSafe(root).approveHash, (hash)));
     }
 
-    /// @notice Tests that MultisigTask reverts when a transaction exceeds the 14M gas limit
+    /// @notice Tests that MultisigTask reverts when a transaction exceeds the 15M gas limit
     function test_simulate_revertsOnHighGasUsage_fails() public {
         string memory highGasToml =
             "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"HighGasMultisigTask\"\n" "\n";
@@ -418,7 +418,7 @@ contract MultisigTaskUnitTest is Test {
 
         HighGasMultisigTask highGasTask = new HighGasMultisigTask();
 
-        vm.expectRevert("MultisigTask: transaction exceeds 14M gas limit");
+        vm.expectRevert("MultisigTask: transaction exceeds 15M gas limit");
         highGasTask.simulate(taskConfigFilePath);
         MultisigTaskTestHelper.removeFile(taskConfigFilePath);
     }

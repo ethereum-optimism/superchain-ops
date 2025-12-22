@@ -24,7 +24,7 @@ contract MockTarget is Test {
     ///         too close to the Fusaka EIP-7825 cap of 16,777,216 gas.
     function consumeGas() public {
         // Expand memory to consume ~17M gas. Memory expansion cost grows quadratically, so we
-        // need to allocate enough memory to exceed the 14M threshold in MultisigTask.sol.
+        // need to allocate enough memory to exceed the 15M threshold in MultisigTask.sol.
         bytes memory largeData1 = new bytes(200000); // 200KB
         bytes memory largeData2 = new bytes(400000); // 400KB
         bytes memory largeData3 = new bytes(800000); // 800KB

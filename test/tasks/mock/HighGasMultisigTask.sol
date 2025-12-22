@@ -33,7 +33,7 @@ contract HighGasMultisigTask is L2TaskBase {
         mockTarget = new MockTarget();
     }
 
-    /// @notice Build function that creates an action which will consume >14M gas on-chain
+    /// @notice Build function that creates an action which will consume >15M gas on-chain
     function _build(address) internal override {
         // Call mockTarget.consumeGas() which will expand memory during execution to use a lot of gas
         mockTarget.consumeGas();
