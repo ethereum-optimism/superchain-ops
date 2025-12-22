@@ -111,11 +111,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(
-        VmSafe.AccountAccess[] memory,
-        Action[] memory,
-        address
-    ) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         // Cache standard validator's expected values (same for all chains)
