@@ -647,12 +647,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory allSafes
     ) internal view returns (bytes memory) {
         bytes32 hash = getHash(_data, _safe, _value, _originalNonce, allSafes);
+        return _generateApproveHashCalldata(_safe, hash);
+    }
+
+    /// @notice Creates multicall3 calldata for a safe to approve a given hash.
+    /// @param _safe The safe that will execute the approveHash call.
+    /// @param _hash The hash to approve.
+    function _generateApproveHashCalldata(address _safe, bytes32 _hash) internal pure returns (bytes memory) {
         IMulticall3.Call3Value[] memory approvalCall = new IMulticall3.Call3Value[](1);
         approvalCall[0] = IMulticall3.Call3Value({
             target: _safe,
             allowFailure: false,
-            value: _value,
-            callData: abi.encodeCall(IGnosisSafe(_safe).approveHash, (hash))
+            value: 0,
+            callData: abi.encodeCall(IGnosisSafe(_safe).approveHash, (_hash))
         });
         return abi.encodeCall(IMulticall3.aggregate3Value, (approvalCall));
     }
@@ -873,7 +880,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             getHash(payload.calldatas[rootSafeIndex], rootSafe, 0, payload.originalNonces[rootSafeIndex], payload.safes);
 
         // Generate approval calldata that all child safes sign
-        bytes memory approvalCalldata = _generateApprovalCalldata(rootSafe, rootTxHash);
+        bytes memory approvalCalldata = _generateApproveHashCalldata(rootSafe, rootTxHash);
 
         for (uint256 i = 0; i < rootOwners.length; i++) {
             if (rootOwners[i].code.length > 0) {
@@ -894,17 +901,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
-    /// @notice Generates the approval calldata for a child safe to approve a root safe's transaction hash.
-    function _generateApprovalCalldata(address _rootSafe, bytes32 _rootTxHash) internal pure returns (bytes memory) {
-        IMulticall3.Call3Value[] memory approvalCall = new IMulticall3.Call3Value[](1);
-        approvalCall[0] = IMulticall3.Call3Value({
-            target: _rootSafe,
-            allowFailure: false,
-            value: 0,
-            callData: abi.encodeCall(IGnosisSafe(_rootSafe).approveHash, (_rootTxHash))
-        });
-        return abi.encodeCall(IMulticall3.aggregate3Value, (approvalCall));
-    }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
     function _printTenderlySimulationData(TaskPayload memory payload) internal {
