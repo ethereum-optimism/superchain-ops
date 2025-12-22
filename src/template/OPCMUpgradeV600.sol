@@ -209,7 +209,6 @@ interface IOPContractsManagerStandardValidator {
 }
 
 interface ISystemConfig {
-
     struct Addresses {
         address l1CrossDomainMessenger;
         address l1ERC721Bridge;
