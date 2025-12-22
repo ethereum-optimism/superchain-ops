@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
@@ -42,11 +41,10 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
         storageWrites[2] = "OptimismPortalProxy";
         storageWrites[3] = "OptimismMintableERC20FactoryProxy";
         storageWrites[4] = "AddressManager";
-        storageWrites[5] = "L1CrossDomainMessengerProxy";
-        storageWrites[6] = "L1StandardBridgeProxy";
-        storageWrites[7] = "L1ERC721BridgeProxy";
-        storageWrites[8] = "ProxyAdminOwner";
-        storageWrites[9] = "AnchorStateRegistryProxy";
+        storageWrites[5] = "ProxyAdminOwner";
+        storageWrites[6] = "AnchorStateRegistryProxy";
+        storageWrites[7] = "L1StandardBridgeProxy";
+        storageWrites[8] = "L1ERC721BridgeProxy";
         return storageWrites;
     }
 
@@ -90,7 +88,6 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
             uint256 chainId = chains[i].chainId;
             require(upgrades[chainId].chainId != 0, "OPCMUpgradeV600: Config not found for chain");
 
-            // Optional: enforce non-zero prestates, per U18 notes
             require(
                 Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0), "OPCMUpgradeV600: cannonPrestate is zero"
             );
@@ -106,7 +103,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
             });
         }
 
-        // Delegatecall the OPCM.upgrade() function (new U18 signature)
+        // Delegatecall the OPCM.upgrade() function
         (bool ok2,) = OPCM_TARGETS[0].delegatecall(
             abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs)
         );
@@ -124,8 +121,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
             address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
 
-            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
-                .ValidationInputDev({
+            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator.ValidationInputDev({
                 sysCfg: ISystemConfig(sysCfg),
                 cannonPrestate: expCannonPrestate,
                 cannonKonaPrestate: expCannonKonaPrestate,
@@ -195,4 +191,19 @@ interface IOPContractsManagerStandardValidator {
     ) external view returns (string memory);
 
     function version() external view returns (string memory);
+}
+
+interface ISystemConfig {
+
+    struct Addresses {
+        address l1CrossDomainMessenger;
+        address l1ERC721Bridge;
+        address l1StandardBridge;
+        address optimismPortal;
+        address optimismMintableERC20Factory;
+        address delayedWETH;
+        address opcm;
+    }
+
+     function getAddresses() external view returns (Addresses memory);
 }
