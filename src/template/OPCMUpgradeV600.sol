@@ -125,14 +125,14 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
-            IOPContractsManagerStandardValidator.ValidationInputDev memory input =
-                IOPContractsManagerStandardValidator.ValidationInputDev({
-                    sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                    cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
-                    cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
-                    l2ChainID: chainId,
-                    proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
-                });
+            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
+                .ValidationInputDev({
+                sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+                cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
+                cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
+                l2ChainID: chainId,
+                proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
+            });
 
             // Compute overrides: non-zero only if chain differs from standard
             address l1PAOOverride = superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId);
