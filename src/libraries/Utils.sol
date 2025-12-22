@@ -108,6 +108,12 @@ library Utils {
         return childSafes;
     }
 
+    /// @notice Returns the address of a contract created with CREATE2 using the given CREATE2 deployer.
+    function getCreate2Address(bytes32 salt, bytes memory initCode, address deployer) internal pure returns (address) {
+        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, keccak256(initCode)));
+        return address(uint160(uint256(hash)));
+    }
+
     /// @notice Returns the owner that pointed to the owner to be removed in the linked list.
     /// Taken from: https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/test/safe-tools/SafeTestTools.sol#L213
     function getPreviousOwner(address _rootSafe, address _owner) internal view returns (address) {

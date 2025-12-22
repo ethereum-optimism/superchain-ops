@@ -1,0 +1,31 @@
+# RevShare Setup Configuration
+
+templateName = "RevShareSetup"
+
+# L2 chains to target (OP Mainnet only - proxies already upgraded)
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+revShareUpgrader = "0x71241bbae674967dd523e621c272ea32cf33119a"
+
+# RevShare configurations (one per chain) - flattened arrays
+portals = [
+  "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed" # OP Mainnet Portal
+]
+chainFeesRecipients = [
+  "0x16A27462B4D61BDD72CbBabd3E43e11791F7A28c"
+]
+
+# 2 ether
+l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
+
+# FeesDepositor address in mainnet
+l1WithdrawerRecipients = [
+  "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"
+]
+l1WithdrawerGasLimits = [800000]
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"

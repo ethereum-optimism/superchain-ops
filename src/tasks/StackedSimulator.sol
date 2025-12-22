@@ -46,8 +46,8 @@ contract StackedSimulator is Script {
         _simulateStack(network, task, new address[](0));
     }
 
-    /// @notice Simulates the execution of all non-terminal tasks for a given network. No gas metering is used.
-    function simulateStack(string memory network) public noGasMetering {
+    /// @notice Simulates the execution of all non-terminal tasks for a given network.
+    function simulateStack(string memory network) public {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
         if (tasks.length == 0) {
             console.log("No non-terminal tasks found for network: %s", network);

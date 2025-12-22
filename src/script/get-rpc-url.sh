@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ -n "${OVERRIDE_RPC_URL:-}" ]]; then
+    echo "$OVERRIDE_RPC_URL"
+    exit 0
+fi
+
 case "${1:-}" in
     eth)
         echo "mainnet"

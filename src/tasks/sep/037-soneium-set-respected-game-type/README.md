@@ -1,6 +1,8 @@
 # 037-soneium-set-respected-game-type
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [CANCELLED]
+
+This task has been delayed (date TBD).
 
 ## Objective
 
