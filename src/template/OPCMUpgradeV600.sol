@@ -35,7 +35,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](10);
+        string[] memory storageWrites = new string[](9);
         storageWrites[0] = "DisputeGameFactoryProxy";
         storageWrites[1] = "SystemConfigProxy";
         storageWrites[2] = "OptimismPortalProxy";
