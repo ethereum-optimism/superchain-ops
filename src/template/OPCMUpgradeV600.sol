@@ -104,40 +104,58 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
         }
 
         // Delegatecall the OPCM.upgrade() function
-        (bool ok2,) = OPCM_TARGETS[0].delegatecall(
+        (bool ok,) = OPCM_TARGETS[0].delegatecall(
             abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs)
         );
-        require(ok2, "OPCMUpgradeV600: Delegatecall failed in _build.");
+        require(ok, "OPCMUpgradeV600: Delegatecall failed in _build.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
+    function _validate(
+        VmSafe.AccountAccess[] memory,
+        Action[] memory,
+        address
+    ) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+
+        // Cache standard validator's expected values (same for all chains)
+        address standardL1PAO = STANDARD_VALIDATOR.l1PAOMultisig();
+        address standardChallenger = STANDARD_VALIDATOR.challenger();
+
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            bytes32 expCannonPrestate = Claim.unwrap(upgrades[chainId].cannonPrestate);
-            bytes32 expCannonKonaPrestate = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
+
+            IOPContractsManagerStandardValidator.ValidationInputDev memory input =
+                IOPContractsManagerStandardValidator.ValidationInputDev({
+                    sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+                    cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
+                    cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
+                    l2ChainID: chainId,
+                    proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
+                });
+
+            // Compute overrides: non-zero only if chain differs from standard
+            address l1PAOOverride = superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId);
+            address challengerOverride = superchainAddrRegistry.getAddress("Challenger", chainId);
+
+            l1PAOOverride = l1PAOOverride != standardL1PAO ? l1PAOOverride : address(0);
+            challengerOverride = challengerOverride != standardChallenger ? challengerOverride : address(0);
+
+            string memory errors;
+            if (l1PAOOverride != address(0) || challengerOverride != address(0)) {
+                errors = STANDARD_VALIDATOR.validateWithOverrides({
+                    _input: input,
+                    _allowFailure: true,
+                    _overrides: IOPContractsManagerStandardValidator.ValidationOverrides({
+                        l1PAOMultisig: l1PAOOverride,
+                        challenger: challengerOverride
+                    })
+                });
+            } else {
+                errors = STANDARD_VALIDATOR.validate({_input: input, _allowFailure: true});
+            }
+
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
-            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-            address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
-
-            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator.ValidationInputDev({
-                sysCfg: ISystemConfig(sysCfg),
-                cannonPrestate: expCannonPrestate,
-                cannonKonaPrestate: expCannonKonaPrestate,
-                l2ChainID: chainId,
-                proposer: proposer
-            });
-
-            IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ =
-            IOPContractsManagerStandardValidator.ValidationOverrides({
-                l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
-                challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
-            });
-
-            string memory errors =
-                STANDARD_VALIDATOR.validateWithOverrides({_input: input, _allowFailure: true, _overrides: overrides_});
-
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
     }
@@ -183,7 +201,8 @@ interface IOPContractsManagerStandardValidator {
     }
 
     function validate(ValidationInputDev memory _input, bool _allowFailure) external view returns (string memory);
-
+    function l1PAOMultisig() external view returns (address);
+    function challenger() external view returns (address);
     function validateWithOverrides(
         ValidationInputDev memory _input,
         bool _allowFailure,
@@ -205,5 +224,5 @@ interface ISystemConfig {
         address opcm;
     }
 
-     function getAddresses() external view returns (Addresses memory);
+    function getAddresses() external view returns (Addresses memory);
 }
