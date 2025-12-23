@@ -7,7 +7,7 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Betanet Proxy Admin Owner (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
+> ### Betanet 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash: `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
 > - Message Hash: `0xea39832549b35e6ff015f3138f1216b7dd1bfea74d4192ebbf5de3d9451114e7`
