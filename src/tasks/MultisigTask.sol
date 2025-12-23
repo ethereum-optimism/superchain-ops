@@ -668,18 +668,23 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory allSafes
     ) internal view returns (bytes memory) {
         bytes32 hash = getHash(_data, _safe, _value, _originalNonce, allSafes);
-        return _generateApproveHashCalldata(_safe, hash);
+        return _generateApproveHashCalldata(_safe, hash, _value);
     }
 
     /// @notice Creates multicall3 calldata for a safe to approve a given hash.
     /// @param _safe The safe that will execute the approveHash call.
     /// @param _hash The hash to approve.
-    function _generateApproveHashCalldata(address _safe, bytes32 _hash) internal pure returns (bytes memory) {
+    /// @param _value The ETH value to send with the approval.
+    function _generateApproveHashCalldata(address _safe, bytes32 _hash, uint256 _value)
+        internal
+        pure
+        returns (bytes memory)
+    {
         IMulticall3.Call3Value[] memory approvalCall = new IMulticall3.Call3Value[](1);
         approvalCall[0] = IMulticall3.Call3Value({
             target: _safe,
             allowFailure: false,
-            value: 0,
+            value: _value,
             callData: abi.encodeCall(IGnosisSafe(_safe).approveHash, (_hash))
         });
         return abi.encodeCall(IMulticall3.aggregate3Value, (approvalCall));
@@ -870,30 +875,26 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice Collects dataToSign for ALL sibling child safes (contract owners of the root safe).
     /// This enables validation of hashes for all signers, not just the one being simulated.
+    /// @dev Only called for nested tasks (payload.safes.length > 1).
     function _collectAllSiblingDataToSign(TaskPayload memory payload, bytes memory simulatedDataToSign)
         internal
         view
         returns (bytes[] memory dataToSign_)
     {
-        // For single safe tasks (non-nested), there are no sibling nested safes to validate
-        if (payload.safes.length <= 1) {
-            return new bytes[](0);
-        }
-
         address rootSafe = payload.safes[payload.safes.length - 1];
         address simulatedChildSafe = payload.safes[0];
 
         // Get all contract owners of the root safe (siblings)
         address[] memory rootOwners = IGnosisSafe(rootSafe).getOwners();
-        uint256 contractOwnerCount = 0;
-        for (uint256 i = 0; i < rootOwners.length; i++) {
+        uint256 contractOwnerCount;
+        for (uint256 i; i < rootOwners.length; i++) {
             if (rootOwners[i].code.length > 0) {
                 contractOwnerCount++;
             }
         }
 
         dataToSign_ = new bytes[](contractOwnerCount);
-        uint256 idx = 0;
+        uint256 idx;
 
         // The hash that child safes approve is the root safe's transaction hash
         uint256 rootSafeIndex = payload.safes.length - 1;
@@ -901,9 +902,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             getHash(payload.calldatas[rootSafeIndex], rootSafe, 0, payload.originalNonces[rootSafeIndex], payload.safes);
 
         // Generate approval calldata that all child safes sign
-        bytes memory approvalCalldata = _generateApproveHashCalldata(rootSafe, rootTxHash);
+        bytes memory approvalCalldata = _generateApproveHashCalldata(rootSafe, rootTxHash, 0);
 
-        for (uint256 i = 0; i < rootOwners.length; i++) {
+        for (uint256 i; i < rootOwners.length; i++) {
             if (rootOwners[i].code.length > 0) {
                 address sibling = rootOwners[i];
 

@@ -113,7 +113,7 @@ contract TaskManager is Script {
         (accesses_, dataToSign_) = execute(config, task, _childSafes, taskName, formattedRootSafe);
 
         // Validate ALL dataToSign hashes against VALIDATION.md
-        for (uint256 i = 0; i < dataToSign_.length; i++) {
+        for (uint256 i; i < dataToSign_.length; i++) {
             require(
                 checkDataToSign(dataToSign_[i], config),
                 string.concat(
