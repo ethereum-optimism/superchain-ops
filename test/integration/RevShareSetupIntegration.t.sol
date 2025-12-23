@@ -34,13 +34,20 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
         _mainnetForkId = vm.createFork("http://127.0.0.1:8545");
         _opMainnetForkId = vm.createFork("http://127.0.0.1:9545");
 
-        // Deploy contracts on L1
-        vm.selectFork(_mainnetForkId);
-
-        // Deploy RevShareContractsUpgrader and etch at predetermined address
-        revShareUpgrader = new RevShareContractsUpgrader();
-        vm.etch(REV_SHARE_UPGRADER_ADDRESS, address(revShareUpgrader).code);
-        revShareUpgrader = RevShareContractsUpgrader(REV_SHARE_UPGRADER_ADDRESS);
+        // Configure OP Mainnet with production config values
+        // Values from test/tasks/example/eth/016-revshare-setup/config.toml
+        l2Chains.push(
+            L2ChainConfig({
+                forkId: _opMainnetForkId,
+                portal: OP_MAINNET_PORTAL,
+                l1Messenger: OP_MAINNET_L1_MESSENGER,
+                minWithdrawalAmount: 2 ether,
+                l1WithdrawalRecipient: 0xed9B99a703BaD32AC96FDdc313c0652e379251Fd,
+                withdrawalGasLimit: 800000,
+                chainFeesRecipient: 0x16A27462B4D61BDD72CbBabd3E43e11791F7A28c,
+                name: "OP Mainnet"
+            })
+        );
 
         // Deploy RevShareSetup task
         revShareTask = new RevShareSetup();
@@ -163,42 +170,66 @@ contract RevShareSetupIntegrationTest is IntegrationBase {
         // Step 2: Execute task simulation
         revShareTask.simulate("test/tasks/example/eth/016-revshare-setup/config.toml");
 
-        // Step 3: Relay deposit transactions from L1 to OP Mainnet
-        uint256[] memory forkIds = new uint256[](1);
-        forkIds[0] = _opMainnetForkId;
+        // Step 3: Relay deposit transactions from L1 to all L2s
+        uint256[] memory forkIds = new uint256[](l2Chains.length);
+        address[] memory portals = new address[](l2Chains.length);
 
-        address[] memory portals = new address[](1);
-        portals[0] = OP_MAINNET_PORTAL;
+        for (uint256 i = 0; i < l2Chains.length; i++) {
+            forkIds[i] = l2Chains[i].forkId;
+            portals[i] = l2Chains[i].portal;
+        }
 
         _relayAllMessages(forkIds, IS_SIMULATE, portals);
 
-        // Step 4: Assert the state of the OP Mainnet contracts
-        vm.selectFork(_opMainnetForkId);
-        address opL1Withdrawer =
-            _computeL1WithdrawerAddress(OP_MIN_WITHDRAWAL_AMOUNT, OP_L1_WITHDRAWAL_RECIPIENT, OP_WITHDRAWAL_GAS_LIMIT);
-        address opRevShareCalculator = _computeRevShareCalculatorAddress(opL1Withdrawer, OP_CHAIN_FEES_RECIPIENT);
-        _assertL2State(
-            opL1Withdrawer,
-            opRevShareCalculator,
-            OP_MIN_WITHDRAWAL_AMOUNT,
-            OP_L1_WITHDRAWAL_RECIPIENT,
-            OP_WITHDRAWAL_GAS_LIMIT,
-            OP_CHAIN_FEES_RECIPIENT
-        );
+        // Step 4: Assert L2 state for all chains
+        for (uint256 i = 0; i < l2Chains.length; i++) {
+            L2ChainConfig memory chain = l2Chains[i];
 
-        // Step 5: Do a withdrawal flow
+            vm.selectFork(chain.forkId);
 
-        // Fund vaults with amount > minWithdrawalAmount
-        // It disburses 5 ether to each of the 4 vaults, so total sent is 20 ether
-        _fundVaults(5 ether, _opMainnetForkId);
+            address l1Withdrawer = _computeL1WithdrawerAddress(
+                chain.minWithdrawalAmount, chain.l1WithdrawalRecipient, chain.withdrawalGasLimit
+            );
+            address revShareCalculator = _computeRevShareCalculatorAddress(l1Withdrawer, chain.chainFeesRecipient);
 
-        // Disburse fees and expect the L1Withdrawer to trigger the withdrawal
+            _assertL2State(
+                l1Withdrawer,
+                revShareCalculator,
+                chain.minWithdrawalAmount,
+                chain.l1WithdrawalRecipient,
+                chain.withdrawalGasLimit,
+                chain.chainFeesRecipient
+            );
+        }
+
+        // Step 5: Fund vaults for all chains
+        for (uint256 i = 0; i < l2Chains.length; i++) {
+            _fundVaults(5 ether, l2Chains[i].forkId);
+        }
+
+        // Step 6: Disburse fees in all chains and assert withdrawals
         // Expected L1Withdrawer share = 15 ether * 15% = 2.25 ether
         // It is 15 ether instead of 20 because net revenue doesn't count L1FeeVault's balance
         // For details on the rev share calculation, check the SuperchainRevSharesCalculator contract.
         // https://github.com/ethereum-optimism/optimism/blob/f392d4b7e8bc5d1c8d38fcf19c8848764f8bee3b/packages/contracts-bedrock/src/L2/SuperchainRevSharesCalculator.sol#L67-L101
         uint256 expectedWithdrawalAmount = 2.25 ether;
 
-        _executeDisburseAndAssertWithdrawal(_opMainnetForkId, OP_L1_WITHDRAWAL_RECIPIENT, expectedWithdrawalAmount);
+        for (uint256 i = 0; i < l2Chains.length; i++) {
+            L2ChainConfig memory chain = l2Chains[i];
+            address l1Withdrawer = _computeL1WithdrawerAddress(
+                chain.minWithdrawalAmount, chain.l1WithdrawalRecipient, chain.withdrawalGasLimit
+            );
+            _executeDisburseAndAssertWithdrawal(
+                _mainnetForkId,
+                chain.forkId,
+                _opMainnetForkId,
+                l1Withdrawer,
+                chain.l1WithdrawalRecipient,
+                expectedWithdrawalAmount,
+                chain.portal,
+                chain.l1Messenger,
+                chain.withdrawalGasLimit
+            );
+        }
     }
 }
