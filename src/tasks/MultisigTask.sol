@@ -922,7 +922,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
-
     /// @notice Print the Tenderly simulation payload with the state overrides.
     function _printTenderlySimulationData(TaskPayload memory payload) internal {
         address targetAddress;
