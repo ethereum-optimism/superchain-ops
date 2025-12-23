@@ -12,7 +12,7 @@ Updates OP Labs Betanets (both Permissioned and Permissionless networks) to U18.
 cd src/tasks/sep/052-U18-op-betanets
 
 # Testing
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
+just simulate-stack sep 052-U18-op-betanets
 
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
