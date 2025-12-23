@@ -1,0 +1,18 @@
+l2chains = [
+  {name = "u18-beta-1", chainId = 420110022}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/051-op-betanet-set-respected-game-type/addresses.json"
+templateName = "SetRespectedGameTypeTemplate"
+
+safeAddressString = "ProxyAdminOwner" # We need this on betanet because the ASR checks msg.sender == SystemConfig.guardian() which is the PAO EOA, not the GuardianSafe multisig as on Sepolia.
+
+[gameTypes]
+configs = [
+  {chainId = 420110022, gameType = 0}
+]
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 56}
+]
