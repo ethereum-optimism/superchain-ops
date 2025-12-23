@@ -8,8 +8,10 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
     RevShareUpgradeAndSetup public revShareTask;
 
     function setUp() public {
-        // Create forks for L1 (mainnet) and L2s (Ink and Soneium only - need proxy upgrade)
+        // Create forks for L1 (mainnet) and L2s (OP, Ink, and Soneium)
+        // OP Mainnet L2 is needed for relaying L1→L2 deposits from FeesDepositor
         _mainnetForkId = vm.createFork("http://127.0.0.1:8545");
+        _opMainnetForkId = vm.createFork("http://127.0.0.1:9545");
         _inkMainnetForkId = vm.createFork("http://127.0.0.1:9546");
         _soneiumMainnetForkId = vm.createFork("http://127.0.0.1:9547");
 
