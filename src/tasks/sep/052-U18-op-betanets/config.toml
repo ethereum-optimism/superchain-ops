@@ -10,8 +10,6 @@ fallbackAddressesJsonPath = "src/tasks/sep/052-U18-op-betanets/addresses.json"
 
 templateName = "OPCMUpgradeV600"
 
-allowOverwrite = ["OptimismMintableErc20FactoryProxy"]
-
 
 [[opcmUpgrades]]
 chainId = 420110021
