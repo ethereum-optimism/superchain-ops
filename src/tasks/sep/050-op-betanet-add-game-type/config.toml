@@ -1,5 +1,5 @@
 templateName = "AddGameTypeTemplate"
-fallbackAddressesJsonPath = "src/tasks/sep/049-op-betanet-add-game-type/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/050-op-betanet-add-game-type/addresses.json"
 
 l2chains = [    
     {name = "u18-beta-1", chainId = 420110022},

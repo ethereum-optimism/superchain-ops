@@ -1,6 +1,6 @@
 # 052-U18-op-betanets
 
-Status: [DRAFT]
+Status: [READY TO SIGN]
 
 ## Objective
 
