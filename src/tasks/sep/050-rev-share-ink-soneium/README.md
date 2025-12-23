@@ -1,6 +1,6 @@
 # 050-rev-share-ink-soneium: RevShare Upgrade and Setup for Ink Sepolia and Soneium Minato
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]
 
 ## Objective
 
