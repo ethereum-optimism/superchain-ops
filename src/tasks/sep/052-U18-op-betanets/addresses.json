@@ -14,7 +14,7 @@
     "L1ERC721BridgeProxy": "0x7Be332D7b7F7c28dE79cE28b36F17F3C0ad31ce2",
     "Proposer": "0x87af2830e8A39a76261f7ed515EE4a3451105561",
     "Challenger": "0x839057B2F150b4720d47771B9D9e51D79f3E4B38",
-    "OptimismMintableErc20FactoryProxy": "0xC09189bC7A60248b625Eca79d4f3446Ca1Bbc64f"
+    "OptimismMintableERC20FactoryProxy": "0xC09189bC7A60248b625Eca79d4f3446Ca1Bbc64f"
   },
   "420110022": {
     "ProxyAdmin": "0xcd18a0C04286Eba52Bb168Fa1D79133Da4856bEf",
@@ -31,6 +31,6 @@
     "L1ERC721BridgeProxy": "0xe081aD91D049e9999d1e7006dbF025b38198B518",
     "Proposer": "0x39Ff903Ca8a3d759dE9A7502D9C3B5Ef8A8e6670",
     "Challenger": "0xd9f48B7D3e1Ff4A1d4877834aaCAC9d1d6230d8E",
-    "OptimismMintableErc20FactoryProxy": "0xB1453F648E22c4DEB2FdEDA840E5Af42Ef9ea49a"
+    "OptimismMintableERC20FactoryProxy": "0xB1453F648E22c4DEB2FdEDA840E5Af42Ef9ea49a"
   }
 }
