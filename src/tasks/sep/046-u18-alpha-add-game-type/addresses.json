@@ -1,0 +1,11 @@
+{
+    "420100007": {
+      "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+      "ProxyAdmin": "0x60Bd2033CeB47640b6F2b034A8B815CF0f7cd367",
+      "OptimismPortalProxy": "0x065Dd536860670C14e7BF747BDAeCFeA5F818cC7",
+      "DisputeGameFactoryProxy": "0x0b4C0fD85A3313675C24247b914A73b4b1f81F47",
+      "AnchorStateRegistryProxy": "0x2C7825B4f51c64778DCFc53D67cE221B2C24Da87",
+      "DelayedWethPermissionedGameProxy": "0x81e02A36d30D9916A7471922E4FB4682E2713442",
+      "SystemConfigProxy": "0x683AFd1a0756Ad9E44942BF72369A4860E64679a"
+    }
+  }
