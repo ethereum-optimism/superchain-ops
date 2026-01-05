@@ -107,15 +107,22 @@ contract RevShareContractsUpgraderIntegrationTest is IntegrationBase {
                 chain.minWithdrawalAmount, chain.l1WithdrawalRecipient, chain.withdrawalGasLimit
             );
             _executeDisburseAndAssertWithdrawal(
-                _mainnetForkId,
-                chain.forkId,
-                _opMainnetForkId,
-                l1Withdrawer,
-                chain.l1WithdrawalRecipient,
-                expectedWithdrawalAmount,
-                chain.portal,
-                chain.l1Messenger,
-                chain.withdrawalGasLimit
+                ChainConfig({
+                    l1ForkId: _mainnetForkId,
+                    l2ForkId: chain.forkId,
+                    l1Withdrawer: l1Withdrawer,
+                    l1WithdrawalRecipient: chain.l1WithdrawalRecipient,
+                    expectedWithdrawalAmount: expectedWithdrawalAmount,
+                    portal: chain.portal,
+                    l1Messenger: chain.l1Messenger,
+                    withdrawalGasLimit: chain.withdrawalGasLimit
+                }),
+                OPConfig({
+                    opL2ForkId: _opMainnetForkId,
+                    opL1Messenger: OP_MAINNET_L1_MESSENGER,
+                    opPortal: OP_MAINNET_PORTAL,
+                    feesDepositorTarget: OP_MAINNET_FEES_DEPOSITOR_TARGET
+                })
             );
         }
     }

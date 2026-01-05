@@ -39,14 +39,11 @@ abstract contract IntegrationBase is Test {
     address internal constant INK_MAINNET_L1_MESSENGER = 0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f;
     address internal constant SONEIUM_MAINNET_L1_MESSENGER = 0x9CF951E3F74B644e621b36Ca9cea147a78D4c39f;
 
-    // FeesDepositor configuration (triggers deposit to OP Mainnet when balance >= threshold)
+    // FeesDepositor configuration (triggers deposit to OP when balance >= threshold)
     uint256 internal constant FEES_DEPOSITOR_THRESHOLD = 2 ether;
 
-    // OP Mainnet fees recipient (OPM multisig) - target for FeesDepositor deposits
-    address internal constant OP_MAINNET_FEES_RECIPIENT = 0x16A27462B4D61BDD72CbBabd3E43e11791F7A28c;
-
-    // Aliased address for L1→L2 message relay
-    address internal immutable OP_ALIASED_L1_MESSENGER = AddressAliasHelper.applyL1ToL2Alias(OP_MAINNET_L1_MESSENGER);
+    // FeesDepositor target on OP Mainnet (OPM multisig)
+    address internal constant OP_MAINNET_FEES_DEPOSITOR_TARGET = 0x16A27462B4D61BDD72CbBabd3E43e11791F7A28c;
 
     // Simulation flag for task execution
     bool internal constant IS_SIMULATE = true;
@@ -65,10 +62,21 @@ abstract contract IntegrationBase is Test {
     // Extra gas buffer added to the minimum gas limit for the relayMessage function
     uint64 internal constant RELAY_GAS_OVERHEAD = 700_000;
 
+    // Gas limit for simple ETH transfers via L1→L2 relay (FeesDepositor → OP L2)
+    uint256 internal constant L1_TO_L2_ETH_TRANSFER_GAS_LIMIT = 200_000;
+
     // Counter for unique L1→L2 message nonces (to avoid collisions on forks)
     uint240 internal _l1ToL2NonceCounter;
 
-    // L2 chain configuration struct
+    /// @notice L2 chain configuration for multi-chain integration tests
+    /// @param forkId Fork ID for this L2 chain
+    /// @param portal OptimismPortal address on L1 for this chain
+    /// @param l1Messenger L1CrossDomainMessenger address for this chain
+    /// @param minWithdrawalAmount Minimum withdrawal amount for L1Withdrawer (wei)
+    /// @param l1WithdrawalRecipient Target address on L1 that receives withdrawals
+    /// @param withdrawalGasLimit Gas limit for L2->L1 withdrawal messages
+    /// @param chainFeesRecipient Chain fees recipient address (85% share)
+    /// @param name Human-readable chain name for logging
     struct L2ChainConfig {
         uint256 forkId;
         address portal;
@@ -78,6 +86,38 @@ abstract contract IntegrationBase is Test {
         uint32 withdrawalGasLimit;
         address chainFeesRecipient;
         string name;
+    }
+
+    /// @notice Configuration for the chain being tested (L2 -> L1 withdrawal)
+    /// @param l1ForkId Fork ID for the L1 chain
+    /// @param l2ForkId Fork ID for the L2 chain being tested
+    /// @param l1Withdrawer L1Withdrawer contract address on L2
+    /// @param l1WithdrawalRecipient Target address on L1 that receives withdrawals (e.g., FeesDepositor)
+    /// @param expectedWithdrawalAmount Expected ETH amount to be withdrawn
+    /// @param portal OptimismPortal address on L1 for this chain
+    /// @param l1Messenger L1CrossDomainMessenger address for this chain
+    /// @param withdrawalGasLimit Gas limit for the L2->L1 withdrawal message
+    struct ChainConfig {
+        uint256 l1ForkId;
+        uint256 l2ForkId;
+        address l1Withdrawer;
+        address l1WithdrawalRecipient;
+        uint256 expectedWithdrawalAmount;
+        address portal;
+        address l1Messenger;
+        uint32 withdrawalGasLimit;
+    }
+
+    /// @notice Configuration for OP chain where FeesDepositor forwards funds (L1 -> OP L2)
+    /// @param opL2ForkId Fork ID for the OP L2 chain
+    /// @param opL1Messenger L1CrossDomainMessenger address for OP chain
+    /// @param opPortal OptimismPortal address on L1 for OP chain
+    /// @param feesDepositorTarget Target address on OP L2 that receives funds from FeesDepositor
+    struct OPConfig {
+        uint256 opL2ForkId;
+        address opL1Messenger;
+        address opPortal;
+        address feesDepositorTarget;
     }
 
     // Array to store all L2 chain configurations
@@ -326,97 +366,81 @@ abstract contract IntegrationBase is Test {
     }
 
     /// @notice Execute disburseFees and assert that it triggers a withdrawal with the expected amount
-    /// @param _l1ForkId The L1 fork ID
-    /// @param _forkId The fork ID of the L2 chain to test
-    /// @param _opL2ForkId The OP Mainnet L2 fork ID (for relaying L1→L2 deposits)
-    /// @param _l1Withdrawer The L1Withdrawer address that emits the WithdrawalInitiated event
-    /// @param _l1WithdrawalRecipient The expected recipient of the withdrawal
-    /// @param _expectedWithdrawalAmount The expected withdrawal amount
-    /// @param _portal The OptimismPortal address for this L2 chain
-    /// @param _l1Messenger The L1CrossDomainMessenger address for this L2 chain
-    /// @param _withdrawalGasLimit The gas limit used for L1 withdrawals
-    function _executeDisburseAndAssertWithdrawal(
-        uint256 _l1ForkId,
-        uint256 _forkId,
-        uint256 _opL2ForkId,
-        address _l1Withdrawer,
-        address _l1WithdrawalRecipient,
-        uint256 _expectedWithdrawalAmount,
-        address _portal,
-        address _l1Messenger,
-        uint32 _withdrawalGasLimit
-    ) internal {
-        vm.selectFork(_forkId);
+    /// @param _chainConfig Configuration for the chain being tested (L2 -> L1 withdrawal)
+    /// @param _opConfig Configuration for OP chain where FeesDepositor forwards funds (L1 -> OP L2)
+    function _executeDisburseAndAssertWithdrawal(ChainConfig memory _chainConfig, OPConfig memory _opConfig) internal {
+        vm.selectFork(_chainConfig.l2ForkId);
         vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
 
-        vm.expectEmit(true, true, true, true, _l1Withdrawer);
-        emit WithdrawalInitiated(_l1WithdrawalRecipient, _expectedWithdrawalAmount);
+        vm.expectEmit(true, true, true, true, _chainConfig.l1Withdrawer);
+        emit WithdrawalInitiated(_chainConfig.l1WithdrawalRecipient, _chainConfig.expectedWithdrawalAmount);
         IFeeSplitter(FEE_SPLITTER).disburseFees();
 
         // Relay the withdrawal message to L1
-        vm.selectFork(_l1ForkId);
+        vm.selectFork(_chainConfig.l1ForkId);
 
-        if (_expectedWithdrawalAmount >= FEES_DEPOSITOR_THRESHOLD) {
-            // Expect TransactionDeposited event from OP Mainnet Portal
+        if (_chainConfig.expectedWithdrawalAmount >= FEES_DEPOSITOR_THRESHOLD) {
+            // Expect TransactionDeposited event from OP Portal
             // Note: FeesDepositor calls L1CrossDomainMessenger.sendMessage(), which calls OptimismPortal.depositTransaction()
             // The 'from' address in TransactionDeposited is the aliased L1CrossDomainMessenger (not the FeesDepositor)
-            vm.expectEmit(true, true, true, false, OP_MAINNET_PORTAL);
+            vm.expectEmit(true, true, true, false, _opConfig.opPortal);
             emit TransactionDeposited(
-                OP_ALIASED_L1_MESSENGER, // aliased L1CrossDomainMessenger (caller of depositTransaction)
+                AddressAliasHelper.applyL1ToL2Alias(_opConfig.opL1Messenger), // aliased L1CrossDomainMessenger
                 L2_CROSS_DOMAIN_MESSENGER, // L2 CrossDomainMessenger
                 0,
                 ""
             );
 
             _relayL2ToL1Message(
-                _portal,
-                _l1Messenger,
-                _l1Withdrawer, // sender on L2
-                _l1WithdrawalRecipient, // target on L1
-                _expectedWithdrawalAmount, // value
-                _withdrawalGasLimit, // minGasLimit
+                _chainConfig.portal,
+                _chainConfig.l1Messenger,
+                _chainConfig.l1Withdrawer, // sender on L2
+                _chainConfig.l1WithdrawalRecipient, // target on L1
+                _chainConfig.expectedWithdrawalAmount, // value
+                _chainConfig.withdrawalGasLimit, // minGasLimit
                 "" // data (empty for ETH transfer)
             );
 
-            // Now relay the deposit from L1 to OP Mainnet L2
-            vm.selectFork(_opL2ForkId);
+            // Now relay the deposit from L1 to OP L2
+            vm.selectFork(_opConfig.opL2ForkId);
 
-            uint256 recipientBalanceBefore = OP_MAINNET_FEES_RECIPIENT.balance;
+            uint256 recipientBalanceBefore = _opConfig.feesDepositorTarget.balance;
 
-            // Relay the L1→L2 message (simple ETH transfer to OPM multisig)
+            // Relay the L1→L2 message (simple ETH transfer to FeesDepositor target)
+            address aliasedOpL1Messenger = AddressAliasHelper.applyL1ToL2Alias(_opConfig.opL1Messenger);
             _relayL1ToL2Message(
-                OP_ALIASED_L1_MESSENGER,
-                _l1WithdrawalRecipient, // sender (FeesDepositor)
-                OP_MAINNET_FEES_RECIPIENT, // target (OPM multisig)
-                _expectedWithdrawalAmount,
-                200_000, // gas limit for simple ETH transfer
+                aliasedOpL1Messenger,
+                _chainConfig.l1WithdrawalRecipient, // sender (FeesDepositor)
+                _opConfig.feesDepositorTarget, // target (OP fees recipient)
+                _chainConfig.expectedWithdrawalAmount,
+                L1_TO_L2_ETH_TRANSFER_GAS_LIMIT,
                 "" // empty data for ETH transfer
             );
 
-            uint256 recipientBalanceAfter = OP_MAINNET_FEES_RECIPIENT.balance;
+            uint256 recipientBalanceAfter = _opConfig.feesDepositorTarget.balance;
             assertEq(
                 recipientBalanceAfter - recipientBalanceBefore,
-                _expectedWithdrawalAmount,
-                "OP Mainnet fees recipient should receive the withdrawal amount"
+                _chainConfig.expectedWithdrawalAmount,
+                "FeesDepositor target should receive the withdrawal amount"
             );
         } else {
             // FeesDepositor holds the ETH (below threshold)
-            uint256 recipientBalanceBefore = _l1WithdrawalRecipient.balance;
+            uint256 recipientBalanceBefore = _chainConfig.l1WithdrawalRecipient.balance;
 
             _relayL2ToL1Message(
-                _portal,
-                _l1Messenger,
-                _l1Withdrawer, // sender on L2
-                _l1WithdrawalRecipient, // target on L1
-                _expectedWithdrawalAmount, // value
-                _withdrawalGasLimit, // minGasLimit
+                _chainConfig.portal,
+                _chainConfig.l1Messenger,
+                _chainConfig.l1Withdrawer, // sender on L2
+                _chainConfig.l1WithdrawalRecipient, // target on L1
+                _chainConfig.expectedWithdrawalAmount, // value
+                _chainConfig.withdrawalGasLimit, // minGasLimit
                 "" // data (empty for ETH transfer)
             );
 
-            uint256 recipientBalanceAfter = _l1WithdrawalRecipient.balance;
+            uint256 recipientBalanceAfter = _chainConfig.l1WithdrawalRecipient.balance;
             assertEq(
                 recipientBalanceAfter - recipientBalanceBefore,
-                _expectedWithdrawalAmount,
+                _chainConfig.expectedWithdrawalAmount,
                 "L1 recipient should receive the withdrawal amount"
             );
         }
@@ -424,9 +448,11 @@ abstract contract IntegrationBase is Test {
 
     /// @notice Relay a message from L2 to L1 via the CrossDomainMessenger
     /// @dev This simulates the L2->L1 message relay by:
-    ///      1. Setting the portal's l2Sender to the L2CrossDomainMessenger
-    ///      2. Calling relayMessage on the L1CrossDomainMessenger from the portal
-    ///      3. Resetting the l2Sender back to the default value
+    ///      1. Getting the message nonce from the L1 messenger
+    ///      2. Setting the portal's l2Sender to the L2CrossDomainMessenger
+    ///      3. Dealing ETH to the portal so it can send value with the message
+    ///      4. Calling relayMessage on the L1CrossDomainMessenger from the portal
+    ///      5. Resetting the l2Sender back to the default value
     /// @param _portal The OptimismPortal address
     /// @param _l1Messenger The L1CrossDomainMessenger address
     /// @param _sender The sender address on L2
