@@ -1,0 +1,28 @@
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMUpgradeV600"
+
+
+[[opcmUpgrades]]
+chainId = 11155420
+# U18 prestates: 
+cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+expectedValidationErrors = ""
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value =46}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SC
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FUS
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
