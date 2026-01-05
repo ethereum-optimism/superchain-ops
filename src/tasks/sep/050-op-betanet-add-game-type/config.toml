@@ -9,9 +9,9 @@ l2chains = [
 # The below addresses can be found here https://github.com/ethereum-optimism/devnets/blob/main/betanets/u18-beta/u18-beta-1/chain.yaml
 chainId = 420110022
 saltMixer = "this is a salt mixer"
-systemConfig = "0x5babF93aC7AFfeaE25dc1a7ad4587fDeEbba44C2"
-proxyAdmin = "0xcd18a0C04286Eba52Bb168Fa1D79133Da4856bEf"
-delayedWETH = "0x62841F5E03a56f818BC8818c5130757acA2541A7"
+systemConfig = "0x4E0528A9dc40FEdf1C2cFc0eAA04e70E7d3d591B"
+proxyAdmin = "0x905C82c09B8e6f9B8a89E4840D390ea966B5e611"
+delayedWETH = "0x7c85A789cc0CF7b4161d4DAFc6E22bbecFC8aE3f"
 disputeGameType = 0
 disputeAbsolutePrestate = "0x03f2146db42fdcf336a6980af7899a365054527e75f5d5aa33638b318a5632a2" # This is a custom prestate, as the betanets are not in the SCR. Source: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee1628012bc4dfbeaae710c70
 disputeMaxGameDepth = 73
