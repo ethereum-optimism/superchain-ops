@@ -17,12 +17,11 @@ the values printed to the terminal when you run the task.
 > [!CAUTION]
 >
 >
-> ### Betanet EOA (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
+> ### Betanet 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
 > - Message Hash: `0x9c5cbe23181c28d77aa0eaf6d190d60500c2f58387134deb2249ffd0545d97c6`
 >
-
 ## Task Calldata
 
 Calldata:
