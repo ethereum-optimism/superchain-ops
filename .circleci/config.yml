@@ -67,7 +67,7 @@ jobs:
             just install
             (cd src/ && just --justfile ci.just check-superchain-registry-latest)
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   stacked_simulation:
     description: "Runs a stacked simulation"
@@ -93,7 +93,7 @@ jobs:
       - store_artifacts:
           path: src/stack-simulation-output.txt
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   forge_build:
     docker:
@@ -141,7 +141,7 @@ jobs:
             # Run manually with: forge test --match-contract Integration
             forge test --skip Integration -vvv
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   template_regression_tests:
     circleci_ip_ranges: true
@@ -158,7 +158,7 @@ jobs:
           command: |
             (cd src/ && just --justfile ci.just simulate-all-templates)
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
