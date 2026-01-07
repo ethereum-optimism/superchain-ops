@@ -1,6 +1,6 @@
 # 050-op-betanet-add-game-type
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xe9d6af9325d78cbb17e8cc6f054d66f38f26b09059b979dd076b97a87ec6dd52)
 
 ## Objective
 

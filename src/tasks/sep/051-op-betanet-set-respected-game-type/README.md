@@ -1,6 +1,6 @@
 # 051-op-betanet-set-respected-game-type
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x17db07eb40cd403162359e1575a773691553bfc8529f1bd773e3cfa56c04833e)
 
 ## Objective
 
