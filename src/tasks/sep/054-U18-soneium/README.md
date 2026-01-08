@@ -34,6 +34,4 @@ SIGNATURES=0x just approve <council|foundation>
 just execute
 
 # Add USE_KEYSTORE=1 to the above if you are using a local keystore instead of a connected Ledger
-# For a quick, non-stacked simulation
-SIMULATE_WITHOUT_LEDGER=1 just simulate <council|foundation>
 ```
