@@ -10,6 +10,7 @@ l2chains = [
 
 
 templateName = "OPCMUpgradeV600"
+
 # U18 prestates: 
 
 
@@ -50,7 +51,8 @@ expectedValidationErrors = "PLDG-10,CKDG-10"
 chainId = 999999999
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = "PLDG-10,CKDG-10"
+expectedValidationErrors = "OVERRIDES-CHALLENGER,PLDG-10,CKDG-10"
+# OVERRIDES-CHALLENGER: this is expected as the challenger is not the standard one
 # PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
 # CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
 
