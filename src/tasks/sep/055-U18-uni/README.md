@@ -1,6 +1,6 @@
 # 055-U18-uni-sepolia
 
-Status: [DRAFT]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 

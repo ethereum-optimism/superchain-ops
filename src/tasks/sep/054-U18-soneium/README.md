@@ -1,6 +1,6 @@
 # 054-U18-soneium-minato
 
-Status: [DRAFT]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
