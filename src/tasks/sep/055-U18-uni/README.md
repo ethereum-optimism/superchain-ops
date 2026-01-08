@@ -28,12 +28,12 @@ just sign-stack sep 055-U18-uni-sepolia
 cd src/tasks/sep/055-U18-uni-sepolia
 
 # Command to approve
-SIGNATURES=0x just --dotenv-path $(pwd)/.env approve
+SIGNATURES=0x just approve
 
 # Command to execute
-just --dotenv-path $(pwd)/.env execute
+just execute
 
 # Add USE_KEYSTORE=1 to the above if you are using a local keystore instead of a connected Ledger
 # For a quick, non-stacked simulation
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
+SIMULATE_WITHOUT_LEDGER=1 just simulate
 ```
