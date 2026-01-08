@@ -1,6 +1,6 @@
 # 053-U18-op-ink-mmz-arena
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
