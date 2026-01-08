@@ -10,9 +10,9 @@ templateName = "OPCMUpgradeV600"
 # Unichain Sepolia Testnet (Permissionless)
 [[opcmUpgrades]]
 chainId = 1301
-# U18 prestates: 
-cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
-cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# U18 prestates: https://www.notion.so/oplabs/Upgrade-18-Governance-Post-2d1f153ee162807db0deee6100c9ad5a?source=copy_link#2d1f153ee16280b197bcf82b759ad1d6
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
 
