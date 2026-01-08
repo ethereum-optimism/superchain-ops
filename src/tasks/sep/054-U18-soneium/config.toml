@@ -13,7 +13,7 @@ chainId = 1946
 # U18 prestates: 
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = ""
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
 
 
 [addresses]

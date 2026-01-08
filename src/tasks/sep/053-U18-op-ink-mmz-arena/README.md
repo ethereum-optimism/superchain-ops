@@ -1,6 +1,6 @@
 # 053-U18-op-ink-mmz-arena
 
-Status: [READY TO SIGN]
+Status: [DRAFT]
 
 ## Objective
 
@@ -34,4 +34,6 @@ SIGNATURES=0x just --dotenv-path $(pwd)/.env approve <council|foundation>
 just --dotenv-path $(pwd)/.env execute
 
 # Add USE_KEYSTORE=1 to the above if you are using a local keystore instead of a connected Ledger
+# For a quick, non-stacked simulation
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate <council|foundation>
 ```
