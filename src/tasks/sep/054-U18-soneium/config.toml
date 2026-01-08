@@ -14,6 +14,7 @@ chainId = 1946
 cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
 cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
 expectedValidationErrors = "OVERRIDES-CHALLENGER"
+# OVERRIDES-CHALLENGER: this is expected as it's not the standard OP Sepolia one
 
 
 [addresses]
