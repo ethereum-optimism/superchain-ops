@@ -10,69 +10,58 @@ l2chains = [
 
 
 templateName = "OPCMUpgradeV600"
+# U18 prestates: 
 
 
 # OP Sepolia Testnet (Permissionless)
 [[opcmUpgrades]]
 chainId = 11155420
-# U18 prestates: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
 expectedValidationErrors = ""
-# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
-# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
-# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
-# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
 
 # Ink Sepolia Testnet (Permissionless)
 [[opcmUpgrades]]
 chainId = 763373
-# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
-# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
-# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+expectedValidationErrors = ""
 
 # Metal L2 Testnet (Permissioned)
 [[opcmUpgrades]]
 chainId = 1740
-# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
-# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
-# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
+# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
 
 # Mode Testnet (Permissioned)
 [[opcmUpgrades]]
 chainId = 919
-# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
-# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
-# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
+# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
 
 # Zora Sepolia Testnet (Permissioned)
 [[opcmUpgrades]]
 chainId = 999999999
-# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
-# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
-# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
+# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
 
 # Arena-Z Testnet (Permissioned)
 [[opcmUpgrades]]
 chainId = 9899
-# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
 cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
 cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
-# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
-# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
+# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
 
 
 [addresses]

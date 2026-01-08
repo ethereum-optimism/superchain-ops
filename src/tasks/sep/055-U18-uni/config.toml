@@ -1,0 +1,29 @@
+# U18 Unichain Sepolia
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+
+templateName = "OPCMUpgradeV600"
+
+
+# Unichain Sepolia Testnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 1301
+# U18 prestates: 
+cannonPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead" 
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+
+[stateOverrides]
+# Unichain Sepolia ProxyAdminOwner:
+0xd363339eE47775888Df411A163c586a8BdEA9dbf = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
+]
