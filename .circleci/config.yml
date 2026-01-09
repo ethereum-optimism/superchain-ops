@@ -168,8 +168,7 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: just new recipe tests
-          command: |
-            (cd src/ && bash script/test-just-new.sh)
+          command: (cd src/ && bash ../test/script/test-just-new.sh)
 
   print_versions:
     docker:
@@ -202,6 +201,18 @@ jobs:
       - run:
           name: check task names
           command: (cd src/script && ./check-task-names.sh)
+  # Check that structs used with JSON/TOML parseRaw have alphabetically ordered fields.
+  # This prevents a subtle bug where Foundry's parseRaw orders keys alphabetically,
+  # causing abi.decode to assign values to wrong fields if struct fields aren't sorted. See:
+  # https://getfoundry.sh/reference/cheatcodes/parse-toml/#decoding-toml-tables-into-solidity-structs
+  check_struct_order:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: check struct field ordering
+          command: (cd src/script && ./check-struct-order.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -256,6 +267,7 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
+      - check_struct_order
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
