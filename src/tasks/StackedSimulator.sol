@@ -190,6 +190,8 @@ contract StackedSimulator is Script {
                     numBytes[i - 1] = bytes(rehearsalPart)[i];
                 }
                 rehearsalNum = vm.parseUint(string(numBytes));
+            } else {
+                revert("StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)");
             }
             // Create a sortable number: YYYYMMDD * 10000 + rehearsal number
             return (year * 10000 + month * 100 + day) * 10000 + rehearsalNum;
