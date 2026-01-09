@@ -159,14 +159,43 @@ contract StackedSimulator is Script {
         sortedTasks_ = tasks_;
     }
 
-    /// @notice Converts the first three characters of a task name string to a uint256.
+    /// @notice Converts the task name prefix to a uint256 for sorting.
+    /// Supports two formats:
+    /// - Standard 3-digit prefix: "001-task-name" -> 1
+    /// - Date-based prefix: "2025-07-21-R1-task" -> 202507210001 (YYYYMMDD + rehearsal number)
     function convertPrefixToUint(string memory taskName) public pure returns (uint256) {
         require(bytes(taskName).length > 0, "StackedSimulator: Task name must not be empty.");
         string[] memory parts = vm.split(taskName, "-");
         require(parts.length > 0, "StackedSimulator: Invalid task name, must contain at least one '-'.");
         require(!parts[0].contains("0x"), "StackedSimulator: Does not support hex strings.");
-        require(bytes(parts[0]).length == 3, "StackedSimulator: Prefix must have 3 characters.");
-        return vm.parseUint(parts[0]);
+
+        // Handle standard 3-digit prefix format (e.g., "001-task-name")
+        if (bytes(parts[0]).length == 3) {
+            return vm.parseUint(parts[0]);
+        }
+
+        // Handle date-based format (e.g., "2025-07-21-R1-task")
+        // Format: YYYY-MM-DD-RN-name where RN is the rehearsal number
+        if (bytes(parts[0]).length == 4 && parts.length >= 4) {
+            uint256 year = vm.parseUint(parts[0]);
+            uint256 month = vm.parseUint(parts[1]);
+            uint256 day = vm.parseUint(parts[2]);
+            // Extract rehearsal number from parts[3] (e.g., "R1" -> 1)
+            string memory rehearsalPart = parts[3];
+            uint256 rehearsalNum = 0;
+            if (bytes(rehearsalPart).length >= 2 && bytes(rehearsalPart)[0] == bytes1("R")) {
+                // Extract the number after "R"
+                bytes memory numBytes = new bytes(bytes(rehearsalPart).length - 1);
+                for (uint256 i = 1; i < bytes(rehearsalPart).length; i++) {
+                    numBytes[i - 1] = bytes(rehearsalPart)[i];
+                }
+                rehearsalNum = vm.parseUint(string(numBytes));
+            }
+            // Create a sortable number: YYYYMMDD * 10000 + rehearsal number
+            return (year * 10000 + month * 100 + day) * 10000 + rehearsalNum;
+        }
+
+        revert("StackedSimulator: Invalid task name format. Expected 3-digit prefix or date format (YYYY-MM-DD-RN).");
     }
 
     /// @notice Finds the index of a task in a list of tasks.
