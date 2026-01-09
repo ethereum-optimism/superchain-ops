@@ -52,8 +52,7 @@ expectedValidationErrors = "PLDG-10,CKDG-10"
 chainId = 7777777
 cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
 cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
-expectedValidationErrors = "OVERRIDES-CHALLENGER,PLDG-10,CKDG-10"
-# OVERRIDES-CHALLENGER: this is expected as the challenger is not the standard one
+expectedValidationErrors = "PLDG-10,CKDG-10"
 # PLDG-10: CANNON game type not found, expected as it's a Permissioned chain
 # CKDG-10: CANNON_KONA game type not found, expected as it's a Permissioned chain
 
