@@ -15,7 +15,7 @@ the values printed to the terminal when you run the task.
 > ### Nested Safe 1 (Foundation): `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xcf4f3369bd2575ac3f8217f3e7c6aba4adff055877d31b082dd4b99057b5618e`
+> - Message Hash: `0xa1925aa715b63a538a4b4f1cfb116d4b55bf05330b3bb54ccf38dddc99ed9ae1`
 >
 > ### Nested Safe 2 (Security Council): `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
 >
