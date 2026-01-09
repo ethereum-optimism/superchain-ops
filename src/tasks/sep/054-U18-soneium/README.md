@@ -1,4 +1,4 @@
-# 054-U18-soneium-minato
+# 054-U18-soneium
 
 Status: [READY TO SIGN]
 
@@ -12,20 +12,20 @@ U18 on Soneium Minato Testnet.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/054-U18-soneium-minato
+cd src/tasks/sep/054-U18-soneium
 
 # Command to simulate
-just simulate-stack sep 054-U18-soneium-minato <council|foundation>
+just simulate-stack sep 054-U18-soneium <council|foundation>
 
 # Command to sign
-just sign-stack sep 054-U18-soneium-minato <council|foundation>
+just sign-stack sep 054-U18-soneium <council|foundation>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/054-U18-soneium-minato
+cd src/tasks/sep/054-U18-soneium
 
 # Command to approve
 SIGNATURES=0x just approve <council|foundation>

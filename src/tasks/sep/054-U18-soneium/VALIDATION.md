@@ -15,7 +15,7 @@ the values printed to the terminal when you run the task.
 > ### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0xf13bcab24bbd58617cb46ce01656b8de201d331cf88e8c9d8449a6f1ec6e02ad`
+> - Message Hash: `0x880865c92dec181164b86c1fd7123771dbcbabf50581d065aff3443e79c26e09`
 >
 > ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
