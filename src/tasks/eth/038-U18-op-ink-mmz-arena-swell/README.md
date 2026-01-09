@@ -4,7 +4,7 @@ Status: [READY TO SIGN]
 
 ## Objective
 
-U18 on Sepolia networks of OP, Ink, Metal, Mode, Zora, Arena-Z, Swell.
+U18 on Mainnet networks of OP, Ink, Metal, Mode, Zora, Arena-Z, Swell.
 
 ## Simulation & Signing
 
