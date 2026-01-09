@@ -1,0 +1,95 @@
+# U18 Mainnet networks (OP, Ink, Metal, Mode, Zora, Arena-z, Swell)
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Ink", chainId = 57073},
+    {name = "Metal L2", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777},
+    {name = "arena-z", chainId = 7897},
+    {name = "Swellchain", chainId = 1923}
+]
+
+
+templateName = "OPCMUpgradeV600"
+
+# U18 prestates: https://www.notion.so/oplabs/Upgrade-18-Governance-Post-2d1f153ee162807db0deee6100c9ad5a?source=copy_link#2d1f153ee16280b197bcf82b759ad1d6
+
+
+# OP Mainnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 10
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "" # No errors expected
+
+# Ink Mainnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 57073
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "" # No errors expected
+
+# Metal (Permissioned)
+[[opcmUpgrades]]
+chainId = 1750
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: CANNON game type not found, expected as it's a Permissioned chain
+# CKDG-10: CANNON_KONA game type not found, expected as it's a Permissioned chain
+
+# Mode (Permissioned)
+[[opcmUpgrades]]
+chainId = 34443
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: CANNON game type not found, expected as it's a Permissioned chain
+# CKDG-10: CANNON_KONA game type not found, expected as it's a Permissioned chain
+
+# Zora (Permissioned)
+[[opcmUpgrades]]
+chainId = 7777777
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "OVERRIDES-CHALLENGER,PLDG-10,CKDG-10"
+# OVERRIDES-CHALLENGER: this is expected as the challenger is not the standard one
+# PLDG-10: CANNON game type not found, expected as it's a Permissioned chain
+# CKDG-10: CANNON_KONA game type not found, expected as it's a Permissioned chain
+
+# Arena-Z (Permissioned)
+[[opcmUpgrades]]
+chainId = 7897
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: CANNON game type not found, expected as it's a Permissioned chain
+# CKDG-10: CANNON_KONA game type not found, expected as it's a Permissioned chain
+
+# Swell (Permissioned)
+[[opcmUpgrades]]
+chainId = 1923
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "PLDG-10,CKDG-10"
+# PLDG-10: CANNON game type not found, expected as it's a Permissioned chain
+# CKDG-10: CANNON_KONA game type not found, expected as it's a Permissioned chain
+
+
+[addresses]
+OPCM = "0x50f47b43c24f40b92c873fa0704d4207586d0c9f"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-mainnet.toml#L23
+
+
+[stateOverrides]
+# ProxyAdminOwner
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 31}
+]
+# Foundation Upgrades Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 48}
+]
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
