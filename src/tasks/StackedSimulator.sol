@@ -195,7 +195,7 @@ contract StackedSimulator is Script {
             return (year * 10000 + month * 100 + day) * 10000 + rehearsalNum;
         }
 
-        revert("StackedSimulator: Invalid task name format. Expected 3-digit prefix or date format (YYYY-MM-DD-RN).");
+        revert("StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal).");
     }
 
     /// @notice Finds the index of a task in a list of tasks.
