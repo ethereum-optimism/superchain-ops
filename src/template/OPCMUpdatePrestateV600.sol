@@ -19,8 +19,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 
     /// @notice Struct to store inputs for OPCM.updatePrestate() function per l2 chain
     struct OPCMUpgrade {
-        Claim cannonKonaPrestate;
         Claim cannonPrestate;
+        Claim cannonKonaPrestate;
         uint256 chainId;
         string expectedValidationErrors;
     }
@@ -97,8 +97,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 
             inputs[i] = IOPContractsManagerV600.UpdatePrestateInput({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate,
-                cannonPrestate: upgrades[chainId].cannonPrestate
+                cannonPrestate: upgrades[chainId].cannonPrestate,
+                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate
             });
         }
 
@@ -129,8 +129,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
                 .ValidationInputDev({
                 sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
                 cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
+                cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
                 l2ChainID: chainId,
                 proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
             });
@@ -170,8 +170,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 interface IOPContractsManagerV600 {
     struct UpdatePrestateInput {
         ISystemConfig systemConfigProxy;
-        Claim cannonKonaPrestate;
         Claim cannonPrestate;
+        Claim cannonKonaPrestate;
     }
 
     function version() external view returns (string memory);
@@ -190,8 +190,8 @@ interface IOPCM {
 interface IOPContractsManagerStandardValidator {
     struct ValidationInputDev {
         ISystemConfig sysCfg;
-        bytes32 cannonKonaPrestate;
         bytes32 cannonPrestate;
+        bytes32 cannonKonaPrestate;
         uint256 l2ChainID;
         address proposer;
     }
