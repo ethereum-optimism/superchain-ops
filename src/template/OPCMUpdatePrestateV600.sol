@@ -19,8 +19,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 
     /// @notice Struct to store inputs for OPCM.updatePrestate() function per l2 chain
     struct OPCMUpgrade {
-        Claim cannonPrestate;
         Claim cannonKonaPrestate;
+        Claim cannonPrestate;
         uint256 chainId;
         string expectedValidationErrors;
     }
@@ -47,14 +47,14 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
         for (uint256 i = 0; i < _upgrades.length; i++) {
 
             // U18 requirement: BOTH prestates must be non-zero.
-            require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpdatePrestateV600: cannon=0");
             require(Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0), "OPCMUpdatePrestateV600: kona=0");
+            require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpdatePrestateV600: cannon=0");
 
             console.log("Adding prestate update - chainID: %s", _upgrades[i].chainId);
-            console.log("  cannonPrestate:");
-            console.logBytes32(Claim.unwrap(_upgrades[i].cannonPrestate));
             console.log("  cannonKonaPrestate:");
             console.logBytes32(Claim.unwrap(_upgrades[i].cannonKonaPrestate));
+            console.log("  cannonPrestate:");
+            console.logBytes32(Claim.unwrap(_upgrades[i].cannonPrestate));
             console.log("  Expected errors: %s", _upgrades[i].expectedValidationErrors);
 
             upgrades[_upgrades[i].chainId] = _upgrades[i];
@@ -92,13 +92,13 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
             require(upgrades[chainId].chainId != 0, "OPCMUpdatePrestate: Config not found for chain");
 
             // U18 requirement: BOTH must be non-zero
-            require(Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0), "OPCMUpdatePrestate: cannon=0");
             require(Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0), "OPCMUpdatePrestate: kona=0");
+            require(Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0), "OPCMUpdatePrestate: cannon=0");
 
             inputs[i] = IOPContractsManagerV600.UpdatePrestateInput({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonPrestate: upgrades[chainId].cannonPrestate,
-                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate
+                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate,
+                cannonPrestate: upgrades[chainId].cannonPrestate
             });
         }
 
@@ -129,8 +129,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
                 .ValidationInputDev({
                 sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
                 cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
+                cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
                 l2ChainID: chainId,
                 proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
             });
@@ -170,8 +170,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 interface IOPContractsManagerV600 {
     struct UpdatePrestateInput {
         ISystemConfig systemConfigProxy;
-        Claim cannonPrestate;
         Claim cannonKonaPrestate;
+        Claim cannonPrestate;
     }
 
     function version() external view returns (string memory);
@@ -190,8 +190,8 @@ interface IOPCM {
 interface IOPContractsManagerStandardValidator {
     struct ValidationInputDev {
         ISystemConfig sysCfg;
-        bytes32 cannonPrestate;
         bytes32 cannonKonaPrestate;
+        bytes32 cannonPrestate;
         uint256 l2ChainID;
         address proposer;
     }
