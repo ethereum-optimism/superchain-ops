@@ -1,4 +1,4 @@
-# 039-U18-soneium
+# 040-U18-soneium
 
 Status: [READY TO SIGN]
 
@@ -12,20 +12,20 @@ U18 on Soneium Mainnet.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/eth/039-U18-soneium
+cd src/tasks/eth/040-U18-soneium
 
 # Command to simulate
-just simulate-stack eth 039-U18-soneium <council|foundation>
+just simulate-stack eth 040-U18-soneium <council|foundation>
 
 # Command to sign
-just sign-stack eth 039-U18-soneium <council|foundation>
+just sign-stack eth 040-U18-soneium <council|foundation>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/eth/039-U18-soneium
+cd src/tasks/eth/040-U18-soneium
 
 # Command to approve
 SIGNATURES=0x just approve <council|foundation>
