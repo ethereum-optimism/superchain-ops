@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import { Claim } from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import { VmSafe } from "forge-std/Vm.sol";
-import { stdToml } from "forge-std/StdToml.sol";
-import { console2 as console } from "forge-std/console2.sol";
-import { LibString } from "solady/utils/LibString.sol";
+import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
+import {console2 as console} from "forge-std/console2.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
-import { OPCMTaskBase } from "src/tasks/types/OPCMTaskBase.sol";
-import { SuperchainAddressRegistry } from "src/SuperchainAddressRegistry.sol";
-import { Action } from "src/libraries/MultisigTypes.sol";
+import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template provides OPCM-based absolute prestate updates.
 /// Supports: op-contracts/v6.0.0
@@ -45,7 +45,6 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
-
             // U18 requirement: BOTH prestates must be non-zero.
             require(Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0), "OPCMUpdatePrestateV600: kona=0");
             require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpdatePrestateV600: cannon=0");
