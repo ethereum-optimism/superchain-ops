@@ -1,6 +1,6 @@
 # 037-rev-share-ink-soneium: RevShare Upgrade and Setup for Ink and Soneium Mainnets
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [CANCELLED]()
 
 ## Objective
 
