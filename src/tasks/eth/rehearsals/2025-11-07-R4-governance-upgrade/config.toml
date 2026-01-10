@@ -1,0 +1,14 @@
+l2chains = [{ name = "OP Mainnet", chainId = 10 }]
+templateName = "L1PortalExecuteL2Call"
+
+# Portal + L2 call params
+portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"   # L1 OptimismPortal
+l2Target = "0x4200000000000000000000000000000000000018" # L2ProxyAdmin
+l2Data = "0x99a88ec4000000000000000000000000cdf27f107725988f2261ce2256bdfcde8b382b10000000000000000000000000637da4eeac836188d8c46f63cb2655f4d3c9f893" # upgrade(OptimismGovernorProxy: 0xcDF27F107725988f2261Ce2256bDfCdE8B382B10, implementation: 0x637DA4Eeac836188D8C46F63Cb2655f4d3C9F893)
+gasLimit = 500000
+value = 0
+isCreation = false
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+OptimismPortal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
