@@ -193,7 +193,6 @@ interface IOPContractsManagerStandardValidator {
         bool _allowFailure,
         ValidationOverrides memory _overrides
     ) external view returns (string memory);
-
 }
 
 interface ISystemConfig {
