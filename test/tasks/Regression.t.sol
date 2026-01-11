@@ -921,8 +921,9 @@ contract RegressionTest is Test {
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
         string memory expectedDataToSign =
             "0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e55c47bbf931fba783a2a2006cf79c37ffb2f88f6828c2976461f3ea0be926705";
+        address multicallAddress = multisigTask.multicallTarget();
         _assertDataToSignSingleMultisig(
-            rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
+            rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, multicallAddress
         );
     }
 
