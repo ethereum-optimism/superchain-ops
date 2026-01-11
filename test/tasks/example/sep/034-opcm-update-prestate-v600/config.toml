@@ -13,7 +13,7 @@ templateName = "OPCMUpdatePrestateV600"
 
 [[opcmUpgrades]]
 chainId = 420110021
-cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5" 
+cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5"
 cannonKonaPrestate = "0x0305724f88c14328429fa82f36637347b4e7a7dc0eb2e2aaf4ba8e87ada246ae"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10,CKDG-10"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
@@ -23,7 +23,7 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-
 
 [[opcmUpgrades]]
 chainId = 420110022
-cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5" 
+cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5"
 cannonKonaPrestate = "0x0305724f88c14328429fa82f36637347b4e7a7dc0eb2e2aaf4ba8e87ada246ae"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones

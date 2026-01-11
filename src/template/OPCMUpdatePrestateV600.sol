@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
@@ -46,15 +45,8 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
             // U18 requirement: BOTH prestates must be non-zero.
-            require(Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0), "OPCMUpdatePrestateV600: kona=0");
             require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpdatePrestateV600: cannon=0");
-
-            console.log("Adding prestate update - chainID: %s", _upgrades[i].chainId);
-            console.log("  cannonKonaPrestate:");
-            console.logBytes32(Claim.unwrap(_upgrades[i].cannonKonaPrestate));
-            console.log("  cannonPrestate:");
-            console.logBytes32(Claim.unwrap(_upgrades[i].cannonPrestate));
-            console.log("  Expected errors: %s", _upgrades[i].expectedValidationErrors);
+            require(Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0), "OPCMUpdatePrestateV600: kona=0");
 
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
@@ -67,7 +59,6 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
         address validatorAddr = address(IOPCM(OPCM).opcmStandardValidator());
         require(validatorAddr != address(0), "OPCM returned zero validator");
-        require(validatorAddr.code.length > 0, "Validator has no code");
         STANDARD_VALIDATOR = IOPContractsManagerStandardValidator(validatorAddr);
         vm.label(address(STANDARD_VALIDATOR), "OPCMStandardValidator");
     }
@@ -90,14 +81,10 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
             uint256 chainId = chains[i].chainId;
             require(upgrades[chainId].chainId != 0, "OPCMUpdatePrestate: Config not found for chain");
 
-            // U18 requirement: BOTH must be non-zero
-            require(Claim.unwrap(upgrades[chainId].cannonKonaPrestate) != bytes32(0), "OPCMUpdatePrestate: kona=0");
-            require(Claim.unwrap(upgrades[chainId].cannonPrestate) != bytes32(0), "OPCMUpdatePrestate: cannon=0");
-
             inputs[i] = IOPContractsManagerV600.UpdatePrestateInput({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate,
-                cannonPrestate: upgrades[chainId].cannonPrestate
+                cannonPrestate: upgrades[chainId].cannonPrestate,
+                cannonKonaPrestate: upgrades[chainId].cannonKonaPrestate
             });
         }
 
@@ -125,11 +112,11 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
-            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
-                .ValidationInputDev({
+            IOPContractsManagerStandardValidator.ValidationInput memory input = IOPContractsManagerStandardValidator
+                .ValidationInput({
                 sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
                 cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
+                cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
                 l2ChainID: chainId,
                 proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
             });
@@ -169,15 +156,13 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
 interface IOPContractsManagerV600 {
     struct UpdatePrestateInput {
         ISystemConfig systemConfigProxy;
-        Claim cannonKonaPrestate;
         Claim cannonPrestate;
+        Claim cannonKonaPrestate;
     }
 
     function version() external view returns (string memory);
 
     function updatePrestate(UpdatePrestateInput[] memory _prestateUpdateInputs) external;
-
-    function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
 }
 
 /// @notice Interface to retrieve the standard validator from OPCM.
@@ -187,10 +172,10 @@ interface IOPCM {
 
 /// @notice Validator interface for validateWithOverrides usage.
 interface IOPContractsManagerStandardValidator {
-    struct ValidationInputDev {
+    struct ValidationInput {
         ISystemConfig sysCfg;
-        bytes32 cannonKonaPrestate;
         bytes32 cannonPrestate;
+        bytes32 cannonKonaPrestate;
         uint256 l2ChainID;
         address proposer;
     }
@@ -200,16 +185,15 @@ interface IOPContractsManagerStandardValidator {
         address challenger;
     }
 
-    function validate(ValidationInputDev memory _input, bool _allowFailure) external view returns (string memory);
+    function validate(ValidationInput memory _input, bool _allowFailure) external view returns (string memory);
     function l1PAOMultisig() external view returns (address);
     function challenger() external view returns (address);
     function validateWithOverrides(
-        ValidationInputDev memory _input,
+        ValidationInput memory _input,
         bool _allowFailure,
         ValidationOverrides memory _overrides
     ) external view returns (string memory);
 
-    function version() external view returns (string memory);
 }
 
 interface ISystemConfig {
