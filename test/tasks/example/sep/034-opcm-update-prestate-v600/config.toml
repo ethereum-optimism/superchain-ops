@@ -31,3 +31,8 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-
 
 [addresses]
 OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://www.notion.so/oplabs/Upgrade-18-Hub-2a3f153ee1628173bfe4f732657e4f01?source=copy_link#2cef153ee162806482fceb958964651e
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+]
