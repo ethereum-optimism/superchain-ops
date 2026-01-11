@@ -909,8 +909,7 @@ contract RegressionTest is Test {
         MultisigTask multisigTask = new OPCMUpdatePrestateV600();
         address rootSafe = address(0xe934Dc97E347C6aCef74364B50125bb8689c40ff);
         address leafOwner = address(0x107781Bc6FA8f66B843f4216fd6D5862D3aa4fcd);
-        vm.etch(leafOwner, hex"00");
-        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, leafOwner);
         (Action[] memory actions, uint256[] memory allOriginalNonces) =
             _setupAndSimulate(taskConfigFilePath, 10015970, "sepolia", multisigTask, allSafes);
 
