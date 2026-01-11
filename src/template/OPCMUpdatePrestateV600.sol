@@ -52,6 +52,7 @@ contract OPCMUpdatePrestateV600 is OPCMTaskBase {
         }
 
         address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        require(OPCM.code.length > 0, 'OPCM address has no code');
         OPCM_TARGETS.push(OPCM);
         require(IOPContractsManagerV600(OPCM).version().eq("6.0.0"), "Incorrect OPCM - expected version 6.0.0");
         vm.label(OPCM, "OPCM");
