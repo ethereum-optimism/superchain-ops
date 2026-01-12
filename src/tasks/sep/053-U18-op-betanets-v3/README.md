@@ -1,6 +1,6 @@
 # 053-U18-op-betanets-v3
 
-Status: [READY TO SIGN]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
