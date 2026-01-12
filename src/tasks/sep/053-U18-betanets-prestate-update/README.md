@@ -1,6 +1,6 @@
 # 053-U18-betanets-prestate-update
 
-Status: [DRAFT]
+Status: [READY TO SIGN]
 
 ## Objective
 
