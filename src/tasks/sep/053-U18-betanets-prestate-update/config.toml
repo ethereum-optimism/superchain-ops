@@ -1,0 +1,38 @@
+l2chains = [
+    {name = "u18-beta-0", chainId = 420110021},
+    {name = "u18-beta-1", chainId = 420110022}
+]
+
+# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/tree/main/betanets/u18-beta
+
+fallbackAddressesJsonPath = "src/tasks/sep/053-U18-betanets-prestate-update/addresses.json"
+
+templateName = "OPCMUpdatePrestateV600"
+
+# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
+
+[[opcmUpgrades]]
+chainId = 420110021
+cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5"
+cannonKonaPrestate = "0x0305724f88c14328429fa82f36637347b4e7a7dc0eb2e2aaf4ba8e87ada246ae"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10,CKDG-10"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
+# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
+
+[[opcmUpgrades]]
+chainId = 420110022
+cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5"
+cannonKonaPrestate = "0x0305724f88c14328429fa82f36637347b4e7a7dc0eb2e2aaf4ba8e87ada246ae"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://www.notion.so/oplabs/Upgrade-18-Hub-2a3f153ee1628173bfe4f732657e4f01?source=copy_link#2cef153ee162806482fceb958964651e
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+]
