@@ -18,8 +18,8 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
 
     /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
-        Claim cannonKonaPrestate;
         Claim cannonPrestate;
+        Claim cannonKonaPrestate;
         uint256 chainId;
         string expectedValidationErrors;
     }
