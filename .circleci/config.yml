@@ -67,7 +67,7 @@ jobs:
             just install
             (cd src/ && just --justfile ci.just check-superchain-registry-latest)
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   stacked_simulation:
     description: "Runs a stacked simulation"
@@ -93,7 +93,7 @@ jobs:
       - store_artifacts:
           path: src/stack-simulation-output.txt
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   forge_build:
     docker:
@@ -141,7 +141,7 @@ jobs:
             # Run manually with: forge test --match-contract Integration
             forge test --skip Integration -vvv
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   template_regression_tests:
     circleci_ip_ranges: true
@@ -158,7 +158,7 @@ jobs:
           command: |
             (cd src/ && just --justfile ci.just simulate-all-templates)
       - notify-failures-on-main:
-          mentions: "@evm-safety-team"
+          mentions: "@security-oncall"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
@@ -168,8 +168,7 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: just new recipe tests
-          command: |
-            (cd src/ && bash script/test-just-new.sh)
+          command: (cd src/ && bash ../test/script/test-just-new.sh)
 
   print_versions:
     docker:
@@ -202,6 +201,18 @@ jobs:
       - run:
           name: check task names
           command: (cd src/script && ./check-task-names.sh)
+  # Check that structs used with JSON/TOML parseRaw have alphabetically ordered fields.
+  # This prevents a subtle bug where Foundry's parseRaw orders keys alphabetically,
+  # causing abi.decode to assign values to wrong fields if struct fields aren't sorted. See:
+  # https://getfoundry.sh/reference/cheatcodes/parse-toml/#decoding-toml-tables-into-solidity-structs
+  check_struct_order:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: check struct field ordering
+          command: (cd src/script && ./check-struct-order.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -256,6 +267,7 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
+      - check_struct_order
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
