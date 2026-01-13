@@ -881,8 +881,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         view
         returns (bytes[] memory dataToSign_)
     {
-        address rootSafe = payload.safes[payload.safes.length - 1];
-        address simulatedChildSafe = payload.safes[0];
+        address[] memory safes = payload.safes;
+        address rootSafe = safes[safes.length - 1];
+        address simulatedChildSafe = safes[0];
 
         // Get all contract owners of the root safe (siblings)
         address[] memory rootOwners = IGnosisSafe(rootSafe).getOwners();
@@ -897,9 +898,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         uint256 idx;
 
         // The hash that child safes approve is the root safe's transaction hash
-        uint256 rootSafeIndex = payload.safes.length - 1;
+        uint256 rootSafeIndex = safes.length - 1;
         bytes32 rootTxHash =
-            getHash(payload.calldatas[rootSafeIndex], rootSafe, 0, payload.originalNonces[rootSafeIndex], payload.safes);
+            getHash(payload.calldatas[rootSafeIndex], rootSafe, 0, payload.originalNonces[rootSafeIndex], safes);
 
         // Generate approval calldata that all child safes sign
         bytes memory approvalCalldata = _generateApproveHashCalldata(rootSafe, rootTxHash, 0);
@@ -914,8 +915,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 } else {
                     // Generate dataToSign for this sibling using stored pre-execution nonce.
                     // These were stored during _overrideState before execution incremented them.
+                    address multicallAddr = _getMulticallAddress(sibling, safes);
                     dataToSign_[idx] = GnosisSafeHashes.getEncodedTransactionData(
-                        sibling, approvalCalldata, 0, _siblingNonces[sibling], MULTICALL3_ADDRESS
+                        sibling, approvalCalldata, 0, _siblingNonces[sibling], multicallAddr
                     );
                 }
                 idx++;
