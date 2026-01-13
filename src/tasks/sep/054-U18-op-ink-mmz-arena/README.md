@@ -1,4 +1,4 @@
-# 053-U18-op-ink-mmz-arena
+# 054-U18-op-ink-mmz-arena
 
 Status: [READY TO SIGN]
 
@@ -12,20 +12,20 @@ U18 on Sepolia networks of OP, Ink, Metal, Mode, Zora, Arena-Z.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/053-U18-op-ink-mmz-arena
+cd src/tasks/sep/054-U18-op-ink-mmz-arena
 
 # Command to simulate
-just simulate-stack sep 053-U18-op-ink-mmz-arena <council|foundation>
+just simulate-stack sep 054-U18-op-ink-mmz-arena <council|foundation>
 
 # Command to sign
-just sign-stack sep 053-U18-op-ink-mmz-arena <council|foundation>
+just sign-stack sep 054-U18-op-ink-mmz-arena <council|foundation>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/053-U18-op-ink-mmz-arena
+cd src/tasks/sep/054-U18-op-ink-mmz-arena
 
 # Command to approve
 SIGNATURES=0x just approve <council|foundation>

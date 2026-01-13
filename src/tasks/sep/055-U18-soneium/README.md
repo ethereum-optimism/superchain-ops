@@ -1,10 +1,10 @@
-# 055-U18-uni
+# 055-U18-soneium
 
 Status: [READY TO SIGN]
 
 ## Objective
 
-U18 on Unichain Sepolia.
+U18 on Soneium Minato Testnet.
 
 ## Simulation & Signing
 
@@ -12,23 +12,23 @@ U18 on Unichain Sepolia.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/055-U18-uni
+cd src/tasks/sep/055-U18-soneium
 
 # Command to simulate
-just simulate-stack sep 055-U18-uni
+just simulate-stack sep 055-U18-soneium <council|foundation>
 
 # Command to sign
-just sign-stack sep 055-U18-uni
+just sign-stack sep 055-U18-soneium <council|foundation>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/055-U18-uni
+cd src/tasks/sep/055-U18-soneium
 
 # Command to approve
-SIGNATURES=0x just approve
+SIGNATURES=0x just approve <council|foundation>
 
 # Command to execute
 just execute
