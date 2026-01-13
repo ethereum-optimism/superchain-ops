@@ -7,6 +7,7 @@
     "L1StandardBridgeProxy": "0xbf0236F5FaEe167907195b655Ae88cfcB139d858",
     "OptimismPortalProxy": "0xAb18279b47f260411469648cA4112a6A904e4e45",
     "DisputeGameFactoryProxy": "0x0e913C365e52A83c1254BBe12C06f01319955789",
+    "DelayedWETHProxy": "0xC0F16e0bf7942953ba7D2Ad73250D562437ee87a",
     "PermissionedDelayedWETHProxy": "0xC0F16e0bf7942953ba7D2Ad73250D562437ee87a",
     "AnchorStateRegistryProxy": "0x45Ae6C7098E41B010AD84dF9570F0b1B09D1e6fd",
     "AddressManager": "0xb531b77b7CB9A69F9678035474D81A7fe0da7D1d",

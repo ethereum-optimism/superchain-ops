@@ -14,8 +14,8 @@ templateName = "OPCMUpgradeV600"
 [[opcmUpgrades]]
 chainId = 420110021
 # U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
-cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5" 
-cannonKonaPrestate = "0x0305724f88c14328429fa82f36637347b4e7a7dc0eb2e2aaf4ba8e87ada246ae"
+cannonPrestate = "0x0364251d4ea4b677ac462a25642b6de1fa53b2d6b97e56380691906bdb2e95cf" 
+cannonKonaPrestate = "0x03091ea717990785736623f894e6fb344fcf262361657bb28c9ece29207d9a9c"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10,CKDG-10"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
 # SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
@@ -25,9 +25,9 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-
 [[opcmUpgrades]]
 chainId = 420110022
 # U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
-cannonPrestate = "0x03783ce7584a957a1f11a831f8dd735a54cdc54e9ad94ac78a20714e131eebc5" 
-cannonKonaPrestate = "0x0305724f88c14328429fa82f36637347b4e7a7dc0eb2e2aaf4ba8e87ada246ae"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10,CKDG-10"
+cannonPrestate = "0x0364251d4ea4b677ac462a25642b6de1fa53b2d6b97e56380691906bdb2e95cf" 
+cannonKonaPrestate = "0x03091ea717990785736623f894e6fb344fcf262361657bb28c9ece29207d9a9c"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
 # SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
 
@@ -37,5 +37,5 @@ OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https:/
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
 ]
