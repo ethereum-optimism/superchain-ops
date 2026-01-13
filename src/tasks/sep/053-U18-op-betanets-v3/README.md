@@ -1,6 +1,6 @@
 # 053-U18-op-betanets-v3
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd48bb2c399bd31b1e0a2446963501a4beef08ab04be734b2ebf0736615eb2b11)
 
 ## Objective
 
