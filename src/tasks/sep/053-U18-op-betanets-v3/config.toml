@@ -1,0 +1,41 @@
+# Betanet v3 on u18
+l2chains = [
+    {name = "u18-beta-0", chainId = 420110021},
+    {name = "u18-beta-1", chainId = 420110022}
+]
+
+# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/tree/main/betanets/u18-beta
+
+fallbackAddressesJsonPath = "src/tasks/sep/053-U18-op-betanets-v3/addresses.json"
+
+templateName = "OPCMUpgradeV600"
+
+
+[[opcmUpgrades]]
+chainId = 420110021
+# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
+cannonPrestate = "0x0364251d4ea4b677ac462a25642b6de1fa53b2d6b97e56380691906bdb2e95cf" 
+cannonKonaPrestate = "0x03091ea717990785736623f894e6fb344fcf262361657bb28c9ece29207d9a9c"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10,CKDG-10"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+# PLDG-10: this is expected because u18-beta-0 is a Permissioned chain
+# CKDG-10: Custom dispute game implementation not found, expected as it's a Permissioned chain with no Permissionless implementation
+
+[[opcmUpgrades]]
+chainId = 420110022
+# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
+cannonPrestate = "0x0364251d4ea4b677ac462a25642b6de1fa53b2d6b97e56380691906bdb2e95cf" 
+cannonKonaPrestate = "0x03091ea717990785736623f894e6fb344fcf262361657bb28c9ece29207d9a9c"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
