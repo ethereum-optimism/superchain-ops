@@ -44,17 +44,19 @@ contract MigrateToLiveness2 is SimpleTaskBase {
     uint256 public livenessResponsePeriod;
     address public fallbackOwner;
 
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    string internal _safeAddressString;
+
+    function _taskStorageWrites() internal view override returns (string[] memory) {
         string[] memory writes = new string[](2);
-        writes[0] = "targetSafe"; // Safe being modified (enableModule, etc.)
+        writes[0] = _safeAddressString; // Safe being modified (enableModule, etc.)
         writes[1] = "saferSafes"; // SaferSafes contract (configureLivenessModule)
         return writes;
     }
 
     function _getCodeExceptions() internal view override returns (address[] memory) {}
 
-    function safeAddressString() public pure override returns (string memory) {
-        return "targetSafe"; // References the custom safe from config.toml
+    function safeAddressString() public view override returns (string memory) {
+        return _safeAddressString;
     }
 
     /// @notice Find the previous module in the linked list
@@ -84,15 +86,31 @@ contract MigrateToLiveness2 is SimpleTaskBase {
         super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
+        // Read safeAddressString from config - the safe to modify
+        _safeAddressString = tomlContent.readString(".safeAddressString");
+        require(bytes(_safeAddressString).length > 0, "safeAddressString must be set in the config file");
+
+        // Get multisig address from registry (using the configured safeAddressString)
+        multisig = simpleAddrRegistry.get(_safeAddressString);
+        require(multisig != address(0), "Invalid multisig address from registry");
+        require(multisig.code.length > 0, "Multisig address has no code");
+
         saferSafes = tomlContent.readAddress(".addresses.saferSafes");
-        multisig = tomlContent.readAddress(".addresses.targetSafe");
-        currentLivenessModule = tomlContent.readAddress(".addresses.currentLivenessModule");
+
+        // currentLivenessModule is optional - if not present or zero, we skip disabling it
+        if (tomlContent.keyExists(".addresses.currentLivenessModule")) {
+            currentLivenessModule = tomlContent.readAddress(".addresses.currentLivenessModule");
+        }
 
         livenessResponsePeriod = tomlContent.readUint(".livenessModule.livenessResponsePeriod");
         fallbackOwner = tomlContent.readAddress(".livenessModule.fallbackOwner");
 
         require(address(saferSafes).code.length > 0, "SaferSafes does not have code");
-        require(address(currentLivenessModule).code.length > 0, "Current LivenessModule does not have code");
+        require(fallbackOwner != address(0), "Fallback owner cannot be zero address");
+        require(fallbackOwner.code.length > 0, "Fallback owner has no code");
+        if (currentLivenessModule != address(0)) {
+            require(address(currentLivenessModule).code.length > 0, "Current LivenessModule does not have code");
+        }
         require(livenessResponsePeriod > 0, "Liveness response period must be greater than 0");
     }
 
@@ -108,9 +126,11 @@ contract MigrateToLiveness2 is SimpleTaskBase {
             ISaferSafes.ModuleConfig({livenessResponsePeriod: livenessResponsePeriod, fallbackOwner: fallbackOwner});
         ISaferSafes(saferSafes).configureLivenessModule(moduleConfig);
 
-        // Remove the old liveness module
-        address prevModule = _findPrevModule(currentLivenessModule);
-        ISaferSafes(multisig).disableModule(prevModule, currentLivenessModule);
+        // Remove the old liveness module (only if one exists)
+        if (currentLivenessModule != address(0)) {
+            address prevModule = _findPrevModule(currentLivenessModule);
+            ISaferSafes(multisig).disableModule(prevModule, currentLivenessModule);
+        }
     }
 
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
@@ -118,10 +138,13 @@ contract MigrateToLiveness2 is SimpleTaskBase {
             ISaferSafes(multisig).isModuleEnabled(saferSafes), "Validation failed: SaferSafes module is not enabled"
         );
 
-        require(
-            !ISaferSafes(multisig).isModuleEnabled(currentLivenessModule),
-            "Validation failed: Old liveness module is still enabled"
-        );
+        // Only check old liveness module is disabled if one was configured
+        if (currentLivenessModule != address(0)) {
+            require(
+                !ISaferSafes(multisig).isModuleEnabled(currentLivenessModule),
+                "Validation failed: Old liveness module is still enabled"
+            );
+        }
 
         bytes32 guardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
         address guardAddress;
