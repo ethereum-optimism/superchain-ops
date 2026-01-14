@@ -262,7 +262,9 @@ contract StackedSimulatorUnitTest is Test {
 
     function testStringConversionShortString() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        vm.expectRevert(
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+        );
         ss.convertPrefixToUint("12"); // Input with less than 3 characters
     }
 
@@ -436,20 +438,26 @@ contract StackedSimulatorUnitTest is Test {
 
     function testConvertPrefixToUint_InvalidLength() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        vm.expectRevert(
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+        );
         ss.convertPrefixToUint("12-task-name"); // Only 2 characters
     }
 
     function testConvertPrefixToUint_TooLongPrefix() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        vm.expectRevert(
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+        );
         ss.convertPrefixToUint("1234-task-name"); // 4 characters
     }
 
     function testConvertPrefixToUint_NoHyphen() public {
         StackedSimulator ss = new StackedSimulator();
         // The validation order is: length check first, then hyphen check
-        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        vm.expectRevert(
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+        );
         ss.convertPrefixToUint("123taskname"); // No hyphen, but also wrong length
     }
 
