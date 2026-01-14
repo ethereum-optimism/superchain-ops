@@ -56,12 +56,12 @@ if [[ -n "$test_dir" ]]; then
     tasks_to_run+=("$config_file")
   done
 elif [[ "$fetch_rehearsals" == "1" ]]; then
-  # For rehearsal tasks, check status before adding (same as production tasks)
+  # For rehearsal tasks, return all tasks without checking status
   rehearsals_dir="$task_dir/rehearsals"
   if [[ -d "$rehearsals_dir" ]]; then
-    files=$(find "$rehearsals_dir" -type f -name 'README.md')
-    for file in $files; do
-      check_status "$file"
+    config_files=$(find "$rehearsals_dir" -type f -name 'config.toml')
+    for config_file in $config_files; do
+      tasks_to_run+=("$config_file")
     done
   fi
 else
