@@ -191,13 +191,17 @@ contract StackedSimulator is Script {
                 }
                 rehearsalNum = vm.parseUint(string(numBytes));
             } else {
-                revert("StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)");
+                revert(
+                    "StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)"
+                );
             }
             // Create a sortable number: YYYYMMDD * 10000 + rehearsal number
             return (year * 10000 + month * 100 + day) * 10000 + rehearsalNum;
         }
 
-        revert("StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal).");
+        revert(
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+        );
     }
 
     /// @notice Finds the index of a task in a list of tasks.
