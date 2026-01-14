@@ -20,6 +20,10 @@ Once the required number of signatures is collected, anyone can finalize the exe
 ```
 cd superchain-ops
 git pull
+mise install
+mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
+forge clean
+forge install
 ```
 
 See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
