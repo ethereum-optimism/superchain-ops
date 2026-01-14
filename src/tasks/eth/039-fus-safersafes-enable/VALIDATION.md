@@ -19,7 +19,7 @@ First, we need to validate the domain and message hashes. These values should ma
 > ### Single Safe Signer Data
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x41ba9e32ec64895de6a4dbeabbdeb1041d8f8882dcbfee33a405e301f69ec1f4`
+> - Message Hash: `0x6457796735350dd101ebc6fe1f77f7335dc12b522f7f8126bc50781605547886`
 
 ## Understanding Task Calldata
 
@@ -76,7 +76,7 @@ The three calls above are batched via `Multicall3DelegateCall.aggregate3Value()`
 
 | Key | Before | After | Description |
 |-----|--------|-------|-------------|
-| `0x0000000000000000000000000000000000000000000000000000000000000005` | `49` | `50` | Safe nonce increment |
+| `0x0000000000000000000000000000000000000000000000000000000000000005` | `48` | `49` | Safe nonce increment |
 | `0x073d01777a7e5521317f64ce51f98946a042c5bdcaec99ecde1a1793ecae1afc` | `0x0` | `0x1` | `modules[SaferSafes]` → points to SENTINEL |
 | `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` | `0x1` | `0x...a8447329e52f64aed2bfc9e7a2506f7d369f483a` | `modules[SENTINEL]` → points to SaferSafes |
 
