@@ -1,10 +1,10 @@
-# 040-U18-soneium
+# 041-U18-uni
 
 Status: [READY TO SIGN]
 
 ## Objective
 
-U18 on Soneium Mainnet.
+U18 on Unichain Mainnet.
 
 ## Simulation & Signing
 
@@ -12,23 +12,23 @@ U18 on Soneium Mainnet.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/eth/040-U18-soneium
+cd src/tasks/eth/041-U18-uni
 
 # Command to simulate
-just simulate-stack eth 040-U18-soneium <council|foundation>
+just simulate-stack eth 041-U18-uni <foundation|council|chain-governor>
 
 # Command to sign
-just sign-stack eth 040-U18-soneium <council|foundation>
+just sign-stack eth 041-U18-uni <foundation|council|chain-governor>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/eth/040-U18-soneium
+cd src/tasks/eth/041-U18-uni
 
 # Command to approve
-SIGNATURES=0x just approve <council|foundation>
+SIGNATURES=0x just approve <foundation|council|chain-governor>
 
 # Command to execute
 just execute

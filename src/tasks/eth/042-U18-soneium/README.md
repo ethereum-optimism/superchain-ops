@@ -1,10 +1,10 @@
-# 038-U18-op-ink-mmz-arena-swell
+# 042-U18-soneium
 
 Status: [READY TO SIGN]
 
 ## Objective
 
-U18 on Mainnet networks of OP, Ink, Metal, Mode, Zora, Arena-Z, Swell.
+U18 on Soneium Mainnet.
 
 ## Simulation & Signing
 
@@ -12,20 +12,20 @@ U18 on Mainnet networks of OP, Ink, Metal, Mode, Zora, Arena-Z, Swell.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/eth/038-U18-op-ink-mmz-arena-swell
+cd src/tasks/eth/042-U18-soneium
 
 # Command to simulate
-just simulate-stack eth 038-U18-op-ink-mmz-arena-swell <council|foundation>
+just simulate-stack eth 042-U18-soneium <council|foundation>
 
 # Command to sign
-just sign-stack eth 038-U18-op-ink-mmz-arena-swell <council|foundation>
+just sign-stack eth 042-U18-soneium <council|foundation>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/eth/038-U18-op-ink-mmz-arena-swell
+cd src/tasks/eth/042-U18-soneium
 
 # Command to approve
 SIGNATURES=0x just approve <council|foundation>
