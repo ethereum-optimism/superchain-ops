@@ -1,0 +1,18 @@
+templateName = "MigrateToLiveness2"
+
+safeAddressString = "FoundationUpgradeSafe"
+
+[addresses]
+saferSafes = "0xA8447329e52F64AED2bFc9E7a2506F7D369f483a"
+# currentLivenessModule is omitted - FuS has no existing liveness module
+
+[livenessModule]
+livenessResponsePeriod = "2592000"  # 30 days in seconds
+fallbackOwner = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"  # Security Council
+
+[stateOverrides]
+# Foundation Upgrade Safe
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
+
