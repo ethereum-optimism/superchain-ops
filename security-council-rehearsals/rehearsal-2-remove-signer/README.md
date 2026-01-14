@@ -178,6 +178,17 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
+#### 0. Setup the repository
+
+```bash
+cd superchain-ops
+git pull
+mise install
+mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
+forge clean
+forge install
+```
+
 #### 1. Create a new task in the `eth` directory:
 
 ```bash

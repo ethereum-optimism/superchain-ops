@@ -179,6 +179,17 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
+#### 0. Setup the repository
+
+```bash
+cd superchain-ops
+git pull
+mise install
+mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
+forge clean
+forge install
+```
+
 #### 1. Create and configure the safes
 
 To simulate our production Safe configuration (i.e. 2-of-2 between the Security Council and the Optimism Foundation), we need to create 2 more Safe contracts. We are assuming you have already created the Security Council Safe in the [previous rehearsal](../step-1-welcome/README.md). You should create the safes in the following order:
