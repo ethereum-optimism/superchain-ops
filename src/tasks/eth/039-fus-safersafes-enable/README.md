@@ -1,6 +1,6 @@
 # 039-fus-safersafes-enable
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
