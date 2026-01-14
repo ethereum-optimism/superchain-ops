@@ -123,10 +123,3 @@ baseSlot = keccak256(abi.encode(fusAddress, mappingSlot))
 The `ModuleConfig` struct has two fields stored at consecutive slots:
 - `livenessResponsePeriod` at `baseSlot + 0`
 - `fallbackOwner` at `baseSlot + 1`
-
-### Links
-
-- [Gnosis Safe Module Manager](https://github.com/safe-global/safe-smart-account/blob/v1.4.1/contracts/base/ModuleManager.sol)
-- [SaferSafes Contract](https://etherscan.io/address/0xA8447329e52F64AED2bFc9E7a2506F7D369f483a)
-- [Foundation Upgrade Safe](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
-- [Security Council](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03)
