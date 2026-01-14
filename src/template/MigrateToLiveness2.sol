@@ -92,6 +92,8 @@ contract MigrateToLiveness2 is SimpleTaskBase {
 
         // Get multisig address from registry (using the configured safeAddressString)
         multisig = simpleAddrRegistry.get(_safeAddressString);
+        require(multisig != address(0), "Invalid multisig address from registry");
+        require(multisig.code.length > 0, "Multisig address has no code");
 
         saferSafes = tomlContent.readAddress(".addresses.saferSafes");
 
@@ -104,6 +106,8 @@ contract MigrateToLiveness2 is SimpleTaskBase {
         fallbackOwner = tomlContent.readAddress(".livenessModule.fallbackOwner");
 
         require(address(saferSafes).code.length > 0, "SaferSafes does not have code");
+        require(fallbackOwner != address(0), "Fallback owner cannot be zero address");
+        require(fallbackOwner.code.length > 0, "Fallback owner has no code");
         if (currentLivenessModule != address(0)) {
             require(address(currentLivenessModule).code.length > 0, "Current LivenessModule does not have code");
         }

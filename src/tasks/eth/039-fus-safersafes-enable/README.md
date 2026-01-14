@@ -1,6 +1,6 @@
 # 039-fus-safersafes-enable
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
@@ -20,6 +20,15 @@ SaferSafes provides enhanced liveness guarantees for the Safe by:
 
 ## Simulation
 
+To simulate this task in the context of the full task stack:
+
+```bash
+cd src
+SIMULATE_WITHOUT_LEDGER=1 just simulate-stack eth 039-fus-safersafes-enable
+```
+
+To simulate just this task standalone:
+
 ```bash
 cd src/tasks/eth/039-fus-safersafes-enable
 SIMULATE_WITHOUT_LEDGER=1 just simulate
@@ -28,6 +37,6 @@ SIMULATE_WITHOUT_LEDGER=1 just simulate
 ## Signing
 
 ```bash
-cd src/tasks/eth/039-fus-safersafes-enable
-just sign
+cd src
+just sign-stack eth 039-fus-safersafes-enable
 ```
