@@ -1,4 +1,4 @@
-# 053-rev-share-ink-soneium: RevShare Upgrade and Setup for Ink Sepolia and Soneium Minato
+# 054-rev-share-ink-soneium: RevShare Upgrade and Setup for Ink Sepolia and Soneium Minato
 
 Status: [CANCELLED]
 
@@ -25,16 +25,16 @@ Simulation commands for each safe:
 
 ```bash
 # For stacked simulation (recommended for validation):
-just simulate-stack sep 053-rev-share-ink-soneium <council|foundation>
+just simulate-stack sep 054-rev-share-ink-soneium <council|foundation>
 
 # For individual simulation:
-cd src/tasks/sep/053-rev-share-ink-soneium
+cd src/tasks/sep/054-rev-share-ink-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile simulate <council|foundation>
 ```
 
 Signing commands for each safe:
 
 ```bash
-cd src/tasks/sep/053-rev-share-ink-soneium
+cd src/tasks/sep/054-rev-share-ink-soneium
 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile sign <council|foundation>
 ```
