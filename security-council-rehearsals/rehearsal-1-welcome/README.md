@@ -26,6 +26,7 @@ convenience.
 ```
 cd superchain-ops
 git pull
+mise trust mise.toml # Only required the first time you use the repository.
 mise install
 mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
 forge clean
@@ -201,6 +202,7 @@ congrats, you are done!
 ```bash
 cd superchain-ops
 git pull
+mise trust mise.toml # Only required the first time you use the repository.
 mise install
 mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
 forge clean
@@ -283,7 +285,7 @@ Then you should run
 ``` shell
 cd superchain-ops/src/tasks/<network>/rehearsals/<rehearsal-task-name>
 export SIGNATURES="0xAAAABBBB"
-just --dotenv-path $(pwd)/.env execute
+just execute
 ```
 
 For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/tasks/eth/rehearsals/2025-07-21-R1-welcome/README.md).

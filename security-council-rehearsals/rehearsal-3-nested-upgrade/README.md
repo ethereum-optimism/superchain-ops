@@ -23,6 +23,7 @@ Once the required number of signatures is collected, anyone can finalize the exe
 ```
 cd superchain-ops
 git pull
+mise trust mise.toml # Only required the first time you use the repository.
 mise install
 mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
 forge clean
@@ -184,6 +185,7 @@ congrats, you are done!
 ```bash
 cd superchain-ops
 git pull
+mise trust mise.toml # Only required the first time you use the repository.
 mise install
 mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
 forge clean
@@ -287,7 +289,7 @@ Commit the newly created files to Github.
 cd superchain-ops/src/tasks/<network>/rehearsals/<rehearsal-task-name>
 # These should be the signatures from the signers on the security council safe.
 export SIGNATURES="0x[SIGNATURE1]..."
-just --dotenv-path $(pwd)/.env approve test-rehearsal-council
+just approve test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
 ```
 4. Run the approval for the Foundation Safe. Note that `SIGNATURES` will now contain signatures from the foundation safe, not the security council safe.
@@ -295,7 +297,7 @@ just --dotenv-path $(pwd)/.env approve test-rehearsal-council
 # These should be the signatures from the signers on the foundation safe.
 export SIGNATURES="0x[SIGNATURE1]..."
 # Remember, if you're using a different HD_PATH to set the env var e.g. 'export HD_PATH=1'
-just --dotenv-path $(pwd)/.env approve test-rehearsal-foundation
+just approve test-rehearsal-foundation
 # 'test-rehearsal-foundation' maps to the test rehearsal foundation safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalFoundation'.
 ```
 5. Perform the final execution:
@@ -303,5 +305,5 @@ just --dotenv-path $(pwd)/.env approve test-rehearsal-foundation
 # Reset the SIGNATURES env var as it can sometimes interact with the execute function.
 export SIGNATURES=""
 # Remember, if you're using a different HD_PATH to set the env var e.g. 'export HD_PATH=1'
-just --dotenv-path $(pwd)/.env execute
+just execute
 ```
