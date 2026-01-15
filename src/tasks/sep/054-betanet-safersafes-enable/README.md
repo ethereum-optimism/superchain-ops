@@ -1,6 +1,6 @@
 # 054-betanet-safersafes-enable
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x56c4dbd2d0e15cc0118bd5e2963d3d77798011228079f755425d00cf52e8c9f6)
 
 ## Objective
 
