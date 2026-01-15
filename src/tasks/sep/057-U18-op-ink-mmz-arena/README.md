@@ -1,10 +1,10 @@
-# 055-U18-soneium
+# 057-U18-op-ink-mmz-arena
 
 Status: [READY TO SIGN]
 
 ## Objective
 
-U18 on Soneium Minato Testnet.
+U18 on Sepolia networks of OP, Ink, Metal, Mode, Zora, Arena-Z.
 
 ## Simulation & Signing
 
@@ -12,20 +12,20 @@ U18 on Soneium Minato Testnet.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/055-U18-soneium
+cd src/tasks/sep/057-U18-op-ink-mmz-arena
 
 # Command to simulate
-just simulate-stack sep 055-U18-soneium <council|foundation>
+just simulate-stack sep 057-U18-op-ink-mmz-arena <council|foundation>
 
 # Command to sign
-just sign-stack sep 055-U18-soneium <council|foundation>
+just sign-stack sep 057-U18-op-ink-mmz-arena <council|foundation>
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/055-U18-soneium
+cd src/tasks/sep/057-U18-op-ink-mmz-arena
 
 # Command to approve
 SIGNATURES=0x just approve <council|foundation>

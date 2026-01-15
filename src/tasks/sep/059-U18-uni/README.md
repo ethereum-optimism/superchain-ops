@@ -1,4 +1,4 @@
-# 056-U18-uni
+# 059-U18-uni
 
 Status: [READY TO SIGN]
 
@@ -12,20 +12,20 @@ U18 on Unichain Sepolia.
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/056-U18-uni
+cd src/tasks/sep/059-U18-uni
 
 # Command to simulate
-just simulate-stack sep 056-U18-uni
+just simulate-stack sep 059-U18-uni
 
 # Command to sign
-just sign-stack sep 056-U18-uni
+just sign-stack sep 059-U18-uni
 ```
 
 ### For Facilitators, after signatures have been collected
 
 ```bash
 # Change directory to the correct task
-cd src/tasks/sep/056-U18-uni
+cd src/tasks/sep/059-U18-uni
 
 # Command to approve
 SIGNATURES=0x just approve
