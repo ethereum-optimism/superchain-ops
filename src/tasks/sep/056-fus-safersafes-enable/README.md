@@ -1,6 +1,6 @@
 # 056-fus-safersafes-enable
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x4e26a920d9bd638226c80c9757a5954dab9440d2705a3754da6841f9f9a7b62e)
 
 ## Objective
 
