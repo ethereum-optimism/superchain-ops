@@ -369,6 +369,8 @@ abstract contract IntegrationBase is Test {
     /// @param _chainConfig Configuration for the chain being tested (L2 -> L1 withdrawal)
     /// @param _opConfig Configuration for OP chain where FeesDepositor forwards funds (L1 -> OP L2)
     function _executeDisburseAndAssertWithdrawal(ChainConfig memory _chainConfig, OPConfig memory _opConfig) internal {
+        // ==================== Step 1: Init withdrawal (Rev Share L2) ====================
+        // Disburse fees on the Rev Share L2 chain, which triggers L1Withdrawer to initiate a withdrawal to L1
         vm.selectFork(_chainConfig.l2ForkId);
         vm.warp(block.timestamp + IFeeSplitter(FEE_SPLITTER).feeDisbursementInterval() + 1);
 
@@ -376,11 +378,14 @@ abstract contract IntegrationBase is Test {
         emit WithdrawalInitiated(_chainConfig.l1WithdrawalRecipient, _chainConfig.expectedWithdrawalAmount);
         IFeeSplitter(FEE_SPLITTER).disburseFees();
 
-        // Relay the withdrawal message to L1
+        // ==================== Step 2: Relay withdrawal (L1) ====================
+        // Relay the L2->L1 withdrawal message. If amount >= threshold, FeesDepositor will initiate a deposit to OP.
         vm.selectFork(_chainConfig.l1ForkId);
 
         if (_chainConfig.expectedWithdrawalAmount >= FEES_DEPOSITOR_THRESHOLD) {
-            // Expect TransactionDeposited event from OP Portal
+            // ==================== Step 3: Init deposit to OP (L1) ====================
+            // When withdrawal is relayed on L1, FeesDepositor receives the ETH and initiates a deposit to OP L2.
+            // Expect TransactionDeposited event from OP Portal.
             // Note: FeesDepositor calls L1CrossDomainMessenger.sendMessage(), which calls OptimismPortal.depositTransaction()
             // The 'from' address in TransactionDeposited is the aliased L1CrossDomainMessenger (not the FeesDepositor)
             vm.expectEmit(true, true, true, false, _opConfig.opPortal);
@@ -391,6 +396,7 @@ abstract contract IntegrationBase is Test {
                 ""
             );
 
+            // Relay the withdrawal message on L1 (triggers FeesDepositor to initiate deposit to OP)
             _relayL2ToL1Message(
                 _chainConfig.portal,
                 _chainConfig.l1Messenger,
@@ -401,7 +407,8 @@ abstract contract IntegrationBase is Test {
                 "" // data (empty for ETH transfer)
             );
 
-            // Now relay the deposit from L1 to OP L2
+            // ==================== Step 4: Relay deposit (Optimism L2) ====================
+            // Relay the L1->L2 deposit message on Optimism, delivering ETH to the final recipient
             vm.selectFork(_opConfig.opL2ForkId);
 
             uint256 recipientBalanceBefore = _opConfig.feesDepositorTarget.balance;
@@ -424,7 +431,8 @@ abstract contract IntegrationBase is Test {
                 "FeesDepositor target should receive the withdrawal amount"
             );
         } else {
-            // FeesDepositor holds the ETH (below threshold)
+            // Below threshold: FeesDepositor holds the ETH on L1 (no deposit to OP)
+            // Simply relay the withdrawal to the L1 recipient
             uint256 recipientBalanceBefore = _chainConfig.l1WithdrawalRecipient.balance;
 
             _relayL2ToL1Message(

@@ -64,14 +64,6 @@ contract RevSharePostTaskAssertionsTest is IntegrationBase {
     // Flag to track if env vars are set
     bool internal _isEnabled;
 
-    /// @notice Modifier to skip tests if required env vars are not set
-    modifier onlyIfEnabled() {
-        if (!_isEnabled) {
-            vm.skip(true);
-        }
-        _;
-    }
-
     function setUp() public {
         // Read env vars with defaults to detect if they're set
         string memory rpcUrl = vm.envOr("RPC_URL", string(""));
@@ -112,7 +104,10 @@ contract RevSharePostTaskAssertionsTest is IntegrationBase {
     }
 
     /// @notice Assert the Rev Share contract state on the L2 chain
-    function test_assertRevShareState() public onlyIfEnabled {
+    function test_assertRevShareState() public {
+        if (!_isEnabled) {
+            vm.skip(true);
+        }
         vm.selectFork(_l2ForkId);
 
         _assertL2State(
@@ -129,7 +124,11 @@ contract RevSharePostTaskAssertionsTest is IntegrationBase {
     // Fund vaults so that:
     // - First disburse: share < minWithdrawalAmount (below threshold, no withdrawal)
     // - Second disburse: total >= minWithdrawalAmount (triggers withdrawal)
-    function test_withdrawalFlow() public onlyIfEnabled {
+    function test_withdrawalFlow() public {
+        if (!_isEnabled) {
+            vm.skip(true);
+        }
+
         // ==================== PART 1: Below threshold - no withdrawal ====================
         vm.selectFork(_l2ForkId);
 
