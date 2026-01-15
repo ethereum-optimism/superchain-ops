@@ -20,7 +20,7 @@ the values printed to the terminal when you run the task.
 > ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x1fd2f6962411f9f43235f1b2d80deda02d36647c3dfd7da46ab0a7ff10beb3b2`
+> - Message Hash: `0x7e834f657753d14022768e01ef18d222637c43732ea43aa3fffbab1338854c05`
 
 ## Task Calldata
 
