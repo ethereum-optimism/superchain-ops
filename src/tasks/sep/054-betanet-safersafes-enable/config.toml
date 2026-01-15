@@ -1,0 +1,19 @@
+templateName = "MigrateToLiveness2"
+
+safeAddressString = "betanetSafe"
+
+[addresses]
+saferSafes = "0xA8447329e52F64AED2bFc9E7a2506F7D369f483a"
+betanetSafe = "0x0e0375aFAb3AB4b19A329ea94a6C67FaEfd352Cd"
+# currentLivenessModule is omitted - betanet safe has no existing liveness module
+
+[livenessModule]
+livenessResponsePeriod = "60"  # 1 minute in seconds
+fallbackOwner = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"  # Security Council
+
+[stateOverrides]
+# Betanet Safe
+0x0e0375aFAb3AB4b19A329ea94a6C67FaEfd352Cd = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1}
+]
+

@@ -1,6 +1,6 @@
 # 049-rev-share-ink-soneium: RevShare Upgrade and Setup for Ink Sepolia and Soneium Minato
 
-Status: [CANCELLED]()
+Status: [CANCELLED]
 
 ## Objective
 
