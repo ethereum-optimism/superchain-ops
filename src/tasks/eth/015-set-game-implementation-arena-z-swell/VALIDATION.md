@@ -54,18 +54,18 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) file.
 
 ### Task State Changes
 
-### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
+### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
 
 > [!IMPORTANT]
 > Security Council Only
 
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
 
-The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+The details are explained in [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md#liveness-guard).
 
 ### [`0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`](https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/configs/mainnet/arena-z.toml#L45) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
   
