@@ -63,11 +63,23 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
 
 You will also see a "Simulation link" from the output.
 
-Paste this URL in your browser. A prompt may ask you to choose a
-project, any project will do. You can create one if necessary.
+**Note:** If the output also includes a message like:
+```
+Insert the following hex into the 'Raw input data' field:
+<hex data>
+```
 
-Click "Simulate Transaction". Please note that in some cases, when the calldata is very large, you may have to complete an additional step. 
-This involves copying and pasting the 'Raw Input data' field from the terminal into the Raw input data field in the Tenderly simulation, then clicking "Simulate Transaction".
+This means the transaction data is too large to include in the URL. In this case, you should:
+1. Open the simulation link in your browser
+2. Copy the hex data shown below that message in the terminal
+3. Paste it into the "Raw input data" field in the Tenderly UI
+4. Then click "Simulate Transaction" to proceed
+
+This two-step process is required when the full calldata cannot be embedded directly in the simulation link due to URL length limitations.
+
+---
+
+Otherwise, simply paste the simulation URL in your browser. A prompt may ask you to choose a project, any project will do. You can create one if necessary. Then click "Simulate Transaction".
 
 We will be performing 3 validations and extract the domain hash and
 message hash to approve on your Ledger:
