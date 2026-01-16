@@ -25,6 +25,15 @@ parameters:
     default: "__not_set__"
 
 commands:
+  install-system-deps:
+    description: "Install system dependencies required for hardware wallet support"
+    steps:
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libudev-dev
+
   notify-failures-on-main:
     description: "Notify Slack"
     parameters:
@@ -61,6 +70,7 @@ jobs:
       - utils/checkout-with-mise
       - attach_workspace:
           at: .
+      - install-system-deps
       - run:
           name: Check superchain registry
           command: |
@@ -82,6 +92,7 @@ jobs:
       FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
+      - install-system-deps
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
           # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
@@ -100,6 +111,7 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
+      - install-system-deps
       - run:
           name: forge build
           command: |
@@ -112,6 +124,7 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
+      - install-system-deps
       - run:
           name: forge fmt
           command: |
@@ -128,6 +141,7 @@ jobs:
       FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
+      - install-system-deps
       - run:
           name: forge test
           max_auto_reruns: 3
