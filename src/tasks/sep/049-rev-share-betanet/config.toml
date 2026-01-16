@@ -1,0 +1,28 @@
+# RevShare Upgrade And Setup Configuration
+
+templateName = "RevShareUpgradeAndSetup"
+
+# L2 chains to target
+l2chains = [{name = "revshare-beta-0", chainId = 420120033}]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+revShareUpgrader = "0x71241bbae674967dd523e621c272ea32cf33119a" 
+
+# RevShare configurations (one per chain) - flattened arrays
+portals = ["0xa1F4F424901e0773e68C714077bCDD5CF8BcEc23"]
+
+chainFeesRecipients = ["0x5f077b4c3509C2c192e50B6654d924Fcb8126A60"]
+
+# 2 ether
+l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
+
+# FeesDepositor address in mainnet
+l1WithdrawerRecipients = ["0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"]
+l1WithdrawerGasLimits = [800000]
+
+fallbackAddressesJsonPath = "src/tasks/sep/049-rev-share-betanet/addresses.json"
+
+[addresses]
+ProxyAdminOwner = "0x1eb2ffc903729a0f03966b917003800b145f56e2"
