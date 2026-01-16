@@ -54,10 +54,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice flag to determine if the task is being simulated
     uint256 private _buildStarted;
 
-    /// @notice Stores original nonces for sibling safes (contract owners of root safe) before execution.
-    /// Key is the sibling address, value is the original nonce.
-    mapping(address => uint256) private _siblingNonces;
-
     /// ==================================================
     /// ============== EntryPoint Functions ==============
     /// ==================================================
@@ -786,14 +782,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         allOriginalNonces_ = new uint256[](_allSafes.length);
         for (uint256 i = 0; i < _allSafes.length; i++) {
             allOriginalNonces_[i] = _getNonceOrOverride(_allSafes[i], _taskConfigFilePath);
-            address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
-            for (uint256 j = 0; j < owners.length; j++) {
-                if (owners[j].code.length > 0) {
-                    // Store sibling nonces for later use in hash computation.
-                    // These are needed because nonces get incremented during execution.
-                    _siblingNonces[owners[j]] = _getNonceOrOverride(owners[j], _taskConfigFilePath);
-                }
-            }
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
         _applyStateOverrides(); // Applies '_stateOverrides' to the current state.
@@ -821,7 +809,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
 
-        bytes memory simulatedDataToSign;
+        bytes memory simulatedDataToSign; // dataToSign for the current safe in the loop, used for printing.
         // Only print safe and execution data if the task is being simulated.
         if (isSimulate) {
             for (uint256 i = payload.safes.length - 1; i >= 0; i--) {
@@ -913,11 +901,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     // Use the already computed dataToSign for the simulated child
                     dataToSign_[idx] = simulatedDataToSign;
                 } else {
-                    // Generate dataToSign for this sibling using stored pre-execution nonce.
-                    // These were stored during _overrideState before execution incremented them.
+                    // Generate dataToSign for this sibling.
+                    // Nonces were incremented exactly once during execution, so current - 1 gives pre-execution nonce.
+                    // If nonces are incremented more than once elsewhere in MultisigTask, revert to caching original nonces.
                     address multicallAddr = _getMulticallAddress(sibling, safes);
+                    uint256 originalNonce = IGnosisSafe(sibling).nonce() - 1;
                     dataToSign_[idx] = GnosisSafeHashes.getEncodedTransactionData(
-                        sibling, approvalCalldata, 0, _siblingNonces[sibling], multicallAddr
+                        sibling, approvalCalldata, 0, originalNonce, multicallAddr
                     );
                 }
                 idx++;
