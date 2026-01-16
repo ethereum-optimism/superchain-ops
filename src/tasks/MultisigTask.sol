@@ -782,6 +782,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         allOriginalNonces_ = new uint256[](_allSafes.length);
         for (uint256 i = 0; i < _allSafes.length; i++) {
             allOriginalNonces_[i] = _getNonceOrOverride(_allSafes[i], _taskConfigFilePath);
+
+            address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
+            for (uint256 j = 0; j < owners.length; j++) {
+                if (owners[j].code.length > 0) _getNonceOrOverride(owners[j], _taskConfigFilePath); // Nonce safety checks performed for each owner that is a safe.
+            }
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
         _applyStateOverrides(); // Applies '_stateOverrides' to the current state.
