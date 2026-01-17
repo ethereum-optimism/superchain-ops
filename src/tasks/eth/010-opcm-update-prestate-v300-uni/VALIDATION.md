@@ -105,7 +105,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### Generic Safe State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) file.
 
 ---
 
@@ -142,7 +142,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE UNICHAIN SAFE AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
 
-The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+The details are explained in [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md#liveness-guard).
 
 ---
 
@@ -153,14 +153,14 @@ The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDA
 
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
 
-The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+The details are explained in [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md#liveness-guard).
 
 ---
 
 ### `0x6d5B183F538ABB8572F5cD17109c617b994D5833` (Unichain ProxyAdminOwner)
 
 - Nonce increments see [below](#nonce-increments)
-- `approvedHashes` mapping updates are explained in detail in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#key-computation).
+- `approvedHashes` mapping updates are explained in detail in [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md#key-computation).
   The key computations are:
   - **Unichain Safe only**
     ```
@@ -192,7 +192,7 @@ The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDA
   - `0x485272c0703020e1354328A1aBa3ca767997BEd3` - Permissioned GameType Implementation for Unichain Mainnet
   - `0x57a3B42698DC1e4Fb905c9ab970154e178296991` - Permissionless GameType Implementation for Unichain Mainnet
 - The remaining nonce increments are for the Safes and EOAs that are involved in the simulation.
-  The details are described in the generic [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) document.
+  The details are described in the generic [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) document.
   - <sender-address> - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
   - `0x6d5B183F538ABB8572F5cD17109c617b994D5833` - Unichain ProxyAdminOwner
     - Contract nonce `6 -> 8` - two contract deployments above

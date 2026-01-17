@@ -106,7 +106,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### Generic Safe State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) file.
 
 ---
 
@@ -161,21 +161,21 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
       ```
 ---
 
-### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
+### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
 
 > [!IMPORTANT]
 > Security Council Only
 
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
 
-The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+The details are explained in [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md#liveness-guard).
 
 ---
 
 ### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (Superchain ProxyAdminOwner)
 
 - Nonce increments see [below](#nonce-increments)
-- `approvedHashes` mapping updates are explained in detail in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#key-computation).
+- `approvedHashes` mapping updates are explained in detail in [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md#key-computation).
   The key computations are:
   - **Foundation only**
     ```
@@ -202,7 +202,7 @@ The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDA
   - `0x89D68b1D63AAA0db4af1163e81f56B76934292F8` - Permissionless GameType Implementation for OP Mainnet
   - `0xa1E0baCde89d899B3f24eEF3D179cC335A24E777` - Permissioned GameType Implementation for OP Mainnet
 - The remaining nonce increments are for the Safes and EOAs that are involved in the simulation.
-  The details are described in the generic [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) document.
+  The details are described in the generic [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) document.
   - <sender-address> - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
   - `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` - Superchain ProxyAdminOwner
     - Contract nonce `14 -> 18` - four contract deployments above

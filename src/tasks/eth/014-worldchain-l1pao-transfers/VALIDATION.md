@@ -38,7 +38,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [SINGLE-VALIDATION.md](../../../../../SINGLE-VALIDATION.md) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [SINGLE-VALIDATION.md](../../../../../docs/SINGLE-VALIDATION.md) file.
 
 ### Task State Changes
 ---
