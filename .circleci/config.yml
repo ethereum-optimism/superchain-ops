@@ -201,6 +201,16 @@ jobs:
       - run:
           name: check task names
           command: (cd src/script && ./check-task-names.sh)
+  # Check open PRs for task number and nonce collisions.
+  check_open_pr_task_collisions:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - github-cli/install
+      - run:
+          name: check open PR task collisions
+          command: (cd src/script && ./check-open-pr-task-collisions.sh)
   # Check that structs used with JSON/TOML parseRaw have alphabetically ordered fields.
   # This prevents a subtle bug where Foundry's parseRaw orders keys alphabetically,
   # causing abi.decode to assign values to wrong fields if struct fields aren't sorted. See:
@@ -267,6 +277,9 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
+      - check_open_pr_task_collisions:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       - check_struct_order
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
