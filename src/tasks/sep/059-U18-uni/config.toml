@@ -1,0 +1,28 @@
+# U18 Unichain Sepolia
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+
+templateName = "OPCMUpgradeV600"
+
+
+# Unichain Sepolia Testnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 1301
+# U18 prestates: https://www.notion.so/oplabs/Upgrade-18-Governance-Post-2d1f153ee162807db0deee6100c9ad5a?source=copy_link#2d1f153ee16280b197bcf82b759ad1d6
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+
+[stateOverrides]
+# Unichain Sepolia ProxyAdminOwner:
+0xd363339eE47775888Df411A163c586a8BdEA9dbf = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
+]
