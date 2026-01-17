@@ -15,7 +15,7 @@ This will create a new Solidity file in `src/template/` with the basic template 
 
 ### Additional steps when creating a new template
 
-Once a new template has been created and tested from the command line as a forge script, it should be tested in the [regression test suite](../../../test/tasks/Regression.t.sol). Follow the existing examples to add a new test case for the template. 
+Once a new template has been created and tested from the command line as a forge script, it should be tested in the [regression test suite](../test/tasks/Regression.t.sol). Follow the existing examples to add a new test case for the template. 
 
 1. Create a new task that uses the new template in the `test/tasks/example/sep` directory.
    1. Make sure the test task has a `.env` file with the following environment variables included:
@@ -31,5 +31,5 @@ Once a new template has been created and tested from the command line as a forge
 
 ## Existing Templates
 
-Existing templates can be found in the [`src/template/`](../template) directory. These templates can be used as a reference for creating new templates.
+Existing templates can be found in the [`src/template/`](../src/template) directory. These templates can be used as a reference for creating new templates.
 

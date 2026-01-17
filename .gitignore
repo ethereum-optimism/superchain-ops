@@ -11,9 +11,6 @@ out/
 /broadcast/**/dry-run/
 /records/**/dry-run
 
-# Docs
-docs/
-
 # The specific deps and build artifacts will vary per task
 out/
 cache/

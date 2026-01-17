@@ -98,7 +98,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) file.
 
 ### Task State Changes
 
@@ -141,7 +141,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   ---
 
-### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
+### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
 
 > [!IMPORTANT]
 > Security Council Only
@@ -296,7 +296,7 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
   ---
 
-### [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L37) (GnosisSafe) - Foundation Safe
+### [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/NESTED-VALIDATION.md?plain=1#L37) (GnosisSafe) - Foundation Safe
 
 > [!IMPORTANT]
 > Foundation Only
@@ -387,7 +387,7 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
   ---
 
-### [`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L36) (GnosisSafe) - Council Safe
+### [`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/NESTED-VALIDATION.md?plain=1#L36) (GnosisSafe) - Council Safe
 
 > [!IMPORTANT]
 > Security Council Only

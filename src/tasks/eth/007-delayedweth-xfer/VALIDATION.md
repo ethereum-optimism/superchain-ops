@@ -28,10 +28,10 @@ By reconstructing the calldata, we can confirm that the execution precisely impl
 ## Single Safe State Overrides and Changes
 
 This task is executed by the single Foundation Operations Safe. Refer to the
-[generic single Safe execution validation document](../../../../../SINGLE-VALIDATION.md)
+[generic single Safe execution validation document](../../../../../docs/SINGLE-VALIDATION.md)
 for the expected state overrides and changes.
 
-Additionally, Safe-related nonces [will increment by one](../../../../../SINGLE-VALIDATION.md#nonce-increments).
+Additionally, Safe-related nonces [will increment by one](../../../../../docs/SINGLE-VALIDATION.md#nonce-increments).
 
 ## State Diffs
 

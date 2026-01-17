@@ -135,7 +135,7 @@ assertEq(
 
 ## Example: Revenue Share Integration Test
 
-See [RevShareContractsUpgraderIntegration.t.sol](../../test/integration/RevShareContractsUpgraderIntegration.t.sol) for a complete example that:
+See [RevShareContractsUpgraderIntegration.t.sol](../test/integration/RevShareContractsUpgraderIntegration.t.sol) for a complete example that:
 
 - Tests multi-chain deployments (OP Mainnet and Ink Mainnet simultaneously)
 - Validates multiple L2 contracts (L1Withdrawer, RevShareCalculator, FeeSplitter, FeeVaults)

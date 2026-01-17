@@ -10,6 +10,7 @@ import {TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {SystemConfigGasParams} from "src/template/SystemConfigGasParams.sol";
+import {RevShareUpgradeAndSetup} from "src/template/RevShareUpgradeAndSetup.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
@@ -212,7 +213,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         TaskManager tm = new TaskManager();
         L2Chain[] memory l2Chains = new L2Chain[](1);
         l2Chains[0] = L2Chain({chainId: 10, name: "OP Mainnet"});
-        (, bytes memory dataToSign) = tm.executeTask(
+        (, bytes[] memory dataToSign) = tm.executeTask(
             TaskConfig({
                 optionalL2Chains: l2Chains,
                 basePath: "test/tasks/example/eth/006-system-config-gas-params",
@@ -226,7 +227,39 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         );
         bytes memory expectedDataToSign =
             hex"1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b73267249771935e440b6212f2f0a8302967dcac81b52ea7573563fd25b9b7ee33d8b3e";
-        assertEq(keccak256(dataToSign), keccak256(expectedDataToSign));
+        assertEq(keccak256(dataToSign[0]), keccak256(expectedDataToSign));
+    }
+
+    function testExecuteViaTaskManager_NestedSafe() public {
+        vm.createSelectFork("mainnet", 24047420);
+
+        RevShareUpgradeAndSetup revShareTemplate = new RevShareUpgradeAndSetup();
+        TaskManager tm = new TaskManager();
+
+        L2Chain[] memory l2Chains = new L2Chain[](2);
+        l2Chains[0] = L2Chain({chainId: 57073, name: "Ink"});
+        l2Chains[1] = L2Chain({chainId: 1868, name: "Soneium"});
+
+        (, bytes[] memory dataToSign) = tm.executeTask(
+            TaskConfig({
+                optionalL2Chains: l2Chains,
+                basePath: "src/tasks/eth/037-rev-share-ink-soneium",
+                configPath: "src/tasks/eth/037-rev-share-ink-soneium/config.toml",
+                templateName: "RevShareUpgradeAndSetup",
+                rootSafe: OP_MAINNET_L1PAO,
+                isNested: true,
+                task: address(revShareTemplate)
+            }),
+            new address[](0)
+        );
+
+        // For nested safe tasks, dataToSign should have 2 entries (Foundation + Council)
+        bytes memory expectedDataToSignFoundation =
+            hex"1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b73267254ce340c4739a7b821abc9a4d1fc553ef3eab9af2a4f6d6cd8b029e254050c0f";
+        bytes memory expectedDataToSignCouncil =
+            hex"1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967ddd5bfdade4e3e69c2a1055039c1f159b6fc48e52a21206cbaf0828ec7f06008";
+        assertEq(keccak256(dataToSign[0]), keccak256(expectedDataToSignFoundation));
+        assertEq(keccak256(dataToSign[1]), keccak256(expectedDataToSignCouncil));
     }
 }
 
