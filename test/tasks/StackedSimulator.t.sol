@@ -520,13 +520,17 @@ contract StackedSimulatorUnitTest is Test {
 
     function testConvertPrefixToUint_MissingRPrefix() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)");
+        vm.expectRevert(
+            "StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)"
+        );
         ss.convertPrefixToUint("2025-01-08-1-task"); // Missing R prefix
     }
 
     function testConvertPrefixToUint_LowercaseRPrefix() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)");
+        vm.expectRevert(
+            "StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)"
+        );
         ss.convertPrefixToUint("2025-01-08-r1-task"); // Lowercase r instead of R
     }
 
