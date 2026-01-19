@@ -84,7 +84,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 ## Single Safe State Overrides and Changes
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../docs/NESTED-VALIDATION.md) file.
 
 ## Other Nonces
 

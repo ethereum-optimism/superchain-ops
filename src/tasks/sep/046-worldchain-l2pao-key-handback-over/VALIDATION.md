@@ -60,7 +60,7 @@ Returns:
 
 # State Validations
 
-For a complete walkthrough of validating the state changes on L1 and L2 follow [the steps in this doc](https://github.com/ethereum-optimism/superchain-ops/blob/main/src/doc/simulate-l2-ownership-transfer.md)
+For a complete walkthrough of validating the state changes on L1 and L2 follow [the steps in this doc](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/simulate-l2-ownership-transfer.md)
 
 ## Manual L2 Verification Steps
 

@@ -107,7 +107,7 @@ Now click on the "State" tab. Verify that:
        The `After` value of the `lastLive` slot will change with every simulation. This is because the `block.timestamp` is different for each simulation.
 3. You will see some state overrides (under the `State Overrides` section). This is
    expected and its purpose is to generate a successful Safe execution
-   simulation without collecting any signatures. You can read more about the specific state overrides [here](https://github.com/ethereum-optimism/superchain-ops/blob/main/SINGLE-VALIDATION.md#state-overrides).
+   simulation without collecting any signatures. You can read more about the specific state overrides [here](https://github.com/ethereum-optimism/superchain-ops/blob/main/docs/SINGLE-VALIDATION.md#state-overrides).
 
 Here is an example screenshot. Note that the addresses may be
 different:

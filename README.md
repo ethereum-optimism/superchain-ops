@@ -8,7 +8,7 @@
 
 A tooling system for developers to write, test, and simulate onchain state changes safely before execution.
 
-> 📚 More detailed documentation can be found in the [doc](src/doc/) directory.
+> 📚 More detailed documentation can be found in the [docs](docs/) directory.
 
 ## Repository Structure
 
@@ -16,9 +16,9 @@ The repository is organized as follows:
 
 ```
 superchain-ops/
+├── docs/             # Detailed documentation
 └── src/
       ├── template/     # Solidity template contracts (Template developers create templates here)
-      └── doc/          # Detailed documentation
       └── tasks/        # Network-specific tasks
           ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
           └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
@@ -119,12 +119,12 @@ just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-na
 ```
 
 **Examples:**
-- **Single Safe Operations** (most common - see [SINGLE.md](src/SINGLE.md)):
+- **Single Safe Operations** (most common - see [SINGLE.md](docs/SINGLE.md)):
   ```bash
   just --dotenv-path $(pwd)/.env simulate
   ```
 
-- **Nested Safe Operations** (see [NESTED.md](src/NESTED.md)):
+- **Nested Safe Operations** (see [NESTED.md](docs/NESTED.md)):
   ```bash
   just --dotenv-path $(pwd)/.env simulate foundation
   just --dotenv-path $(pwd)/.env simulate council

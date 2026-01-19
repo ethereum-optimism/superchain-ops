@@ -1,11 +1,11 @@
 # Simulating an L2 Deposit Transaction Before Execution
 
-The following steps describe how to simulate an L2 deposit transaction prior to L1 task execution. The [TransferL2PAOFromL1.sol](../template/TransferL2PAOFromL1.sol) transfers the ownership of a L2PAO from a current aliased L1 address to a new aliased L1 address.
+The following steps describe how to simulate an L2 deposit transaction prior to L1 task execution. The [TransferL2PAOFromL1.sol](../src/template/TransferL2PAOFromL1.sol) transfers the ownership of a L2PAO from a current aliased L1 address to a new aliased L1 address.
 This template executes an L1 transaction, which is later forwarded to the L2 by the op-node. To gain additional confidence that the L2 deposit transaction works as expected, we manually simulate it and record the results in the task’s VALIDATION.md file.
 
 ## Steps
 
-1. Simulate the task that uses the [TransferL2PAOFromL1.sol](../template/TransferL2PAOFromL1.sol) template.
+1. Simulate the task that uses the [TransferL2PAOFromL1.sol](../src/template/TransferL2PAOFromL1.sol) template.
 2. In the terminal output, copy the Tenderly link and open it in your browser.
       ![Tenderly Simulation Link](./images/tenderly-simulation-link.png)
 3. In Tenderly, open the `Events` tab and look for the `TransactionDeposited` event.
