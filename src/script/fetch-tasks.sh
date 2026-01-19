@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# This file finds non-terminal tasks for a specifc network.
+# This file finds non-terminal tasks for a specific network.
 # It prints these tasks to the console. Other processes can use this output
 # to execute the tasks locally.
 #

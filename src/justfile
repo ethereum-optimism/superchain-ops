@@ -75,15 +75,14 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
     # Handle rehearsal tasks using FETCH_REHEARSALS mode
     # For rehearsals, effective_task is the task name without "rehearsals/" prefix
     # This is needed because StackedSimulator matches task names by their final path component
-    task_var="{{TASK}}"
-    effective_task="$task_var"
-    if [[ "$task_var" == rehearsals* ]]; then
+    effective_task="{{TASK}}"
+    if [[ "$effective_task" == rehearsals* ]]; then
         export FETCH_REHEARSALS=1
         # Extract rehearsal task name (remove "rehearsals/" prefix if present)
-        if [[ "$task_var" == "rehearsals" ]]; then
+        if [[ "$effective_task" == "rehearsals" ]]; then
             effective_task=""
         else
-            effective_task="${task_var#rehearsals/}"
+            effective_task="${effective_task#rehearsals/}"
         fi
     fi
 
@@ -160,15 +159,14 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
 
     # Handle rehearsal tasks using FETCH_REHEARSALS mode
     # For rehearsals, effective_task is the task name without "rehearsals/" prefix
-    task_var="{{TASK}}"
-    effective_task="$task_var"
-    if [[ "$task_var" == rehearsals* ]]; then
+    effective_task="{{TASK}}"
+    if [[ "$effective_task" == rehearsals* ]]; then
         export FETCH_REHEARSALS=1
-        effective_task="${task_var#rehearsals/}"
+        effective_task="${effective_task#rehearsals/}"
     fi
 
     ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "{{NETWORK}}")
-    task_dir_path="${root_dir}/src/tasks/{{NETWORK}}/$task_var"
+    task_dir_path="${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}"
     child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 

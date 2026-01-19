@@ -263,7 +263,7 @@ contract StackedSimulatorUnitTest is Test {
     function testStringConversionShortString() public {
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
-            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator (must be 'R'), and N=sequence number (e.g., '2025-01-08-R1')."
         );
         ss.convertPrefixToUint("12"); // Input with less than 3 characters
     }
@@ -439,7 +439,7 @@ contract StackedSimulatorUnitTest is Test {
     function testConvertPrefixToUint_InvalidLength() public {
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
-            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator (must be 'R'), and N=sequence number (e.g., '2025-01-08-R1')."
         );
         ss.convertPrefixToUint("12-task-name"); // Only 2 characters
     }
@@ -447,7 +447,7 @@ contract StackedSimulatorUnitTest is Test {
     function testConvertPrefixToUint_TooLongPrefix() public {
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
-            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator (must be 'R'), and N=sequence number (e.g., '2025-01-08-R1')."
         );
         ss.convertPrefixToUint("1234-task-name"); // 4 characters
     }
@@ -456,7 +456,7 @@ contract StackedSimulatorUnitTest is Test {
         StackedSimulator ss = new StackedSimulator();
         // The validation order is: length check first, then hyphen check
         vm.expectRevert(
-            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator (must be 'R'), and N=sequence number (e.g., '2025-01-08-R1')."
         );
         ss.convertPrefixToUint("123taskname"); // No hyphen, but also wrong length
     }
@@ -471,6 +471,63 @@ contract StackedSimulatorUnitTest is Test {
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert("StackedSimulator: Does not support hex strings.");
         ss.convertPrefixToUint("0x1-task-name"); // Hex string
+    }
+
+    // Tests for date-based format
+    function testConvertPrefixToUint_ValidDateFormat() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("2025-01-08-R1-welcome");
+        // Expected: (2025 * 10000 + 1 * 100 + 8) * 10000 + 1 = 20250108 * 10000 + 1 = 202501080001
+        assertEq(result, 202501080001, "Should correctly parse date-based format");
+    }
+
+    function testConvertPrefixToUint_DateFormatWithLargerRehearsalNumber() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("2025-07-21-R15-task");
+        // Expected: (2025 * 10000 + 7 * 100 + 21) * 10000 + 15 = 20250721 * 10000 + 15 = 202507210015
+        assertEq(result, 202507210015, "Should correctly parse date with larger rehearsal number");
+    }
+
+    function testConvertPrefixToUint_InvalidYear() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Year must be <= 2100");
+        ss.convertPrefixToUint("2101-01-08-R1-task"); // Year > 2100
+    }
+
+    function testConvertPrefixToUint_InvalidMonthTooHigh() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Month must be between 1 and 12");
+        ss.convertPrefixToUint("2025-13-08-R1-task"); // Month > 12
+    }
+
+    function testConvertPrefixToUint_InvalidMonthZero() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Month must be between 1 and 12");
+        ss.convertPrefixToUint("2025-00-08-R1-task"); // Month = 0
+    }
+
+    function testConvertPrefixToUint_InvalidDayTooHigh() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Day must be between 1 and 31");
+        ss.convertPrefixToUint("2025-01-32-R1-task"); // Day > 31
+    }
+
+    function testConvertPrefixToUint_InvalidDayZero() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Day must be between 1 and 31");
+        ss.convertPrefixToUint("2025-01-00-R1-task"); // Day = 0
+    }
+
+    function testConvertPrefixToUint_MissingRPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)");
+        ss.convertPrefixToUint("2025-01-08-1-task"); // Missing R prefix
+    }
+
+    function testConvertPrefixToUint_LowercaseRPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Date-based format requires 'R' prefix in fourth component (e.g., YYYY-MM-DD-RN)");
+        ss.convertPrefixToUint("2025-01-08-r1-task"); // Lowercase r instead of R
     }
 
     function testSortTasksLargeNumbers() public {

@@ -18,38 +18,26 @@ Once the required number of signatures is collected, anyone can finalize the exe
 
 ## Approving the transaction
 
-### 1. Update repo:
+### 1. Setup
 
-```
-cd superchain-ops
-git pull
-mise trust mise.toml # Only required the first time you use the repository.
-mise install
-mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
-forge clean
-forge install
-```
+Follow the [Signer Setup Instructions](../SIGNER_SETUP.md) to:
+- Update the repository and install dependencies (first time only)
+- Configure your hardware wallet or keystore
+- Learn about using different derivation paths or hardware wallets
 
-See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
-
-### 2. Setup your hardware wallet
-
-Your hardware wallet needs to be connected and unlocked. The Ethereum
-application needs to be opened on your hardware wallet with the message "Application
-is ready".
-
-### 3. Simulate and validate the transaction
+### 2. Simulate and validate the transaction
 
 Make sure your hardware wallet is still unlocked and run the following.
 
 ``` shell
 cd superchain-ops/src
 just simulate-stack <network> rehearsals/<rehearsal-task-name> test-rehearsal-council
-# For a different derivation path, use: HD_PATH=1 just simulate-stack <network> rehearsals/<rehearsal-task-name> test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
 ```
 
 Note: The `<network>` and `<rehearsal-task-name>` should be shared with you by the Facilitator (e.g., `eth` and `2025-01-08-R3-nested-upgrade`).
+
+For different derivation paths or hardware wallet options, see the [Signer Setup Instructions](../SIGNER_SETUP.md).
 
 You will see a "Simulation link" URL in the output.
 
@@ -123,7 +111,7 @@ different:
 Note down both the domain hash and the message hash. You will need to
 compare them with the ones displayed in your terminal AND on the hardware wallet screen at signing.
 
-### 4. Approve the signature on your hardware wallet
+### 3. Approve the signature on your hardware wallet
 
 Once the validations are done, it's time to actually sign the
 transaction. Make sure your hardware wallet is still unlocked and run the
@@ -132,9 +120,10 @@ following:
 ``` shell
 cd superchain-ops/src
 just sign-stack <network> rehearsals/<rehearsal-task-name> test-rehearsal-council
-# For a different derivation path, use: HD_PATH=1 just sign-stack <network> rehearsals/<rehearsal-task-name> test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file.
 ```
+
+For different derivation paths or hardware wallet options, see the [Signer Setup Instructions](../SIGNER_SETUP.md).
 
 > [!IMPORTANT] This is the most security critical part of the
 > playbook: make sure the domain hash and message hash in the
@@ -182,15 +171,7 @@ congrats, you are done!
 
 #### 0. Setup the repository
 
-```bash
-cd superchain-ops
-git pull
-mise trust mise.toml # Only required the first time you use the repository.
-mise install
-mise activate # Activate mise for the current shell; if it doesn't take effect, restart your terminal.
-forge clean
-forge install
-```
+See the [Signer Setup Instructions](../SIGNER_SETUP.md) for repository setup steps.
 
 #### 1. Create and configure the safes
 

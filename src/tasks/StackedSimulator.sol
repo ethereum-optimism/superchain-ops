@@ -180,6 +180,10 @@ contract StackedSimulator is Script {
             uint256 year = vm.parseUint(parts[0]);
             uint256 month = vm.parseUint(parts[1]);
             uint256 day = vm.parseUint(parts[2]);
+            // Validate date components
+            require(year <= 2100, "StackedSimulator: Year must be <= 2100");
+            require(month >= 1 && month <= 12, "StackedSimulator: Month must be between 1 and 12");
+            require(day >= 1 && day <= 31, "StackedSimulator: Day must be between 1 and 31");
             // Extract rehearsal number from parts[3] (e.g., "R1" -> 1)
             string memory rehearsalPart = parts[3];
             uint256 rehearsalNum = 0;
@@ -200,7 +204,7 @@ contract StackedSimulator is Script {
         }
 
         revert(
-            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator ('r' for rehearsal, 's' for standard), and N=sequence number (e.g., '2023-10-15-s1' for standard task, '2023-10-15-r1' for rehearsal)."
+            "StackedSimulator: Invalid task name format. Valid formats are either: 1) A 3-digit prefix followed by a descriptive name (e.g., '123-deploy-contract'), or 2) A date-based format 'YYYY-MM-DD-RN' where YYYY=year, MM=month, DD=day, R=rehearsal indicator (must be 'R'), and N=sequence number (e.g., '2025-01-08-R1')."
         );
     }
 
