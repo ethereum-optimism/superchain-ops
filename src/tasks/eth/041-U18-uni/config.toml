@@ -1,0 +1,43 @@
+# U18 Unichain Mainnet
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+
+templateName = "OPCMUpgradeV600"
+
+
+# Unichain (Permissionless)
+[[opcmUpgrades]]
+chainId = 130
+# U18 prestates: https://www.notion.so/oplabs/Upgrade-18-Governance-Post-2d1f153ee162807db0deee6100c9ad5a?source=copy_link#2d1f153ee16280b197bcf82b759ad1d6
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG"
+# OVERRIDES-L1PAOMULTISIG: this is expected as they are not using the same L1PAO as OP Mainnet
+
+
+[addresses]
+OPCM = "0x50f47b43c24f40b92c873fa0704d4207586d0c9f"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-mainnet.toml#L23
+
+
+[stateOverrides]
+# Unichain 3/3 (L1PAO)
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 8}
+]
+
+# Unichain Operations Safe
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 15}
+]
+
+# Foundation Upgrade Safe
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
+
+# Security Council
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 51}
+]

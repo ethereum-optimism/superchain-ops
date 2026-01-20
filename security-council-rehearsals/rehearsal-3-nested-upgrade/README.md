@@ -1,4 +1,4 @@
-# Rehearsal 4 - Protocol Upgrade via Nested Multisig
+# Rehearsal 3 - Protocol Upgrade via Nested Multisig
 
 ## Objective
 
@@ -18,33 +18,26 @@ Once the required number of signatures is collected, anyone can finalize the exe
 
 ## Approving the transaction
 
-### 1. Update repo and move to the appropriate folder for this rehearsal task:
+### 1. Setup
 
-```
-cd superchain-ops
-git pull
-# Make sure you've installed the dependencies for the repository.
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
-```
+Follow the [Signer Setup Instructions](../SIGNER_SETUP.md) to:
+- Update the repository and install dependencies (first time only)
+- Configure your hardware wallet or keystore
+- Learn about using different derivation paths or hardware wallets
 
-See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
+### 2. Simulate and validate the transaction
 
-### 2. Setup Ledger
-
-Your Ledger needs to be connected and unlocked. The Ethereum
-application needs to be opened on Ledger with the message "Application
-is ready".
-
-### 3. Simulate and validate the transaction
-
-Make sure your ledger is still unlocked and run the following.
+Make sure your hardware wallet is still unlocked and run the following.
 
 ``` shell
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env simulate test-rehearsal-council
-# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate test-rehearsal-council
+cd superchain-ops/src
+just simulate-stack <network> rehearsals/<rehearsal-task-name> test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
 ```
+
+Note: The `<network>` and `<rehearsal-task-name>` should be shared with you by the Facilitator (e.g., `eth` and `2025-01-08-R3-nested-upgrade`).
+
+For different derivation paths or hardware wallet options, see the [Signer Setup Instructions](../SIGNER_SETUP.md).
 
 You will see a "Simulation link" URL in the output.
 
@@ -55,7 +48,7 @@ Click "Simulate Transaction".
 
 We will be performing 3 validations and ensure the domain hash and
 message hash are the same between the Tenderly simulation and your
-Ledger:
+hardware wallet:
 
 1. Validate integrity of the simulation.
 2. Validate correctness of the state diff.
@@ -69,8 +62,8 @@ To validate integrity of the simulation, we need to check the following:
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not,
-   you will need to determine which “number” it is in the list of
-   addresses on your ledger. By default the script will assume the
+   you will need to determine which "number" it is in the list of
+   addresses on your hardware wallet. By default the script will assume the
    derivation path is `m/44'/60'/0'/0/0`.
 
 Here is an example screenshot, note that the Timestamp and Sender
@@ -98,7 +91,7 @@ approve.
 
 Go back to the "Overview" tab, and find the first
 `GnosisSafe.domainSeparator` call. This call's return value will be
-the domain hash that will show up in your Ledger.
+the domain hash that will show up on your hardware wallet.
 
 Here is an example screenshot. Note that the hash value may be
 different:
@@ -116,27 +109,28 @@ different:
 ![](./images/tenderly-hashes-2.png)
 
 Note down both the domain hash and the message hash. You will need to
-compare them with the ones displayed in your terminal AND on the Ledger screen at signing.
+compare them with the ones displayed in your terminal AND on the hardware wallet screen at signing.
 
-### 4. Approve the signature on your ledger
+### 3. Approve the signature on your hardware wallet
 
 Once the validations are done, it's time to actually sign the
-transaction. Make sure your ledger is still unlocked and run the
+transaction. Make sure your hardware wallet is still unlocked and run the
 following:
 
 ``` shell
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env sign test-rehearsal-council
-# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign test-rehearsal-council
+cd superchain-ops/src
+just sign-stack <network> rehearsals/<rehearsal-task-name> test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file.
 ```
+
+For different derivation paths or hardware wallet options, see the [Signer Setup Instructions](../SIGNER_SETUP.md).
 
 > [!IMPORTANT] This is the most security critical part of the
 > playbook: make sure the domain hash and message hash in the
 > following three places match:
 
 1. In your terminal output.
-2. On your Ledger screen.
+2. On your hardware wallet screen.
 3. In the Tenderly simulation. You should use the same Tenderly
    simulation as the one you used to verify the state diffs, instead
    of opening the new one printed in the console.
@@ -175,6 +169,10 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
+#### 0. Setup the repository
+
+See the [Signer Setup Instructions](../SIGNER_SETUP.md) for repository setup steps.
+
 #### 1. Create and configure the safes
 
 To simulate our production Safe configuration (i.e. 2-of-2 between the Security Council and the Optimism Foundation), we need to create 2 more Safe contracts. We are assuming you have already created the Security Council Safe in the [previous rehearsal](../step-1-welcome/README.md). You should create the safes in the following order:
@@ -206,7 +204,7 @@ graph TD
 
 1. Set the `OWNER_SAFE` address in [`.env`](./.env) to the newly-created Safe address.
 2. Set the `COUNCIL_SAFE` address in [`.env`](./.env) to the same one used in previous rehearsals.
-3. Make sure your Ledger is connected and run `just deploy-contracts` to deploy the rehearsal contracts. There will be two contracts deployed: the `OptimismPortalProxy` and the `ProxyAdmin` as their admin (you'll have to accept a total of 4 transactions on your Ledger).
+3. Make sure your hardware wallet is connected and run `just deploy-contracts` to deploy the rehearsal contracts. There will be two contracts deployed: the `OptimismPortalProxy` and the `ProxyAdmin` as their admin (you'll have to accept a total of 4 transactions on your hardware wallet).
 4. Take note of all the addresses that are deployed, we will need them for the next step.
 
 Below is a screenshot of example output of the `just deploy-contracts` command: 
@@ -269,9 +267,10 @@ Commit the newly created files to Github.
 2. Concatenate all signatures and export it as the `SIGNATURES` environment variable, i.e. `export SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
 3. Run the approval for the Security Council Safe:
 ```bash
+cd superchain-ops/src/tasks/<network>/rehearsals/<rehearsal-task-name>
 # These should be the signatures from the signers on the security council safe.
 export SIGNATURES="0x[SIGNATURE1]..."
-just --dotenv-path $(pwd)/.env approve test-rehearsal-council
+just approve test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
 ```
 4. Run the approval for the Foundation Safe. Note that `SIGNATURES` will now contain signatures from the foundation safe, not the security council safe.
@@ -279,7 +278,7 @@ just --dotenv-path $(pwd)/.env approve test-rehearsal-council
 # These should be the signatures from the signers on the foundation safe.
 export SIGNATURES="0x[SIGNATURE1]..."
 # Remember, if you're using a different HD_PATH to set the env var e.g. 'export HD_PATH=1'
-just --dotenv-path $(pwd)/.env approve test-rehearsal-foundation
+just approve test-rehearsal-foundation
 # 'test-rehearsal-foundation' maps to the test rehearsal foundation safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalFoundation'.
 ```
 5. Perform the final execution:
@@ -287,5 +286,5 @@ just --dotenv-path $(pwd)/.env approve test-rehearsal-foundation
 # Reset the SIGNATURES env var as it can sometimes interact with the execute function.
 export SIGNATURES=""
 # Remember, if you're using a different HD_PATH to set the env var e.g. 'export HD_PATH=1'
-just --dotenv-path $(pwd)/.env execute
+just execute
 ```
