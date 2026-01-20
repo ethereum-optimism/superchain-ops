@@ -14,7 +14,7 @@ chainId = 130
 cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
 cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG"
-# OVERRIDES-L1PAOMULTISIG: these are expected as they are not the standard OP Sepolia ones
+# OVERRIDES-L1PAOMULTISIG: this is expected as they are not using the same L1PAO as OP Mainnet
 
 
 [addresses]
