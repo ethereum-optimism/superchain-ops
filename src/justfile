@@ -53,6 +53,7 @@ new COMMAND="" TASK_TYPE="":
 simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     just _print-welcome-message
@@ -141,6 +142,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
 sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     just _print-welcome-message
@@ -208,6 +210,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
 
     show_usage() {
@@ -248,6 +251,7 @@ list-stack NETWORK="" TASK="":
 simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     config_path=${TASK_PATH}/config.toml
@@ -283,6 +287,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     config_path=${TASK_PATH}/config.toml
@@ -325,6 +330,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   #!/usr/bin/env bash
   set -euo pipefail
+  unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
   root_dir=$(git rev-parse --show-toplevel)
   root_just_file="${root_dir}/src/justfile"
   config_path=${TASK_PATH}/config.toml
@@ -377,6 +383,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 execute:
   #!/usr/bin/env bash
   set -euo pipefail
+  unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
   root_dir=$(git rev-parse --show-toplevel)
   root_just_file="${root_dir}/src/justfile"
   config_path=${TASK_PATH}/config.toml
