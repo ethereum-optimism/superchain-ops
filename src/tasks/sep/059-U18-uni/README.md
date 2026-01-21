@@ -1,6 +1,6 @@
 # 059-U18-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED]
 
 ## Objective
 
