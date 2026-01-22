@@ -186,7 +186,21 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     HD_PATH=${HD_PATH:-0}
     USE_KEYSTORE=${USE_KEYSTORE:-}
     signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+    signer=$(echo "$signer_info" | sed -n '1p')
     signer_args=$(echo "$signer_info" | sed -n '2p')
+
+    # Determine target safe for validation
+    if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
+        target_safe="$child_safe_depth_2"
+    elif [ "$child_safe_depth_1" != "$ZERO_ADDRESS" ]; then
+        target_safe="$child_safe_depth_1"
+    else
+        target_safe=$(forge script TaskManager --sig "getRootSafe(string)" "${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}/config.toml" --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --json | jq -r '.returns["0"].value')
+    fi
+
+    # Validate that signer is an owner on the target safe
+    echo "Validating signer is an owner on the safe..."
+    forge script TaskManager --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --sig "requireSignerOnSafe(address,address)" $signer $target_safe
 
     export SIGNING_MODE_IN_PROGRESS=true
     export STACKED_SIGNING_MODE=true
