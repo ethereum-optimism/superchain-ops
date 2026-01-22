@@ -351,51 +351,31 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @dev Saves all dispute game related registry entries.
-    function _saveDisputeGameEntries(ChainInfo memory chain, address disputeGameFactoryProxy) internal {
-        saveAddress("DisputeGameFactoryProxy", chain, disputeGameFactoryProxy);
+    /// @dev Supports both pre-v6.0.0 (values on dispute game) and v6.0.0+ (values in gameArgs).
+    function _saveDisputeGameEntries(ChainInfo memory chain, address factory) internal {
+        saveAddress("DisputeGameFactoryProxy", chain, factory);
 
-        address faultDisputeGame = getFaultDisputeGame(disputeGameFactoryProxy);
-        if (faultDisputeGame != address(0)) {
-            saveAddress("FaultDisputeGame", chain, faultDisputeGame);
-            saveAddress(
-                "PermissionlessWETH",
-                chain,
-                getDelayedWETHProxy(disputeGameFactoryProxy, faultDisputeGame, GameType.wrap(0))
-            );
+        address fdg = getFaultDisputeGame(factory);
+        address pdg = getPermissionedDisputeGame(factory);
+
+        // Decode gameArgs once per game type (empty struct if pre-v6.0.0)
+        DecodedGameArgs memory args0 = _tryDecodeGameArgs(factory, GameType.wrap(0));
+        DecodedGameArgs memory args1 = _tryDecodeGameArgs(factory, GameType.wrap(1));
+
+        if (fdg != address(0)) {
+            saveAddress("FaultDisputeGame", chain, fdg);
+            saveAddress("PermissionlessWETH", chain, _addrOr(args0.weth, fdg, IFetcher.weth.selector));
         }
 
-        address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
-        saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
+        saveAddress("PermissionedDisputeGame", chain, pdg);
+        saveAddress("Challenger", chain, _addrOr(args1.challenger, pdg, IFetcher.challenger.selector));
+        saveAddress("AnchorStateRegistryProxy", chain, _addrOr(args1.asr, pdg, IFetcher.anchorStateRegistry.selector));
+        saveAddress("PermissionedWETH", chain, _addrOr(args1.weth, pdg, IFetcher.weth.selector));
 
-        saveAddress(
-            "Challenger",
-            chain,
-            getChallenger(disputeGameFactoryProxy, permissionedDisputeGame, GameType.wrap(1))
-        );
-
-        saveAddress(
-            "AnchorStateRegistryProxy",
-            chain,
-            getAnchorStateRegistryProxy(disputeGameFactoryProxy, permissionedDisputeGame, GameType.wrap(1))
-        );
-
-        saveAddress(
-            "PermissionedWETH",
-            chain,
-            getDelayedWETHProxy(disputeGameFactoryProxy, permissionedDisputeGame, GameType.wrap(1))
-        );
-
-        address mips = getMips(disputeGameFactoryProxy, permissionedDisputeGame, GameType.wrap(1));
+        address mips = _addrOr(args1.vm_, pdg, IFetcher.vm.selector);
         saveAddress("MIPS", chain, mips);
-
-        address preimageOracle = IFetcher(mips).oracle();
-        saveAddress("PreimageOracle", chain, preimageOracle);
-
-        saveAddress(
-            "Proposer",
-            chain,
-            getProposer(disputeGameFactoryProxy, permissionedDisputeGame, GameType.wrap(1))
-        );
+        saveAddress("PreimageOracle", chain, IFetcher(mips).oracle());
+        saveAddress("Proposer", chain, _addrOr(args1.proposer, pdg, IFetcher.proposer.selector));
     }
 
     /// @notice Saves all addresses for a given chain from the addresses.json file. This does not perform any onchain discovery.
@@ -510,189 +490,44 @@ contract SuperchainAddressRegistry is StdChains {
         }
     }
 
-    /// @notice Gets the AnchorStateRegistry proxy address for a dispute game.
-    /// @dev In op-contracts v6.0.0 (OPCMv2), the ASR is stored in the DisputeGameFactory's
-    ///      gameArgs rather than in the individual dispute game.
-    function getAnchorStateRegistryProxy(
-        address disputeGameFactory,
-        address disputeGame,
-        GameType gameType
-    ) internal view returns (address) {
-        // First try to get ASR from gameArgs (op-contracts v6.0.0+)
-        // gameArgs layout:
-        // - bytes 52-71: anchorStateRegistry (20 bytes)
-        try IFetcher(disputeGameFactory).gameArgs(gameType) returns (bytes memory gameArgs) {
-            if (gameArgs.length >= 72) {
-                address asr;
-                assembly {
-                    // skip length prefix (32 bytes), then read ASR at offset 52
-                    asr := shr(96, mload(add(gameArgs, 84)))
-                }
-                if (asr != address(0)) {
-                    return asr;
-                }
-            }
-        } catch {
-            // gameArgs doesn't exist on older factory versions, fall through
-        }
-
-        // Fall back to calling anchorStateRegistry() on the dispute game (pre-v6.0.0)
-        try IFetcher(disputeGame).anchorStateRegistry() returns (address asr) {
-            return asr;
-        } catch {
-            return address(0);
-        }
+    /// @notice Decoded game arguments from DisputeGameFactory.gameArgs()
+    /// @dev In op-contracts v6.0.0+, these values are stored in gameArgs instead of on the dispute game.
+    ///      gameArgs layout: absolutePrestate (32) | vm (20) | asr (20) | weth (20) | l2ChainId (32)
+    ///      Permissioned adds: proposer (20) | challenger (20)
+    struct DecodedGameArgs {
+        address vm_;
+        address asr;
+        address weth;
+        address proposer;
+        address challenger;
     }
 
-    /// @notice Gets the DelayedWETH proxy address for a dispute game.
-    /// @dev In op-contracts v6.0.0 (OPCMv2), the WETH address is stored in the DisputeGameFactory's
-    ///      gameArgs rather than in the individual dispute game. This function checks gameArgs first,
-    ///      then falls back to the dispute game's weth() function for older deployments.
-    function getDelayedWETHProxy(
-        address disputeGameFactory,
-        address disputeGame,
-        GameType gameType
-    ) internal view returns (address) {
-        // First try to get WETH from gameArgs (op-contracts v6.0.0+)
-        // gameArgs is only present in newer DisputeGameFactory versions
-        try IFetcher(disputeGameFactory).gameArgs(gameType) returns (bytes memory gameArgs) {
-            // gameArgs layout (LibGameArgs):
-            // - bytes 0-31: absolutePrestate (32 bytes)
-            // - bytes 32-51: vm (20 bytes)
-            // - bytes 52-71: anchorStateRegistry (20 bytes)
-            // - bytes 72-91: weth (20 bytes)
-            // - bytes 92-123: l2ChainId (32 bytes)
-            // Permissionless args length: 124 bytes
-            // Permissioned args length: 164 bytes (includes proposer and challenger)
-            if (gameArgs.length >= 92) {
-                address weth;
+    /// @notice Tries to fetch and decode gameArgs from the factory. Returns empty struct if unavailable.
+    function _tryDecodeGameArgs(address factory, GameType gameType) internal view returns (DecodedGameArgs memory d) {
+        try IFetcher(factory).gameArgs(gameType) returns (bytes memory args) {
+            if (args.length >= 92) {
                 assembly {
-                    // skip length prefix (32 bytes), then read weth at offset 72
-                    weth := shr(96, mload(add(gameArgs, 104)))
-                }
-                if (weth != address(0)) {
-                    return weth;
+                    let p := add(args, 32) // skip length prefix
+                    mstore(add(d, 0x00), shr(96, mload(add(p, 32)))) // vm at offset 32
+                    mstore(add(d, 0x20), shr(96, mload(add(p, 52)))) // asr at offset 52
+                    mstore(add(d, 0x40), shr(96, mload(add(p, 72)))) // weth at offset 72
                 }
             }
-        } catch {
-            // gameArgs doesn't exist on older factory versions, fall through to weth() below
-        }
-
-        // Fall back to calling weth() on the dispute game (pre-v6.0.0)
-        try IFetcher(disputeGame).weth() returns (address weth) {
-            return weth;
-        } catch {
-            return address(0);
-        }
+            if (args.length >= 164) {
+                assembly {
+                    let p := add(args, 32)
+                    mstore(add(d, 0x60), shr(96, mload(add(p, 124)))) // proposer at offset 124
+                    mstore(add(d, 0x80), shr(96, mload(add(p, 144)))) // challenger at offset 144
+                }
+            }
+        } catch {}
     }
 
-    /// @notice Gets the Challenger address for a permissioned dispute game.
-    /// @dev In op-contracts v6.0.0 (OPCMv2), the challenger is stored in the DisputeGameFactory's
-    ///      gameArgs rather than in the individual dispute game.
-    function getChallenger(
-        address disputeGameFactory,
-        address permissionedDisputeGame,
-        GameType gameType
-    ) internal view returns (address) {
-        // First try to get challenger from gameArgs (op-contracts v6.0.0+)
-        // Permissioned gameArgs layout (164 bytes):
-        // - bytes 124-143: proposer (20 bytes)
-        // - bytes 144-163: challenger (20 bytes)
-        try IFetcher(disputeGameFactory).gameArgs(gameType) returns (bytes memory gameArgs) {
-            if (gameArgs.length >= 164) {
-                address challenger;
-                assembly {
-                    // skip length prefix (32 bytes), then read challenger at offset 144
-                    challenger := shr(96, mload(add(gameArgs, 176)))
-                }
-                if (challenger != address(0)) {
-                    return challenger;
-                }
-            }
-        } catch {
-            // gameArgs doesn't exist on older factory versions, fall through
-        }
-
-        // Fall back to calling challenger() on the dispute game (pre-v6.0.0)
-        try IFetcher(permissionedDisputeGame).challenger() returns (address challenger) {
-            return challenger;
-        } catch {
-            return address(0);
-        }
-    }
-
-    /// @notice Gets the Proposer address for a permissioned dispute game.
-    /// @dev In op-contracts v6.0.0 (OPCMv2), the proposer is stored in the DisputeGameFactory's
-    ///      gameArgs rather than in the individual dispute game.
-    function getProposer(
-        address disputeGameFactory,
-        address permissionedDisputeGame,
-        GameType gameType
-    ) internal view returns (address) {
-        // First try to get proposer from gameArgs (op-contracts v6.0.0+)
-        // Permissioned gameArgs layout (164 bytes):
-        // - bytes 124-143: proposer (20 bytes)
-        // - bytes 144-163: challenger (20 bytes)
-        try IFetcher(disputeGameFactory).gameArgs(gameType) returns (bytes memory gameArgs) {
-            if (gameArgs.length >= 144) {
-                address proposer;
-                assembly {
-                    // skip length prefix (32 bytes), then read proposer at offset 124
-                    proposer := shr(96, mload(add(gameArgs, 156)))
-                }
-                if (proposer != address(0)) {
-                    return proposer;
-                }
-            }
-        } catch {
-            // gameArgs doesn't exist on older factory versions, fall through
-        }
-
-        // Fall back to calling proposer() on the dispute game (pre-v6.0.0)
-        try IFetcher(permissionedDisputeGame).proposer() returns (address proposer) {
-            return proposer;
-        } catch {
-            // Try PROPOSER() for even older versions
-            try IFetcher(permissionedDisputeGame).PROPOSER() returns (address proposer) {
-                return proposer;
-            } catch {
-                return address(0);
-            }
-        }
-    }
-
-    /// @notice Gets the MIPS (VM) address for a dispute game.
-    /// @dev In op-contracts v6.0.0 (OPCMv2), the VM is stored in the DisputeGameFactory's
-    ///      gameArgs rather than in the individual dispute game.
-    function getMips(
-        address disputeGameFactory,
-        address disputeGame,
-        GameType gameType
-    ) internal view returns (address) {
-        // First try to get VM from gameArgs (op-contracts v6.0.0+)
-        // gameArgs layout:
-        // - bytes 32-51: vm (20 bytes)
-        try IFetcher(disputeGameFactory).gameArgs(gameType) returns (bytes memory gameArgs) {
-            if (gameArgs.length >= 52) {
-                address vm_;
-                assembly {
-                    // skip length prefix (32 bytes), then read VM at offset 32
-                    vm_ := shr(96, mload(add(gameArgs, 64)))
-                }
-                if (vm_ != address(0)) {
-                    return vm_;
-                }
-            }
-        } catch {
-            // gameArgs doesn't exist on older factory versions, fall through
-        }
-
-        // Fall back to calling vm() on the dispute game (pre-v6.0.0)
-        try IFetcher(disputeGame).vm() returns (address vm_) {
-            return vm_;
-        } catch {
-            return address(0);
-        }
+    /// @notice Returns `primary` if non-zero, otherwise calls `selector` on `fallback_`.
+    function _addrOr(address primary, address fallback_, bytes4 selector) internal view returns (address) {
+        if (primary != address(0)) return primary;
+        (bool ok, bytes memory data) = fallback_.staticcall(abi.encodeWithSelector(selector));
+        return (ok && data.length == 32) ? abi.decode(data, (address)) : address(0);
     }
 
     function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {
