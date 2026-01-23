@@ -53,6 +53,7 @@ new COMMAND="" TASK_TYPE="":
 simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     just _print-welcome-message
@@ -65,9 +66,26 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo "  just simulate-stack eth 001-example                          # Specific task"
         echo "  just simulate-stack eth 001-example foundation               # On child safe"
         echo "  just simulate-stack eth 001-example base-nested base-council # Multiple child safes"
+        echo "  just simulate-stack eth rehearsals                           # All rehearsal tasks"
+        echo "  just simulate-stack eth rehearsals/2025-01-08-R1-welcome     # Specific rehearsal task"
+        echo "  just simulate-stack eth rehearsals/2025-01-08-R3 council     # Rehearsal with nested safe"
     }
 
     [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m"; show_usage; exit 1; }
+
+    # Handle rehearsal tasks using FETCH_REHEARSALS mode
+    # For rehearsals, effective_task is the task name without "rehearsals/" prefix
+    # This is needed because StackedSimulator matches task names by their final path component
+    effective_task="{{TASK}}"
+    if [[ "$effective_task" == rehearsals* ]]; then
+        export FETCH_REHEARSALS=1
+        # Extract rehearsal task name (remove "rehearsals/" prefix if present)
+        if [[ "$effective_task" == "rehearsals" ]]; then
+            effective_task=""
+        else
+            effective_task="${effective_task#rehearsals/}"
+        fi
+    fi
 
     ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "{{NETWORK}}")
 
@@ -97,26 +115,26 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
 
     echo -e "\n⏳ Stacked Task simulation in progress..."
 
-    if [ -z "{{TASK}}" ]; then
+    if [ -z "$effective_task" ]; then
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
         just list-stack {{NETWORK}}
         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
-        echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
-        just list-stack {{NETWORK}} {{TASK}}
-        forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+        echo -e "⏳ You are simulating the task: $effective_task for network: '{{NETWORK}}' on the root safe\n"
+        just list-stack {{NETWORK}} $effective_task
+        forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "$effective_task" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     else
         task_dir_path="${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}"
         child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
         child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
-        just list-stack {{NETWORK}} {{TASK}}
+        just list-stack {{NETWORK}} $effective_task
 
         if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
-            echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
-            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+            echo -e "⏳ You are simulating the task: $effective_task for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
+            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "$effective_task" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
         else
-            echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
-            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+            echo -e "⏳ You are simulating the task: $effective_task for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
+            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "$effective_task" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
         fi
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
@@ -124,6 +142,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
 sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     just _print-welcome-message
@@ -132,11 +151,20 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
         echo
         echo "Usage: just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
         echo "Environment: HD_PATH (default: 0), USE_KEYSTORE"
+        echo "Example: just sign-stack eth rehearsals/2025-01-08-R1-welcome  # Rehearsal task"
     }
 
     if [ -z "{{NETWORK}}" ] || [ -z "{{TASK}}" ]; then
         show_usage
         exit 0
+    fi
+
+    # Handle rehearsal tasks using FETCH_REHEARSALS mode
+    # For rehearsals, effective_task is the task name without "rehearsals/" prefix
+    effective_task="{{TASK}}"
+    if [[ "$effective_task" == rehearsals* ]]; then
+        export FETCH_REHEARSALS=1
+        effective_task="${effective_task#rehearsals/}"
     fi
 
     ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "{{NETWORK}}")
@@ -158,30 +186,45 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     HD_PATH=${HD_PATH:-0}
     USE_KEYSTORE=${USE_KEYSTORE:-}
     signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+    signer=$(echo "$signer_info" | sed -n '1p')
     signer_args=$(echo "$signer_info" | sed -n '2p')
+
+    # Determine target safe for validation
+    if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
+        target_safe="$child_safe_depth_2"
+    elif [ "$child_safe_depth_1" != "$ZERO_ADDRESS" ]; then
+        target_safe="$child_safe_depth_1"
+    else
+        target_safe=$(forge script TaskManager --sig "getRootSafe(string)" "${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}/config.toml" --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --json | jq -r '.returns["0"].value')
+    fi
+
+    # Validate that signer is an owner on the target safe
+    echo "Validating signer is an owner on the safe..."
+    forge script TaskManager --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --sig "requireSignerOnSafe(address,address)" $signer $target_safe
 
     export SIGNING_MODE_IN_PROGRESS=true
     export STACKED_SIGNING_MODE=true
 
     if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
-        echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
+        echo -e "⏳ You are signing the task: $effective_task for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "$effective_task" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
-        echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
-        just list-stack {{NETWORK}} {{TASK}}
+        echo -e "⏳ You are signing the task: $effective_task for network: '{{NETWORK}}' on the root safe\n"
+        just list-stack {{NETWORK}} $effective_task
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "$effective_task" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     else
-        echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
+        echo -e "⏳ You are signing the task: $effective_task for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "$effective_task" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
 
     show_usage() {
@@ -222,6 +265,7 @@ list-stack NETWORK="" TASK="":
 simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     config_path=${TASK_PATH}/config.toml
@@ -257,6 +301,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
+    unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/justfile"
     config_path=${TASK_PATH}/config.toml
@@ -299,6 +344,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   #!/usr/bin/env bash
   set -euo pipefail
+  unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
   root_dir=$(git rev-parse --show-toplevel)
   root_just_file="${root_dir}/src/justfile"
   config_path=${TASK_PATH}/config.toml
@@ -351,6 +397,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 execute:
   #!/usr/bin/env bash
   set -euo pipefail
+  unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
   root_dir=$(git rev-parse --show-toplevel)
   root_just_file="${root_dir}/src/justfile"
   config_path=${TASK_PATH}/config.toml

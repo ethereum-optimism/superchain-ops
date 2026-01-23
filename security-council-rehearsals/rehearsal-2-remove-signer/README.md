@@ -15,32 +15,25 @@ Once the required number of signatures is collected, anyone can finalize the exe
 
 ## Approving the transaction
 
-### 1. Update repo and move to the appropriate folder for this rehearsal task:
+### 1. Setup
 
-```
-cd superchain-ops
-git pull
-# Make sure you've installed the dependencies for the repository.
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
-```
+Follow the [Signer Setup Instructions](../SIGNER_SETUP.md) to:
+- Update the repository and install dependencies (first time only)
+- Configure your hardware wallet or keystore
+- Learn about using different derivation paths or hardware wallets
 
-See the [README](../../src/README.md) for more information on how to install the dependencies for the repository.
+### 2. Simulate and validate the transaction
 
-### 2. Setup Ledger
-
-Your Ledger needs to be connected and unlocked. The Ethereum
-application needs to be opened on Ledger with the message “Application
-is ready”.
-
-### 3. Simulate and validate the transaction
-
-Make sure your ledger is still unlocked and run the following.
+Make sure your hardware wallet is still unlocked and run the following.
 
 ``` shell
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env simulate
-# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
+cd superchain-ops/src
+just simulate-stack <network> rehearsals/<rehearsal-task-name>
 ```
+
+Note: The `<network>` and `<rehearsal-task-name>` should be shared with you by the Facilitator (e.g., `eth` and `2025-01-08-R2-remove-signer`).
+
+For different derivation paths or hardware wallet options, see the [Signer Setup Instructions](../SIGNER_SETUP.md).
 
 You will see a "Simulation link" URL in the output.
 
@@ -51,7 +44,7 @@ Click "Simulate Transaction".
 
 We will be performing 3 validations and ensure the domain hash and
 message hash are the same between the Tenderly simulation and your
-Ledger:
+hardware wallet:
 
 1. Validate integrity of the simulation.
 2. Validate correctness of the state diff.
@@ -65,8 +58,8 @@ To validate integrity of the simulation, we need to check the following:
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not,
-   you will need to determine which “number” it is in the list of
-   addresses on your ledger. By default the script will assume the
+   you will need to determine which "number" it is in the list of
+   addresses on your hardware wallet. By default the script will assume the
    derivation path is `m/44'/60'/0'/0/0`.
 
 Here is an example screenshot, note that the Timestamp and Sender
@@ -98,7 +91,7 @@ approve.
 
 Go back to the "Overview" tab, and find the first
 `GnosisSafe.domainSeparator` call. This call's return value will be
-the domain hash that will show up in your Ledger.
+the domain hash that will show up on your hardware wallet.
 
 Here is an example screenshot. Note that the hash value may be
 different:
@@ -116,26 +109,27 @@ different:
 ![](./images/4-tenderly-hashes.png)
 
 Note down both the domain hash and the message hash. You will need to
-compare them with the ones displayed in your terminal AND on the Ledger screen at signing.
+compare them with the ones displayed in your terminal AND on the hardware wallet screen at signing.
 
-### 4. Approve the signature on your ledger
+### 3. Approve the signature on your hardware wallet
 
 Once the validations are done, it's time to actually sign the
-transaction. Make sure your ledger is still unlocked and run the
+transaction. Make sure your hardware wallet is still unlocked and run the
 following:
 
 ``` shell
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env sign
-# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign
+cd superchain-ops/src
+just sign-stack <network> rehearsals/<rehearsal-task-name>
 ```
+
+For different derivation paths or hardware wallet options, see the [Signer Setup Instructions](../SIGNER_SETUP.md).
 
 > [!IMPORTANT] This is the most security critical part of the
 > playbook: make sure the domain hash and message hash in the
 > following three places match:
 
 1. In your terminal output.
-2. On your Ledger screen.
+2. On your hardware wallet screen.
 3. In the Tenderly simulation. You should use the same Tenderly
    simulation as the one you used to verify the state diffs, instead
    of opening the new one printed in the console.
@@ -173,6 +167,10 @@ congrats, you are done!
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
 
 ### [Before the rehearsal] Prepare the rehearsal
+
+#### 0. Setup the repository
+
+See the [Signer Setup Instructions](../SIGNER_SETUP.md) for repository setup steps.
 
 #### 1. Create a new task in the `eth` directory:
 
@@ -232,9 +230,9 @@ Signature: BBBB
 Then you should run
 
 ``` shell
+cd superchain-ops/src/tasks/<network>/rehearsals/<rehearsal-task-name>
 export SIGNATURES="0xAAAABBBB"
-cd src/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env execute
+just execute
 ```
 
 For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/tasks/eth/rehearsals/2025-11-28-R2-remove-signer/README.md).
