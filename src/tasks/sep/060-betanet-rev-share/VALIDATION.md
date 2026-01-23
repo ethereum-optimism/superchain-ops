@@ -20,7 +20,7 @@ the values printed to the terminal when you run the task.
 > ### Nested Safe 2 (Security Council): `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x6696a0dc14d0b74500678125a3162ce311e8b965f4c5835a632ce7038e49d414`
+> - Message Hash: `0x489e12f3fe9efdc68cb892257af2c199b9d14c8c32f55a402ee95e85614661d4`
 ## Task Calldata
 
 ```
