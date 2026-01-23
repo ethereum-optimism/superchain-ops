@@ -1,9 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-# This file finds non-terminal tasks for a specifc network.
+# This file finds non-terminal tasks for a specific network.
 # It prints these tasks to the console. Other processes can use this output
 # to execute the tasks locally.
+#
+# Environment variables:
+#   FETCH_TASKS_TEST_DIR - Directory containing test tasks (enables test mode)
+#   FETCH_REHEARSALS - Set to "1" to fetch rehearsal tasks instead of regular tasks
 
 # Array to store tasks that should be executed
 declare -a tasks_to_run=()
@@ -12,10 +16,10 @@ declare -a tasks_to_run=()
 check_status() {
   local file_path=$1
   local status_line
-  
+
   # Extract the status line
   status_line=$(awk '/^Status: /{print; exit}' "$file_path")
-  
+
   # If status is not EXECUTED, CANCELLED, or APPROVED, add to tasks to run
   if [[ "$status_line" != *"EXECUTED"* ]] && [[ "$status_line" != *"CANCELLED"* ]] && [[ "$status_line" != *"APPROVED"* ]]; then
     # Get the task directory path
@@ -39,6 +43,8 @@ fi
 
 # To enable testing mode set the FETCH_TASKS_TEST_DIR environment variable to the directory containing your test tasks.
 test_dir=${FETCH_TASKS_TEST_DIR:-}
+# To fetch rehearsal tasks, set FETCH_REHEARSALS=1
+fetch_rehearsals=${FETCH_REHEARSALS:-}
 
 task_dir="$root_dir/src/tasks/$network"
 
@@ -49,6 +55,15 @@ if [[ -n "$test_dir" ]]; then
   for config_file in $config_files; do
     tasks_to_run+=("$config_file")
   done
+elif [[ "$fetch_rehearsals" == "1" ]]; then
+  # For rehearsal tasks, return all tasks without checking status
+  rehearsals_dir="$task_dir/rehearsals"
+  if [[ -d "$rehearsals_dir" ]]; then
+    config_files=$(find "$rehearsals_dir" -type f -name 'config.toml')
+    for config_file in $config_files; do
+      tasks_to_run+=("$config_file")
+    done
+  fi
 else
   # For production directories, check status before adding tasks
   files=$(find "$task_dir" -type f -name 'README.md' -not -path '*/rehearsals/*')

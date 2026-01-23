@@ -1,6 +1,6 @@
 # 039-fus-safersafes-enable
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x5f91ef9e90c0c7f3623cd6361b471f8d9643d67854af7c1906d23790948faf46)
 
 ## Objective
 

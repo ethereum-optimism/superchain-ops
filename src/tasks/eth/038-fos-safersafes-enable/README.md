@@ -1,6 +1,6 @@
 # 038-fos-safersafes-enable
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xf1ae77bea001acd7f3355ce971fd992601f467ce0a2305a38b1a82da459b502c)
 
 ## Objective
 
