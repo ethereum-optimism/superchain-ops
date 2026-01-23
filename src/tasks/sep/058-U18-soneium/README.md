@@ -1,6 +1,6 @@
 # 058-U18-soneium
 
-Status: [READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 

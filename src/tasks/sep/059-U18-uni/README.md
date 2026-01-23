@@ -1,6 +1,6 @@
 # 059-U18-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x3a8dba3ce7739b215b18a8bab445c376e56ccee8403d15deacda43b7895583e2)
 
 ## Objective
 
