@@ -1,6 +1,6 @@
 # 057-U18-op-ink-mmz-arena
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa8e313347672ffe4a9893f27cf5861f70a04577ca3d33bcf2898dcae1bd9a2d0)
 
 ## Objective
 

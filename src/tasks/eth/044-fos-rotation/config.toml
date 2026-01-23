@@ -1,0 +1,18 @@
+templateName = "GnosisSafeRotateSigner"
+
+safeAddressString = "FoundationOperationsSafe"
+
+ownerToRemove = "0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02"
+ownerToAdd = "0xc222ab08333109243B1f4E2a80e3D0A190714AB5"
+
+[stateOverrides]
+
+
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
+    # This state override sets the nonce for the FOS contract address
+    # Key 0x5 corresponds to the nonce storage slot in Ethereum state
+    # Value 115 is the expected nonce value needed for this rotation
+    # This override is necessary to ensure the transaction executes with the correct nonce
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 115}
+]
+
