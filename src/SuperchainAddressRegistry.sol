@@ -37,6 +37,7 @@ interface IFetcher {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
     function weth() external view returns (address);
+    function gameArgs(GameType _gameType) external view returns (bytes memory);
 }
 
 /// @notice This contract provides a single source of truth for storing and retrieving addresses
@@ -350,34 +351,31 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @dev Saves all dispute game related registry entries.
-    function _saveDisputeGameEntries(ChainInfo memory chain, address disputeGameFactoryProxy) internal {
-        saveAddress("DisputeGameFactoryProxy", chain, disputeGameFactoryProxy);
+    /// @dev Supports both pre-v6.0.0 (values on dispute game) and v6.0.0+ (values in gameArgs).
+    function _saveDisputeGameEntries(ChainInfo memory chain, address factory) internal {
+        saveAddress("DisputeGameFactoryProxy", chain, factory);
 
-        address faultDisputeGame = getFaultDisputeGame(disputeGameFactoryProxy);
-        if (faultDisputeGame != address(0)) {
-            saveAddress("FaultDisputeGame", chain, faultDisputeGame);
-            saveAddress("PermissionlessWETH", chain, getDelayedWETHProxy(faultDisputeGame));
+        address fdg = getFaultDisputeGame(factory);
+        address pdg = getPermissionedDisputeGame(factory);
+
+        // Decode gameArgs once per game type (empty struct if pre-v6.0.0)
+        DecodedGameArgs memory args0 = _tryDecodeGameArgs(factory, GameType.wrap(0));
+        DecodedGameArgs memory args1 = _tryDecodeGameArgs(factory, GameType.wrap(1));
+
+        if (fdg != address(0)) {
+            saveAddress("FaultDisputeGame", chain, fdg);
+            saveAddress("PermissionlessWETH", chain, _addrOr(args0.weth, fdg, IFetcher.weth.selector));
         }
 
-        address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
-        saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
+        saveAddress("PermissionedDisputeGame", chain, pdg);
+        saveAddress("Challenger", chain, _addrOr(args1.challenger, pdg, IFetcher.challenger.selector));
+        saveAddress("AnchorStateRegistryProxy", chain, _addrOr(args1.asr, pdg, IFetcher.anchorStateRegistry.selector));
+        saveAddress("PermissionedWETH", chain, _addrOr(args1.weth, pdg, IFetcher.weth.selector));
 
-        address challenger = IFetcher(permissionedDisputeGame).challenger();
-        saveAddress("Challenger", chain, challenger);
-
-        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
-        saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
-
-        saveAddress("PermissionedWETH", chain, getDelayedWETHProxy(permissionedDisputeGame));
-
-        address mips = getMips(permissionedDisputeGame);
+        address mips = _addrOr(args1.vm_, pdg, IFetcher.vm.selector);
         saveAddress("MIPS", chain, mips);
-
-        address preimageOracle = IFetcher(mips).oracle();
-        saveAddress("PreimageOracle", chain, preimageOracle);
-
-        address proposer = IFetcher(permissionedDisputeGame).proposer();
-        saveAddress("Proposer", chain, proposer);
+        saveAddress("PreimageOracle", chain, IFetcher(mips).oracle());
+        saveAddress("Proposer", chain, _addrOr(args1.proposer, pdg, IFetcher.proposer.selector));
     }
 
     /// @notice Saves all addresses for a given chain from the addresses.json file. This does not perform any onchain discovery.
@@ -492,18 +490,44 @@ contract SuperchainAddressRegistry is StdChains {
         }
     }
 
-    function getAnchorStateRegistryProxy(address permissionedDisputeGame) internal view returns (address) {
-        return IFetcher(permissionedDisputeGame).anchorStateRegistry();
+    /// @notice Decoded game arguments from DisputeGameFactory.gameArgs()
+    /// @dev In op-contracts v6.0.0+, these values are stored in gameArgs instead of on the dispute game.
+    ///      gameArgs layout: absolutePrestate (32) | vm (20) | asr (20) | weth (20) | l2ChainId (32)
+    ///      Permissioned adds: proposer (20) | challenger (20)
+    struct DecodedGameArgs {
+        address vm_;
+        address asr;
+        address weth;
+        address proposer;
+        address challenger;
     }
 
-    function getDelayedWETHProxy(address disputeGame) internal view returns (address) {
-        (bool ok, bytes memory data) = address(disputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
-        if (ok && data.length == 32) return abi.decode(data, (address));
-        else return address(0);
+    /// @notice Tries to fetch and decode gameArgs from the factory. Returns empty struct if unavailable.
+    function _tryDecodeGameArgs(address factory, GameType gameType) internal view returns (DecodedGameArgs memory d) {
+        try IFetcher(factory).gameArgs(gameType) returns (bytes memory args) {
+            if (args.length >= 92) {
+                assembly {
+                    let p := add(args, 32) // skip length prefix
+                    mstore(add(d, 0x00), shr(96, mload(add(p, 32)))) // vm at offset 32
+                    mstore(add(d, 0x20), shr(96, mload(add(p, 52)))) // asr at offset 52
+                    mstore(add(d, 0x40), shr(96, mload(add(p, 72)))) // weth at offset 72
+                }
+            }
+            if (args.length >= 164) {
+                assembly {
+                    let p := add(args, 32)
+                    mstore(add(d, 0x60), shr(96, mload(add(p, 124)))) // proposer at offset 124
+                    mstore(add(d, 0x80), shr(96, mload(add(p, 144)))) // challenger at offset 144
+                }
+            }
+        } catch {}
     }
 
-    function getMips(address permissionedDisputeGame) internal view returns (address) {
-        return IFetcher(permissionedDisputeGame).vm();
+    /// @notice Returns `primary` if non-zero, otherwise calls `selector` on `fallback_`.
+    function _addrOr(address primary, address fallback_, bytes4 selector) internal view returns (address) {
+        if (primary != address(0)) return primary;
+        (bool ok, bytes memory data) = fallback_.staticcall(abi.encodeWithSelector(selector));
+        return (ok && data.length == 32) ? abi.decode(data, (address)) : address(0);
     }
 
     function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {
