@@ -139,7 +139,9 @@ contract OPCMUpgradeV220toV410 is OPCMTaskBase {
         // === Upgrade to U13 ===
         for (uint256 i = 0; i < chains.length; i++) {
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)),
+                systemConfigProxy: ISystemConfig(
+                    superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)
+                ),
                 proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId)),
                 absolutePrestate: Claim.wrap(OPCM_V220_PRESTATE)
             });

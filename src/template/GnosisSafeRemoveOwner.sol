@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {stdToml} from "lib/forge-std/src/StdToml.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 

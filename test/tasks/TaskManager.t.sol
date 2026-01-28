@@ -61,11 +61,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             contractName: "N/A",
             raw: AccountAccessParser.StateDiff({slot: slot, oldValue: oldValue, newValue: newValue}),
             decoded: AccountAccessParser.DecodedSlot({
-                kind: "uint256",
-                oldValue: "N/A",
-                newValue: "N/A",
-                summary: "N/A",
-                detail: "N/A"
+                kind: "uint256", oldValue: "N/A", newValue: "N/A", summary: "N/A", detail: "N/A"
             })
         });
     }

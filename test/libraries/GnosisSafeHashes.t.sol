@@ -218,10 +218,7 @@ contract GnosisSafeHashes_Test is Test {
         bytes memory invalidApproveCalldata = hex"12345678";
 
         IMulticall3.Call3Value memory call = IMulticall3.Call3Value({
-            target: address(0),
-            allowFailure: false,
-            value: 0,
-            callData: invalidApproveCalldata
+            target: address(0), allowFailure: false, value: 0, callData: invalidApproveCalldata
         });
 
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](1);

@@ -40,9 +40,7 @@ contract Multicall3DelegatecallTest is Test {
 
         Multicall3Delegatecall.Call3[] memory calls = new Multicall3Delegatecall.Call3[](1);
         calls[0] = Multicall3Delegatecall.Call3({
-            target: address(mockTarget),
-            allowFailure: false,
-            callData: abi.encodeWithSignature("setValue(uint256)", 42)
+            target: address(mockTarget), allowFailure: false, callData: abi.encodeWithSignature("setValue(uint256)", 42)
         });
 
         Multicall3Delegatecall.Result[] memory results = multicall.aggregate3(calls);
@@ -72,9 +70,7 @@ contract Multicall3DelegatecallTest is Test {
     function test_aggregate3_delegatecallBehavior() public {
         Multicall3Delegatecall.Call3[] memory calls = new Multicall3Delegatecall.Call3[](1);
         calls[0] = Multicall3Delegatecall.Call3({
-            target: address(mockTarget),
-            allowFailure: false,
-            callData: abi.encodeWithSignature("checkDelegatecall()")
+            target: address(mockTarget), allowFailure: false, callData: abi.encodeWithSignature("checkDelegatecall()")
         });
 
         Multicall3Delegatecall.Result[] memory results = multicall.aggregate3(calls);

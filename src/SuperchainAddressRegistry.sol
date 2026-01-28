@@ -89,7 +89,8 @@ contract SuperchainAddressRegistry is StdChains {
     constructor(string memory configPath) {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId
-                || block.chainid == getChain("optimism_sepolia").chainId || block.chainid == getChain("optimism").chainId,
+                || block.chainid == getChain("optimism_sepolia").chainId
+                || block.chainid == getChain("optimism").chainId,
             string.concat("SuperchainAddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
 
@@ -203,9 +204,12 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @notice Saves an address to the registry.
-    function saveAddress(string memory identifier, ChainInfo memory chain, address addr, string[] memory allowOverwrite)
-        public
-    {
+    function saveAddress(
+        string memory identifier,
+        ChainInfo memory chain,
+        address addr,
+        string[] memory allowOverwrite
+    ) public {
         require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
         require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
         // If we have overwrites, then we should check if we are allowed to overwrite the current address.
