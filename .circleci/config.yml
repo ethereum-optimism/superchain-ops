@@ -213,6 +213,85 @@ jobs:
       - run:
           name: check struct field ordering
           command: (cd src/script && ./check-struct-order.sh)
+  check_task_pr_simulation:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout
+      - github-cli/install
+      - run:
+          name: Check task PR simulation confirmation
+          command: |
+            # Skip if not a PR
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+              echo "Not a PR, skipping task PR validation."
+              exit 0
+            fi
+
+            # Extract PR number from URL
+            PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | grep -oE '[0-9]+$')
+            if [ -z "$PR_NUMBER" ]; then
+              echo "Could not extract PR number, skipping."
+              exit 0
+            fi
+
+            # Check if PR touches task files
+            CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1)
+            if ! echo "$CHANGED_FILES" | grep -q "^src/tasks/"; then
+              echo "PR does not modify src/tasks/, skipping task PR validation."
+              exit 0
+            fi
+
+            echo "PR modifies src/tasks/, checking simulation confirmation..."
+
+            # Fetch PR body
+            export GH_TOKEN="$GITHUB_TOKEN"
+            PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}" --json body -q '.body')
+
+            MISSING=""
+
+            # Check for simulation run confirmation
+            if ! echo "$PR_BODY" | grep -q "\[x\] I have run a Tenderly simulation"; then
+              MISSING="$MISSING\n- 'I have run a Tenderly simulation' is not checked"
+            fi
+
+            # Check for simulation review confirmation
+            if ! echo "$PR_BODY" | grep -q "\[x\] I have reviewed and understand all state changes"; then
+              MISSING="$MISSING\n- 'I have reviewed and understand all state changes' is not checked"
+            fi
+
+            # Check for state changes match confirmation
+            if ! echo "$PR_BODY" | grep -q "\[x\] All state changes match the expected behavior"; then
+              MISSING="$MISSING\n- 'All state changes match the expected behavior' is not checked"
+            fi
+
+            # Check for explanation confirmation
+            if ! echo "$PR_BODY" | grep -q "\[x\] I can explain every state diff"; then
+              MISSING="$MISSING\n- 'I can explain every state diff' is not checked"
+            fi
+
+            if [ -n "$MISSING" ]; then
+              echo ""
+              echo "=============================================="
+              echo "ERROR: Task PR simulation checklist incomplete"
+              echo "=============================================="
+              echo ""
+              echo "This PR modifies files in src/tasks/ and requires simulation verification."
+              echo ""
+              echo "Missing confirmations:"
+              echo -e "$MISSING"
+              echo ""
+              echo "Please update your PR description to check all required boxes in the"
+              echo "'Simulation Checklist' section of the PR template."
+              echo ""
+              echo "Template: .github/pull_request_template.md"
+              echo "Guide: docs/NEW_TASK_GUIDE.md"
+              echo ""
+              exit 1
+            fi
+
+            echo "Task PR validation passed!"
+
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -268,6 +347,9 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
       - check_struct_order
+      - check_task_pr_simulation:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
