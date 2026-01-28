@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {VmSafe} from "lib/forge-std/src/Vm.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 import {SafeData, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";

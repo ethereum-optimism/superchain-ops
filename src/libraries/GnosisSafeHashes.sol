@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {LibString} from "@solady/utils/LibString.sol";
 import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
-import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
+import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";

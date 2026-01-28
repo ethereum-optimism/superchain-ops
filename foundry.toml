@@ -10,21 +10,11 @@ gas_limit = "18446744073709551615" # max allowable value, which is max uint64
 ffi = true # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 no_match_coverage = 'src/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|test'
 
-remappings = [
-  '@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/',
-  '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts',
-  '@base-contracts/=lib/base-contracts/',
-  '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
-  '@rari-capital/solmate/=lib/solmate',
-  '@eth-optimism-superchain-registry/=lib/superchain-registry/',
-  '@solady/=lib/optimism/packages/contracts-bedrock/lib/solady/src/',
-  '@lib-keccak/=lib/optimism/packages/contracts-bedrock/lib/lib-keccak/contracts/lib/',
-  'ds-test/=lib/optimism/packages/contracts-bedrock/lib/forge-std/lib/ds-test/src',
-  'forge-std/=lib/forge-std/src/'
-]
+[lint]
+exclude_lints = ["unused-import", "unsafe-cheatcode", "unsafe-typecast", "asm-keccak256", "unaliased-plain-import", "mixed-case-variable", "creaming-snake-case-const", "pascal-case-struct", "mixed-case-function", "screaming-snake-case-const", "unwrapped-modifier-logic", "named-struct-fields"]
 
 [profile.ci]
-deny_warnings = true
+deny = "warnings"
 
 [profile.ci.rpc_endpoints]
 mainnet = "https://ci-mainnet-l1-archive.optimism.io" 

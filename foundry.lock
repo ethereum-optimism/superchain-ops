@@ -1,0 +1,29 @@
+{
+  "lib/base-contracts": {
+    "rev": "7cca28be0f94134f9de1c6f409779b57d5f269b7"
+  },
+  "lib/forge-std": {
+    "rev": "3b20d60d14b343ee4f908cb8079495c07f5e8981"
+  },
+  "lib/openzeppelin-contracts": {
+    "rev": "fd81a96f01cc42ef1c9a5399364968d0e07e9e90"
+  },
+  "lib/optimism": {
+    "branch": {
+      "name": "develop",
+      "rev": "a10fd5259a3af9a465955b035e16f516327d51d5"
+    }
+  },
+  "lib/safe-contracts": {
+    "rev": "186a21a74b327f17fc41217a927dea7064f74604"
+  },
+  "lib/solady": {
+    "rev": "513f581675374706dbe947284d6b12d19ce35a2a"
+  },
+  "lib/solmate": {
+    "rev": "e8f96f25d48fe702117ce76c79228ca4f20206cb"
+  },
+  "lib/superchain-registry": {
+    "rev": "58b8ea0b875dcab6e7132a2d388c5c098ee6fac3"
+  }
+}
