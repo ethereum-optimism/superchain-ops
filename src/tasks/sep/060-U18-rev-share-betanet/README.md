@@ -1,22 +1,22 @@
-# 053-U18-op-betanets-v3
+# 060-U18-rev-share-betanet
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd48bb2c399bd31b1e0a2446963501a4beef08ab04be734b2ebf0736615eb2b11)
+Status: READY TO SIGN
 
 ## Objective
 
-Updates OP Labs Betanets (both Permissioned and Permissionless networks) to U18.
+Updates RevShare Betanet (revshare-beta-0) to U18.
 
 ## Simulation & Signing
 
 ```bash
-cd src/tasks/sep/053-U18-op-betanets-v3
+cd src/tasks/sep/060-U18-rev-share-betanet
 
 # Testing
-just simulate-stack sep 053-U18-op-betanets-v3
+just simulate-stack sep 060-U18-rev-share-betanet
 
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
 USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
-# or USE_KEYSTORE=1 just sign-stack sep 053-U18-op-betanets-v3
+# or USE_KEYSTORE=1 just sign-stack sep 060-U18-rev-share-betanet
 SIGNATURES=0x just execute
 ```
