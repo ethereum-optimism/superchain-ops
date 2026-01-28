@@ -1,0 +1,8 @@
+templateName = "GnosisSafeRemoveOwner"
+
+safeAddressString = "SecurityCouncil"
+allowOverwrite = ["SecurityCouncil"]
+ownerToRemove = "0x0Be4CC78bB65CD77eBea260CA972c937a9513e74"
+
+[addresses]
+SecurityCouncil = "0x348eebA2609645182872CCd75256D873e689fCFf"
