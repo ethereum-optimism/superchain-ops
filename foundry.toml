@@ -9,6 +9,7 @@ fs_permissions = [{ access = "read-write", path = "./" }]
 gas_limit = "18446744073709551615" # max allowable value, which is max uint64
 ffi = true # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 no_match_coverage = 'src/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|test'
+script_execution_protection = false
 
 [lint]
 exclude_lints = ["unused-import", "unsafe-cheatcode", "unsafe-typecast", "asm-keccak256", "unaliased-plain-import", "mixed-case-variable", "pascal-case-struct", "mixed-case-function", "screaming-snake-case-const", "unwrapped-modifier-logic", "named-struct-fields"]
