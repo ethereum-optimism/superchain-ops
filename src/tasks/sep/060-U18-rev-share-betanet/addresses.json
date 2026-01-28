@@ -2,18 +2,18 @@
   "420110021": {
     "ProxyAdmin": "0xaad0f9bbf7474d7eed4e5c18019ff560e9b2e031",
     "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
-    "SystemConfigProxy": "0xFdbFB6Ef00AD2552a2F653828ffa30140109c2c5",
-    "L1CrossDomainMessengerProxy": "0xa01FF9cb9C38C16FcEA7138489775b882242112b",
-    "L1StandardBridgeProxy": "0x52098a3cDC7bE1FC7eD0B8dBe61333682174656D",
-    "OptimismPortalProxy": "0xa1F4F424901e0773e68C714077bCDD5CF8BcEc23",
-    "DisputeGameFactoryProxy": "0x66f778CE140AdD7890d48a7e65c04C6Ed5C0fBec",
-    "DelayedWETHProxy": "0x233b3b7Ff1cD66f2a2cc965E31771f52b0fEA92d",
-    "PermissionedDelayedWETHProxy": "0x233b3b7Ff1cD66f2a2cc965E31771f52b0fEA92d",
-    "AnchorStateRegistryProxy": "0x694E05D4e3AB43e31cBe225b14edd356883fAc1e",
-    "AddressManager": "0xa33fe0fFAB119e113E3eFd66c68AE612a74abfC4",
-    "L1ERC721BridgeProxy": "0x0a7edeCf8849B2b96f3F10ed69b194cA52d4Ce02",
-    "Proposer": "0x40aed6d9ef3d694aeb406d210db82613b67cf99d",
-    "Challenger": "0xf6015e1850d6622921a647a76ffd892ba6870b75",
-    "OptimismMintableERC20FactoryProxy": "0x2C150824e24e52b1Ad92aB1309Ba645E76BEe0b1"
+    "SystemConfigProxy": "0x7C8d1043FC9081CaD426DBD470E2863FbE978eef",
+    "L1CrossDomainMessengerProxy": "0xBE1A9F1fCE3B0d310F7444f9C973F3241CF5EAc3",
+    "L1StandardBridgeProxy": "0x26F9690897A56e2C459C0E0A48f525cD6dFaaD70",
+    "OptimismPortalProxy": "0x527aE436461691526302c5F391dA494F6d14C9dc",
+    "DisputeGameFactoryProxy": "0x0C668124823EE7a6ab9988C76a61fF01f480b908",
+    "DelayedWETHProxy": "0x29353c19876C3c3549b0811A562928Da2381cdDB",
+    "PermissionedDelayedWETHProxy": "0x29353c19876C3c3549b0811A562928Da2381cdDB",
+    "AnchorStateRegistryProxy": "0x1057Cd919CeAF39632A697A0938C2Db85aa08B10",
+    "AddressManager": "0x8eAbc58D43de19a57647861a0522C5E51982110a",
+    "L1ERC721BridgeProxy": "0xBbf34FC49ac3256f2D34AED57B2C33637a3e3Ba1",
+    "Proposer": "0x39Ff903Ca8a3d759dE9A7502D9C3B5Ef8A8e6670",
+    "Challenger": "0xd9f48B7D3e1Ff4A1d4877834aaCAC9d1d6230d8E",
+    "OptimismMintableERC20FactoryProxy": "0xc7cD679BD64e9396767Fc2903A429F6689fa4447"
   }
 }
