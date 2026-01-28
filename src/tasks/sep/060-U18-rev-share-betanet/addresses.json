@@ -1,7 +1,7 @@
 {
-  "420120033": {
+  "420110021": {
     "ProxyAdmin": "0xaad0f9bbf7474d7eed4e5c18019ff560e9b2e031",
-    "ProxyAdminOwner": "0x1eb2ffc903729a0f03966b917003800b145f56e2",
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
     "SystemConfigProxy": "0xFdbFB6Ef00AD2552a2F653828ffa30140109c2c5",
     "L1CrossDomainMessengerProxy": "0xa01FF9cb9C38C16FcEA7138489775b882242112b",
     "L1StandardBridgeProxy": "0x52098a3cDC7bE1FC7eD0B8dBe61333682174656D",
