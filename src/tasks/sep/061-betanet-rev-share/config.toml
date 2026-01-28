@@ -3,7 +3,7 @@
 templateName = "RevShareUpgradeAndSetup"
 
 # L2 chains to target
-l2chains = [{name = "revshare-beta-0", chainId = 420120033}]
+l2chains = [{name = "revshare-beta-0", chainId = 420120033}] # TODO: Update after new betanet is deployed
 
 safeAddress = "ProxyAdminOwner"
 
