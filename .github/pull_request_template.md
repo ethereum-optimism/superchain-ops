@@ -18,6 +18,7 @@
 
 - [ ] I have run a Tenderly simulation for this task
 - [ ] I have reviewed and understand all state changes in the simulation
+- [ ] I have verified that every state change reflects the **exact expected value** (e.g., if setting an `absolutePrestate`, confirm the precise `bytes32` hash matches expectations)
 - [ ] All state changes match the expected behavior documented in `VALIDATION.md`
 - [ ] I can explain every state diff to reviewers and signers
 
