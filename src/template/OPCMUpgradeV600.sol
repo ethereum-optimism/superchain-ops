@@ -104,9 +104,8 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
         }
 
         // Delegatecall the OPCM.upgrade() function
-        (bool ok,) = OPCM_TARGETS[0].delegatecall(
-            abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs)
-        );
+        (bool ok,) = OPCM_TARGETS[0]
+        .delegatecall(abi.encodeWithSelector(IOPContractsManagerV600.upgrade.selector, opChainConfigs));
         require(ok, "OPCMUpgradeV600: Delegatecall failed in _build.");
     }
 
@@ -121,14 +120,14 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
-            IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
-                .ValidationInputDev({
-                sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
-                cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
-                l2ChainID: chainId,
-                proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
-            });
+            IOPContractsManagerStandardValidator.ValidationInputDev memory input =
+                IOPContractsManagerStandardValidator.ValidationInputDev({
+                    sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+                    cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
+                    cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
+                    l2ChainID: chainId,
+                    proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
+                });
 
             // Compute overrides: non-zero only if chain differs from standard
             address l1PAOOverride = superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId);
@@ -143,8 +142,7 @@ contract OPCMUpgradeV600 is OPCMTaskBase {
                     _input: input,
                     _allowFailure: true,
                     _overrides: IOPContractsManagerStandardValidator.ValidationOverrides({
-                        l1PAOMultisig: l1PAOOverride,
-                        challenger: challengerOverride
+                        l1PAOMultisig: l1PAOOverride, challenger: challengerOverride
                     })
                 });
             } else {

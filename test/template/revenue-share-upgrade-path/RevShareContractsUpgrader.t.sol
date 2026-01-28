@@ -67,9 +67,7 @@ contract RevShareContractsUpgrader_TestInit is Test {
         return RevShareContractsUpgrader.RevShareConfig({
             portal: _portal,
             l1WithdrawerConfig: FeeSplitterSetup.L1WithdrawerConfig({
-                minWithdrawalAmount: _minWithdrawalAmount,
-                recipient: _l1Recipient,
-                gasLimit: _gasLimit
+                minWithdrawalAmount: _minWithdrawalAmount, recipient: _l1Recipient, gasLimit: _gasLimit
             }),
             chainFeesRecipient: _chainFeesRecipient
         });

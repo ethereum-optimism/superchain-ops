@@ -123,9 +123,8 @@ contract TransferOwners is L2TaskBase {
     /// with a key that does not exist will normally revert. We handle this gracefully and return address(0) because we
     /// want to proceed and not error.
     function _getDWETH(string memory _key, uint256 _chainId) internal view returns (IDelayedWETH) {
-        (bool success, bytes memory data) = address(superchainAddrRegistry).staticcall(
-            abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId))
-        );
+        (bool success, bytes memory data) = address(superchainAddrRegistry)
+            .staticcall(abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId)));
         return success ? abi.decode(data, (IDelayedWETH)) : IDelayedWETH(address(0));
     }
 

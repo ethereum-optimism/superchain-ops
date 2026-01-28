@@ -11,7 +11,7 @@ ffi = true # Enable FFI for reading lib/superchain-registry files in scripts Sig
 no_match_coverage = 'src/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|test'
 
 [lint]
-exclude_lints = ["unused-import", "unsafe-cheatcode", "unsafe-typecast", "asm-keccak256", "unaliased-plain-import", "mixed-case-variable", "creaming-snake-case-const", "pascal-case-struct", "mixed-case-function", "screaming-snake-case-const", "unwrapped-modifier-logic", "named-struct-fields"]
+exclude_lints = ["unused-import", "unsafe-cheatcode", "unsafe-typecast", "asm-keccak256", "unaliased-plain-import", "mixed-case-variable", "pascal-case-struct", "mixed-case-function", "screaming-snake-case-const", "unwrapped-modifier-logic", "named-struct-fields"]
 
 [profile.ci]
 deny = "warnings"

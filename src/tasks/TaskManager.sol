@@ -140,8 +140,7 @@ contract TaskManager is Script {
             if (_childSafes.length == 0) {
                 _childSafes = setupDefaultChildSafes(_childSafes, _config.rootSafe);
             }
-            address leafChildSafe = _childSafes[0];
-            // forgefmt: disable-start
+            address leafChildSafe = _childSafes[0]; // forgefmt: disable-start
             console.log(string.concat("SIMULATING NESTED TASK (", _taskName, ") ON NESTED SAFE: ", vm.toString(leafChildSafe), " FOR ROOT SAFE: ", _formattedParentMultisig));
             // forgefmt: disable-end
             console.log(line.green().bold());
@@ -249,10 +248,7 @@ contract TaskManager is Script {
     }
 
     /// @notice Useful function to tell if a task is nested or not based on the task config.
-    function isNestedTask(string memory taskConfigFilePath)
-        public
-        returns (bool, address rootSafe, MultisigTask task)
-    {
+    function isNestedTask(string memory taskConfigFilePath) public returns (bool, address rootSafe, MultisigTask task) {
         string memory configContent = vm.readFile(taskConfigFilePath);
         string memory templateName = configContent.readString(".templateName");
 

@@ -120,10 +120,12 @@ abstract contract L2TaskBase is MultisigTask {
                 targetSet.add(addr);
             } catch {
                 string memory warn = string("[WARN]").yellow().bold();
-                // forgefmt: disable-start
                 console.log(string.concat(warn, " Contract: ", key, " not found for chain: ", chain.name));
-                console.log(string.concat(warn, " Contract will not be added to ", context, ": ", key, " for chain: ", chain.name));
-                // forgefmt: disable-end
+                console.log(
+                    string.concat(
+                        warn, " Contract will not be added to ", context, ": ", key, " for chain: ", chain.name
+                    )
+                );
             }
         }
     }

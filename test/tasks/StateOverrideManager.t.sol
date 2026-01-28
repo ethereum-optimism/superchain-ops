@@ -295,13 +295,11 @@ contract StateOverrideManagerUnitTest is Test {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "value1")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "value1")
         });
 
         Simulation.StateOverride memory userOverride = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "newValue")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "newValue")
         });
 
         vm.expectRevert(
@@ -314,13 +312,11 @@ contract StateOverrideManagerUnitTest is Test {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "value1")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "value1")
         });
 
         Simulation.StateOverride memory userOverride = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key2", "value2")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key2", "value2")
         });
 
         Simulation.StateOverride[] memory updatedOverrides =
@@ -335,13 +331,11 @@ contract StateOverrideManagerUnitTest is Test {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "value1")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "value1")
         });
 
         Simulation.StateOverride memory userOverride = Simulation.StateOverride({
-            contractAddress: address(0x456),
-            overrides: _createStorageOverrides("key2", "value2")
+            contractAddress: address(0x456), overrides: _createStorageOverrides("key2", "value2")
         });
 
         Simulation.StateOverride[] memory updatedOverrides =
@@ -382,8 +376,7 @@ contract StateOverrideManagerUnitTest is Test {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](0);
         Simulation.StateOverride memory userOverride = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "value1")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "value1")
         });
 
         Simulation.StateOverride[] memory updatedOverrides =
@@ -396,8 +389,7 @@ contract StateOverrideManagerUnitTest is Test {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "value1")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "value1")
         });
 
         Simulation.StateOverride memory userOverride =
@@ -415,8 +407,7 @@ contract StateOverrideManagerUnitTest is Test {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
-            contractAddress: address(0x123),
-            overrides: _createStorageOverrides("key1", "value1")
+            contractAddress: address(0x123), overrides: _createStorageOverrides("key1", "value1")
         });
 
         Simulation.StateOverride memory userOverride =

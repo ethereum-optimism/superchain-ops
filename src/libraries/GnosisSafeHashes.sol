@@ -236,18 +236,19 @@ library GnosisSafeHashes {
         uint256 _originalNonce,
         address _multicallAddress
     ) internal view returns (bytes memory encodedTxData) {
-        encodedTxData = IGnosisSafe(_safe).encodeTransactionData({
-            to: _multicallAddress,
-            value: _value,
-            data: _data,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: _originalNonce
-        });
+        encodedTxData = IGnosisSafe(_safe)
+            .encodeTransactionData({
+                to: _multicallAddress,
+                value: _value,
+                data: _data,
+                operation: Enum.Operation.DelegateCall,
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                _nonce: _originalNonce
+            });
         require(encodedTxData.length == 66, "GnosisSafeHashes: encodedTxData length is not 66 bytes.");
     }
 
