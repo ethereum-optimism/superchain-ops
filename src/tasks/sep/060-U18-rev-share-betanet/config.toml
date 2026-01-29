@@ -11,9 +11,9 @@ templateName = "OPCMUpgradeV600"
 
 [[opcmUpgrades]]
 chainId = 420120033
-# U18 prestates for betanet: https://www.notion.so/oplabs/Betanet-2a9f153ee16280859261e3000d866ee9?source=copy_link#2c5f153ee162805abcc3e949ab6c837e
-cannonPrestate = "0x0364251d4ea4b677ac462a25642b6de1fa53b2d6b97e56380691906bdb2e95cf" 
-cannonKonaPrestate = "0x03091ea717990785736623f894e6fb344fcf262361657bb28c9ece29207d9a9c"
+# U18 prestates for betanet: https://github.com/ethereum-optimism/devnets/blob/main/betanets/revshare-beta/op-program/prestates.json
+cannonPrestate = "0x03a7021f5a914968290be4b0ae8c4094e52842fc356ce1e79d3bf8485c412e07"
+cannonKonaPrestate = "0x03203b5839f05b5a88815521c09982655c9f41c1d451665ec7c79951fd4a9552"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
 # SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
