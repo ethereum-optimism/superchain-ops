@@ -59,8 +59,9 @@ contract TaskManager is Script {
         commands[0] = "./src/script/fetch-tasks.sh";
         commands[1] = network;
 
-        bytes memory result = vm.ffi(commands);
-        if (result.length == 0) return new string[](0);
+        VmSafe.FfiResult memory ffiResult = vm.tryFfi(commands);
+        if (ffiResult.exitCode != 0 || ffiResult.stdout.length == 0) return new string[](0);
+        bytes memory result = ffiResult.stdout;
 
         string[] memory taskConfigFilePaths = vm.split(string(result), "\n");
         taskPaths_ = new string[](taskConfigFilePaths.length);
