@@ -1,0 +1,18 @@
+{
+  "420120033": {
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "SystemConfigProxy": "0x9E964E030Ef490fF88b0e4ff5846D80F286D5F21",
+    "L1CrossDomainMessengerProxy": "0x9ab3e890a6Cb011b0EcE3C3f137fd162f6c7F231",
+    "L1StandardBridgeProxy": "0x7173B9e76f8316De85cf5cb9CA3Cf998A2f24ed0",
+    "OptimismPortalProxy": "0x4fC40f2D8cf14925567938d209EB493a43347A79",
+    "DisputeGameFactoryProxy": "0xb9353415381A665eE9ACC313e586fB8667D554C8",
+    "DelayedWETHProxy": "0xFb19493EEFE1cDd3203204b389595Db86E94989b",
+    "PermissionedDelayedWETHProxy": "0xFb19493EEFE1cDd3203204b389595Db86E94989b",
+    "AnchorStateRegistryProxy": "0x36e3368A370480350b665afe6E53a427a7b2e8d4",
+    "AddressManager": "0x38538354Fc6979201B734FA28374be95C258BB1a",
+    "L1ERC721BridgeProxy": "0x4bbdaAC75C609858D6d14A7EbE9dfeAA62010691",
+    "Proposer": "0x40aed6d9ef3d694aeb406d210db82613b67cf99d",
+    "Challenger": "0xf6015e1850d6622921a647a76ffd892ba6870b75",
+    "OptimismMintableERC20FactoryProxy": "0x307e1D3019024ec7851982B10289696f9801E270"
+  }
+}
