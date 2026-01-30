@@ -1,0 +1,27 @@
+# RevShare Betanet on U18
+l2chains = [
+    {name = "revshare-beta-0", chainId = 420120033}
+]
+
+# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/tree/main/betanets/revshare-beta
+
+fallbackAddressesJsonPath = "src/tasks/sep/060-U18-rev-share-betanet/addresses.json"
+
+templateName = "OPCMUpgradeV600"
+
+[[opcmUpgrades]]
+chainId = 420120033
+# U18 prestates for betanet: https://github.com/ethereum-optimism/devnets/blob/main/betanets/revshare-beta/op-program/prestates.json
+cannonPrestate = "0x03a7021f5a914968290be4b0ae8c4094e52842fc356ce1e79d3bf8485c412e07"
+cannonKonaPrestate = "0x03203b5839f05b5a88815521c09982655c9f41c1d451665ec7c79951fd4a9552"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
+]
