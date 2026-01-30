@@ -1,6 +1,6 @@
 # 060-U18-rev-share-betanet
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xbbe711085bd8a3b44935cd763335f5a68c5a3a1c1290af22b3b75fc560e95bb7)
 
 ## Objective
 
