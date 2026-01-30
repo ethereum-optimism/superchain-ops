@@ -97,18 +97,19 @@ contract NestedMultisigTaskTest is Test {
         TestData memory testData = _prepareTestData(allOriginalNonces, actions, allSafes, childSafes);
 
         // Get the hash of the transaction that the root safe is going to execute which the child multisigs have to approve.
-        bytes32 hashToApproveByChildMultisig = testData.rootSafe.getTransactionHash(
-            MULTICALL3_ADDRESS,
-            0,
-            testData.rootSafeCalldata,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            testData.originalRootSafeNonce
-        );
+        bytes32 hashToApproveByChildMultisig = testData.rootSafe
+            .getTransactionHash(
+                MULTICALL3_ADDRESS,
+                0,
+                testData.rootSafeCalldata,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                address(0),
+                testData.originalRootSafeNonce
+            );
 
         IMulticall3.Call3Value memory call = IMulticall3.Call3Value({
             target: address(testData.rootSafe),
@@ -359,33 +360,35 @@ contract NestedMultisigTaskTest is Test {
             _childMultisig, _callDataToApprove, 0, childSafeNonce, _multicallAddress
         );
 
-        bytes memory expectedDataToSign = IGnosisSafe(_childMultisig).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
-            value: 0,
-            data: _callDataToApprove,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: childSafeNonce
-        });
+        bytes memory expectedDataToSign = IGnosisSafe(_childMultisig)
+            .encodeTransactionData({
+                to: MULTICALL3_ADDRESS,
+                value: 0,
+                data: _callDataToApprove,
+                operation: Enum.Operation.DelegateCall,
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                _nonce: childSafeNonce
+            });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
 
         bytes32 nestedHashToApprove = keccak256(dataToSign);
-        bytes32 expectedNestedHashToApprove = IGnosisSafe(_childMultisig).getTransactionHash(
-            MULTICALL3_ADDRESS,
-            0,
-            _callDataToApprove,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            childSafeNonce
-        );
+        bytes32 expectedNestedHashToApprove = IGnosisSafe(_childMultisig)
+            .getTransactionHash(
+                MULTICALL3_ADDRESS,
+                0,
+                _callDataToApprove,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                address(0),
+                childSafeNonce
+            );
         assertEq(nestedHashToApprove, expectedNestedHashToApprove, "Wrong nested hash to approve");
     }
 

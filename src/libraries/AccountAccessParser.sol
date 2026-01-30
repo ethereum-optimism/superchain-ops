@@ -383,7 +383,8 @@ library AccountAccessParser {
         bytes32 _txHash
     ) internal view noGasMetering {
         console.log("");
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        string memory line =
+            unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         console.log(string("TASK TRANSFERS").cyan().bold());
         console.log(line.cyan().bold());
         if (_transfers.length == 0) {
@@ -411,8 +412,7 @@ library AccountAccessParser {
     }
 
     function printCopyHelper(string memory _text) internal view noGasMetering {
-        string memory line = unicode"━━━━━";
-        // forgefmt: disable-start
+        string memory line = unicode"━━━━━"; // forgefmt: disable-start
         string memory helper = string.concat(line, " Attention: Copy content ", _text, " this line into the VALIDATION.md file. ", line);
         // forgefmt: disable-end
         console.log(helper.yellow().bold());
@@ -487,12 +487,10 @@ library AccountAccessParser {
             );
             require(access.kind != VmSafe.AccountAccessKind.Create, "ETH transfer with Create is not yet supported");
             if (access.kind == VmSafe.AccountAccessKind.Call) {
-                return DecodedTransfer({
-                    from: access.accessor,
-                    to: access.account,
-                    value: access.value,
-                    tokenAddress: ETHER
-                });
+                return
+                    DecodedTransfer({
+                        from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER
+                    });
             } else {
                 require(access.kind == VmSafe.AccountAccessKind.DelegateCall, "Expected kind to be DelegateCall.");
                 console.log(
@@ -531,11 +529,7 @@ library AccountAccessParser {
     }
 
     /// @notice Given an address, returns the contract name and L2 chain ID for the contract.
-    function getContractInfo(address _address)
-        internal
-        view
-        returns (uint256 l2ChainId_, string memory contractName_)
-    {
+    function getContractInfo(address _address) internal view returns (uint256 l2ChainId_, string memory contractName_) {
         string memory addrsPath = "/lib/superchain-registry/superchain/extra/addresses/addresses.json";
         string memory path = string.concat(vm.projectRoot(), addrsPath);
         return findContractByAddress(path, _address);
@@ -796,8 +790,7 @@ library AccountAccessParser {
         for (uint256 j = 0; j < layouts.length; j++) {
             DecodedSlot memory decoded = decodeSlot(layouts[j], _oldValue, _newValue);
             if (!decoded.oldValue.eq(decoded.newValue)) {
-                string memory kind = string.concat("(`", decoded.kind, "`)");
-                // forgefmt: disable-next-line
+                string memory kind = string.concat("(`", decoded.kind, "`)"); // forgefmt: disable-next-line
                 detail = string.concat(detail, "", kind, " ", layouts[j]._label, " `", decoded.oldValue, "` &rarr; `", decoded.newValue, "`, ");
             }
         }

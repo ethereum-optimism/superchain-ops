@@ -123,10 +123,7 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
-                absolutePrestate: expAbsolutePrestate,
-                l2ChainID: chainId
+                proxyAdmin: proxyAdmin, sysCfg: sysCfg, absolutePrestate: expAbsolutePrestate, l2ChainID: chainId
             });
 
             string memory errors = STANDARD_VALIDATOR_V400.validate({_input: input, _allowFailure: true});

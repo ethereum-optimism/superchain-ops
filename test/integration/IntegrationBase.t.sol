@@ -524,8 +524,9 @@ abstract contract IntegrationBase is Test {
         vm.prank(_aliasedL1Messenger);
         // OP adds some extra gas for the relayMessage logic
         ICrossDomainMessenger(L2_CROSS_DOMAIN_MESSENGER).relayMessage{
-            gas: _minGasLimit + RELAY_GAS_OVERHEAD,
-            value: _value
-        }(_messageNonce, _sender, _target, _value, _minGasLimit, _data);
+            gas: _minGasLimit + RELAY_GAS_OVERHEAD, value: _value
+        }(
+            _messageNonce, _sender, _target, _value, _minGasLimit, _data
+        );
     }
 }
