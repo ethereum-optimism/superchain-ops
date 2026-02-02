@@ -1,18 +1,18 @@
 {
-  "420120033": {
+  "420120034": {
     "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
-    "SystemConfigProxy": "0x9E964E030Ef490fF88b0e4ff5846D80F286D5F21",
-    "L1CrossDomainMessengerProxy": "0x9ab3e890a6Cb011b0EcE3C3f137fd162f6c7F231",
-    "L1StandardBridgeProxy": "0x7173B9e76f8316De85cf5cb9CA3Cf998A2f24ed0",
-    "OptimismPortalProxy": "0x4fC40f2D8cf14925567938d209EB493a43347A79",
-    "DisputeGameFactoryProxy": "0xb9353415381A665eE9ACC313e586fB8667D554C8",
-    "DelayedWETHProxy": "0xFb19493EEFE1cDd3203204b389595Db86E94989b",
-    "PermissionedDelayedWETHProxy": "0xFb19493EEFE1cDd3203204b389595Db86E94989b",
-    "AnchorStateRegistryProxy": "0x36e3368A370480350b665afe6E53a427a7b2e8d4",
-    "AddressManager": "0x38538354Fc6979201B734FA28374be95C258BB1a",
-    "L1ERC721BridgeProxy": "0x4bbdaAC75C609858D6d14A7EbE9dfeAA62010691",
-    "Proposer": "0x40aed6d9ef3d694aeb406d210db82613b67cf99d",
-    "Challenger": "0xf6015e1850d6622921a647a76ffd892ba6870b75",
-    "OptimismMintableERC20FactoryProxy": "0x307e1D3019024ec7851982B10289696f9801E270"
+    "SystemConfigProxy": "0x421b686408b5e5d87834868290ec9b4a2fad6f22",
+    "L1CrossDomainMessengerProxy": "0xf116b86545360fcf0f8f931ec4543af6d082a6e7",
+    "L1StandardBridgeProxy": "0xeb2a61a4b3ce24b5565f39ab6a558b9ec5989b7e",
+    "OptimismPortalProxy": "0xa68b3c6c2147caf13a760a4ec79855b0d859d9e5",
+    "DisputeGameFactoryProxy": "0x100e147e79eb824f53fba8eaba36f6267637cd98",
+    "DelayedWETHProxy": "0x258a2eb6e1b186fad8fb389f0533e1d9b7582839",
+    "PermissionedDelayedWETHProxy": "0x258a2eb6e1b186fad8fb389f0533e1d9b7582839",
+    "AnchorStateRegistryProxy": "0xbf3e146ae42f3b25243b7064b3ac6fa10be35523",
+    "AddressManager": "0xeb6e8b25b6c513f0c364520fb440a65ad7227794",
+    "L1ERC721BridgeProxy": "0x440de09dec54e1e8c3ec8344fe30fda5e9704f01",
+    "Proposer": "0x87be7931c05b3f0b780557af07fbbbda741a0075",
+    "Challenger": "0x94e6f45d675105507f3297fe64fe6cb59eaaf820",
+    "OptimismMintableERC20FactoryProxy": "0xa7f819eaabc0852a5425fdf804da52ffb5d838c9"
   }
 }

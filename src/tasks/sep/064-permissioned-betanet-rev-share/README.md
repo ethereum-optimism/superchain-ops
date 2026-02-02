@@ -1,4 +1,4 @@
-# 062 betanet-rev-share: RevShare Upgrade and Setup for Betanet
+# 064 permissioned-betanet-rev-share: RevShare Upgrade and Setup for Betanet
 
 Status: [READY TO SIGN]
 
@@ -24,15 +24,15 @@ Simulation commands for each safe:
 
 ```bash
 # For stacked simulation (recommended for validation):
-just simulate-stack sep 062-betanet-rev-share-v2
+just simulate-stack sep 064-permissioned-betanet-rev-share
 
 # For individual simulation:
-cd src/tasks/sep/062-betanet-rev-share-v2
+cd src/tasks/sep/064-permissioned-betanet-rev-share
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile simulate
 
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
 USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
-# or USE_KEYSTORE=1 just sign-stack sep 062-U18-rev-share-betanet-v2
+# or USE_KEYSTORE=1 just sign-stack sep 064-U18-rev-share-betanet-v2
 SIGNATURES=0x just execute
 ```

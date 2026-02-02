@@ -1,6 +1,6 @@
 # 062 betanet-rev-share: RevShare Upgrade and Setup for Betanet
 
-Status: [READY TO SIGN]
+Status: [EXECUTED]
 
 ## Objective
 
