@@ -25,7 +25,7 @@ l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
 l1WithdrawerRecipients = ["0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"]
 l1WithdrawerGasLimits = [800000]
 
-fallbackAddressesJsonPath = "src/tasks/sep/064-permissioned-betanet-rev-share-v2/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/064-permissioned-betanet-rev-share/addresses.json"
 
 [addresses]
 ProxyAdminOwner = "0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
