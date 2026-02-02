@@ -16,7 +16,7 @@ Upgrade proxies and setup RevShare contracts for the RevShare Betanet chain. Thi
 
 Target chain:
 
-- revshare-beta-0 (chainId: 420120033)
+- revshare-beta-1 (chainId: 420120034)
 
 ## Simulation & Signing
 
@@ -33,6 +33,6 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../j
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
 USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
-# or USE_KEYSTORE=1 just sign-stack sep 064-U18-rev-share-betanet-v2
+# or USE_KEYSTORE=1 just sign-stack sep 064-permissioned-betanet-rev-share
 SIGNATURES=0x just execute
 ```
