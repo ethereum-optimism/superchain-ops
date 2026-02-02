@@ -1,6 +1,6 @@
 # 063-U18-rev-share-permissioned-betanet
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x1f6e608c904156b4ca5d13df7679a18d8980a31d6942648fc7c8f806921b8156)
 
 ## Objective
 
