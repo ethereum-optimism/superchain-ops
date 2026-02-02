@@ -1,6 +1,6 @@
 # 062 betanet-rev-share: RevShare Upgrade and Setup for Betanet
 
-Status: [EXECUTED]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x22e77d96df50587a792ea60f17afe6f8be485ac4538b351c65e450a2a2e5d57a)
 
 ## Objective
 
