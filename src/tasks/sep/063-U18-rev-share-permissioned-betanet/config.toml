@@ -1,0 +1,29 @@
+# RevShare Betanet on U18
+l2chains = [
+    {name = "revshare-beta-1", chainId = 420120034}
+]
+
+# Addresses for this task can be found here: https://github.com/ethereum-optimism/devnets/tree/main/betanets/revshare-beta
+
+fallbackAddressesJsonPath = "src/tasks/sep/063-U18-rev-share-permissioned-betanet/addresses.json"
+
+templateName = "OPCMUpgradeV600"
+
+[[opcmUpgrades]]
+chainId = 420120034
+# U18 prestates for betanet: https://github.com/ethereum-optimism/devnets/blob/main/betanets/revshare-beta/op-program/prestates-revshare-1-after-update.json
+cannonPrestate = "0x03218cc6ba6287c4a55d57c62fd4e2e1cee9fb1f80f8b427596670d59a25db8d"
+cannonKonaPrestate = "0x037b5e42b4c540f321b326e72b1cf8a2502ae8bc8a3d32d75866b1a849961667"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10,CKDG-10"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: these are expected as they are not the standard OP Sepolia ones
+# SYSCON-130: this is expected as the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one
+# PLDG-10: There are no permissionless dispute games on Soneium - expected
+# CKDG-10: There are no permissionless dispute games on Soneium - expected
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 69}
+]

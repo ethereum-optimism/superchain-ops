@@ -1,6 +1,6 @@
-# 062 betanet-rev-share: RevShare Upgrade and Setup for Betanet
+# 064 permissioned-betanet-rev-share: RevShare Upgrade and Setup for Betanet
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x22e77d96df50587a792ea60f17afe6f8be485ac4538b351c65e450a2a2e5d57a)
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -16,7 +16,7 @@ Upgrade proxies and setup RevShare contracts for the RevShare Betanet chain. Thi
 
 Target chain:
 
-- revshare-beta-0 (chainId: 420120033)
+- revshare-beta-1 (chainId: 420120034)
 
 ## Simulation & Signing
 
@@ -24,15 +24,15 @@ Simulation commands for each safe:
 
 ```bash
 # For stacked simulation (recommended for validation):
-just simulate-stack sep 062-betanet-rev-share-v2
+just simulate-stack sep 064-permissioned-betanet-rev-share
 
 # For individual simulation:
-cd src/tasks/sep/062-betanet-rev-share-v2
+cd src/tasks/sep/064-permissioned-betanet-rev-share
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile simulate
 
 # Commands to execute
 just --dotenv-path $(pwd)/.env simulate
 USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
-# or USE_KEYSTORE=1 just sign-stack sep 062-U18-rev-share-betanet-v2
+# or USE_KEYSTORE=1 just sign-stack sep 064-permissioned-betanet-rev-share
 SIGNATURES=0x just execute
 ```
