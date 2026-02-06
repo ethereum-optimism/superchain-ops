@@ -10,9 +10,11 @@ l2chains = [
 safeAddress = "ProxyAdminOwner"
 
 # RevShareContractsUpgrader address
+# https://sepolia.etherscan.io/address/0x71241bbae674967dD523e621c272Ea32cf33119A
 revShareUpgrader = "0x71241bbae674967dD523e621c272Ea32cf33119A"
 
 # RevShare configurations (one per chain) - flattened arrays
+https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L50
 portals = [
   "0x5c1d29C6c9C8b0800692acC95D700bcb4966A1d7" # Ink Sepolia Portal
 ]
@@ -24,13 +26,14 @@ chainFeesRecipients = [
 # 2 ether
 l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
 
-# FeesDepositor address in mainnet
+# FeesDepositor address in sepolia
 l1WithdrawerRecipients = [
   "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd",
 ]
 l1WithdrawerGasLimits = [800000]
 
 [addresses]
+https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L46
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [stateOverrides]
