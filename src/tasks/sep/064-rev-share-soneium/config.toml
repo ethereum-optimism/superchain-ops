@@ -33,7 +33,7 @@ l1WithdrawerRecipients = [
 l1WithdrawerGasLimits = [800000]
 
 [addresses]
-https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/soneium-minato.toml#L46
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/soneium-minato.toml#L46
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [stateOverrides]
