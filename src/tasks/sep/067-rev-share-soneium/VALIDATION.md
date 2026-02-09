@@ -15,12 +15,12 @@ the values printed to the terminal when you run the task.
 > ### Nested Safe 1 (Foundation): `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
 >
 > - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x52d98bb03b4e7139158e9b12d0453794b04028eb49b3b58e838c10c1fb94ad0c`
+> - Message Hash: `0x3a1cbdfcfc392d6ca426928e4cdcf08d00cb84fa3916af4c447d07109f7e3859`
 >
 > ### Nested Safe 2 (Security Council): `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0xe4ae8489ecd417f57b03d87b9310567ea513b57d2f499146b5a7f77a39b9b679`
+> - Message Hash: `0x6e0514e3b7effd11e230a573c93abb80874e13dca80bc8a80dccdb0f6d6e138e`
 
 ## Task Calldata
 

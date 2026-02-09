@@ -1,4 +1,4 @@
-# 064-rev-share-soneium: RevShare Upgrade and Setup for Soneium Testnet Minato
+# 067-rev-share-soneium: RevShare Upgrade and Setup for Soneium Testnet Minato
 
 Status: [READY TO SIGN]
 
@@ -28,16 +28,16 @@ Simulation commands for each safe:
 
 ```bash
 # For stacked simulation (recommended for validation):
-just simulate-stack sep 064-rev-share-soneium <council|foundation>
+just simulate-stack sep 067-rev-share-soneium <council|foundation>
 
 # For individual simulation:
-cd src/tasks/sep/064-rev-share-soneium
+cd src/tasks/sep/067-rev-share-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile simulate <council|foundation>
 ```
 
 Signing commands for each safe:
 
 ```bash
-cd src/tasks/sep/064-rev-share-soneium
+cd src/tasks/sep/067-rev-share-soneium
 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile sign <council|foundation>
 ```
