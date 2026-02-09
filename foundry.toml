@@ -35,6 +35,6 @@ opMainnet = "https://mainnet.optimism.io" # We eventually need a CI L2 RPC URL f
 [profile.default.rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
 mainnet = "https://ethereum.publicnode.com"
-sepolia = "https://eth-sepolia.g.alchemy.com/v2/2_Fhzc4WRgdlybIVlDRn9akE4dH3I_Lp"
+sepolia = "https://ethereum-sepolia-rpc.publicnode.com"
 opSepolia = "https://sepolia.optimism.io"
 opMainnet = "https://mainnet.optimism.io"
