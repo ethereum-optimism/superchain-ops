@@ -3,8 +3,8 @@ templateName = "GnosisSafeRotateMultipleSigners"
 safeAddressString = "FoundationUpgradeSafe"
 
 ownersToRemove = [
-    "0x0000000000000000000000000000000000000000",
-    "0x0000000000000000000000000000000000000000"
+    "0xE7dEA1306D9F829bA469d1904c50903b46ebd02e",
+    "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 ]
 
 ownersToAdd = [
