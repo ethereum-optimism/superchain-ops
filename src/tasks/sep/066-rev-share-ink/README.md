@@ -1,4 +1,4 @@
-# 063-rev-share-ink: RevShare Upgrade and Setup for Ink Sepolia
+# 066-rev-share-ink: RevShare Upgrade and Setup for Ink Sepolia
 
 Status: [READY TO SIGN]
 
@@ -28,16 +28,16 @@ Simulation commands for each safe:
 
 ```bash
 # For stacked simulation (recommended for validation):
-just simulate-stack sep 063-rev-share-ink <council|foundation>
+just simulate-stack sep 066-rev-share-ink <council|foundation>
 
 # For individual simulation:
-cd src/tasks/sep/063-rev-share-ink
+cd src/tasks/sep/066-rev-share-ink
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile simulate <council|foundation>
 ```
 
 Signing commands for each safe:
 
 ```bash
-cd src/tasks/sep/063-rev-share-ink
+cd src/tasks/sep/066-rev-share-ink
 just --dotenv-path "$(pwd)"/.env --justfile ../../../justfile sign <council|foundation>
 ```

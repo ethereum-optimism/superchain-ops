@@ -1,0 +1,36 @@
+# RevShare Upgrade And Setup Configuration
+
+templateName = "RevShareUpgradeAndSetup"
+
+# L2 chains to target
+l2chains = [{name = "revshare-beta-1", chainId = 420120034}]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader https://sepolia.etherscan.io/address/0x71241bbae674967dd523e621c272ea32cf33119a
+revShareUpgrader = "0x71241bbae674967dd523e621c272ea32cf33119a"
+
+# RevShare configurations (one per chain)
+# Betanet Portal in Sepolia https://sepolia.etherscan.io/address/0xa68B3c6C2147Caf13a760a4eC79855B0d859D9e5
+# Source https://github.com/ethereum-optimism/devnets/blob/main/betanets/revshare-beta/op-deployer-revshare-1/state.json#L101
+portals = ["0xa68B3c6C2147Caf13a760a4eC79855B0d859D9e5"]
+
+# SequencerFeeVault.RECIPIENT() in the betanet.
+chainFeesRecipients = ["0xee7d049e5f573a08bb5a358fcefb3d4af992fdcb"] 
+
+# 2 ether
+l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
+
+# FeesDepositor https://sepolia.etherscan.io/address/0xed9B99a703BaD32AC96FDdc313c0652e379251Fd
+l1WithdrawerRecipients = ["0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"]
+l1WithdrawerGasLimits = [800000]
+
+fallbackAddressesJsonPath = "src/tasks/sep/064-permissioned-betanet-rev-share/addresses.json"
+
+[addresses]
+ProxyAdminOwner = "0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
