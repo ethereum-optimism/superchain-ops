@@ -1,0 +1,33 @@
+# U18 Soneium Minato Testnet
+l2chains = [
+    {name = "Soneium Testnet Minato", chainId = 1946}
+]
+
+
+templateName = "OPCMUpgradeV600"
+
+
+# Soneium Minato Testnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 1946
+# U18 prestates: https://www.notion.so/oplabs/Upgrade-18-Governance-Post-2d1f153ee162807db0deee6100c9ad5a?source=copy_link#2d1f153ee16280b197bcf82b759ad1d6
+cannonPrestate = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e" 
+cannonKonaPrestate = "0x0323914d3050e80c3d09da528be54794fde60cd26849cd3410dde0da7cd7d4fa"
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+# OVERRIDES-CHALLENGER: this is expected as it's not the standard OP Sepolia one
+
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
+
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 47}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SC
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 61}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FUS
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
+]
