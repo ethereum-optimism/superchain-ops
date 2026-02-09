@@ -1,0 +1,23 @@
+# Example task demonstrating multiple signer rotation in a single transaction
+templateName = "GnosisSafeRotateMultipleSigners"
+
+safeAddressString = "FoundationUpgradeSafe"
+
+# Rotate 2 signers in one transaction
+# These are actual owners from the FoundationUpgradeSafe at block 24399459
+# Testing adjacent owners (owner[0] and owner[1]) to verify dependency handling
+ownersToRemove = [
+    "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64",
+    "0x3041BA32f451F5850c147805F5521AC206421623"
+]
+
+ownersToAdd = [
+    "0xAAAA000000000000000000000000000000000001",
+    "0xBBBB000000000000000000000000000000000002"
+]
+
+[stateOverrides]
+# Nonce override for simulation (storage slot 0x5 is the nonce)
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 100}
+]
