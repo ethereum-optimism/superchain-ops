@@ -1,6 +1,6 @@
 # 065-U18-soneium
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd0d7c73a235a3dbe852f29eb79667bb67bd9c388889503fce0366ddb50b6a2d3)
 
 ## Objective
 
