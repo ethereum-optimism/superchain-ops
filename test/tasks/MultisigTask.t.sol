@@ -23,8 +23,8 @@ contract MultisigTaskUnitTest is Test {
     MultisigTask public task;
     string constant TESTING_DIRECTORY = "multisig-task-testing";
 
-    string constant commonToml =
-        "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"MockMultisigTask\"\n" "\n";
+    string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+        "templateName = \"MockMultisigTask\"\n" "\n";
     address root = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
@@ -211,10 +211,7 @@ contract MultisigTaskUnitTest is Test {
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
         for (uint256 i; i < calls.length; i++) {
             calls[i] = IMulticall3.Call3Value({
-                target: targets[i],
-                allowFailure: false,
-                value: values[i],
-                callData: calldatas[i]
+                target: targets[i], allowFailure: false, value: values[i], callData: calldatas[i]
             });
         }
 
@@ -410,8 +407,8 @@ contract MultisigTaskUnitTest is Test {
 
     /// @notice Tests that MultisigTask reverts when a transaction exceeds the 15M gas limit
     function test_simulate_revertsOnHighGasUsage_fails() public {
-        string memory highGasToml =
-            "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"HighGasMultisigTask\"\n" "\n";
+        string memory highGasToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+            "templateName = \"HighGasMultisigTask\"\n" "\n";
 
         string memory taskConfigFilePath =
             MultisigTaskTestHelper.createTempTomlFile(highGasToml, TESTING_DIRECTORY, "highgas");
@@ -424,10 +421,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     /// @notice Asserts that the root safe calldata is correct.
-    function assertRootCalldata(bytes memory data, address target, uint256 value, bytes memory callData)
-        internal
-        pure
-    {
+    function assertRootCalldata(bytes memory data, address target, uint256 value, bytes memory callData) internal pure {
         bytes4 selector = bytes4(data);
         assertEq(selector, IMulticall3.aggregate3Value.selector, "Incorrect calldata for root safe");
         bytes memory params = getParams(data);

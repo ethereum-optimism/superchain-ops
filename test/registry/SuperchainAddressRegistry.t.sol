@@ -103,7 +103,8 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
                 "50"
             );
             assertEq(
-                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.chainId,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1StandardBridgeProxy", chainId)).chainInfo
+                    .chainId,
                 chainId,
                 "60"
             );
@@ -119,15 +120,13 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
                 "80"
             );
             assertEq(
-                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId))
-                    .chainInfo
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId)).chainInfo
                     .chainId,
                 chainId,
                 "90"
             );
             assertEq(
-                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId))
-                    .chainInfo
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId)).chainInfo
                     .name,
                 chainName,
                 "100"
@@ -319,8 +318,8 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
 
     function test_constructor_onL2WithoutFallback_reverts() public {
         vm.createSelectFork("opSepolia");
-        string memory tomlContent =
-            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n' 'fallbackAddressesJsonPath = ""';
+        string memory tomlContent = 'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n'
+            'fallbackAddressesJsonPath = ""';
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-000");
 
         vm.expectRevert(

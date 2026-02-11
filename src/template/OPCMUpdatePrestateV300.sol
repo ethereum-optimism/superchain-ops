@@ -95,9 +95,8 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
             });
         }
 
-        (bool success,) = OPCM_TARGETS[0].delegatecall(
-            abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs)
-        );
+        (bool success,) = OPCM_TARGETS[0]
+        .delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         require(success, "OPCM.updatePrestate() failed");
     }
 
@@ -113,10 +112,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
-                absolutePrestate: expAbsolutePrestate,
-                l2ChainID: chainId
+                proxyAdmin: proxyAdmin, sysCfg: sysCfg, absolutePrestate: expAbsolutePrestate, l2ChainID: chainId
             });
 
             string memory errors = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});

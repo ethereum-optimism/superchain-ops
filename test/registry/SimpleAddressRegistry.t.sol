@@ -85,13 +85,15 @@ contract SimpleAddressRegistryTest is Test {
     function test_get_reverts_withNonExistentAddress() public {
         SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
 
-        string memory err =
-            string.concat(registryName, ": ", idReturnKind, " not found for 0x0000000000000000000000000000000000000000");
+        string memory err = string.concat(
+            registryName, ": ", idReturnKind, " not found for 0x0000000000000000000000000000000000000000"
+        );
         vm.expectRevert(bytes(err));
         registry.get(address(0));
 
-        err =
-            string.concat(registryName, ": ", idReturnKind, " not found for 0x0000000000000000000000000000000000000005");
+        err = string.concat(
+            registryName, ": ", idReturnKind, " not found for 0x0000000000000000000000000000000000000005"
+        );
         vm.expectRevert(bytes(err));
         registry.get(address(5));
     }
