@@ -1,0 +1,19 @@
+templateName = "GnosisSafeRotateMultipleSigners"
+
+safeAddressString = "FoundationUpgradeSafe"
+
+ownersToRemove = [
+    "0x0000000000000000000000000000000000000000",
+    "0x0000000000000000000000000000000000000000"
+]
+
+ownersToAdd = [
+    "0xAAAA000000000000000000000000000000000001",
+    "0xBBBB000000000000000000000000000000000002"
+]
+
+[stateOverrides]
+# Nonce override for simulation (storage slot 0x5 is the nonce)
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53}
+]
