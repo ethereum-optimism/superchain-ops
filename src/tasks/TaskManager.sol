@@ -278,6 +278,35 @@ contract TaskManager is Script {
         return (isNestedSafe(rootSafe), rootSafe, task);
     }
 
+    /// @notice Overload that accepts a pre-parsed templateName, avoiding redundant
+    /// vm.readFile + readString calls on the config file. Used by the CLI's parallel
+    /// simulation mode where Go pre-parses config.toml.
+    function isNestedTask(string memory taskConfigFilePath, string memory templateName)
+        public
+        returns (bool, address rootSafe, MultisigTask task)
+    {
+        string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
+        task = MultisigTask(deployCode(templatePath));
+        string memory safeAddressString = task.loadSafeAddressString(task, taskConfigFilePath);
+        TaskType taskType = task.taskType();
+
+        if (taskType == TaskType.SimpleTaskBase) {
+            SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
+            rootSafe = _simpleAddrRegistry.get(safeAddressString);
+        } else {
+            SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+            SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
+
+            // Try loading the address without the chain id, then try loading with it.
+            try _addrRegistry.get(safeAddressString) returns (address addr) {
+                rootSafe = addr;
+            } catch {
+                rootSafe = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+            }
+        }
+        return (isNestedSafe(rootSafe), rootSafe, task);
+    }
+
     /// @notice Returns a cached MultisigTask instance for a given template path or deploys a new one.
     function getMultisigTask(string memory templatePath, address optionalTask) internal returns (MultisigTask task) {
         if (optionalTask == address(0)) {

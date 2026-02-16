@@ -860,10 +860,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
         MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
-        address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
-        address childMulticallTarget =
-            payload.safes.length > 1 ? _getMulticallAddress(payload.safes[0], payload.safes) : address(0);
-        MultisigTaskPrinter.printOPTxVerifyLink(block.chainid, payload, rootMulticallTarget, childMulticallTarget);
+        if (!Utils.skipDecodeAndPrint()) {
+            address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
+            address childMulticallTarget =
+                payload.safes.length > 1 ? _getMulticallAddress(payload.safes[0], payload.safes) : address(0);
+            MultisigTaskPrinter.printOPTxVerifyLink(block.chainid, payload, rootMulticallTarget, childMulticallTarget);
+        }
     }
 
     /// @notice Collects dataToSign for ALL sibling child safes (contract owners of the root safe).
