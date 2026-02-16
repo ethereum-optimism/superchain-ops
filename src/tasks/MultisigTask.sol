@@ -743,12 +743,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
                 (string memory opStr, Enum.Operation op) = GnosisSafeHashes.getOperationDetails(accesses[i].kind);
 
-                tempActions[validCount] = Action({
-                    value: accesses[i].value,
-                    target: accesses[i].account,
-                    arguments: accesses[i].data,
-                    operation: op,
-                    description: string(
+                string memory desc;
+                if (!Utils.skipDecodeAndPrint()) {
+                    desc = string(
                         abi.encodePacked(
                             opStr,
                             " ",
@@ -759,7 +756,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                             vm.toString(accesses[i].data),
                             " data."
                         )
-                    )
+                    );
+                }
+                tempActions[validCount] = Action({
+                    value: accesses[i].value,
+                    target: accesses[i].account,
+                    arguments: accesses[i].data,
+                    operation: op,
+                    description: desc
                 });
                 validCount++;
             }
@@ -836,7 +840,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     break;
                 }
             }
-            _printTenderlySimulationData(payload);
+            if (!Utils.skipDecodeAndPrint()) {
+                _printTenderlySimulationData(payload);
+            }
 
             // Collect dataToSign for validation against VALIDATION.md
             if (payload.safes.length <= 1) {
