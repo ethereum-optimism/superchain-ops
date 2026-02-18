@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-import {stdToml} from "lib/forge-std/src/StdToml.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 

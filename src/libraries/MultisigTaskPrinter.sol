@@ -28,14 +28,16 @@ library MultisigTaskPrinter {
     function printTitle(string memory title) internal pure {
         console.log("");
         console.log(vm.toUppercase(title).cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        string memory line =
+            unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         console.log(line.cyan().bold());
     }
 
     /// @notice Prints the welcome message and conditionally the developer attention preamble.
     function printWelcomeMessage() internal view {
         console.log("");
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        string memory line =
+            unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         console.log(line.cyan().bold());
         console.log("                 WELCOME TO SUPERCHAIN-OPS");
         console.log(line.cyan().bold());

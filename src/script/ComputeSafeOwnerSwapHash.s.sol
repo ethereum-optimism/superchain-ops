@@ -53,18 +53,19 @@ contract ComputeSafeOwnerSwapHash is Script {
         (address prevOwner,) = findPreviousOwner(owners, _oldOwner);
 
         uint256 nonce = IGnosisSafe(_safe).nonce();
-        txData_ = IGnosisSafe(_safe).encodeTransactionData({
-            to: _safe,
-            value: 0,
-            data: abi.encodeCall(IGnosisSafe(_safe).swapOwner, (prevOwner, _oldOwner, _newOwner)),
-            operation: Enum.Operation.Call,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: nonce
-        });
+        txData_ = IGnosisSafe(_safe)
+            .encodeTransactionData({
+                to: _safe,
+                value: 0,
+                data: abi.encodeCall(IGnosisSafe(_safe).swapOwner, (prevOwner, _oldOwner, _newOwner)),
+                operation: Enum.Operation.Call,
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                _nonce: nonce
+            });
 
         txHash_ = keccak256(txData_);
     }

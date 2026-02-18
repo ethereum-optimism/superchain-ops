@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {LibString} from "@solady/utils/LibString.sol";
 import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
-import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
+import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
@@ -236,18 +236,19 @@ library GnosisSafeHashes {
         uint256 _originalNonce,
         address _multicallAddress
     ) internal view returns (bytes memory encodedTxData) {
-        encodedTxData = IGnosisSafe(_safe).encodeTransactionData({
-            to: _multicallAddress,
-            value: _value,
-            data: _data,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: _originalNonce
-        });
+        encodedTxData = IGnosisSafe(_safe)
+            .encodeTransactionData({
+                to: _multicallAddress,
+                value: _value,
+                data: _data,
+                operation: Enum.Operation.DelegateCall,
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                _nonce: _originalNonce
+            });
         require(encodedTxData.length == 66, "GnosisSafeHashes: encodedTxData length is not 66 bytes.");
     }
 

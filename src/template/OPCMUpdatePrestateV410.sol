@@ -90,9 +90,8 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
             });
         }
 
-        (bool success, bytes memory returnData) = OPCM_TARGETS[0].delegatecall(
-            abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs)
-        );
+        (bool success, bytes memory returnData) = OPCM_TARGETS[0]
+        .delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         if (!success) {
             if (returnData.length > 0) {
                 assembly {
@@ -114,19 +113,19 @@ contract OPCMUpdatePrestateV410 is OPCMTaskBase {
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-            IOPContractsManagerStandardValidator.ValidationInput memory input = IOPContractsManagerStandardValidator
-                .ValidationInput({
-                proxyAdmin: IProxyAdmin(proxyAdmin),
-                sysCfg: ISystemConfig(sysCfg),
-                absolutePrestate: expAbsolutePrestate,
-                l2ChainID: chainId
-            });
+            IOPContractsManagerStandardValidator.ValidationInput memory input =
+                IOPContractsManagerStandardValidator.ValidationInput({
+                    proxyAdmin: IProxyAdmin(proxyAdmin),
+                    sysCfg: ISystemConfig(sysCfg),
+                    absolutePrestate: expAbsolutePrestate,
+                    l2ChainID: chainId
+                });
 
             IOPContractsManagerStandardValidator.ValidationOverrides memory overrides_ =
-            IOPContractsManagerStandardValidator.ValidationOverrides({
-                l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
-                challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
-            });
+                IOPContractsManagerStandardValidator.ValidationOverrides({
+                    l1PAOMultisig: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                    challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
+                });
 
             string memory errors =
                 STANDARD_VALIDATOR.validateWithOverrides({_input: input, _allowFailure: true, _overrides: overrides_});

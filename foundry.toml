@@ -9,22 +9,30 @@ fs_permissions = [{ access = "read-write", path = "./" }]
 gas_limit = "18446744073709551615" # max allowable value, which is max uint64
 ffi = true # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 no_match_coverage = 'src/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|test'
+# Temporarily disabled for Foundry v1.4.3 upgrade. Protection prevents address(this) usage in scripts to avoid accidental misuse.
+# See https://github.com/foundry-rs/foundry/issues/10289. Will be removed in a future PR.
+script_execution_protection = false
 
 remappings = [
-  '@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/',
-  '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts',
-  '@base-contracts/=lib/base-contracts/',
-  '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
-  '@rari-capital/solmate/=lib/solmate',
-  '@eth-optimism-superchain-registry/=lib/superchain-registry/',
-  '@solady/=lib/optimism/packages/contracts-bedrock/lib/solady/src/',
-  '@lib-keccak/=lib/optimism/packages/contracts-bedrock/lib/lib-keccak/contracts/lib/',
-  'ds-test/=lib/optimism/packages/contracts-bedrock/lib/forge-std/lib/ds-test/src',
-  'forge-std/=lib/forge-std/src/'
+    "@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/",
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "@base-contracts/=lib/base-contracts/",
+  "@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/",
+  "@rari-capital/solmate/=lib/solmate/",
+  "@eth-optimism-superchain-registry/=lib/superchain-registry/",
+  "@solady/=lib/optimism/packages/contracts-bedrock/lib/solady/src/",
+  "@lib-keccak/=lib/optimism/packages/contracts-bedrock/lib/lib-keccak/contracts/lib/",
+  "ds-test/=lib/optimism/packages/contracts-bedrock/lib/forge-std/lib/ds-test/src/",
+  "forge-std/=lib/forge-std/src/",
+  "solady/=lib/optimism/packages/contracts-bedrock/lib/solady/src/",
+  "safe-contracts/=lib/optimism/packages/contracts-bedrock/lib/safe-contracts/contracts/"
 ]
 
+[lint]
+exclude_lints = ["unused-import", "unsafe-cheatcode", "unsafe-typecast", "asm-keccak256", "unaliased-plain-import", "mixed-case-variable", "pascal-case-struct", "mixed-case-function", "screaming-snake-case-const", "unwrapped-modifier-logic", "named-struct-fields"]
+
 [profile.ci]
-deny_warnings = true
+deny = "warnings"
 
 [profile.ci.rpc_endpoints]
 mainnet = "https://ci-mainnet-l1-archive.optimism.io" 

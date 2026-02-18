@@ -14,9 +14,9 @@ fzf = "0.65.0"
 # The git ref here should be on the `stable` branch.
 # WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
 # The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
-forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
-cast = "v1.1.0"
-anvil = "v1.1.0"
+forge = "v1.4.3" # https://github.com/foundry-rs/foundry/releases/tag/v1.4.3
+cast = "v1.4.3"
+anvil = "v1.4.3"
 
 [alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"

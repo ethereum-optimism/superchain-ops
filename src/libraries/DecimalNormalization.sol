@@ -30,8 +30,8 @@ library DecimalNormalization {
 
         validateAmountComponents(components, tokenDecimals);
 
-        uint256 finalAmount = components.integer * (10 ** uint256(tokenDecimals))
-            + components.decimal * (10 ** uint256(tokenDecimals - components.decimalPlaces));
+        uint256 finalAmount = components.integer * (10 ** uint256(tokenDecimals)) + components.decimal
+            * (10 ** uint256(tokenDecimals - components.decimalPlaces));
 
         return finalAmount;
     }

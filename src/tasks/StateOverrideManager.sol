@@ -203,9 +203,8 @@ abstract contract StateOverrideManager is CommonBase {
                 );
 
                 // Append after validation
-                Simulation.StorageOverride[] memory combined = new Simulation.StorageOverride[](
-                    defaultOverrides_[j].overrides.length + userDefinedOverride_.overrides.length
-                );
+                Simulation.StorageOverride[] memory combined = new Simulation
+                    .StorageOverride[](defaultOverrides_[j].overrides.length + userDefinedOverride_.overrides.length);
 
                 uint256 i = 0;
                 for (; i < defaultOverrides_[j].overrides.length; i++) {
