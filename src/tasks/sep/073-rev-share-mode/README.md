@@ -1,6 +1,6 @@
 # 073-rev-share-mode: RevShare Upgrade and Setup for Mode Testnet
 
-Status: [READY TO SIGN]
+Status: [DRAFT]
 
 ## Objective
 

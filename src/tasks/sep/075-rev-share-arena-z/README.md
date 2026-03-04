@@ -1,6 +1,6 @@
 # 075-rev-share-arena-z: RevShare Upgrade and Setup for arena-z-testnet
 
-Status: [READY TO SIGN]
+Status: [DRAFT]
 
 ## Objective
 

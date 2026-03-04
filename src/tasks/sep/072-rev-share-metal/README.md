@@ -1,6 +1,6 @@
 # 072-rev-share-metal: RevShare Upgrade and Setup for Metal L2 Testnet
 
-Status: [READY TO SIGN]
+Status: [DRAFT]
 
 ## Objective
 

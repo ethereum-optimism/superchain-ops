@@ -1,6 +1,6 @@
 # 074-rev-share-zora: RevShare Upgrade and Setup for Zora Sepolia Testnet
 
-Status: [READY TO SIGN]
+Status: [DRAFT]
 
 ## Objective
 
