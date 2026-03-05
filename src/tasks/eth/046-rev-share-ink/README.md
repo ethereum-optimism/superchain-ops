@@ -1,6 +1,6 @@
 # 046-rev-share-ink: RevShare Upgrade and Setup for Ink Mainnet
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
