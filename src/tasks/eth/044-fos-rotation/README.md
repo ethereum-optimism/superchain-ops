@@ -1,21 +1,21 @@
-# 044-fos-rotation
+# 047-fos-rotation
 
-Status: READY TO SIGN
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
-This task rotates a signer on the FoundationOperationsSafe:
-- Removes: `0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02`
-- Adds: `0xc222ab08333109243B1f4E2a80e3D0A190714AB5`
+Todo: Describe the objective of the task
 
 ## Simulation & Signing
 
-Simulation commands:
+Simulation commands for each safe:
 ```bash
-SIMULATE_WITHOUT_LEDGER=1 just simulate-stack eth 044-fos-rotation
+cd src/tasks/eth/047-fos-rotation
+<TODO-add-simulation-commands-for-each-safe>
 ```
 
-Signing commands:
+Signing commands for each safe:
 ```bash
-just sign-stack eth 044-fos-rotation
+cd src/tasks/eth/047-fos-rotation
+<TODO-add-signing-commands-for-each-safe>
 ```

@@ -1,12 +1,15 @@
+TODO: Please address all TODOs in this file before submitting your task to be reviewed.
+
 # Validation
 
-This document can be used to validate the inputs and result of the execution of the transaction which you are
+This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
 signing.
 
 The steps are:
 
-1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the transaction input](#understanding-task-calldata)
+1. [Expected Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Understanding Task Calldata](#understanding-task-calldata)
+3. [Task State Changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
@@ -17,53 +20,36 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Single Safe Signer Data
+> ### <TODO-enter-safe-name> (`<TODO-enter-safe-address>`)
 >
-> - Domain Hash: `0x2e5ad244d335c45fbace4ebd1736b0fad81b01591a2819baedad311ead5bce76`
-> - Message Hash: `0xe50e9872ef896ed2a00a734df7510b2a7921c78d15cba7750ed11a536b396122`
+> - Domain Hash:  `<TODO-enter-domain-hash>`
+> - Message Hash: `<TODO-enter-message-hash>`
 
 ## Understanding Task Calldata
 
-This document provides a detailed analysis of the final calldata executed on-chain for the signer rotation.
+The command to encode the calldata is:
 
-By reconstructing the calldata, we can confirm that the execution precisely implements the approved plan with no unexpected modifications or side effects.
+TODO: Explain with commands how to encode the calldata. You may not need to do this section if the upgrade isn't part of a governance proposal.
 
-
-### Inputs to `safe.swapOwner()`
-
-`safe.swapOwner()` function is called with the address to be removed and the previous owner:
-
-- The address of the new signer: `0xc222ab08333109243B1f4E2a80e3D0A190714AB5`
-- The address of the signer to be removed: `0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02`
-- The address of the previous signer: `0x4d014f3c5f33aa9cd1dc29ce29618d07ae666d15`
-
-Thus, the command to encode the calldata is:
-
-```bash
-cast calldata 'swapOwner(address, address, address)' "0x4d014f3c5f33aa9cd1dc29ce29618d07ae666d15" "0x69acfE2096Dfb8d5A041eF37693553c48d9BFd02" "0xc222ab08333109243B1f4E2a80e3D0A190714AB5"
+The resulting calldata:
+```
+TODO: add calldata here
 ```
 
-### Inputs to `Multicall3DelegateCall`
+# State Validations
 
-The output from the previous section becomes the `data` in the argument to the `Multicall3DelegateCall.aggregate3Value()` function.
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
-This function is called with a tuple of four elements:
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state
+  changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
+  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-Call3 struct for Multicall3DelegateCall:
+### State Overrides
 
-- `target`: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` - Foundation Operations Safe
-- `allowFailure`: false
-- `value`: 0
-- `callData`: `0xe318b52b0000000000000000000000004d014f3c5f33aa9cd1dc29ce29618d07ae666d1500000000000000000000000069acfe2096dfb8d5a041ef37693553c48d9bfd02000000000000000000000000c222ab08333109243b1f4e2a80e3d0a190714ab5`
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [<TODO NESTED OR SINGLE>-VALIDATION.md](../../../../../<TODO>) file.
 
-Command to encode:
+### Task State Changes
 
-```bash
-cast calldata 'aggregate3Value((address,bool,uint256,bytes)[])' "[(0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A,false,0,0xe318b52b0000000000000000000000004d014f3c5f33aa9cd1dc29ce29618d07ae666d1500000000000000000000000069acfe2096dfb8d5a041ef37693553c48d9bfd02000000000000000000000000c222ab08333109243b1f4e2a80e3d0a190714ab5)]"
-```
-
-The resulting calldata sent from the ProxyAdminOwner safe is thus:
-
-```
-0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000064e318b52b0000000000000000000000004d014f3c5f33aa9cd1dc29ce29618d07ae666d1500000000000000000000000069acfe2096dfb8d5a041ef37693553c48d9bfd02000000000000000000000000c222ab08333109243b1f4e2a80e3d0a190714ab500000000000000000000000000000000000000000000000000000000
-```
+TODO: You can copy the markdown state changes printed in the terminal and paste them here.
