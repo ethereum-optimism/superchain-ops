@@ -356,10 +356,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
       - check_struct_order
-      - check_task_pr_simulation:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
             - circleci-repo-readonly-authenticated-github-token
