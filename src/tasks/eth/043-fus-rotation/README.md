@@ -1,21 +1,23 @@
-# 046-fus-rotation
+# 043-fus-rotation
 
 Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
-Todo: Describe the objective of the task
+This task removes 3 FoundationUpgradeSafe owners and replaces them with new ones.
 
-## Simulation & Signing
+## Simulation
 
-Simulation commands for each safe:
+To simulate this task in the context of the full task stack:
+
 ```bash
-cd src/tasks/eth/046-fus-rotation
-<TODO-add-simulation-commands-for-each-safe>
+cd src
+SIMULATE_WITHOUT_LEDGER=1 just simulate-stack eth 043-fus-rotation
 ```
 
-Signing commands for each safe:
+## Signing
+
 ```bash
-cd src/tasks/eth/046-fus-rotation
-<TODO-add-signing-commands-for-each-safe>
+cd src
+just sign-stack eth 043-fus-rotation
 ```
