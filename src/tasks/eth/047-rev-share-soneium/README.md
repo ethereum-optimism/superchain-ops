@@ -1,6 +1,6 @@
 # 047-rev-share-soneium: RevShare Upgrade and Setup for Soneium Mainnet
 
-Status: [DRAFT]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
