@@ -10,14 +10,17 @@ l2chains = [
 safeAddress = "ProxyAdminOwner"
 
 # RevShareContractsUpgrader address
+# https://github.com/ethereum-optimism/superchain-ops/blob/main/src/tasks/eth/037-rev-share-ink-soneium/config.toml#L11
 revShareUpgrader = "0x71241bbae674967dD523e621c272Ea32cf33119A"
 
 # RevShare configurations (one per chain) - flattened arrays
 portals = [
+  # https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L49
   "0x5d66C1782664115999C47c9fA5cd031f495D3e4F" # Ink Mainnet Portal
 ]
 
 chainFeesRecipients = [
+  # https://github.com/ethereum-optimism/superchain-ops/blob/main/src/tasks/eth/037-rev-share-ink-soneium/config.toml#L20
   "0x5f077b4c3509C2c192e50B6654d924Fcb8126A60"
 ]
 
@@ -26,23 +29,28 @@ l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
 
 # FeesDepositor address in mainnet
 l1WithdrawerRecipients = [
+  # https://github.com/ethereum-optimism/superchain-ops/blob/main/src/tasks/eth/037-rev-share-ink-soneium/config.toml#L29
   "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"
 ]
 l1WithdrawerGasLimits = [800000]
 
 [addresses]
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L45
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [stateOverrides]
 # ProxyAdminOwner
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L45
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 33}
 ]
 # Foundation Upgrades Safe
+# https://github.com/ethereum-optimism/superchain-ops/blob/main/src/addresses.toml#L5
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53}
 ]
 # Security Council
+# https://github.com/ethereum-optimism/superchain-ops/blob/main/src/addresses.toml#L6
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 55}
 ]
