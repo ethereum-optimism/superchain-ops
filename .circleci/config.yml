@@ -242,7 +242,16 @@ jobs:
               exit 0
             fi
 
-            echo "PR modifies src/tasks/, checking simulation confirmation..."
+            # Check if only README files are modified in src/tasks/
+            TASK_FILES=$(echo "$CHANGED_FILES" | grep "^src/tasks/")
+            NON_README_TASK_FILES=$(echo "$TASK_FILES" | grep -v -i "readme\.md$" || true)
+            
+            if [ -z "$NON_README_TASK_FILES" ]; then
+              echo "PR only modifies README files in src/tasks/, skipping simulation validation."
+              exit 0
+            fi
+
+            echo "PR modifies non-README files in src/tasks/, checking simulation confirmation..."
 
             # Fetch PR body
             export GH_TOKEN="$GITHUB_TOKEN"

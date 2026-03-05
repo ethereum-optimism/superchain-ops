@@ -1,0 +1,12 @@
+templateName = "GnosisSafeRotateSigner"
+
+safeAddressString = "ChainGovernorSafe"
+
+# Pete is an owner on the Sepolia Chain Governor Safe: 0x5c86c4499eeDCCe74618006F376110dc0F8eb84a.
+ownerToRemove = "0x72e828fdB48Cac259CB60d03222774fBD7e5522C"
+ownerToAdd = "0xC703d73DB3804662B81b260056d8518Ab54e984E"
+
+[stateOverrides]
+0x5c86c4499eeDCCe74618006F376110dc0F8eb84a = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 2}
+]

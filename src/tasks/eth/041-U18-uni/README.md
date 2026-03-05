@@ -1,6 +1,6 @@
 # 041-U18-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x5672a02ba8c40bd35c87787ceddff5181c588e697a1924be6ea061af71cbb4ca)
 
 NOTE: the Developer Advisory Board vote [incorrectly shows the status as rejected](https://snapshot.box/#/s:optimismdab.eth/proposal/0x459a5bf698d12b3902011ceffcf2ec836535ef2c32a85e133a4696327cc2e5d6) because the quorum was incorrectly set to 7/7 instead of 5/7. It passed with 6/7 votes for and 0/7 against.
 

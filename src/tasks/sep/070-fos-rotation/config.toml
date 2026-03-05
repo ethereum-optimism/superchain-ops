@@ -1,0 +1,12 @@
+templateName = "GnosisSafeRotateSigner"
+
+safeAddressString = "FoundationOperationsSafe"
+
+# Pete is an owner on the Sepolia Foundation Operations Safe: 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E.
+ownerToRemove = "0x72e828fdB48Cac259CB60d03222774fBD7e5522C"
+ownerToAdd = "0xC703d73DB3804662B81b260056d8518Ab54e984E"
+
+[stateOverrides]
+0x837DE453AD5F21E89771e3c06239d8236c0EFd5E = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+]

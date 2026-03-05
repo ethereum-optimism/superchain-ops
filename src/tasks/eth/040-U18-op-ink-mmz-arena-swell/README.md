@@ -1,6 +1,6 @@
 # 040-U18-op-ink-mmz-arena-swell
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x8808cd53114e4cf07bfde30daf24f2984d4a40ab09c5ca67bd171ac29d6dbf37)
 
 NOTE: the Developer Advisory Board vote [incorrectly shows the status as rejected](https://snapshot.box/#/s:optimismdab.eth/proposal/0x459a5bf698d12b3902011ceffcf2ec836535ef2c32a85e133a4696327cc2e5d6) because the quorum was incorrectly set to 7/7 instead of 5/7. It passed with 6/7 votes for and 0/7 against.
 
