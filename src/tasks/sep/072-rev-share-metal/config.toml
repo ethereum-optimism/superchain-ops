@@ -1,0 +1,49 @@
+# RevShare Upgrade and Setup Configuration
+
+templateName = "RevShareUpgradeAndSetup"
+
+# L2 chains to target
+l2chains = [
+  {name = "Metal L2 Testnet", chainId = 1740}
+]
+
+safeAddress = "ProxyAdminOwner"
+
+# RevShareContractsUpgrader address
+# https://sepolia.etherscan.io/address/0x71241bbae674967dD523e621c272Ea32cf33119A
+revShareUpgrader = "0x71241bbae674967dD523e621c272Ea32cf33119A"
+
+# RevShare configurations (one per chain) - flattened arrays
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/metal.toml
+portals = [
+  "0x01D4dfC994878682811b2980653D03E589f093cB" # Metal L2 Testnet Portal
+]
+
+# SequencerFeeVault.RECIPIENT() on Metal L2 Testnet
+chainFeesRecipients = [
+  "0x45effbd799ab49122eeeab75b78d9c56a187f9a7"
+]
+
+# 2 ether
+l1WithdrawerMinWithdrawalAmounts = [2000000000000000000]
+
+# FeesDepositor address in sepolia
+l1WithdrawerRecipients = [
+  "0xed9B99a703BaD32AC96FDdc313c0652e379251Fd"
+]
+l1WithdrawerGasLimits = [800000]
+
+[addresses]
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/metal.toml#L46
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SC
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FUS
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
