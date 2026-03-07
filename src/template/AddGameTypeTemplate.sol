@@ -10,11 +10,9 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 
 import {GameType, Claim, Duration} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {
-    IOPContractsManager,
     IDisputeGameFactory,
     IFaultDisputeGame,
     IBigStepper,
-    IProxyAdmin,
     IDelayedWETH,
     ISystemConfig
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
@@ -39,7 +37,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         uint256 disputeSplitDepth;
         uint256 initialBond;
         bool permissioned;
-        IProxyAdmin proxyAdmin;
         string saltMixer;
         ISystemConfig systemConfig;
         IBigStepper vm;
@@ -84,7 +81,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     function _build(address) internal override {
         // Iterate over the chains pull out the configs.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        IOPContractsManager.AddGameInput[] memory configs = new IOPContractsManager.AddGameInput[](chains.length);
+        IOPContractsManagerU18.AddGameInput[] memory configs = new IOPContractsManagerU18.AddGameInput[](chains.length);
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
@@ -93,7 +90,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
             // Validate critical addresses are non-zero
             require(address(cfg[chainId].delayedWETH) != address(0), "AddGameType: delayedWETH is zero address");
-            require(address(cfg[chainId].proxyAdmin) != address(0), "AddGameType: proxyAdmin is zero address");
             require(address(cfg[chainId].systemConfig) != address(0), "AddGameType: systemConfig is zero address");
             require(address(cfg[chainId].vm) != address(0), "AddGameType: vm is zero address");
 
@@ -102,7 +98,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
         // Delegatecall the OPCM.addGameType() function.
         (bool success, bytes memory returnData) =
-            OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
+            OPCM.delegatecall(abi.encodeCall(IOPContractsManagerU18.addGameType, (configs)));
         if (!success) {
             if (returnData.length > 0) {
                 assembly {
@@ -148,12 +144,11 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     function _toAddGameInput(AddGameInputWithChainId memory _input)
         internal
         pure
-        returns (IOPContractsManager.AddGameInput memory)
+        returns (IOPContractsManagerU18.AddGameInput memory)
     {
-        return IOPContractsManager.AddGameInput({
+        return IOPContractsManagerU18.AddGameInput({
             saltMixer: _input.saltMixer,
             systemConfig: _input.systemConfig,
-            proxyAdmin: _input.proxyAdmin,
             delayedWETH: _input.delayedWETH,
             disputeGameType: _input.disputeGameType,
             disputeAbsolutePrestate: _input.disputeAbsolutePrestate,
@@ -166,4 +161,23 @@ contract AddGameTypeTemplate is OPCMTaskBase {
             permissioned: _input.permissioned
         });
     }
+}
+
+interface IOPContractsManagerU18 {
+    struct AddGameInput {
+        string saltMixer;
+        ISystemConfig systemConfig;
+        IDelayedWETH delayedWETH;
+        GameType disputeGameType;
+        Claim disputeAbsolutePrestate;
+        uint256 disputeMaxGameDepth;
+        uint256 disputeSplitDepth;
+        Duration disputeClockExtension;
+        Duration disputeMaxClockDuration;
+        uint256 initialBond;
+        IBigStepper vm;
+        bool permissioned;
+    }
+
+    function addGameType(AddGameInput[] memory _gameInputs) external;
 }
