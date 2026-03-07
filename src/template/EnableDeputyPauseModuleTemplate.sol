@@ -5,7 +5,7 @@ import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
 import {IDeputyPauseModule} from "@eth-optimism-bedrock/interfaces/safe/IDeputyPauseModule.sol";
-import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
+import {ModuleManager} from "safe-contracts/base/ModuleManager.sol";
 
 import {SimpleTaskBase} from "src/tasks/types/SimpleTaskBase.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";

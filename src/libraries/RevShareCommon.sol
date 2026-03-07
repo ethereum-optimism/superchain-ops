@@ -31,13 +31,14 @@ library RevShareCommon {
     /// @param _salt Salt for CREATE2 deployment
     /// @param _initCode Contract creation code (creationCode + constructor args)
     function depositCreate2(address _portal, uint64 _gasLimit, bytes32 _salt, bytes memory _initCode) internal {
-        IOptimismPortal2(payable(_portal)).depositTransaction({
-            _to: CREATE2_DEPLOYER,
-            _value: 0,
-            _gasLimit: _gasLimit,
-            _isCreation: false,
-            _data: abi.encodeCall(ICreate2Deployer.deploy, (0, _salt, _initCode))
-        });
+        IOptimismPortal2(payable(_portal))
+            .depositTransaction({
+                _to: CREATE2_DEPLOYER,
+                _value: 0,
+                _gasLimit: _gasLimit,
+                _isCreation: false,
+                _data: abi.encodeCall(ICreate2Deployer.deploy, (0, _salt, _initCode))
+            });
     }
 
     /// @notice Calls a contract on L2 by depositing a transaction to the OptimismPortal2
@@ -46,13 +47,8 @@ library RevShareCommon {
     /// @param _gasLimit Gas limit for the L2 transaction
     /// @param _data Calldata for the L2 transaction
     function depositCall(address _portal, address _target, uint64 _gasLimit, bytes memory _data) internal {
-        IOptimismPortal2(payable(_portal)).depositTransaction({
-            _to: _target,
-            _value: 0,
-            _gasLimit: _gasLimit,
-            _isCreation: false,
-            _data: _data
-        });
+        IOptimismPortal2(payable(_portal))
+            .depositTransaction({_to: _target, _value: 0, _gasLimit: _gasLimit, _isCreation: false, _data: _data});
     }
 
     /// @notice Generates a salt for CREATE2 deployments

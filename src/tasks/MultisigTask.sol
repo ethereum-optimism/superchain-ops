@@ -148,18 +148,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             safeMulticallTarget = MULTICALL3_ADDRESS; // For any non-root safe, we use the multicall3 address.
         }
 
-        bytes32 recomputedHash = IGnosisSafe(safeData.safe).getTransactionHash(
-            safeMulticallTarget,
-            0,
-            safeData.callData,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            safeData.nonce
-        );
+        bytes32 recomputedHash = IGnosisSafe(safeData.safe)
+            .getTransactionHash(
+                safeMulticallTarget,
+                0,
+                safeData.callData,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
+                safeData.nonce
+            );
 
         require(recomputedHash == txHash_, "MultisigTask: hash mismatch");
 
@@ -248,9 +249,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory allSafes
     ) public view returns (bytes32) {
         address multicallAddress = _getMulticallAddress(safe, allSafes);
-        return keccak256(
-            GnosisSafeHashes.getEncodedTransactionData(safe, callData, value, originalNonce, multicallAddress)
-        );
+        return
+            keccak256(
+                GnosisSafeHashes.getEncodedTransactionData(safe, callData, value, originalNonce, multicallAddress)
+            );
     }
 
     /// @notice Get the safe address string from the config file. If the string is not found, use the value from the template.
@@ -352,10 +354,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         for (uint256 i; i < calls.length; i++) {
             require(targets[i] != address(0), "Invalid target for multisig");
             calls[i] = IMulticall3.Call3Value({
-                target: targets[i],
-                allowFailure: false,
-                value: values[i],
-                callData: arguments[i]
+                target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]
             });
         }
 
@@ -459,13 +458,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
-                if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions))
+                {
+
                     // Log account, slot, and value if there is no code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
                     require(address(uint160(value)).code.length != 0, err);
                 } else {
+
                     // Log account, slot, and value if there is code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
@@ -1003,10 +1005,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// the root safe address, and setting the multicall target address.
     /// This method may also set any allowed and expected storage accesses that are expected in all
     /// use cases of the template.
-    function _configureTask(string memory configPath)
-        internal
-        virtual
-        returns (AddressRegistry, IGnosisSafe, address);
+    function _configureTask(string memory configPath) internal virtual returns (AddressRegistry, IGnosisSafe, address);
 
     /// @notice This is a solidity script of the calls you want to make, and its
     /// contents are extracted into calldata for the task. WARNING: Any state written to in this function will be reverted

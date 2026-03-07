@@ -85,7 +85,9 @@ contract OPCMUpgradeV200 is OPCMTaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)),
+                systemConfigProxy: ISystemConfig(
+                    superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)
+                ),
                 proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId)),
                 absolutePrestate: absolutePrestates[chains[i].chainId]
             });
@@ -106,10 +108,7 @@ contract OPCMUpgradeV200 is OPCMTaskBase {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV200.InputV200 memory input = IStandardValidatorV200.InputV200({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
-                absolutePrestate: currentAbsolutePrestate,
-                l2ChainID: chainId
+                proxyAdmin: proxyAdmin, sysCfg: sysCfg, absolutePrestate: currentAbsolutePrestate, l2ChainID: chainId
             });
 
             // We expect many errors returned from this validation. Below are reasons for each failure which have been deemed acceptable.
