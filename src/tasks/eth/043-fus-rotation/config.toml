@@ -1,6 +1,6 @@
 templateName = "GnosisSafeRotateMultipleSigners"
 
-safeAddressString = "FoundationOperationsSafe"
+safeAddressString = "FoundationUpgradeSafe"
 
 ownersToRemove = [
     "0xE7dEA1306D9F829bA469d1904c50903b46ebd02e",
@@ -16,6 +16,6 @@ ownersToAdd = [
 
 [stateOverrides]
 # Nonce override for simulation (storage slot 0x5 is the nonce)
-0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 116}
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 52}
 ]
