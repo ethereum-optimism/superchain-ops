@@ -120,41 +120,17 @@ contract UpdateFeeVaultRecipientIntegrationTest is Test {
 
     /// @notice Assert all 3 fee vaults now return the new recipient.
     function _assertFeeVaultRecipients() internal view {
-        assertEq(
-            _getRecipient(SEQUENCER_FEE_VAULT),
-            NEW_RECIPIENT,
-            "SequencerFeeVault recipient mismatch"
-        );
-        assertEq(
-            _getRecipient(BASE_FEE_VAULT),
-            NEW_RECIPIENT,
-            "BaseFeeVault recipient mismatch"
-        );
-        assertEq(
-            _getRecipient(L1_FEE_VAULT),
-            NEW_RECIPIENT,
-            "L1FeeVault recipient mismatch"
-        );
+        assertEq(_getRecipient(SEQUENCER_FEE_VAULT), NEW_RECIPIENT, "SequencerFeeVault recipient mismatch");
+        assertEq(_getRecipient(BASE_FEE_VAULT), NEW_RECIPIENT, "BaseFeeVault recipient mismatch");
+        assertEq(_getRecipient(L1_FEE_VAULT), NEW_RECIPIENT, "L1FeeVault recipient mismatch");
     }
 
     /// @notice Assert all 3 fee vaults are on version 1.5.0-beta.5.
     function _assertFeeVaultVersions() internal view {
         string memory expectedVersion = "1.5.0-beta.5";
-        assertEq(
-            _getVersion(SEQUENCER_FEE_VAULT),
-            expectedVersion,
-            "SequencerFeeVault version mismatch"
-        );
-        assertEq(
-            _getVersion(BASE_FEE_VAULT),
-            expectedVersion,
-            "BaseFeeVault version mismatch"
-        );
-        assertEq(
-            _getVersion(L1_FEE_VAULT),
-            expectedVersion,
-            "L1FeeVault version mismatch"
-        );
+        assertEq(_getVersion(SEQUENCER_FEE_VAULT), expectedVersion, "SequencerFeeVault version mismatch");
+        assertEq(_getVersion(BASE_FEE_VAULT), expectedVersion, "BaseFeeVault version mismatch");
+        assertEq(_getVersion(L1_FEE_VAULT), expectedVersion, "L1FeeVault version mismatch");
     }
 
     function _getRecipient(address vault) internal view returns (address) {

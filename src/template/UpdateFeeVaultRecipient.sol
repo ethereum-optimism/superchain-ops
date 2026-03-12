@@ -100,7 +100,10 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             bytes memory seqInitCode = abi.encodePacked(sequencerFeeVaultCreationCode, initArgs);
             address seqImpl = Utils.getCreate2Address(seqSalt, seqInitCode, CREATE2_DEPLOYER);
             portalContract.depositTransaction(
-                CREATE2_DEPLOYER, 0, DEPLOY_GAS_LIMIT, false,
+                CREATE2_DEPLOYER,
+                0,
+                DEPLOY_GAS_LIMIT,
+                false,
                 abi.encodeCall(ICreate2Deployer.deploy, (0, seqSalt, seqInitCode))
             );
 
@@ -109,25 +112,37 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             bytes memory defaultInitCode = abi.encodePacked(defaultFeeVaultCreationCode, initArgs);
             address defaultImpl = Utils.getCreate2Address(defaultSalt, defaultInitCode, CREATE2_DEPLOYER);
             portalContract.depositTransaction(
-                CREATE2_DEPLOYER, 0, DEPLOY_GAS_LIMIT, false,
+                CREATE2_DEPLOYER,
+                0,
+                DEPLOY_GAS_LIMIT,
+                false,
                 abi.encodeCall(ICreate2Deployer.deploy, (0, defaultSalt, defaultInitCode))
             );
 
             // 3. Upgrade SequencerFeeVault proxy
             portalContract.depositTransaction(
-                L2_PROXY_ADMIN, 0, UPGRADE_GAS_LIMIT, false,
+                L2_PROXY_ADMIN,
+                0,
+                UPGRADE_GAS_LIMIT,
+                false,
                 abi.encodeCall(IProxyAdmin.upgrade, (SEQUENCER_FEE_VAULT, seqImpl))
             );
 
             // 4. Upgrade BaseFeeVault proxy
             portalContract.depositTransaction(
-                L2_PROXY_ADMIN, 0, UPGRADE_GAS_LIMIT, false,
+                L2_PROXY_ADMIN,
+                0,
+                UPGRADE_GAS_LIMIT,
+                false,
                 abi.encodeCall(IProxyAdmin.upgrade, (BASE_FEE_VAULT, defaultImpl))
             );
 
             // 5. Upgrade L1FeeVault proxy
             portalContract.depositTransaction(
-                L2_PROXY_ADMIN, 0, UPGRADE_GAS_LIMIT, false,
+                L2_PROXY_ADMIN,
+                0,
+                UPGRADE_GAS_LIMIT,
+                false,
                 abi.encodeCall(IProxyAdmin.upgrade, (L1_FEE_VAULT, defaultImpl))
             );
         }
@@ -155,14 +170,22 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
         bytes memory initArgs = abi.encode(c.newRecipient, c.minWithdrawalAmount, c.withdrawalNetwork);
 
         // Reconstruct and verify CREATE2 deploys
-        _validateAction(_actions[baseIdx], portal, _expectedCreate2Deploy(
-            keccak256(abi.encodePacked("ArenaZ:SequencerFeeVault:", chainId)),
-            abi.encodePacked(sequencerFeeVaultCreationCode, initArgs)
-        ));
-        _validateAction(_actions[baseIdx + 1], portal, _expectedCreate2Deploy(
-            keccak256(abi.encodePacked("ArenaZ:FeeVault:", chainId)),
-            abi.encodePacked(defaultFeeVaultCreationCode, initArgs)
-        ));
+        _validateAction(
+            _actions[baseIdx],
+            portal,
+            _expectedCreate2Deploy(
+                keccak256(abi.encodePacked("ArenaZ:SequencerFeeVault:", chainId)),
+                abi.encodePacked(sequencerFeeVaultCreationCode, initArgs)
+            )
+        );
+        _validateAction(
+            _actions[baseIdx + 1],
+            portal,
+            _expectedCreate2Deploy(
+                keccak256(abi.encodePacked("ArenaZ:FeeVault:", chainId)),
+                abi.encodePacked(defaultFeeVaultCreationCode, initArgs)
+            )
+        );
 
         // Reconstruct and verify proxy upgrades
         address seqImpl = Utils.getCreate2Address(
@@ -182,7 +205,10 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
     }
 
     /// @notice Validates a single action against expected target and calldata.
-    function _validateAction(Action memory action, address expectedTarget, bytes memory expectedCalldata) internal pure {
+    function _validateAction(Action memory action, address expectedTarget, bytes memory expectedCalldata)
+        internal
+        pure
+    {
         require(action.target == expectedTarget, "UpdateFeeVaultRecipient: action target mismatch");
         require(action.value == 0, "UpdateFeeVaultRecipient: action value is not zero");
         require(
