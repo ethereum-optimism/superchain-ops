@@ -12,9 +12,10 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// @notice This template sets the FaultDisputeGame (FDG) and PermissionedDisputeGame (PDG) implementation addresses
 ///         in the DisputeGameFactory contract for one or more chains, using values specified in a TOML configuration file.
 ///
-/// IMPORTANT: For each chain you wish to update, you MUST provide both FDG and PDG implementation addresses (old and new) in the TOML file.
-///         - If the provided address matches the current on-chain implementation, the contract will SKIP updating it.
-///         - You are REQUIRED to explicitly specify both addresses for each chain, even if you do not intend to change both.
+/// IMPORTANT: For each chain you wish to update, you MUST provide both FDG and PDG configurations in the TOML file.
+///         - If the provided implementation AND gameArgs match the current on-chain values, that game type is skipped.
+///         - This allows updating one game type (e.g., PDG proposer rotation) while leaving the other unchanged.
+///         - You are REQUIRED to explicitly specify both configurations for each chain, even if you do not intend to change both.
 ///         - To reset an implementation to the zero address, provide "0x000...0" as the value in the TOML.
 ///         - Omitting a field is NOT supported and will result in errors and unintended behavior.
 contract SetDisputeGameImpl is L2TaskBase {
@@ -97,14 +98,18 @@ contract SetDisputeGameImpl is L2TaskBase {
 
     function _setFDGImplementation(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal {
         address currentFDG = address(factory.gameImpls(CANNON));
-        require(currentFDG != c.fdgImpl, "SetDisputeGameImpl: FDG already set to target value");
+        if (currentFDG == c.fdgImpl && keccak256(factory.gameArgs(CANNON)) == keccak256(c.fdgGameArgs)) {
+            return;
+        }
         _validateGameArgsFormat(c.fdgGameArgs, chainId, false);
         factory.setImplementation(CANNON, c.fdgImpl, c.fdgGameArgs);
     }
 
     function _setPDGImplementation(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal {
         address currentPDG = address(factory.gameImpls(PERMISSIONED_CANNON));
-        require(currentPDG != c.pdgImpl, "SetDisputeGameImpl: PDG already set to target value");
+        if (currentPDG == c.pdgImpl && keccak256(factory.gameArgs(PERMISSIONED_CANNON)) == keccak256(c.pdgGameArgs)) {
+            return;
+        }
         _validateGameArgsFormat(c.pdgGameArgs, chainId, true);
         factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl, c.pdgGameArgs);
     }
