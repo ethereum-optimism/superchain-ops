@@ -21,12 +21,12 @@ the values printed to the terminal when you run the task.
 > ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x53214e04e1efe0a4bfc4cdeb55f2913ff92db5b02b676796df5f7c86f70cd1e7`
+> - Message Hash: `0x4daaffa56fda0aec13e8a79c735b58f2485819eb8cc629e975d0fdad32fa80a1`
 >
 > ### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x56d63c87dc7f7b8ed7c9229fac66291e7629342f8d8c660522c3a131977a425a`
+> - Message Hash: `0x54c760d1dc18a1072862eb04d10f9c464b8b137e653b4e20efee91add20c4cef`
 
 ## Understanding Task Calldata
 
@@ -63,39 +63,48 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `48`
-  - **After:** `49`
+  - **Before:** `50`
+  - **After:** `51`
   - **Summary:** Nonce increment for the ProxyAdminOwner Safe.
-  - **Detail:** The Safe nonce is incremented from 48 to 49 after executing the transaction.
+  - **Detail:** The Safe nonce is incremented from 50 to 51 after executing the transaction.
 
 > [!IMPORTANT]
 > Foundation Only
 
 If signer is on Foundation Safe: `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`:
 
-- **Key:**          `0x2dd5ae8bbc99659191ef69b30925ad0517b654cc4d934c4660f4613649e58549`
+- **Key:**          `0xe7a728674014e6119a2ead7a6cc9de8e2c9a81494f40b6e1c387f57dcc58c197`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** `approveHash(bytes32)` called on ProxyAdminOwner by Foundation Safe.
-  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** This slot change reflects the Foundation Safe calling `approveHash` on the ProxyAdminOwner as part of the nested multisig execution flow. The slot is `approvedHashes[0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B][0xd6c04a5a37d6e8024bf6bdab9c3b4dc365168b954de287f1ebcd940b9bdff24d]` (mapping at slot 8). To verify:
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** This slot change reflects the Foundation Safe calling `approveHash` on the ProxyAdminOwner as part of the nested multisig execution flow. The slot is `approvedHashes[0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B][0xb56bda3acdf1547b19e7954b89b2634babb531dc63bd364db56f1acb8e2ce56c]` (mapping at slot 8). To verify:
     - `res=$(cast index address 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B 8)`
-    - `cast index bytes32 0xd6c04a5a37d6e8024bf6bdab9c3b4dc365168b954de287f1ebcd940b9bdff24d $res`
+    - `cast index bytes32 0xb56bda3acdf1547b19e7954b89b2634babb531dc63bd364db56f1acb8e2ce56c $res`
 
 > [!IMPORTANT]
 > Security Council Only
 
 If signer is on Security Council Safe: `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`:
 
-- **Key:**          `0x99c18ca5eb1a62034274410cfb42524de1b801d3e02dc93c475ffb86563ca8e7`
+- **Key:**          `0xad9b745a60bc10562d61f41c4b43a985608e7663d233d7dcd123276f5c98e0b5`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** `approveHash(bytes32)` called on ProxyAdminOwner by Security Council Safe.
-  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** This slot change reflects the Security Council Safe calling `approveHash` on the ProxyAdminOwner as part of the nested multisig execution flow. The slot is `approvedHashes[0xf64bc17485f0B4Ea5F06A96514182FC4cB561977][0xd6c04a5a37d6e8024bf6bdab9c3b4dc365168b954de287f1ebcd940b9bdff24d]` (mapping at slot 8). To verify:
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** This slot change reflects the Security Council Safe calling `approveHash` on the ProxyAdminOwner as part of the nested multisig execution flow. The slot is `approvedHashes[0xf64bc17485f0B4Ea5F06A96514182FC4cB561977][0xb56bda3acdf1547b19e7954b89b2634babb531dc63bd364db56f1acb8e2ce56c]` (mapping at slot 8). To verify:
     - `res=$(cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8)`
-    - `cast index bytes32 0xd6c04a5a37d6e8024bf6bdab9c3b4dc365168b954de287f1ebcd940b9bdff24d $res`
+    - `cast index bytes32 0xb56bda3acdf1547b19e7954b89b2634babb531dc63bd364db56f1acb8e2ce56c $res`
 
 > [!IMPORTANT]
 > Security Council Only
+
+### [`0x90fdce6efff020605462150cde42257193d1e558`](https://sepolia.etherscan.io/address/0x90fdce6efff020605462150cde42257193d1e558) (OptimismPortal2) - Chain ID: 9899
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Decoded Kind:** `struct ResourceMetering.ResourceParams`
+  - **Before:** ``
+  - **After:** ``
+  - **Summary:** ResourceMetering params update.
+  - **Detail:** The `params` struct in [ResourceMetering](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/ResourceMetering.sol) is updated whenever a deposit transaction is sent through the OptimismPortal. This is expected behavior for all L1→L2 deposit transactions.
 
 ### [`0xc26977310bC89DAee5823C2e2a73195E85382cC7`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol) (LivenessGuard)
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**

@@ -28,17 +28,15 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
     /// @notice The address of the CREATE2 Deployer preinstall on L2.
     address internal constant CREATE2_DEPLOYER = 0x13b0D85CcB8bf860b6b79AF3029fCA081AE9beF2;
 
-    /// @notice Gas limits for L2 operations.
-    uint64 internal constant DEPLOY_GAS_LIMIT = 1_200_000;
-    uint64 internal constant UPGRADE_GAS_LIMIT = 150_000;
-
     /// @notice Struct representing configuration for the task per chain.
     /// @dev Fields MUST be in alphabetical order for stdToml.parseRaw compatibility.
     struct FeeVaultConfig {
         uint256 chainId;
         address currentRecipient;
+        uint64 deployGasLimit;
         uint256 minWithdrawalAmount;
         address newRecipient;
+        uint64 upgradeGasLimit;
         uint8 withdrawalNetwork; // 0 = L1, 1 = L2
     }
 
@@ -71,6 +69,10 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
 
         FeeVaultConfig[] memory configs = abi.decode(toml.parseRaw(".feeVaultConfig"), (FeeVaultConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
+            require(configs[i].newRecipient != address(0), "UpdateFeeVaultRecipient: newRecipient is zero address");
+            require(configs[i].withdrawalNetwork <= 1, "UpdateFeeVaultRecipient: invalid withdrawalNetwork");
+            require(configs[i].deployGasLimit > 0, "UpdateFeeVaultRecipient: deployGasLimit is zero");
+            require(configs[i].upgradeGasLimit > 0, "UpdateFeeVaultRecipient: upgradeGasLimit is zero");
             cfg[configs[i].chainId] = configs[i];
         }
 
@@ -102,7 +104,7 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portalContract.depositTransaction(
                 CREATE2_DEPLOYER,
                 0,
-                DEPLOY_GAS_LIMIT,
+                c.deployGasLimit,
                 false,
                 abi.encodeCall(ICreate2Deployer.deploy, (0, seqSalt, seqInitCode))
             );
@@ -114,7 +116,7 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portalContract.depositTransaction(
                 CREATE2_DEPLOYER,
                 0,
-                DEPLOY_GAS_LIMIT,
+                c.deployGasLimit,
                 false,
                 abi.encodeCall(ICreate2Deployer.deploy, (0, defaultSalt, defaultInitCode))
             );
@@ -123,7 +125,7 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portalContract.depositTransaction(
                 L2_PROXY_ADMIN,
                 0,
-                UPGRADE_GAS_LIMIT,
+                c.upgradeGasLimit,
                 false,
                 abi.encodeCall(IProxyAdmin.upgrade, (SEQUENCER_FEE_VAULT, seqImpl))
             );
@@ -132,7 +134,7 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portalContract.depositTransaction(
                 L2_PROXY_ADMIN,
                 0,
-                UPGRADE_GAS_LIMIT,
+                c.upgradeGasLimit,
                 false,
                 abi.encodeCall(IProxyAdmin.upgrade, (BASE_FEE_VAULT, defaultImpl))
             );
@@ -141,7 +143,7 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portalContract.depositTransaction(
                 L2_PROXY_ADMIN,
                 0,
-                UPGRADE_GAS_LIMIT,
+                c.upgradeGasLimit,
                 false,
                 abi.encodeCall(IProxyAdmin.upgrade, (L1_FEE_VAULT, defaultImpl))
             );
@@ -175,7 +177,8 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portal,
             _expectedCreate2Deploy(
                 keccak256(abi.encodePacked("ArenaZ:SequencerFeeVault:", chainId)),
-                abi.encodePacked(sequencerFeeVaultCreationCode, initArgs)
+                abi.encodePacked(sequencerFeeVaultCreationCode, initArgs),
+                c.deployGasLimit
             )
         );
         _validateAction(
@@ -183,7 +186,8 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             portal,
             _expectedCreate2Deploy(
                 keccak256(abi.encodePacked("ArenaZ:FeeVault:", chainId)),
-                abi.encodePacked(defaultFeeVaultCreationCode, initArgs)
+                abi.encodePacked(defaultFeeVaultCreationCode, initArgs),
+                c.deployGasLimit
             )
         );
 
@@ -199,9 +203,11 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
             CREATE2_DEPLOYER
         );
 
-        _validateAction(_actions[baseIdx + 2], portal, _expectedUpgrade(SEQUENCER_FEE_VAULT, seqImpl));
-        _validateAction(_actions[baseIdx + 3], portal, _expectedUpgrade(BASE_FEE_VAULT, defaultImpl));
-        _validateAction(_actions[baseIdx + 4], portal, _expectedUpgrade(L1_FEE_VAULT, defaultImpl));
+        _validateAction(
+            _actions[baseIdx + 2], portal, _expectedUpgrade(SEQUENCER_FEE_VAULT, seqImpl, c.upgradeGasLimit)
+        );
+        _validateAction(_actions[baseIdx + 3], portal, _expectedUpgrade(BASE_FEE_VAULT, defaultImpl, c.upgradeGasLimit));
+        _validateAction(_actions[baseIdx + 4], portal, _expectedUpgrade(L1_FEE_VAULT, defaultImpl, c.upgradeGasLimit));
     }
 
     /// @notice Validates a single action against expected target and calldata.
@@ -218,18 +224,22 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
     }
 
     /// @notice Builds expected depositTransaction calldata for a CREATE2 deploy.
-    function _expectedCreate2Deploy(bytes32 salt, bytes memory initCode) internal pure returns (bytes memory) {
+    function _expectedCreate2Deploy(bytes32 salt, bytes memory initCode, uint64 gasLimit)
+        internal
+        pure
+        returns (bytes memory)
+    {
         return abi.encodeCall(
             IOptimismPortal2.depositTransaction,
-            (CREATE2_DEPLOYER, 0, DEPLOY_GAS_LIMIT, false, abi.encodeCall(ICreate2Deployer.deploy, (0, salt, initCode)))
+            (CREATE2_DEPLOYER, 0, gasLimit, false, abi.encodeCall(ICreate2Deployer.deploy, (0, salt, initCode)))
         );
     }
 
     /// @notice Builds expected depositTransaction calldata for a proxy upgrade.
-    function _expectedUpgrade(address proxy, address impl) internal pure returns (bytes memory) {
+    function _expectedUpgrade(address proxy, address impl, uint64 gasLimit) internal pure returns (bytes memory) {
         return abi.encodeCall(
             IOptimismPortal2.depositTransaction,
-            (L2_PROXY_ADMIN, 0, UPGRADE_GAS_LIMIT, false, abi.encodeCall(IProxyAdmin.upgrade, (proxy, impl)))
+            (L2_PROXY_ADMIN, 0, gasLimit, false, abi.encodeCall(IProxyAdmin.upgrade, (proxy, impl)))
         );
     }
 
