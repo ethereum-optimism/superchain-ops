@@ -1,4 +1,4 @@
-# 073-arena-z-fee-vault-update
+# 072-arena-z-fee-vault-update
 
 Status: DRAFT
 
@@ -32,7 +32,7 @@ Follow the instructions in the [Nested Execution](../../../NESTED.md) guide.
 ## Simulation
 
 ```
-cd src/tasks/sep/073-arena-z-fee-vault-update
+cd src/tasks/sep/072-arena-z-fee-vault-update
 
 # Foundation
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign foundation
