@@ -44,7 +44,7 @@ contract UpdateFeeVaultRecipientIntegrationTest is Test {
 
     function setUp() public {
         // Create L1 fork (Sepolia)
-        string memory sepoliaRpc = vm.envOr("SEPOLIA_RPC_URL", string("https://ci-sepolia-l1-archive.optimism.io"));
+        string memory sepoliaRpc = vm.envOr("SEPOLIA_RPC_URL", string(""));
         sepoliaForkId = vm.createFork(sepoliaRpc);
 
         // Create L2 fork (Arena-Z testnet)
