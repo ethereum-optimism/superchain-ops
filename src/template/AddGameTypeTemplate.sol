@@ -125,7 +125,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
             // as immutables on the game contract.
             // gameArgs layout (124 bytes): prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
             bytes memory gameArgs = factory.gameArgs(cfg[chainId].disputeGameType);
-            require(gameArgs.length >= 92, "AddGameType: gameArgs too short");
+            require(gameArgs.length >= 124, "AddGameType: gameArgs too short");
             bytes32 prestateFromArgs;
             address vmFromArgs;
             address wethFromArgs;
