@@ -63,7 +63,10 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
                 configs[i].defaultFeeVaultImpl != address(0),
                 "UpdateFeeVaultRecipient: defaultFeeVaultImpl is zero address"
             );
-            require(configs[i].upgradeGasLimit > 0, "UpdateFeeVaultRecipient: upgradeGasLimit is zero");
+            require(
+                configs[i].upgradeGasLimit >= 100_000,
+                "UpdateFeeVaultRecipient: upgradeGasLimit must be at least 100,000"
+            );
             cfg[configs[i].chainId] = configs[i];
         }
     }

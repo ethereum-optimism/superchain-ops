@@ -41,6 +41,23 @@ This task updates the fee vault recipient for Arena-Z Testnet (Chain ID: 9899) f
 New fee vault implementations were pre-deployed on L2 before this task. This task only performs
 3 proxy upgrade calls via L1→L2 deposit transactions through the OptimismPortal.
 
+### Verifying Pre-Deployed Implementations
+
+Before signing, verify that the pre-deployed implementations on Arena-Z L2 contain the correct
+recipient address (`0xE75f598754A552841E65f43197C85028874A96a4`):
+
+```bash
+# Verify SequencerFeeVault implementation
+cast call 0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e "recipient()(address)" \
+  --rpc-url https://testnet-rpc.arena-z.gg
+
+# Verify BaseFeeVault and L1FeeVault implementation
+cast call 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE "recipient()(address)" \
+  --rpc-url https://testnet-rpc.arena-z.gg
+```
+
+Both should return `0xE75f598754A552841E65f43197C85028874A96a4`.
+
 ### Structure
 
 The task calls `OptimismPortal.depositTransaction` 3 times, once per fee vault. The superchain-ops
