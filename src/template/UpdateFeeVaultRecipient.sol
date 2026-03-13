@@ -141,7 +141,7 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
     /// @notice Validates a single action against expected target and calldata.
     function _validateAction(Action memory action, address expectedTarget, bytes memory expectedCalldata)
         internal
-        view
+        pure
     {
         require(action.target == expectedTarget, "UpdateFeeVaultRecipient: action target mismatch");
         require(action.value == 0, "UpdateFeeVaultRecipient: action value is not zero");
