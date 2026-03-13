@@ -1,6 +1,6 @@
 # 067-rev-share-soneium: RevShare Upgrade and Setup for Soneium Testnet Minato
 
-Status: [READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 
