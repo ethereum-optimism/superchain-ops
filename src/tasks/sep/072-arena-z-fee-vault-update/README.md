@@ -11,14 +11,13 @@ This is part of the Arena-Z Chain Servicer Migration. The fee recipient for all 
 to `0xE75f598754A552841E65f43197C85028874A96a4`. The withdrawal network is also changed from L2 (`1`) to L1 (`0`).
 
 Since the fee vaults use immutable recipients (baked into constructor bytecode), new implementation
-contracts are deployed on L2 via L1→L2 deposit transactions, and each vault proxy is upgraded to
-point to its new implementation.
+contracts were pre-deployed on L2 before this task. This task only upgrades the 3 vault proxies
+to point to the pre-deployed implementations via L1→L2 deposit transactions through the OptimismPortal.
 
 ### Required Steps
 
 For each of the three fee vaults:
-1. Deploy a new implementation via CREATE2 on L2 (through OptimismPortal deposit)
-2. Upgrade the vault proxy via L2 ProxyAdmin (through OptimismPortal deposit)
+1. Upgrade the vault proxy via L2 ProxyAdmin (through OptimismPortal deposit)
 
 ## Transaction creation
 

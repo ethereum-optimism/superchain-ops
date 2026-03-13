@@ -8,7 +8,7 @@ import {UpdateFeeVaultRecipient} from "src/template/UpdateFeeVaultRecipient.sol"
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
 
 /// @title UpdateFeeVaultRecipientIntegrationTest
-/// @notice Integration test that simulates the L1 task execution and replays the 5 deposit
+/// @notice Integration test that simulates the L1 task execution and replays the 3 deposit
 ///         transactions on a forked Arena-Z L2 to verify the fee vault recipient update end-to-end.
 ///
 ///         To run this test, start supersim or provide RPC URLs:
@@ -33,15 +33,18 @@ contract UpdateFeeVaultRecipientIntegrationTest is Test {
     address internal constant BASE_FEE_VAULT = 0x4200000000000000000000000000000000000019;
     address internal constant L1_FEE_VAULT = 0x420000000000000000000000000000000000001A;
 
-    // Expected new recipient from config.toml
+    // Expected new recipient — baked into the pre-deployed implementations
     address internal constant NEW_RECIPIENT = 0xE75f598754A552841E65f43197C85028874A96a4;
+    // Pre-deployed implementation addresses on Arena Z testnet
+    address internal constant SEQ_IMPL = 0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e;
+    address internal constant DEFAULT_IMPL = 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE;
 
     // Config path
     string internal constant CONFIG_PATH = "src/tasks/sep/072-arena-z-fee-vault-update/config.toml";
 
     function setUp() public {
         // Create L1 fork (Sepolia)
-        string memory sepoliaRpc = vm.envOr("SEPOLIA_RPC_URL", string("http://127.0.0.1:8545"));
+        string memory sepoliaRpc = vm.envOr("SEPOLIA_RPC_URL", string("https://ci-sepolia-l1-archive.optimism.io"));
         sepoliaForkId = vm.createFork(sepoliaRpc);
 
         // Create L2 fork (Arena-Z testnet)
@@ -114,8 +117,8 @@ contract UpdateFeeVaultRecipientIntegrationTest is Test {
         console2.log("Total:", txCount);
         console2.log("Succeeded:", successCount);
 
-        assertEq(txCount, 5, "Expected 5 deposit transactions");
-        assertEq(successCount, 5, "All deposit transactions should succeed");
+        assertEq(txCount, 3, "Expected 3 deposit transactions");
+        assertEq(successCount, 3, "All deposit transactions should succeed");
     }
 
     /// @notice Assert all 3 fee vaults now return the new recipient.
