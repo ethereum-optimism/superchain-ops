@@ -66,6 +66,10 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
                 configs[i].upgradeGasLimit >= 100_000,
                 "UpdateFeeVaultRecipient: upgradeGasLimit must be at least 100,000"
             );
+            require(
+                superchainAddrRegistry.getAddress("OptimismPortalProxy", configs[i].chainId) != address(0),
+                "UpdateFeeVaultRecipient: chainId not found in SuperchainAddressRegistry"
+            );
             cfg[configs[i].chainId] = configs[i];
         }
     }
