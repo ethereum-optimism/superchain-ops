@@ -6,7 +6,6 @@ l2chains = [
 
 [[feeVaultConfig]]
 chainId = 9899
-currentRecipient = "0x9648CF2B93DdBbe120812a567294B2954bCc8568"
 # Implementations pre-deployed on Arena Z testnet L2 via CREATE2.
 seqFeeVaultImpl = "0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e"
 defaultFeeVaultImpl = "0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE"

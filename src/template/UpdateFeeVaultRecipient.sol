@@ -28,7 +28,6 @@ contract UpdateFeeVaultRecipient is L2TaskBase {
     /// @dev Fields MUST be in alphabetical order for stdToml.parseRaw compatibility.
     struct FeeVaultConfig {
         uint256 chainId;
-        address currentRecipient;
         address defaultFeeVaultImpl;
         address seqFeeVaultImpl;
         uint64 upgradeGasLimit;

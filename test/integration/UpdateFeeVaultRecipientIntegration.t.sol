@@ -40,11 +40,12 @@ contract UpdateFeeVaultRecipientIntegrationTest is Test {
     address internal constant DEFAULT_IMPL = 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE;
 
     // Config path
-    string internal constant CONFIG_PATH = "src/tasks/sep/072-arena-z-fee-vault-update/config.toml";
+    string internal constant CONFIG_PATH = "test/tasks/example/sep/034-update-fee-vault-recipient/config.toml";
 
     function setUp() public {
         // Create L1 fork (Sepolia)
-        string memory sepoliaRpc = vm.envOr("SEPOLIA_RPC_URL", string(""));
+        string memory sepoliaRpc =
+            vm.envOr("SEPOLIA_RPC_URL", string("https://ci-sepolia-l1-archive.optimism.io"));
         sepoliaForkId = vm.createFork(sepoliaRpc);
 
         // Create L2 fork (Arena-Z testnet)
