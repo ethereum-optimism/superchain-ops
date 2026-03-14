@@ -57,9 +57,7 @@ contract SystemConfigGasParams is L2TaskBase {
         for (uint256 i = 0; i < _chains.length; i++) {
             uint256 chainId = _chains[i].chainId;
             cfg[chainId] = TaskInputs({
-                gasLimit: gasLimit,
-                eip1559Denominator: eip1559Denominator,
-                eip1559Elasticity: eip1559Elasticity
+                gasLimit: gasLimit, eip1559Denominator: eip1559Denominator, eip1559Elasticity: eip1559Elasticity
             });
         }
     }

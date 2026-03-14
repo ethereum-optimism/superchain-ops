@@ -51,11 +51,7 @@ contract SingleMultisigTaskTest is Test {
         (accountAccesses, actions,, rootSafe) = multisigTask.simulate(taskConfigFilePath, new address[](0));
     }
 
-    function toSuperchainAddrRegistry(AddressRegistry _addrRegistry)
-        internal
-        pure
-        returns (SuperchainAddressRegistry)
-    {
+    function toSuperchainAddrRegistry(AddressRegistry _addrRegistry) internal pure returns (SuperchainAddressRegistry) {
         return SuperchainAddressRegistry(AddressRegistry.unwrap(_addrRegistry));
     }
 
@@ -139,10 +135,7 @@ contract SingleMultisigTaskTest is Test {
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
         for (uint256 i = 0; i < targets.length; i++) {
             calls[i] = IMulticall3.Call3Value({
-                target: targets[i],
-                allowFailure: false,
-                value: values[i],
-                callData: arguments[i]
+                target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]
             });
         }
         bytes memory expectedCallData =
@@ -170,18 +163,19 @@ contract SingleMultisigTaskTest is Test {
             rootSafe, rootSafeData.callData, 0, rootSafeData.nonce, MULTICALL3_ADDRESS
         );
 
-        bytes memory expectedDataToSign = IGnosisSafe(rootSafe).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
-            value: 0,
-            data: rootSafeData.callData,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: rootSafeData.nonce
-        });
+        bytes memory expectedDataToSign = IGnosisSafe(rootSafe)
+            .encodeTransactionData({
+                to: MULTICALL3_ADDRESS,
+                value: 0,
+                data: rootSafeData.callData,
+                operation: Enum.Operation.DelegateCall,
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                _nonce: rootSafeData.nonce
+            });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
 
@@ -196,18 +190,19 @@ contract SingleMultisigTaskTest is Test {
         SafeData memory rootSafeData = Utils.getSafeData(payload, payload.safes.length - 1);
 
         bytes32 hash = multisigTask.getHash(rootSafeData.callData, rootSafeData.safe, 0, rootSafeData.nonce, allSafes);
-        bytes32 expectedHash = IGnosisSafe(rootSafe).getTransactionHash(
-            MULTICALL3_ADDRESS,
-            0,
-            rootSafeData.callData,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            rootSafeData.nonce
-        );
+        bytes32 expectedHash = IGnosisSafe(rootSafe)
+            .getTransactionHash(
+                MULTICALL3_ADDRESS,
+                0,
+                rootSafeData.callData,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                address(0),
+                rootSafeData.nonce
+            );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
 
