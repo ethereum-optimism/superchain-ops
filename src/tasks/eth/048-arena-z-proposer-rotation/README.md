@@ -1,6 +1,6 @@
 # 048-arena-z-proposer-rotation
 
-Status: DRAFT
+Status: [READY TO SIGN]
 
 ## Objective
 
