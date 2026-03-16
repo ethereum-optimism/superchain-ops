@@ -146,8 +146,8 @@ contract SetDisputeGameImpl is L2TaskBase {
     }
 
     function _validateGameArgs(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal view {
-        _validateGameArgsFormat(c.fdgGameArgs, chainId, false);
-        _validateGameArgsFormat(c.pdgGameArgs, chainId, true);
+        if (c.fdgGameArgs.length > 0) _validateGameArgsFormat(c.fdgGameArgs, chainId, false);
+        if (c.pdgGameArgs.length > 0) _validateGameArgsFormat(c.pdgGameArgs, chainId, true);
         require(keccak256(factory.gameArgs(CANNON)) == keccak256(c.fdgGameArgs), "FDG game args mismatch");
         require(keccak256(factory.gameArgs(PERMISSIONED_CANNON)) == keccak256(c.pdgGameArgs), "PDG game args mismatch");
     }
