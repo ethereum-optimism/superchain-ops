@@ -1,6 +1,6 @@
 # 066-rev-share-ink: RevShare Upgrade and Setup for Ink Sepolia
 
-Status: [READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 

@@ -12,9 +12,10 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// @notice This template sets the FaultDisputeGame (FDG) and PermissionedDisputeGame (PDG) implementation addresses
 ///         in the DisputeGameFactory contract for one or more chains, using values specified in a TOML configuration file.
 ///
-/// IMPORTANT: For each chain you wish to update, you MUST provide both FDG and PDG implementation addresses (old and new) in the TOML file.
-///         - If the provided address matches the current on-chain implementation, the contract will SKIP updating it.
-///         - You are REQUIRED to explicitly specify both addresses for each chain, even if you do not intend to change both.
+/// IMPORTANT: For each chain you wish to update, you MUST provide both FDG and PDG configurations in the TOML file.
+///         - If the provided implementation AND gameArgs match the current on-chain values, that game type is skipped.
+///         - This allows updating one game type (e.g., PDG proposer rotation) while leaving the other unchanged.
+///         - You are REQUIRED to explicitly specify both configurations for each chain, even if you do not intend to change both.
 ///         - To reset an implementation to the zero address, provide "0x000...0" as the value in the TOML.
 ///         - Omitting a field is NOT supported and will result in errors and unintended behavior.
 contract SetDisputeGameImpl is L2TaskBase {
@@ -24,8 +25,10 @@ contract SetDisputeGameImpl is L2TaskBase {
     struct GameImplConfig {
         uint256 chainId;
         uint256 fdgBond;
+        bytes fdgGameArgs;
         address fdgImpl;
         uint256 pdgBond;
+        bytes pdgGameArgs;
         address pdgImpl;
         address prevFdgImpl;
         address prevPdgImpl;
@@ -61,34 +64,7 @@ contract SetDisputeGameImpl is L2TaskBase {
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            GameImplConfig memory c = cfg[chainId];
-
-            // Validate that configuration exists for this chain
-            require(c.chainId != 0, "SetDisputeGameImpl: Config not found for chain");
-
-            address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            IDisputeGameFactory factory = IDisputeGameFactory(dgf);
-
-            // Verify that we're actually making a change for FDG (catch configuration errors)
-            address currentFDG = address(factory.gameImpls(CANNON));
-            require(currentFDG != c.fdgImpl, "SetDisputeGameImpl: FDG already set to target value");
-            factory.setImplementation(CANNON, c.fdgImpl);
-
-            // Verify that we're actually making a change for PDG (catch configuration errors)
-            address currentPDG = address(factory.gameImpls(PERMISSIONED_CANNON));
-            require(currentPDG != c.pdgImpl, "SetDisputeGameImpl: PDG already set to target value");
-            factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl);
-
-            // Set FDG bond if not already set or needs update
-            if (c.fdgBond != 0 && factory.initBonds(CANNON) != c.fdgBond) {
-                factory.setInitBond(CANNON, c.fdgBond);
-            }
-
-            // Set PDG bond if not already set or needs update
-            if (c.pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != c.pdgBond) {
-                factory.setInitBond(PERMISSIONED_CANNON, c.pdgBond);
-            }
+            _applyChainConfig(chains[i].chainId);
         }
     }
 
@@ -101,92 +77,142 @@ contract SetDisputeGameImpl is L2TaskBase {
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            GameImplConfig memory c = cfg[chainId];
-            require(c.chainId != 0, "SetDisputeGameImpl: Config not found for chain");
-
-            address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            IDisputeGameFactory factory = IDisputeGameFactory(dgf);
-
-            // Always check that DisputeGameFactory points to the expected new implementations from TOML config file
-            require(address(factory.gameImpls(CANNON)) == c.fdgImpl, "FDG implementation mismatch");
-            require(address(factory.gameImpls(PERMISSIONED_CANNON)) == c.pdgImpl, "PDG implementation mismatch");
-
-            // Always check basic invariants on any nonzero FDG new implementation
-            if (c.fdgImpl != address(0) && c.fdgImpl != c.prevFdgImpl) {
-                IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
-                require(newFdg.gameType() == CANNON, "FDG: gameType not CANNON");
-                require(newFdg.l2ChainId() == chainId, "FDG: l2ChainId mismatch");
-                require(factory.initBonds(CANNON) != 0, "FDG: initBonds not set");
-            }
-
-            // Always check basic invariants on any nonzero PDG new implementation
-            if (c.pdgImpl != address(0) && c.pdgImpl != c.prevPdgImpl) {
-                IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
-                require(newPdg.gameType() == PERMISSIONED_CANNON, "PDG: gameType not PERMISSIONED_CANNON");
-                require(newPdg.l2ChainId() == chainId, "PDG: l2ChainId mismatch");
-                require(factory.initBonds(PERMISSIONED_CANNON) != 0, "PDG: initBonds not set");
-            }
-
-            // -- FDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
-            address prevFdgAddr = c.prevFdgImpl;
-            address newFdgAddr = c.fdgImpl;
-            if (prevFdgAddr != address(0) && newFdgAddr != address(0) && prevFdgAddr != newFdgAddr) {
-                IFaultDisputeGame prevFdg = IFaultDisputeGame(prevFdgAddr);
-                IFaultDisputeGame newFdg = IFaultDisputeGame(newFdgAddr);
-
-                // Check if prestate or vm changed
-                bool prestateChanged = prevFdg.absolutePrestate() != newFdg.absolutePrestate();
-                bool vmChanged = address(prevFdg.vm()) != address(newFdg.vm());
-
-                // All other fields must match
-                bool othersMatch = prevFdg.maxGameDepth() == newFdg.maxGameDepth()
-                    && prevFdg.splitDepth() == newFdg.splitDepth()
-                    && prevFdg.maxClockDuration() == newFdg.maxClockDuration()
-                    && prevFdg.clockExtension() == newFdg.clockExtension()
-                    && prevFdg.anchorStateRegistry() == newFdg.anchorStateRegistry();
-
-                // Acceptable: prestate-only update or prestate+vm update
-                if (prestateChanged || vmChanged) {
-                    require(othersMatch, "FDG: Core fields changed unexpectedly (allowed prestate/vm update)");
-                } else {
-                    // No prestate/vm changed but allow only if all fields match
-                    require(othersMatch, "FDG: Core fields mismatch");
-                }
-            }
-
-            // -- PDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
-            address prevPdgAddr = c.prevPdgImpl;
-            address newPdgAddr = c.pdgImpl;
-            if (prevPdgAddr != address(0) && newPdgAddr != address(0) && prevPdgAddr != newPdgAddr) {
-                IPermissionedDisputeGame prevPdg = IPermissionedDisputeGame(prevPdgAddr);
-                IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(newPdgAddr);
-
-                // Check if prestate or vm changed
-                bool prestateChanged = prevPdg.absolutePrestate() != newPdg.absolutePrestate();
-                bool vmChanged = address(prevPdg.vm()) != address(newPdg.vm());
-
-                // All other fields must match
-                bool othersMatch = prevPdg.maxGameDepth() == newPdg.maxGameDepth()
-                    && prevPdg.splitDepth() == newPdg.splitDepth()
-                    && prevPdg.maxClockDuration() == newPdg.maxClockDuration()
-                    && prevPdg.clockExtension() == newPdg.clockExtension() && prevPdg.proposer() == newPdg.proposer()
-                    && prevPdg.anchorStateRegistry() == newPdg.anchorStateRegistry()
-                    && prevPdg.challenger() == newPdg.challenger();
-
-                // Acceptable: prestate-only update or prestate+vm update
-                if (prestateChanged || vmChanged) {
-                    require(othersMatch, "PDG: Core fields changed unexpectedly (allowed prestate/vm update)");
-                } else {
-                    // No prestate/vm changed but allow only if all fields match
-                    require(othersMatch, "PDG: Core fields mismatch");
-                }
-            }
+            _validateChain(chains[i].chainId);
         }
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function _getCodeExceptions() internal pure override returns (address[] memory) {}
+
+    function _applyChainConfig(uint256 chainId) internal {
+        GameImplConfig storage c = cfg[chainId];
+        require(c.chainId != 0, "SetDisputeGameImpl: Config not found for chain");
+
+        IDisputeGameFactory factory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+
+        _setFDGImplementation(factory, c, chainId);
+        _setPDGImplementation(factory, c, chainId);
+        _setInitBonds(factory, c);
+    }
+
+    function _setFDGImplementation(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal {
+        address currentFDG = address(factory.gameImpls(CANNON));
+        if (currentFDG == c.fdgImpl && keccak256(factory.gameArgs(CANNON)) == keccak256(c.fdgGameArgs)) {
+            return;
+        }
+        _validateGameArgsFormat(c.fdgGameArgs, chainId, false);
+        factory.setImplementation(CANNON, c.fdgImpl, c.fdgGameArgs);
+    }
+
+    function _setPDGImplementation(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal {
+        address currentPDG = address(factory.gameImpls(PERMISSIONED_CANNON));
+        if (currentPDG == c.pdgImpl && keccak256(factory.gameArgs(PERMISSIONED_CANNON)) == keccak256(c.pdgGameArgs)) {
+            return;
+        }
+        _validateGameArgsFormat(c.pdgGameArgs, chainId, true);
+        factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl, c.pdgGameArgs);
+    }
+
+    function _setInitBonds(IDisputeGameFactory factory, GameImplConfig storage c) internal {
+        if (c.fdgBond != 0 && factory.initBonds(CANNON) != c.fdgBond) {
+            factory.setInitBond(CANNON, c.fdgBond);
+        }
+        if (c.pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != c.pdgBond) {
+            factory.setInitBond(PERMISSIONED_CANNON, c.pdgBond);
+        }
+    }
+
+    function _validateChain(uint256 chainId) internal view {
+        GameImplConfig storage c = cfg[chainId];
+        require(c.chainId != 0, "SetDisputeGameImpl: Config not found for chain");
+
+        IDisputeGameFactory factory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+
+        _validateFactoryTargets(factory, c, chainId);
+        _validateBasicInvariants(factory, c, chainId);
+        _validateFDGDetailed(c);
+        _validatePDGDetailed(c);
+    }
+
+    function _validateFactoryTargets(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId)
+        internal
+        view
+    {
+        require(address(factory.gameImpls(CANNON)) == c.fdgImpl, "FDG implementation mismatch");
+        require(address(factory.gameImpls(PERMISSIONED_CANNON)) == c.pdgImpl, "PDG implementation mismatch");
+        _validateGameArgs(factory, c, chainId);
+    }
+
+    function _validateGameArgs(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal view {
+        _validateGameArgsFormat(c.fdgGameArgs, chainId, false);
+        _validateGameArgsFormat(c.pdgGameArgs, chainId, true);
+        require(keccak256(factory.gameArgs(CANNON)) == keccak256(c.fdgGameArgs), "FDG game args mismatch");
+        require(keccak256(factory.gameArgs(PERMISSIONED_CANNON)) == keccak256(c.pdgGameArgs), "PDG game args mismatch");
+    }
+
+    function _validateGameArgsFormat(bytes storage gameArgs, uint256 chainId, bool permissioned) internal view {
+        uint256 expectedLen = permissioned ? 164 : 124;
+        require(gameArgs.length == expectedLen, "SetDisputeGameImpl: invalid gameArgs length");
+
+        bytes memory args = gameArgs;
+        bytes32 prestate;
+        uint256 encodedChainId;
+        assembly {
+            prestate := mload(add(args, 0x20))
+            encodedChainId := mload(add(args, 124))
+        }
+        require(prestate != bytes32(0), "SetDisputeGameImpl: prestate is zero");
+        require(encodedChainId == chainId, "SetDisputeGameImpl: gameArgs chainId mismatch");
+    }
+
+    function _validateBasicInvariants(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId)
+        internal
+        view
+    {
+        if (c.fdgImpl != address(0) && c.fdgImpl != c.prevFdgImpl) {
+            IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
+            require(newFdg.gameType() == CANNON, "FDG: gameType not CANNON");
+            require(newFdg.l2ChainId() == chainId, "FDG: l2ChainId mismatch");
+            require(factory.initBonds(CANNON) != 0, "FDG: initBonds not set");
+        }
+
+        if (c.pdgImpl != address(0) && c.pdgImpl != c.prevPdgImpl) {
+            IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
+            require(newPdg.gameType() == PERMISSIONED_CANNON, "PDG: gameType not PERMISSIONED_CANNON");
+            require(newPdg.l2ChainId() == chainId, "PDG: l2ChainId mismatch");
+            require(factory.initBonds(PERMISSIONED_CANNON) != 0, "PDG: initBonds not set");
+        }
+    }
+
+    function _validateFDGDetailed(GameImplConfig storage c) internal view {
+        if (c.prevFdgImpl == address(0) || c.fdgImpl == address(0) || c.prevFdgImpl == c.fdgImpl) return;
+
+        IFaultDisputeGame prevFdg = IFaultDisputeGame(c.prevFdgImpl);
+        IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
+
+        require(prevFdg.maxGameDepth() == newFdg.maxGameDepth(), "FDG: maxGameDepth mismatch");
+        require(prevFdg.splitDepth() == newFdg.splitDepth(), "FDG: splitDepth mismatch");
+        require(prevFdg.maxClockDuration() == newFdg.maxClockDuration(), "FDG: maxClockDuration mismatch");
+        require(prevFdg.clockExtension() == newFdg.clockExtension(), "FDG: clockExtension mismatch");
+        require(prevFdg.anchorStateRegistry() == newFdg.anchorStateRegistry(), "FDG: anchorStateRegistry mismatch");
+    }
+
+    function _validatePDGDetailed(GameImplConfig storage c) internal view {
+        if (c.prevPdgImpl == address(0) || c.pdgImpl == address(0) || c.prevPdgImpl == c.pdgImpl) return;
+
+        IPermissionedDisputeGame prevPdg = IPermissionedDisputeGame(c.prevPdgImpl);
+        IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
+
+        require(prevPdg.maxGameDepth() == newPdg.maxGameDepth(), "PDG: maxGameDepth mismatch");
+        require(prevPdg.splitDepth() == newPdg.splitDepth(), "PDG: splitDepth mismatch");
+        require(prevPdg.maxClockDuration() == newPdg.maxClockDuration(), "PDG: maxClockDuration mismatch");
+        require(prevPdg.clockExtension() == newPdg.clockExtension(), "PDG: clockExtension mismatch");
+        require(prevPdg.proposer() == newPdg.proposer(), "PDG: proposer mismatch");
+        require(prevPdg.anchorStateRegistry() == newPdg.anchorStateRegistry(), "PDG: anchorStateRegistry mismatch");
+        require(prevPdg.challenger() == newPdg.challenger(), "PDG: challenger mismatch");
+    }
 }
 
 // ----- GAME TYPE CONSTANTS ----- //
@@ -196,7 +222,8 @@ uint32 constant PERMISSIONED_CANNON = 1;
 /// ----- INTERFACES ----- ///
 interface IDisputeGameFactory {
     function gameImpls(uint32 gameType) external view returns (address);
-    function setImplementation(uint32 gameType, address impl) external;
+    function setImplementation(uint32 gameType, address impl, bytes memory gameArgs) external;
+    function gameArgs(uint32 gameType) external view returns (bytes memory);
     function initBonds(uint32 gameType) external view returns (uint256);
     function setInitBond(uint32 gameType, uint256 amount) external;
 }

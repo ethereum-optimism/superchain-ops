@@ -1,6 +1,6 @@
 # 044-fos-rotation
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xd9e4cc21adaf0bf19bdbf4abc65d02c740ac30f6548e2841208c43a08209b43f)
 
 ## Objective
 
