@@ -1,0 +1,112 @@
+# Validation
+
+This document can be used to validate the inputs and result of the execution of the upgrade
+transaction which you are signing.
+
+The steps are:
+
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
+3. [Verifying the transaction input](#understanding-task-calldata)
+4. [Verifying the state changes](#task-state-changes)
+
+## Expected Domain and Message Hashes
+
+First, we need to validate the domain and message hashes. These values should match both the
+values on your ledger and the values printed to the terminal when you run the task.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
+>
+> - Domain Hash:  `TODO`
+> - Message Hash: `TODO`
+>
+> ### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
+>
+> - Domain Hash:  `TODO`
+> - Message Hash: `TODO`
+
+## Normalized State Diff Hash Attestation
+
+The normalized state diff hash **MUST** match the hash produced by the state changes attested to
+in the state diff audit report. As a signer, you are responsible for verifying that this hash is
+correct. Please compare the hash below with the one in the audit report. If no audit report is
+available for this task, you must still ensure that the normalized state diff hash matches the
+output in your terminal.
+
+**Normalized hash:** `TODO`
+
+## Understanding Task Calldata
+
+The task calls `depositTransaction` on the Arena-Z Sepolia `OptimismPortal`
+(`0x90FdCE6eFFF020605462150cdE42257193d1e558`) three times, each targeting the L2
+`ProxyAdmin` (`0x4200000000000000000000000000000000000018`) to upgrade one fee vault proxy.
+
+**Call 1 — Upgrade SequencerFeeVault**
+- Portal: `0x90FdCE6eFFF020605462150cdE42257193d1e558`
+- L2 target: `0x4200000000000000000000000000000000000018` (ProxyAdmin)
+- L2 calldata: `ProxyAdmin.upgrade(0x4200000000000000000000000000000000000011, 0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e)`
+
+**Call 2 — Upgrade BaseFeeVault**
+- Portal: `0x90FdCE6eFFF020605462150cdE42257193d1e558`
+- L2 target: `0x4200000000000000000000000000000000000018` (ProxyAdmin)
+- L2 calldata: `ProxyAdmin.upgrade(0x4200000000000000000000000000000000000019, 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE)`
+
+**Call 3 — Upgrade L1FeeVault**
+- Portal: `0x90FdCE6eFFF020605462150cdE42257193d1e558`
+- L2 target: `0x4200000000000000000000000000000000000018` (ProxyAdmin)
+- L2 calldata: `ProxyAdmin.upgrade(0x420000000000000000000000000000000000001A, 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE)`
+
+### Task Calldata
+
+```
+TODO
+```
+
+## Task State Changes
+
+### L1 State Changes
+
+The ProxyAdminOwner safe (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) nonce increments
+by 1 after the transaction executes.
+
+The Foundation (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`) and Security Council
+(`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`) safe nonces each increment by 1 as they
+approve the nested transaction.
+
+### L2 State Changes (post-deposit relay)
+
+Once the three deposit transactions are included in an L2 block, the following changes
+occur on Arena-Z Testnet (Chain ID 9899):
+
+- `SequencerFeeVault` (`0x4200000000000000000000000000000000000011`) implementation slot
+  updated to `0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e`
+- `BaseFeeVault` (`0x4200000000000000000000000000000000000019`) implementation slot
+  updated to `0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE`
+- `L1FeeVault` (`0x420000000000000000000000000000000000001A`) implementation slot
+  updated to `0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE`
+
+### Verify pre-deployed implementations on L2
+
+Verify the implementations are deployed on Arena-Z Testnet before signing:
+
+```bash
+# Check SequencerFeeVault implementation has code
+cast code 0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e \
+  --rpc-url https://testnet-rpc.arena-z.gg
+
+# Check BaseFeeVault / L1FeeVault implementation has code
+cast code 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE \
+  --rpc-url https://testnet-rpc.arena-z.gg
+
+# Check SequencerFeeVault RECIPIENT() on the new impl
+cast call 0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e "RECIPIENT()(address)" \
+  --rpc-url https://testnet-rpc.arena-z.gg
+
+# Check BaseFeeVault / L1FeeVault RECIPIENT() on the new impl
+cast call 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE "RECIPIENT()(address)" \
+  --rpc-url https://testnet-rpc.arena-z.gg
+```
