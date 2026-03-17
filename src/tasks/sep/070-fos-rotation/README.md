@@ -1,6 +1,6 @@
 # 070-fos-rotation
 
-Status: READY TO SIGN
+Status: CANCELLED
 
 ## Objective
 
