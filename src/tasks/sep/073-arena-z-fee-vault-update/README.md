@@ -1,6 +1,6 @@
 # 073-arena-z-fee-vault-update
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [READY TO SIGN]
 
 ## Objective
 
