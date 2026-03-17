@@ -1,6 +1,6 @@
 # 069-sc-rotation
 
-Status: READY TO SIGN
+Status: CANCELLED
 
 ## Objective
 
