@@ -1,6 +1,6 @@
 # 043-fus-rotation
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x30ce04ba3d67b9f3a832df79c3a465a0876ccfe193ccf606cf00a4d8ae6d27a0)
 
 ## Objective
 
