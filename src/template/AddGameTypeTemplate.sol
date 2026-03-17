@@ -10,11 +10,8 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 
 import {GameType, Claim, Duration} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {
-    IOPContractsManager,
-    IDisputeGameFactory,
     IFaultDisputeGame,
     IBigStepper,
-    IProxyAdmin,
     IDelayedWETH,
     ISystemConfig
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
@@ -39,7 +36,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         uint256 disputeSplitDepth;
         uint256 initialBond;
         bool permissioned;
-        IProxyAdmin proxyAdmin;
         string saltMixer;
         ISystemConfig systemConfig;
         IBigStepper vm;
@@ -84,7 +80,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     function _build(address) internal override {
         // Iterate over the chains pull out the configs.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        IOPContractsManager.AddGameInput[] memory configs = new IOPContractsManager.AddGameInput[](chains.length);
+        IOPContractsManagerU18.AddGameInput[] memory configs = new IOPContractsManagerU18.AddGameInput[](chains.length);
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
@@ -93,7 +89,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
             // Validate critical addresses are non-zero
             require(address(cfg[chainId].delayedWETH) != address(0), "AddGameType: delayedWETH is zero address");
-            require(address(cfg[chainId].proxyAdmin) != address(0), "AddGameType: proxyAdmin is zero address");
             require(address(cfg[chainId].systemConfig) != address(0), "AddGameType: systemConfig is zero address");
             require(address(cfg[chainId].vm) != address(0), "AddGameType: vm is zero address");
 
@@ -102,7 +97,7 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
         // Delegatecall the OPCM.addGameType() function.
         (bool success, bytes memory returnData) =
-            OPCM.delegatecall(abi.encodeCall(IOPContractsManager.addGameType, (configs)));
+            OPCM.delegatecall(abi.encodeCall(IOPContractsManagerU18.addGameType, (configs)));
         if (!success) {
             if (returnData.length > 0) {
                 assembly {
@@ -120,21 +115,38 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             address factoryAddress = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            IDisputeGameFactory factory = IDisputeGameFactory(factoryAddress);
-            IFaultDisputeGame game = IFaultDisputeGame(address(factory.gameImpls(cfg[chainId].disputeGameType)));
+            IDisputeGameFactoryU18 factory = IDisputeGameFactoryU18(factoryAddress);
+            IFaultDisputeGame game = IFaultDisputeGame(factory.gameImpls(cfg[chainId].disputeGameType));
 
             // Assert that the game implementation was successfully added (non-zero address)
             require(address(game) != address(0), "AddGameType: Game implementation not set");
 
-            // Assert that everything is as expected.
-            assertEq(address(game.weth()), address(cfg[chainId].delayedWETH));
+            // For U18-style games, weth/vm/prestate are stored in the factory's gameArgs bytes rather than
+            // as immutables on the game contract.
+            // gameArgs layout (124 bytes): prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
+            bytes memory gameArgs = factory.gameArgs(cfg[chainId].disputeGameType);
+            require(gameArgs.length >= 124, "AddGameType: gameArgs too short");
+            bytes32 prestateFromArgs;
+            address vmFromArgs;
+            address wethFromArgs;
+            assembly {
+                // gameArgs memory layout: 32-byte length prefix, then data.
+                // prestate at data offset 0  → memory offset 32
+                // vm at data offset 32       → memory offset 64  (20 bytes, right-aligned after shr(96))
+                // delayedWETH at data offset 72 → memory offset 104 (20 bytes, right-aligned after shr(96))
+                prestateFromArgs := mload(add(gameArgs, 32))
+                vmFromArgs := shr(96, mload(add(gameArgs, 64)))
+                wethFromArgs := shr(96, mload(add(gameArgs, 104)))
+            }
+            assertEq(wethFromArgs, address(cfg[chainId].delayedWETH));
+
             assertEq(game.gameType().raw(), cfg[chainId].disputeGameType.raw());
-            assertEq(game.absolutePrestate().raw(), cfg[chainId].disputeAbsolutePrestate.raw());
+            assertEq(prestateFromArgs, cfg[chainId].disputeAbsolutePrestate.raw());
             assertEq(game.maxGameDepth(), cfg[chainId].disputeMaxGameDepth);
             assertEq(game.splitDepth(), cfg[chainId].disputeSplitDepth);
             assertEq(game.clockExtension().raw(), cfg[chainId].disputeClockExtension.raw());
             assertEq(game.maxClockDuration().raw(), cfg[chainId].disputeMaxClockDuration.raw());
-            assertEq(address(game.vm()), address(cfg[chainId].vm));
+            assertEq(vmFromArgs, address(cfg[chainId].vm));
 
             // Assert that the bond is set correctly.
             assertEq(factory.initBonds(cfg[chainId].disputeGameType), cfg[chainId].initialBond);
@@ -148,12 +160,11 @@ contract AddGameTypeTemplate is OPCMTaskBase {
     function _toAddGameInput(AddGameInputWithChainId memory _input)
         internal
         pure
-        returns (IOPContractsManager.AddGameInput memory)
+        returns (IOPContractsManagerU18.AddGameInput memory)
     {
-        return IOPContractsManager.AddGameInput({
+        return IOPContractsManagerU18.AddGameInput({
             saltMixer: _input.saltMixer,
             systemConfig: _input.systemConfig,
-            proxyAdmin: _input.proxyAdmin,
             delayedWETH: _input.delayedWETH,
             disputeGameType: _input.disputeGameType,
             disputeAbsolutePrestate: _input.disputeAbsolutePrestate,
@@ -166,4 +177,29 @@ contract AddGameTypeTemplate is OPCMTaskBase {
             permissioned: _input.permissioned
         });
     }
+}
+
+interface IOPContractsManagerU18 {
+    struct AddGameInput {
+        string saltMixer;
+        ISystemConfig systemConfig;
+        IDelayedWETH delayedWETH;
+        GameType disputeGameType;
+        Claim disputeAbsolutePrestate;
+        uint256 disputeMaxGameDepth;
+        uint256 disputeSplitDepth;
+        Duration disputeClockExtension;
+        Duration disputeMaxClockDuration;
+        uint256 initialBond;
+        IBigStepper vm;
+        bool permissioned;
+    }
+
+    function addGameType(AddGameInput[] memory _gameInputs) external;
+}
+
+interface IDisputeGameFactoryU18 {
+    function gameImpls(GameType) external view returns (address);
+    function gameArgs(GameType) external view returns (bytes memory);
+    function initBonds(GameType) external view returns (uint256);
 }
