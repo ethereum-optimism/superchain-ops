@@ -96,9 +96,7 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
         );
 
         for (uint256 i; i < chains.length; i++) {
-            require(
-                recipients[i] != address(0), "FeeVaultUpgradeTemplate: recipient cannot be the zero address"
-            );
+            require(recipients[i] != address(0), "FeeVaultUpgradeTemplate: recipient cannot be the zero address");
             require(networks[i] <= 1, "FeeVaultUpgradeTemplate: network must be 0 (L1) or 1 (L2)");
         }
 
@@ -168,10 +166,7 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
         for (uint256 c; c < chains.length; c++) {
             address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[c].chainId);
             for (uint256 a; a < actionsPerChain; a++) {
-                require(
-                    _actions[idx].target == portal,
-                    "FeeVaultUpgradeTemplate: action target must be OptimismPortalProxy"
-                );
+                require(_actions[idx].target == portal,"FeeVaultUpgradeTemplate: action target must be OptimismPortalProxy");
                 require(_actions[idx].value == 0, "FeeVaultUpgradeTemplate: action value must be 0");
                 idx++;
             }
@@ -191,11 +186,7 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
 
     /// @notice Returns the CREATE2 creation code and salt name for a given vault predeploy address.
     ///         BaseFeeVault and L1FeeVault share the same implementation; both use the "BaseFeeVault" salt.
-    function _getVaultImpl(address _vault)
-        internal
-        pure
-        returns (bytes memory creationCode, string memory saltName)
-    {
+    function _getVaultImpl(address _vault) internal pure returns (bytes memory creationCode, string memory saltName) {
         if (_vault == FeeVaultUpgrader.SEQUENCER_FEE_WALLET) {
             return (FeeVaultUpgrader.sequencerFeeVaultCreationCode, "SequencerFeeVault");
         } else if (_vault == FeeVaultUpgrader.BASE_FEE_VAULT) {
