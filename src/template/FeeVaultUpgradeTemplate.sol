@@ -166,7 +166,9 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
         for (uint256 c; c < chains.length; c++) {
             address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[c].chainId);
             for (uint256 a; a < actionsPerChain; a++) {
-                require(_actions[idx].target == portal,"FeeVaultUpgradeTemplate: action target must be OptimismPortalProxy");
+                require(
+                    _actions[idx].target == portal,"FeeVaultUpgradeTemplate: action target must be OptimismPortalProxy"
+                );
                 require(_actions[idx].value == 0, "FeeVaultUpgradeTemplate: action value must be 0");
                 idx++;
             }
