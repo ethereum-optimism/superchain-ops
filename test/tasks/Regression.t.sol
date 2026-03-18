@@ -1300,9 +1300,9 @@ contract RegressionTest is Test {
 
         string[] memory expectedDataToSign = new string[](2);
         // TODO: replace with output of `just simulate foundation` at block 10435718.
-        expectedDataToSign[0] = 
+        expectedDataToSign[0] =
             "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbbc004d8e876ee867225ea82dd859962e9efecfe4a92c67b327a9fab61f4fc48f3"; // Foundation
-        expectedDataToSign[1] = 
+        expectedDataToSign[1] =
             "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533977ac1f067a3d224ba79be1d33a30d863e3ebcad68b337a48f02c2ff6c02ad1e"; // Security Council
 
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
