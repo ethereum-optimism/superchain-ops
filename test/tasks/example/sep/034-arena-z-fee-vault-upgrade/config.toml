@@ -1,0 +1,45 @@
+# Fee Vault Upgrade — Arena Z Testnet (Gelato → AltLayer migration)
+#
+# Upgrades SequencerFeeVault, BaseFeeVault, and L1FeeVault on Arena Z testnet
+# to new v1.6.0 implementations, re-initializing the fee recipient to AltLayer's
+# address and setting WithdrawalNetwork = L1 (0).
+#
+# Chain details: https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/arena-z.toml
+
+templateName = "FeeVaultUpgradeTemplate"
+
+l2chains = [
+  {name = "arena-z-testnet", chainId = 9899}
+]
+
+# Which fee vault predeploys to upgrade — modular, same addresses on every OP Stack chain.
+vaultProxies = [
+  "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
+  "0x4200000000000000000000000000000000000019",  # BaseFeeVault
+  "0x420000000000000000000000000000000000001a",  # L1FeeVault
+]
+
+# Per-chain config (one entry per entry in l2chains, in the same order).
+recipients             = ["0xE75f598754A552841E65f43197C85028874A96a4"]  # AltLayer testnet fee recipient
+networks               = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn to L1
+minWithdrawalAmounts   = [0]
+
+[addresses]
+# source: superchain-registry sepolia/arena-z.toml
+ProxyAdminOwner      = "0x1Eb2fFc903729a0F03966B117003800b145F56E2"
+OptimismPortalProxy  = "0x90FdCE6eFFF020605462150cdE42257193d1e558"
+
+[stateOverrides]
+# L1PAO — override nonce (slot 5) to match the live value at the fork block used in the regression test.
+# Update this value together with the fork block number whenever the regression test is re-generated.
+0x1Eb2fFc903729a0F03966B117003800b145F56E2 = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
+# Foundation Upgrades Safe
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
+]
+# Security Council
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
