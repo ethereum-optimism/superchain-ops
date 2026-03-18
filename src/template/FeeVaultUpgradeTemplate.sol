@@ -181,7 +181,7 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
     }
 
     /// @notice No code-length exceptions are required.
-    function _getCodeExceptions() internal view override returns (address[] memory) {
+    function _getCodeExceptions() internal pure override returns (address[] memory) {
         return new address[](0);
     }
 
