@@ -1,0 +1,12 @@
+templateName = "UpdateFeeVaultRecipient"
+
+l2chains = [
+    {name = "arena-z-testnet", chainId = 9899}
+]
+
+[[feeVaultConfig]]
+chainId = 9899
+# Implementations pre-deployed on Arena Z testnet L2 via CREATE2.
+seqFeeVaultImpl = "0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e"
+defaultFeeVaultImpl = "0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE"
+upgradeGasLimit = 150000
