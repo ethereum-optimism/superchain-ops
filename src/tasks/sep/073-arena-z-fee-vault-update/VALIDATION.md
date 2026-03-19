@@ -22,12 +22,12 @@ values on your ledger and the values printed to the terminal when you run the ta
 > ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0xc4780cbfbb9618304262c3c22f4a154c344dcb33bb47015f331e18a92a749760`
+> - Message Hash: `0x4fd0ecdb0dd46586f8c5eafa86f09e0e6f03069b640cc672cbb11147dd5b8180`
 >
 > ### Security Council Safe (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x473b024c2369711f1a69fcc2d104d5abd80c1841c2d70a858ddc4c6bbb0f564a`
+> - Message Hash: `0xc3817a58c802e018e0a633ae576f6628488b96497bc7d693482b4feefac589e3`
 
 ## Understanding Task Calldata
 
