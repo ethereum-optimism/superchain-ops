@@ -100,3 +100,100 @@ cast call 0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e "RECIPIENT()(address)" \
 cast call 0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE "RECIPIENT()(address)" \
   --rpc-url https://testnet-rpc.arena-z.gg
 ```
+
+### Simulate L2 deposit transactions locally
+
+The L1 Tenderly simulation only shows L1 state changes. The following steps replay the 3 deposit
+transactions on a local Anvil fork of Arena-Z Testnet to verify the L2 state changes.
+
+**Prerequisites:** [Foundry](https://book.getfoundry.sh/getting-started/installation) installed (`cast`, `anvil`)
+
+#### 1. Check current state on live Arena-Z Testnet
+
+```bash
+cast call 0x4200000000000000000000000000000000000011 "RECIPIENT()(address)" --rpc-url https://testnet-rpc.arena-z.gg
+cast call 0x4200000000000000000000000000000000000019 "RECIPIENT()(address)" --rpc-url https://testnet-rpc.arena-z.gg
+cast call 0x420000000000000000000000000000000000001A "RECIPIENT()(address)" --rpc-url https://testnet-rpc.arena-z.gg
+
+cast storage 0x4200000000000000000000000000000000000011 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url https://testnet-rpc.arena-z.gg
+cast storage 0x4200000000000000000000000000000000000019 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url https://testnet-rpc.arena-z.gg
+cast storage 0x420000000000000000000000000000000000001A 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url https://testnet-rpc.arena-z.gg
+```
+
+Expected (before):
+| Vault | RECIPIENT | Implementation |
+|---|---|---|
+| SequencerFeeVault (`0x...0011`) | `0x9648CF2B93DdBbe120812a567294B2954bCc8568` | `0xc0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30011` |
+| BaseFeeVault (`0x...0019`) | `0x9648CF2B93DdBbe120812a567294B2954bCc8568` | `0xc0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30019` |
+| L1FeeVault (`0x...001A`) | `0x9648CF2B93DdBbe120812a567294B2954bCc8568` | `0xc0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001a` |
+
+#### 2. Start a local Arena-Z Testnet fork
+
+Open a terminal and run (leave it running):
+
+```bash
+anvil --fork-url https://testnet-rpc.arena-z.gg --port 8546
+```
+
+#### 3. Impersonate and fund the deposit sender
+
+In a second terminal:
+
+```bash
+cast rpc anvil_impersonateAccount 0x2fc3ffc903729a0f03966b917003800b145f67f3 --rpc-url http://127.0.0.1:8546
+cast rpc anvil_setBalance 0x2fc3ffc903729a0f03966b917003800b145f67f3 0x56BC75E2D63100000 --rpc-url http://127.0.0.1:8546
+```
+
+#### 4. Send the 3 upgrade transactions
+
+```bash
+cast send 0x4200000000000000000000000000000000000018 \
+  --from 0x2fc3ffc903729a0f03966b917003800b145f67f3 \
+  --unlocked --rpc-url http://127.0.0.1:8546 \
+  "upgrade(address,address)" \
+  0x4200000000000000000000000000000000000011 \
+  0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e
+
+cast send 0x4200000000000000000000000000000000000018 \
+  --from 0x2fc3ffc903729a0f03966b917003800b145f67f3 \
+  --unlocked --rpc-url http://127.0.0.1:8546 \
+  "upgrade(address,address)" \
+  0x4200000000000000000000000000000000000019 \
+  0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE
+
+cast send 0x4200000000000000000000000000000000000018 \
+  --from 0x2fc3ffc903729a0f03966b917003800b145f67f3 \
+  --unlocked --rpc-url http://127.0.0.1:8546 \
+  "upgrade(address,address)" \
+  0x420000000000000000000000000000000000001A \
+  0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE
+```
+
+All 3 should return `status: 1 (success)`.
+
+#### 5. Verify state after upgrade
+
+```bash
+cast call 0x4200000000000000000000000000000000000011 "RECIPIENT()(address)" --rpc-url http://127.0.0.1:8546
+cast call 0x4200000000000000000000000000000000000019 "RECIPIENT()(address)" --rpc-url http://127.0.0.1:8546
+cast call 0x420000000000000000000000000000000000001A "RECIPIENT()(address)" --rpc-url http://127.0.0.1:8546
+
+cast storage 0x4200000000000000000000000000000000000011 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url http://127.0.0.1:8546
+cast storage 0x4200000000000000000000000000000000000019 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url http://127.0.0.1:8546
+cast storage 0x420000000000000000000000000000000000001A 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url http://127.0.0.1:8546
+
+cast call 0x4200000000000000000000000000000000000011 "version()(string)" --rpc-url http://127.0.0.1:8546
+cast call 0x4200000000000000000000000000000000000019 "version()(string)" --rpc-url http://127.0.0.1:8546
+cast call 0x420000000000000000000000000000000000001A "version()(string)" --rpc-url http://127.0.0.1:8546
+```
+
+Expected (after):
+| Vault | RECIPIENT | Implementation | Version |
+|---|---|---|---|
+| SequencerFeeVault (`0x...0011`) | `0xE75f598754A552841E65f43197C85028874A96a4` | `0x1A4898C391a34E2C38B38A3D2CA4cEbF1BBA783e` | `1.5.0-beta.5` |
+| BaseFeeVault (`0x...0019`) | `0xE75f598754A552841E65f43197C85028874A96a4` | `0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE` | `1.5.0-beta.5` |
+| L1FeeVault (`0x...001A`) | `0xE75f598754A552841E65f43197C85028874A96a4` | `0x8dCC1BbE83752DDB79df32D56B3f37758bBac7AE` | `1.5.0-beta.5` |
+
+#### 6. Cleanup
+
+Stop Anvil with `Ctrl+C` in the first terminal.
