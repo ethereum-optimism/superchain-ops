@@ -21,13 +21,13 @@ values on your ledger and the values printed to the terminal when you run the ta
 >
 > ### Foundation Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
-> - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x836e6856bdf47439637c0c4bad90762ae080febd523ff2b2c35f82d245c810c8`
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0xdb14d4caa67bbf4d85052ea0958b2504283a52d1be4f47741d023c964a99bde8`
 >
 > ### Security Council Safe (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
-> - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x99d6694223d6b1444c4a8ac72d75ed36065cc7f560a6e21f3391d46e8f43c939`
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0x193cf5705e74cc7e314e5d809569916debb93e07d21372dd126d33a953f3a02b`
 
 ## Understanding Task Calldata
 
@@ -36,16 +36,19 @@ The task calls `depositTransaction` on the Arena-Z Mainnet `OptimismPortal`
 `ProxyAdmin` (`0x4200000000000000000000000000000000000018`) to upgrade one fee vault proxy.
 
 **Call 1 — Upgrade SequencerFeeVault**
+
 - Portal: `0xB20f99b598E8d888d1887715439851BC68806b22`
 - L2 target: `0x4200000000000000000000000000000000000018` (ProxyAdmin)
 - L2 calldata: `ProxyAdmin.upgrade(0x4200000000000000000000000000000000000011, 0x6B0660A3be44da5e37A7A9Be4D384a43D2596ea4)`
 
 **Call 2 — Upgrade BaseFeeVault**
+
 - Portal: `0xB20f99b598E8d888d1887715439851BC68806b22`
 - L2 target: `0x4200000000000000000000000000000000000018` (ProxyAdmin)
 - L2 calldata: `ProxyAdmin.upgrade(0x4200000000000000000000000000000000000019, 0x8ADBa123150a3b4dE623609F34A0a19118b8A36C)`
 
 **Call 3 — Upgrade L1FeeVault**
+
 - Portal: `0xB20f99b598E8d888d1887715439851BC68806b22`
 - L2 target: `0x4200000000000000000000000000000000000018` (ProxyAdmin)
 - L2 calldata: `ProxyAdmin.upgrade(0x420000000000000000000000000000000000001A, 0x8ADBa123150a3b4dE623609F34A0a19118b8A36C)`
