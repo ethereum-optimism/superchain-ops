@@ -11,8 +11,8 @@ chainId = 7897
 # DEFAULT salt: keccak256(abi.encodePacked("ArenaZ:FeeVault:v2:", uint256(7897)))
 # https://explorer.arena-z.gg/address/0x6B0660A3be44da5e37A7A9Be4D384a43D2596ea4
 seqFeeVaultImpl = "0x6B0660A3be44da5e37A7A9Be4D384a43D2596ea4"
-# https://explorer.arena-z.gg/address/0xD7e148FEc0d8F59a672B3EE3e1e3Ba5C82Bdf015
-defaultFeeVaultImpl = "0xD7e148FEc0d8F59a672B3EE3e1e3Ba5C82Bdf015"
+# https://explorer.arena-z.gg/address/0x8ADBa123150a3b4dE623609F34A0a19118b8A36C
+defaultFeeVaultImpl = "0x8ADBa123150a3b4dE623609F34A0a19118b8A36C"
 upgradeGasLimit = 150000
 
 # Nonce overrides for stacked simulation.
