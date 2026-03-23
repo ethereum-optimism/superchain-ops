@@ -30,3 +30,20 @@ SIMULATE_WITHOUT_LEDGER=1 just \
    simulate \
    foundation
 ```
+
+Signing commands for each safe:
+```bash
+cd src/tasks/sep/072-arena-z-proposer-rotation
+
+just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../justfile \
+   sign \
+   council
+
+just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../justfile \
+   sign \
+   foundation
+```
