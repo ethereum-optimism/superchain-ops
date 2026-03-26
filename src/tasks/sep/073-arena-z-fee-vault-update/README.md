@@ -1,7 +1,6 @@
 # 073-arena-z-fee-vault-update
 
-Status: [READY TO SIGN]
-
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x02d968da25eb49b3a5812f35188a626b1544a43ffea68cbe8e69331571d2ef8c)
 ## Objective
 
 Updates the fee vault recipient for Arena-Z Testnet (Chain ID 9899) on Sepolia.

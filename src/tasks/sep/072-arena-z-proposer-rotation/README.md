@@ -1,6 +1,6 @@
 # 072-arena-z-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x76b1b0d8eea5183bfd9d6c47c5c8c88e2b0a5a36a56d611d3c756922a1f0c948)
 
 ## Objective
 
