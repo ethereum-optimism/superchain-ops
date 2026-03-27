@@ -63,7 +63,8 @@ contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
 
     /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
-        (bool success,) = OPCM_TARGETS[0].delegatecall(
+        (bool success,) = OPCM_TARGETS[0]
+        .delegatecall(
             abi.encodeCall(
                 IOPContractManagerV410.upgradeSuperchainConfig, (SUPERCHAIN_CONFIG, SUPERCHAIN_CONFIG_PROXY_ADMIN)
             )

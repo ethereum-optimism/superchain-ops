@@ -112,10 +112,7 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV410.InputV410 memory input = IStandardValidatorV410.InputV410({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
-                absolutePrestate: expAbsolutePrestate,
-                l2ChainID: chainId
+                proxyAdmin: proxyAdmin, sysCfg: sysCfg, absolutePrestate: expAbsolutePrestate, l2ChainID: chainId
             });
 
             string memory errors = STANDARD_VALIDATOR_V410.validate({_input: input, _allowFailure: true});
