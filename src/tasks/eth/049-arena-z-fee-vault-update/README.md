@@ -1,6 +1,6 @@
 # 049-arena-z-fee-vault-update
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x95b7d66aaee99219a8e90b9669d7067c6e69d58692c9efc93d4197c13af84126)
 
 ## Objective
 
