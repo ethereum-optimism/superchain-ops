@@ -1,6 +1,6 @@
 # 048-arena-z-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xfbcdd181c245cc3e628bb5ba45b5a3d3c07039b0f1a3a5a99b2e9925ff9d5efc)
 
 ## Objective
 
