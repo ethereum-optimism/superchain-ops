@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.15;
+
+import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "lib/forge-std/src/StdToml.sol";
+
+import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
+
+interface ISystemConfig {
+    function setBatcherHash(bytes32 _batcherHash) external;
+    function setUnsafeBlockSigner(address _unsafeBlockSigner) external;
+    function batcherHash() external view returns (bytes32);
+    function unsafeBlockSigner() external view returns (address);
+}
+
+/// @notice Template for updating the batcher hash and unsafe block signer on SystemConfig.
+/// Both calls are batched into a single Multicall3 transaction from the SystemConfig owner.
+contract SetBatcherAndSigner is L2TaskBase {
+    using stdToml for string;
+
+    /// @notice Configuration for each chain's batcher and signer update.
+    struct TaskInputs {
+        bytes32 batcherHash;
+        address unsafeBlockSigner;
+    }
+
+    /// @notice Mapping of chain ID to configuration for the task.
+    mapping(uint256 => TaskInputs) public cfg;
+
+    /// @notice Returns the safe address string identifier.
+    function safeAddressString() public pure override returns (string memory) {
+        return "FoundationUpgradeSafe";
+    }
+
+    /// @notice Returns the storage write permissions required for this task.
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
+        string[] memory storageWrites = new string[](2);
+        storageWrites[0] = "SystemConfigProxy";
+        storageWrites[1] = "FoundationUpgradeSafe";
+        return storageWrites;
+    }
+
+    /// @notice Sets up the template with configuration from a TOML file.
+    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
+
+        string memory tomlContent = vm.readFile(_taskConfigFilePath);
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
+
+        address batcherAddress = tomlContent.readAddress(".sequencerConfig.batcherAddress");
+        address unsafeBlockSigner = tomlContent.readAddress(".sequencerConfig.unsafeBlockSigner");
+        bytes32 batcherHash = bytes32(uint256(uint160(batcherAddress)));
+
+        for (uint256 i = 0; i < _chains.length; i++) {
+            uint256 chainId = _chains[i].chainId;
+            cfg[chainId] = TaskInputs({batcherHash: batcherHash, unsafeBlockSigner: unsafeBlockSigner});
+        }
+    }
+
+    /// @notice Builds the batched transaction calling setBatcherHash and setUnsafeBlockSigner.
+    function _build(address) internal override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            TaskInputs memory taskInput = cfg[chainId];
+            address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+            ISystemConfig(systemConfigProxy).setBatcherHash(taskInput.batcherHash);
+            ISystemConfig(systemConfigProxy).setUnsafeBlockSigner(taskInput.unsafeBlockSigner);
+        }
+    }
+
+    /// @notice Validates that the batcher hash and unsafe block signer were updated correctly.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+            TaskInputs memory taskInput = cfg[chainId];
+            require(
+                ISystemConfig(systemConfigProxy).batcherHash() == taskInput.batcherHash,
+                "SetBatcherAndSigner: batcher hash mismatch"
+            );
+            require(
+                ISystemConfig(systemConfigProxy).unsafeBlockSigner() == taskInput.unsafeBlockSigner,
+                "SetBatcherAndSigner: unsafe block signer mismatch"
+            );
+        }
+    }
+
+    /// @notice The batcher and signer addresses are typically EOAs, so they won't have code.
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        address[] memory exceptions = new address[](chains.length * 2);
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            TaskInputs memory taskInput = cfg[chainId];
+            exceptions[i * 2] = address(uint160(uint256(taskInput.batcherHash)));
+            exceptions[i * 2 + 1] = taskInput.unsafeBlockSigner;
+        }
+        return exceptions;
+    }
+}
