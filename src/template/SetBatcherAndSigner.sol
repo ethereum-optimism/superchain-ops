@@ -24,6 +24,8 @@ contract SetBatcherAndSigner is L2TaskBase {
     struct TaskInputs {
         bytes32 batcherHash;
         address unsafeBlockSigner;
+        bool updateBatcher;
+        bool updateSigner;
     }
 
     /// @notice Mapping of chain ID to configuration for the task.
@@ -51,23 +53,38 @@ contract SetBatcherAndSigner is L2TaskBase {
 
         address batcherAddress = tomlContent.readAddress(".sequencerConfig.batcherAddress");
         address unsafeBlockSigner = tomlContent.readAddress(".sequencerConfig.unsafeBlockSigner");
+        require(batcherAddress != address(0), "SetBatcherAndSigner: batcherAddress is zero address");
+        require(unsafeBlockSigner != address(0), "SetBatcherAndSigner: unsafeBlockSigner is zero address");
         bytes32 batcherHash = bytes32(uint256(uint160(batcherAddress)));
 
         for (uint256 i = 0; i < _chains.length; i++) {
             uint256 chainId = _chains[i].chainId;
-            cfg[chainId] = TaskInputs({batcherHash: batcherHash, unsafeBlockSigner: unsafeBlockSigner});
+            ISystemConfig systemConfig = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
+            bool updateBatcher = batcherHash != systemConfig.batcherHash();
+            bool updateSigner = unsafeBlockSigner != systemConfig.unsafeBlockSigner();
+            require(updateBatcher || updateSigner, "SetBatcherAndSigner: no-op (both fields already match current values)");
+            cfg[chainId] = TaskInputs({
+                batcherHash: batcherHash,
+                unsafeBlockSigner: unsafeBlockSigner,
+                updateBatcher: updateBatcher,
+                updateSigner: updateSigner
+            });
         }
     }
 
-    /// @notice Builds the batched transaction calling setBatcherHash and setUnsafeBlockSigner.
+    /// @notice Builds the batched transaction, calling only the setters for fields that actually change.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             TaskInputs memory taskInput = cfg[chainId];
             address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-            ISystemConfig(systemConfigProxy).setBatcherHash(taskInput.batcherHash);
-            ISystemConfig(systemConfigProxy).setUnsafeBlockSigner(taskInput.unsafeBlockSigner);
+            if (taskInput.updateBatcher) {
+                ISystemConfig(systemConfigProxy).setBatcherHash(taskInput.batcherHash);
+            }
+            if (taskInput.updateSigner) {
+                ISystemConfig(systemConfigProxy).setUnsafeBlockSigner(taskInput.unsafeBlockSigner);
+            }
         }
     }
 
