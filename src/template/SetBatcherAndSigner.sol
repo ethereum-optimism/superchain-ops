@@ -62,7 +62,9 @@ contract SetBatcherAndSigner is L2TaskBase {
             ISystemConfig systemConfig = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
             bool updateBatcher = batcherHash != systemConfig.batcherHash();
             bool updateSigner = unsafeBlockSigner != systemConfig.unsafeBlockSigner();
-            require(updateBatcher || updateSigner, "SetBatcherAndSigner: no-op (both fields already match current values)");
+            require(
+                updateBatcher || updateSigner, "SetBatcherAndSigner: no-op (both fields already match current values)"
+            );
             cfg[chainId] = TaskInputs({
                 batcherHash: batcherHash,
                 unsafeBlockSigner: unsafeBlockSigner,
