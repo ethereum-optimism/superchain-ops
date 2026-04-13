@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {stdToml} from "forge-std/StdToml.sol";
 import {IOPContractsManagerV700, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
 
 /// @notice Etched at admin address so delegatecall to OPCM runs in admin's context.
@@ -16,51 +15,85 @@ contract DelegateCallForwarder {
     }
 }
 
+interface IProxyAdmin {
+    function owner() external view returns (address);
+}
+
+interface ISystemConfigExt {
+    function proxyAdmin() external view returns (address);
+    function superchainConfig() external view returns (address);
+}
+
 contract SuperRootUpgradeTest is Test {
     string constant FIXTURES = "test/fixtures/super-root-upgrade/";
-    string constant ADDRESSES = "src/tasks/sep/053-U18-op-betanets-v3/addresses.json";
 
-    function setUp() public {}
+    function _buildGameConfigs(string memory state)
+        internal
+        pure
+        returns (IOPContractsManagerV700.DisputeGameConfig[] memory)
+    {
+        // Dummy prestate — the actual value doesn't matter for validating the upgrade flow.
+        bytes32 prestate = bytes32(uint256(1));
+        address proposer = stdJson.readAddress(
+            state, ".appliedIntent.chains[0].roles.proposer"
+        );
+        address challenger = stdJson.readAddress(
+            state, ".appliedIntent.chains[0].roles.challenger"
+        );
+
+        bytes memory permArgs = abi.encode(prestate, proposer, challenger);
+
+        // OPCM requires exactly 6 game types in this order:
+        // CANNON(0), PERMISSIONED_CANNON(1), CANNON_KONA(8), SUPER_CANNON(4),
+        // SUPER_PERMISSIONED_CANNON(5), SUPER_CANNON_KONA(9).
+        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs =
+            new IOPContractsManagerV700.DisputeGameConfig[](6);
+        uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
+        for (uint256 i = 0; i < 6; i++) {
+            bool perm = gts[i] == 1 || gts[i] == 5;
+            cfgs[i] = IOPContractsManagerV700.DisputeGameConfig({
+                enabled: perm,
+                initBond: perm ? 0.08 ether : 0,
+                gameType: gts[i],
+                gameArgs: perm ? permArgs : bytes("")
+            });
+        }
+        return cfgs;
+    }
 
     function test_upgrade_sepolia() public {
-        // Parse intent.toml — just the chain ID
-        string memory intent = vm.readFile(string.concat(FIXTURES, "intent.toml"));
-        uint256 l1ChainId = stdToml.readUint(intent, ".l1ChainID");
-
-        // Parse state.json — OPCM address
+        // Parse state.json — all addresses come from here
         string memory state = vm.readFile(string.concat(FIXTURES, "state.json"));
         address opcm = stdJson.readAddress(state, ".implementationsDeployment.OpcmImpl");
-
-        // Parse addresses.json — betanet chain to upgrade
-        string memory addrs = vm.readFile(ADDRESSES);
-        address sysConfig = stdJson.readAddress(addrs, ".420110021.SystemConfigProxy");
-        address admin = stdJson.readAddress(addrs, ".420110021.ProxyAdminOwner");
+        address sysConfig = stdJson.readAddress(state, ".opChainDeployments[0].SystemConfigProxy");
 
         // Fork sepolia
         vm.createSelectFork(vm.rpcUrl("sepolia"));
-        assertEq(block.chainid, l1ChainId);
+
+        // Derive ProxyAdminOwner from on-chain state
+        address admin = IProxyAdmin(ISystemConfigExt(sysConfig).proxyAdmin()).owner();
 
         // Etch forwarder at admin address so delegatecall runs in admin's context
         DelegateCallForwarder forwarder = new DelegateCallForwarder();
         vm.etch(admin, address(forwarder).code);
 
-        // OPCM requires all 6 game types in order. Only PERMISSIONED_CANNON (gameType=1)
-        // is enabled since it's the chain's respectedGameType. Others disabled with initBond=0.
-        // Order: CANNON(0), PERMISSIONED_CANNON(1), CANNON_KONA(8), SUPER_CANNON(4),
-        //        SUPER_PERMISSIONED_CANNON(5), SUPER_CANNON_KONA(9)
-        IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs =
-            new IOPContractsManagerV700.DisputeGameConfig[](6);
-        uint32[6] memory gameTypes = [uint32(0), 1, 8, 4, 5, 9];
-        for (uint256 i = 0; i < 6; i++) {
-            dgConfigs[i] = IOPContractsManagerV700.DisputeGameConfig({
-                enabled: gameTypes[i] == 1, // only PERMISSIONED_CANNON enabled
-                initBond: gameTypes[i] == 1 ? 0.08 ether : 0,
-                gameType: gameTypes[i],
-                gameArgs: ""
-            });
+        // OPContractsManagerV2 requires SuperchainConfig to already be at the expected
+        // version before per-chain upgrades. It reads the SuperchainConfig address from
+        // the chain's SystemConfig, then compares its version against the expected impl.
+        // We simulate the upgrade by setting the EIP-1967 implementation slot directly.
+        {
+            address scProxy = ISystemConfigExt(sysConfig).superchainConfig();
+            address scImpl = stdJson.readAddress(state, ".superchainContracts.SuperchainConfigImpl");
+            vm.store(
+                scProxy,
+                bytes32(uint256(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)),
+                bytes32(uint256(uint160(scImpl)))
+            );
         }
 
-        // SystemConfig doesn't have delayedWETH registered, permit OPCM to deploy it
+        // Build game configs and extra instructions
+        IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs = _buildGameConfigs(state);
+
         IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
             new IOPContractsManagerV700.ExtraInstruction[](1);
         extraInstructions[0] = IOPContractsManagerV700.ExtraInstruction({
