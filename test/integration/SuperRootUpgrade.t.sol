@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
+import {console2} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {IOPContractsManagerV700, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
 
@@ -10,7 +11,9 @@ contract DelegateCallForwarder {
     function forward(address target, bytes memory data) external {
         (bool ok, bytes memory ret) = target.delegatecall(data);
         if (!ok) {
-            assembly { revert(add(ret, 0x20), mload(ret)) }
+            assembly {
+                revert(add(ret, 0x20), mload(ret))
+            }
         }
     }
 }
@@ -34,20 +37,15 @@ contract SuperRootUpgradeTest is Test {
     {
         // Dummy prestate — the actual value doesn't matter for validating the upgrade flow.
         bytes32 prestate = bytes32(uint256(1));
-        address proposer = stdJson.readAddress(
-            state, ".appliedIntent.chains[0].roles.proposer"
-        );
-        address challenger = stdJson.readAddress(
-            state, ".appliedIntent.chains[0].roles.challenger"
-        );
+        address proposer = stdJson.readAddress(state, ".appliedIntent.chains[0].roles.proposer");
+        address challenger = stdJson.readAddress(state, ".appliedIntent.chains[0].roles.challenger");
 
         bytes memory permArgs = abi.encode(prestate, proposer, challenger);
 
         // OPCM requires exactly 6 game types in this order:
         // CANNON(0), PERMISSIONED_CANNON(1), CANNON_KONA(8), SUPER_CANNON(4),
         // SUPER_PERMISSIONED_CANNON(5), SUPER_CANNON_KONA(9).
-        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs =
-            new IOPContractsManagerV700.DisputeGameConfig[](6);
+        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
         uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
         for (uint256 i = 0; i < 6; i++) {
             bool perm = gts[i] == 1 || gts[i] == 5;
@@ -77,40 +75,26 @@ contract SuperRootUpgradeTest is Test {
         DelegateCallForwarder forwarder = new DelegateCallForwarder();
         vm.etch(admin, address(forwarder).code);
 
-        // OPContractsManagerV2 requires SuperchainConfig to already be at the expected
-        // version before per-chain upgrades. It reads the SuperchainConfig address from
-        // the chain's SystemConfig, then compares its version against the expected impl.
-        // We simulate the upgrade by setting the EIP-1967 implementation slot directly.
-        {
-            address scProxy = ISystemConfigExt(sysConfig).superchainConfig();
-            address scImpl = stdJson.readAddress(state, ".superchainContracts.SuperchainConfigImpl");
-            vm.store(
-                scProxy,
-                bytes32(uint256(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)),
-                bytes32(uint256(uint160(scImpl)))
-            );
-        }
-
         // Build game configs and extra instructions
         IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs = _buildGameConfigs(state);
 
         IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
             new IOPContractsManagerV700.ExtraInstruction[](1);
-        extraInstructions[0] = IOPContractsManagerV700.ExtraInstruction({
-            key: "PermittedProxyDeployment",
-            data: bytes("DelayedWETH")
-        });
+        extraInstructions[0] =
+            IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
 
         // Upgrade chain via delegatecall from admin
         DelegateCallForwarder(admin).forward(
             opcm,
             abi.encodeCall(
                 IOPContractsManagerV700.upgrade,
-                (IOPContractsManagerV700.UpgradeInput({
-                    systemConfig: ISystemConfig(sysConfig),
-                    disputeGameConfigs: dgConfigs,
-                    extraInstructions: extraInstructions
-                }))
+                (
+                    IOPContractsManagerV700.UpgradeInput({
+                        systemConfig: ISystemConfig(sysConfig),
+                        disputeGameConfigs: dgConfigs,
+                        extraInstructions: extraInstructions
+                    })
+                )
             )
         );
     }
