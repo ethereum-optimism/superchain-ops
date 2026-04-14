@@ -5,11 +5,11 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {IOPContractsManagerV700, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
+import {IOPContractsManagerV700, ISuperchainConfig, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
 import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
-/// @notice Etched at admin address so delegatecall to OPCM runs in admin's context.
+
 contract DelegateCallForwarder {
     function forward(address target, bytes memory data) external {
         (bool ok, bytes memory ret) = target.delegatecall(data);
@@ -36,8 +36,10 @@ contract SuperRootUpgradeTest is Test {
     string internal configToml;
     SuperchainAddressRegistry internal superchainAddrRegistry;
     DisputeGameFactory internal disputeGameFactory;
-    address systemConfigProxyAdminOwner;
+    address superchainConfig;
     address systemConfig;
+    address systemConfigProxyAdmin;
+    address systemConfigProxyAdminOwner;
     address opcm;
 
     function setUp() public {
@@ -48,8 +50,10 @@ contract SuperRootUpgradeTest is Test {
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
         systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", 11155420);
+        superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", 11155420);
+        systemConfigProxyAdmin = ISystemConfigExt(systemConfig).proxyAdmin();
         disputeGameFactory = DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 11155420));
-        systemConfigProxyAdminOwner = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
+        systemConfigProxyAdminOwner = IProxyAdmin(systemConfigProxyAdmin).owner();
         opcm = stdToml.readAddress(configToml, ".addresses.OPCM");
     }
 
@@ -112,6 +116,19 @@ contract SuperRootUpgradeTest is Test {
         DelegateCallForwarder forwarder = new DelegateCallForwarder();
         vm.etch(systemConfigProxyAdminOwner, address(forwarder).code);
 
+        DelegateCallForwarder(systemConfigProxyAdminOwner).forward(
+            opcm,
+            abi.encodeCall(
+                IOPContractsManagerV700.upgradeSuperchain,
+                (
+                    IOPContractsManagerV700.SuperchainUpgradeInput({
+                        superchainConfig: ISuperchainConfig(superchainConfig),
+                        extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
+                    })
+                )
+            )
+        );
+
         // Build game configs and extra instructions
         IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs = _buildGameConfigs(state);
 
@@ -123,20 +140,6 @@ contract SuperRootUpgradeTest is Test {
             key: "overrides.cfg.startingRespectedGameType",
             data: abi.encode(uint32(9)) // SUPER_CANNON_KONA
         });
-
-        // Simulate SuperchainConfig already upgraded (V2 OPCM requires this).
-        {
-            address scProxy = ISystemConfigExt(systemConfig).superchainConfig();
-            (, bytes memory containerData) = opcm.staticcall(abi.encodeWithSignature("contractsContainer()"));
-            address container = abi.decode(containerData, (address));
-            (, bytes memory implsData) = container.staticcall(abi.encodeWithSignature("implementations()"));
-            address expectedImpl = abi.decode(implsData, (address)); // first field = superchainConfigImpl
-            vm.store(
-                scProxy,
-                bytes32(uint256(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)),
-                bytes32(uint256(uint160(expectedImpl)))
-            );
-        }
 
         // Upgrade chain via delegatecall from admin
         DelegateCallForwarder(systemConfigProxyAdminOwner).forward(

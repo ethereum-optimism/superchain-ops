@@ -159,6 +159,11 @@ interface IOPContractsManagerV700 {
         bytes data;
     }
 
+    struct SuperchainUpgradeInput {
+        ISuperchainConfig superchainConfig;
+        ExtraInstruction[] extraInstructions;
+    }
+
     struct UpgradeInput {
         ISystemConfig systemConfig;
         DisputeGameConfig[] disputeGameConfigs;
@@ -168,6 +173,8 @@ interface IOPContractsManagerV700 {
     function version() external view returns (string memory);
 
     function upgrade(UpgradeInput memory _inp) external;
+
+    function upgradeSuperchain(SuperchainUpgradeInput memory _input) external;
 
     function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
 }
@@ -203,6 +210,8 @@ interface IOPContractsManagerStandardValidator {
 
     function version() external view returns (string memory);
 }
+
+interface ISuperchainConfig {}
 
 interface ISystemConfig {
     struct Addresses {
