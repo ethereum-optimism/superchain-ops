@@ -88,9 +88,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             });
 
             // Delegatecall the OPCM.upgrade() function once per chain
-            (bool ok,) = OPCM_TARGETS[0].delegatecall(
-                abi.encodeWithSelector(IOPContractsManagerV700.upgrade.selector, inp)
-            );
+            (bool ok,) =
+                OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManagerV700.upgrade.selector, inp));
             require(ok, "OPCMUpgradeV700: Delegatecall failed in _build.");
         }
     }
