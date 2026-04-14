@@ -4,8 +4,11 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {IOPContractsManagerV700, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
-
+import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
+import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
 /// @notice Etched at admin address so delegatecall to OPCM runs in admin's context.
 contract DelegateCallForwarder {
     function forward(address target, bytes memory data) external {
@@ -29,16 +32,62 @@ interface ISystemConfigExt {
 
 contract SuperRootUpgradeTest is Test {
     string constant FIXTURES = "test/fixtures/super-root-upgrade/";
+    string internal state;
+    string internal configToml;
+    SuperchainAddressRegistry internal superchainAddrRegistry;
+    DisputeGameFactory internal disputeGameFactory;
+    address systemConfigProxyAdminOwner;
+    address systemConfig;
+    address opcm;
+
+    function setUp() public {
+        // Fork sepolia
+        vm.createSelectFork(vm.rpcUrl("sepolia"));
+        state = vm.readFile(string.concat(FIXTURES, "state.json"));
+        configToml = vm.readFile(string.concat(FIXTURES, "config.toml"));
+        string memory configTomlPath = string.concat(FIXTURES, "config.toml");
+        superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
+        systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", 11155420);
+        disputeGameFactory = DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 11155420));
+        systemConfigProxyAdminOwner = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
+        opcm = stdToml.readAddress(configToml, ".addresses.OPCM");
+    }
+
+    function isEnabled(GameType gt) internal returns (bool) {
+        if (GameType.unwrap(gt) == 0) return false;
+        if (GameType.unwrap(gt) == 1) return false;
+        if (GameType.unwrap(gt) == 8) return false;
+        if (GameType.unwrap(gt) == 4) {
+            if (address(disputeGameFactory.gameImpls(GameType.wrap(0))) != address(0)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (GameType.unwrap(gt) == 5) {
+            if (address(disputeGameFactory.gameImpls(GameType.wrap(1))) != address(0)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (GameType.unwrap(gt) == 9) {
+            if (address(disputeGameFactory.gameImpls(GameType.wrap(8))) != address(0)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 
     function _buildGameConfigs(string memory state)
         internal
-        pure
         returns (IOPContractsManagerV700.DisputeGameConfig[] memory)
     {
         // Dummy prestate — the actual value doesn't matter for validating the upgrade flow.
         bytes32 prestate = bytes32(uint256(1));
-        address proposer = stdJson.readAddress(state, ".appliedIntent.chains[0].roles.proposer");
-        address challenger = stdJson.readAddress(state, ".appliedIntent.chains[0].roles.challenger");
+        address proposer = makeAddr("proposer");
+        address challenger = makeAddr("challenger");
 
         bytes memory permArgs = abi.encode(prestate, proposer, challenger);
 
@@ -48,7 +97,7 @@ contract SuperRootUpgradeTest is Test {
         IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
         uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
         for (uint256 i = 0; i < 6; i++) {
-            bool perm = gts[i] == 1 || gts[i] == 5;
+            bool perm = isEnabled(GameType.wrap(gts[i]));
             cfgs[i] = IOPContractsManagerV700.DisputeGameConfig({
                 enabled: perm,
                 initBond: perm ? 0.08 ether : 0,
@@ -60,37 +109,43 @@ contract SuperRootUpgradeTest is Test {
     }
 
     function test_upgrade_sepolia() public {
-        // Parse state.json — all addresses come from here
-        string memory state = vm.readFile(string.concat(FIXTURES, "state.json"));
-        address opcm = stdJson.readAddress(state, ".implementationsDeployment.OpcmImpl");
-        address sysConfig = stdJson.readAddress(state, ".opChainDeployments[0].SystemConfigProxy");
-
-        // Fork sepolia
-        vm.createSelectFork(vm.rpcUrl("sepolia"));
-
-        // Derive ProxyAdminOwner from on-chain state
-        address admin = IProxyAdmin(ISystemConfigExt(sysConfig).proxyAdmin()).owner();
-
-        // Etch forwarder at admin address so delegatecall runs in admin's context
         DelegateCallForwarder forwarder = new DelegateCallForwarder();
-        vm.etch(admin, address(forwarder).code);
+        vm.etch(systemConfigProxyAdminOwner, address(forwarder).code);
 
         // Build game configs and extra instructions
         IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs = _buildGameConfigs(state);
 
         IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
-            new IOPContractsManagerV700.ExtraInstruction[](1);
+            new IOPContractsManagerV700.ExtraInstruction[](2);
         extraInstructions[0] =
             IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
+        extraInstructions[1] = IOPContractsManagerV700.ExtraInstruction({
+            key: "overrides.cfg.startingRespectedGameType",
+            data: abi.encode(uint32(5)) // SUPER_PERMISSIONED_CANNON
+        });
+
+        // Simulate SuperchainConfig already upgraded (V2 OPCM requires this).
+        {
+            address scProxy = ISystemConfigExt(systemConfig).superchainConfig();
+            (, bytes memory containerData) = opcm.staticcall(abi.encodeWithSignature("contractsContainer()"));
+            address container = abi.decode(containerData, (address));
+            (, bytes memory implsData) = container.staticcall(abi.encodeWithSignature("implementations()"));
+            address expectedImpl = abi.decode(implsData, (address)); // first field = superchainConfigImpl
+            vm.store(
+                scProxy,
+                bytes32(uint256(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)),
+                bytes32(uint256(uint160(expectedImpl)))
+            );
+        }
 
         // Upgrade chain via delegatecall from admin
-        DelegateCallForwarder(admin).forward(
+        DelegateCallForwarder(systemConfigProxyAdminOwner).forward(
             opcm,
             abi.encodeCall(
                 IOPContractsManagerV700.upgrade,
                 (
                     IOPContractsManagerV700.UpgradeInput({
-                        systemConfig: ISystemConfig(sysConfig),
+                        systemConfig: ISystemConfig(systemConfig),
                         disputeGameConfigs: dgConfigs,
                         extraInstructions: extraInstructions
                     })
