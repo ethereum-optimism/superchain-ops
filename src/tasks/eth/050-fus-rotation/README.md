@@ -1,6 +1,6 @@
 # 050-fus-rotation
 
-Status: DRAFT
+Status: READY TO SIGN
 
 ## Objective
 
