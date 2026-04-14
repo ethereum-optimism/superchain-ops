@@ -121,7 +121,7 @@ contract SuperRootUpgradeTest is Test {
             IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
         extraInstructions[1] = IOPContractsManagerV700.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
-            data: abi.encode(uint32(5)) // SUPER_PERMISSIONED_CANNON
+            data: abi.encode(uint32(9)) // SUPER_CANNON_KONA
         });
 
         // Simulate SuperchainConfig already upgraded (V2 OPCM requires this).
