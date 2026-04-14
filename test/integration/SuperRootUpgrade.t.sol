@@ -5,7 +5,13 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {IOPContractsManagerV700, ISuperchainConfig, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
+import {
+    IOPContractsManagerV700,
+    IOPCM,
+    OPCMUpgradeV700,
+    ISuperchainConfig,
+    ISystemConfig
+} from "src/template/OPCMUpgradeV700.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
 import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
@@ -30,17 +36,16 @@ interface ISystemConfigExt {
     function superchainConfig() external view returns (address);
 }
 
-contract SuperRootUpgradeTest is Test {
+contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
     string constant FIXTURES = "test/fixtures/super-root-upgrade/";
     string internal state;
     string internal configToml;
-    SuperchainAddressRegistry internal superchainAddrRegistry;
     DisputeGameFactory internal disputeGameFactory;
     address superchainConfig;
     address systemConfig;
     address systemConfigProxyAdmin;
     address systemConfigProxyAdminOwner;
-    address opcm;
+    address rootSafe;
 
     function setUp() public {
         // Fork sepolia
@@ -54,7 +59,7 @@ contract SuperRootUpgradeTest is Test {
         systemConfigProxyAdmin = ISystemConfigExt(systemConfig).proxyAdmin();
         disputeGameFactory = DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 11155420));
         systemConfigProxyAdminOwner = IProxyAdmin(systemConfigProxyAdmin).owner();
-        opcm = stdToml.readAddress(configToml, ".addresses.OPCM");
+        opcm = IOPCM(stdToml.readAddress(configToml, ".addresses.OPCM"));
     }
 
     function isEnabled(GameType gt) internal returns (bool) {
@@ -112,12 +117,16 @@ contract SuperRootUpgradeTest is Test {
         return cfgs;
     }
 
+    function test_load_data() public {
+        /// _templateSetup() and verify data loaded properly
+    }
+
     function test_upgrade_sepolia() public {
         DelegateCallForwarder forwarder = new DelegateCallForwarder();
         vm.etch(systemConfigProxyAdminOwner, address(forwarder).code);
 
         DelegateCallForwarder(systemConfigProxyAdminOwner).forward(
-            opcm,
+            address(opcm),
             abi.encodeCall(
                 IOPContractsManagerV700.upgradeSuperchain,
                 (
@@ -143,7 +152,7 @@ contract SuperRootUpgradeTest is Test {
 
         // Upgrade chain via delegatecall from admin
         DelegateCallForwarder(systemConfigProxyAdminOwner).forward(
-            opcm,
+            address(opcm),
             abi.encodeCall(
                 IOPContractsManagerV700.upgrade,
                 (

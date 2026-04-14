@@ -25,13 +25,11 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     }
 
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
+    uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
-    /// @notice The Standard Validator returned by OPCM
-    IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
-
-    /// @notice OPCM we delegatecall into (must be v6.0.0).
-    address public OPCM;
+    IOPCM public opcm;
+    IOPContractsManagerStandardValidator public standardValidator;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {}
@@ -49,21 +47,20 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
+            chainsToUpgrade.push(upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
-        // OPCM from TOML; must be v6.0.0
-        OPCM = tomlContent.readAddress(".addresses.OPCM");
-        OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManagerV700(OPCM).version().eq("6.0.0"), "Incorrect OPCM");
-        vm.label(OPCM, "OPCM");
+        // OPCM from TOML; must be v7.0.0
+        opcm = IOPCM(tomlContent.readAddress(".addresses.OPCM"));
+        require(IOPContractsManagerV700(address(opcm)).version().eq("7.1.5"), "Incorrect OPCM");
+        vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
-        address validatorAddr = address(IOPCM(OPCM).opcmStandardValidator());
-        require(validatorAddr != address(0), "OPCM returned zero validator");
-        require(validatorAddr.code.length > 0, "Validator has no code");
-        STANDARD_VALIDATOR = IOPContractsManagerStandardValidator(validatorAddr);
-        vm.label(address(STANDARD_VALIDATOR), "OPCMStandardValidator");
+        standardValidator = opcm.opcmStandardValidator();
+        require(address(standardValidator) != address(0), "OPCM returned zero validator");
+        require(address(standardValidator).code.length > 0, "Validator has no code");
+        vm.label(address(standardValidator), "OPCMStandardValidator");
     }
 
     /// @notice Builds the actions for executing the operations.
@@ -89,7 +86,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
             // Delegatecall the OPCM.upgrade() function once per chain
             (bool ok,) =
-                OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManagerV700.upgrade.selector, inp));
+                address(opcm).delegatecall(abi.encodeWithSelector(IOPContractsManagerV700.upgrade.selector, inp));
             require(ok, "OPCMUpgradeV700: Delegatecall failed in _build.");
         }
     }
@@ -99,8 +96,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         // Cache standard validator's expected values (same for all chains)
-        address standardL1PAO = STANDARD_VALIDATOR.l1PAOMultisig();
-        address standardChallenger = STANDARD_VALIDATOR.challenger();
+        address standardL1PAO = standardValidator.l1PAOMultisig();
+        address standardChallenger = standardValidator.challenger();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -123,7 +120,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
             string memory errors;
             if (l1PAOOverride != address(0) || challengerOverride != address(0)) {
-                errors = STANDARD_VALIDATOR.validateWithOverrides({
+                errors = standardValidator.validateWithOverrides({
                     _input: input,
                     _allowFailure: true,
                     _overrides: IOPContractsManagerStandardValidator.ValidationOverrides({
@@ -132,7 +129,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                     })
                 });
             } else {
-                errors = STANDARD_VALIDATOR.validate({_input: input, _allowFailure: true});
+                errors = standardValidator.validate({_input: input, _allowFailure: true});
             }
 
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
