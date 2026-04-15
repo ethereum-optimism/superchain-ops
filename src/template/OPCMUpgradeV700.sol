@@ -133,10 +133,11 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         if (enabled) {
             bool isPermissioned = gt == 1 || gt == 5;
             bool isKona = gt == 8 || gt == 9;
-            if (gt == 5) {
-                gameArgs =
-                    _encodeSuperPermissionedGameArgs(isKona ? cannonKonaPre : cannonPre, a.proposer, a.challenger);
-            } else {
+            // if (gt == 5) {
+            //     gameArgs =
+            //         _encodeSuperPermissionedGameArgs(isKona ? cannonKonaPre : cannonPre, a.proposer, a.challenger);
+            // } 
+            // else {
                 gameArgs = LibGameArgs.encode(
                     LibGameArgs.GameArgs({
                         absolutePrestate: isKona ? cannonKonaPre : cannonPre,
@@ -148,7 +149,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                         challenger: isPermissioned ? a.challenger : address(0)
                     })
                 );
-            }
+            // }
         }
         return IOPContractsManagerV700.DisputeGameConfig({
             enabled: enabled,
