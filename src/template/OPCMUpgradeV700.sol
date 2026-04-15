@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {Claim, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
@@ -22,6 +22,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         Claim cannonPrestate;
         uint256 chainId;
         string expectedValidationErrors;
+        uint256 initBond;
+        uint32 startingRespectedGameType;
     }
 
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
@@ -32,7 +34,23 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     IOPContractsManagerStandardValidator public standardValidator;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
-    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {}
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
+        string[] memory storageWrites = new string[](13);
+        storageWrites[0] = "SuperchainConfig";
+        storageWrites[1] = "ProtocolVersions";
+        storageWrites[2] = "DisputeGameFactoryProxy";
+        storageWrites[3] = "SystemConfigProxy";
+        storageWrites[4] = "OptimismPortalProxy";
+        storageWrites[5] = "OptimismMintableERC20FactoryProxy";
+        storageWrites[6] = "AddressManager";
+        storageWrites[7] = "L1StandardBridgeProxy";
+        storageWrites[8] = "L1ERC721BridgeProxy";
+        storageWrites[9] = "ProxyAdminOwner";
+        storageWrites[10] = "AnchorStateRegistryProxy";
+        storageWrites[11] = "PermissionedWETH";
+        storageWrites[12] = "PermissionlessWETH";
+        return storageWrites;
+    }
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
@@ -47,13 +65,14 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
-            chainsToUpgrade.push(upgrades[i].chainId);
+            chainsToUpgrade.push(_upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
         // OPCM from TOML; must be v7.0.0
         opcm = IOPCM(tomlContent.readAddress(".addresses.OPCM"));
-        require(IOPContractsManagerV700(address(opcm)).version().eq("7.1.5"), "Incorrect OPCM");
+        OPCM_TARGETS.push(address(opcm));
+        require(IOPContractsManagerV700(address(opcm)).version().eq("7.1.15"), "Incorrect OPCM");
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
@@ -63,25 +82,153 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         vm.label(address(standardValidator), "OPCMStandardValidator");
     }
 
+    /// @notice Returns whether a super dispute game should be enabled based on the existing factory state.
+    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt) internal view returns (bool) {
+        if (gt == 0) return false;
+        if (gt == 1) return false;
+        if (gt == 8) return false;
+        if (gt == 4) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(0))) != address(0);
+        }
+        if (gt == 5) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(1))) != address(0);
+        }
+        if (gt == 9) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(8))) != address(0);
+        }
+        return false;
+    }
+
+    /// @notice Addresses needed to build game configs for a single chain.
+    struct GameConfigAddrs {
+        IDisputeGameFactory factory;
+        address mips;
+        address asr;
+        address permissionlessWETH;
+        address permissionedWETH;
+        address proposer;
+        address challenger;
+    }
+
+    /// @notice SUPER_PERMISSIONED_CANNON still uses the legacy ABI-encoded args shape.
+    function _encodeSuperPermissionedGameArgs(bytes32 prestate, address proposer, address challenger)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encode(prestate, proposer, challenger);
+    }
+
+    /// @notice Builds a single DisputeGameConfig entry.
+    function _buildOneGameConfig(
+        GameConfigAddrs memory a,
+        uint256 chainId,
+        uint32 gt,
+        bytes32 cannonPre,
+        bytes32 cannonKonaPre,
+        uint256 bond
+    ) internal view returns (IOPContractsManagerV700.DisputeGameConfig memory) {
+        bool enabled = _isGameTypeEnabled(a.factory, gt);
+        bytes memory gameArgs;
+        if (enabled) {
+            bool isPermissioned = gt == 1 || gt == 5;
+            bool isKona = gt == 8 || gt == 9;
+            if (gt == 5) {
+                gameArgs =
+                    _encodeSuperPermissionedGameArgs(isKona ? cannonKonaPre : cannonPre, a.proposer, a.challenger);
+            } else {
+                gameArgs = LibGameArgs.encode(
+                    LibGameArgs.GameArgs({
+                        absolutePrestate: isKona ? cannonKonaPre : cannonPre,
+                        vm: a.mips,
+                        anchorStateRegistry: a.asr,
+                        weth: isPermissioned ? a.permissionedWETH : a.permissionlessWETH,
+                        l2ChainId: chainId,
+                        proposer: isPermissioned ? a.proposer : address(0),
+                        challenger: isPermissioned ? a.challenger : address(0)
+                    })
+                );
+            }
+        }
+        return IOPContractsManagerV700.DisputeGameConfig({
+            enabled: enabled,
+            initBond: enabled ? bond : 0,
+            gameType: gt,
+            gameArgs: gameArgs
+        });
+    }
+
+    /// @notice Builds DisputeGameConfig[] for a chain from registry addresses and config prestates.
+    function _buildGameConfigs(uint256 chainId)
+        internal
+        view
+        returns (IOPContractsManagerV700.DisputeGameConfig[] memory)
+    {
+        GameConfigAddrs memory a = GameConfigAddrs({
+            factory: IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId)),
+            mips: superchainAddrRegistry.getAddress("MIPS", chainId),
+            asr: superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId),
+            permissionlessWETH: superchainAddrRegistry.getAddress("PermissionlessWETH", chainId),
+            permissionedWETH: superchainAddrRegistry.getAddress("PermissionedWETH", chainId),
+            proposer: superchainAddrRegistry.getAddress("Proposer", chainId),
+            challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
+        });
+
+        bytes32 cannonPre = Claim.unwrap(upgrades[chainId].cannonPrestate);
+        bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
+        uint256 bond = upgrades[chainId].initBond;
+
+        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
+        uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
+        for (uint256 i = 0; i < 6; i++) {
+            cfgs[i] = _buildOneGameConfig(a, chainId, gts[i], cannonPre, cannonKonaPre, bond);
+        }
+        return cfgs;
+    }
+
+    function _buildExtraInstructions(uint256 chainId)
+        internal
+        view
+        returns (IOPContractsManagerV700.ExtraInstruction[] memory)
+    {
+        IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
+            new IOPContractsManagerV700.ExtraInstruction[](2);
+        extraInstructions[0] =
+            IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
+        extraInstructions[1] = IOPContractsManagerV700.ExtraInstruction({
+            key: "overrides.cfg.startingRespectedGameType",
+            data: abi.encode(upgrades[chainId].startingRespectedGameType)
+        });
+        return extraInstructions;
+    }
+
     /// @notice Builds the actions for executing the operations.
-    /// TODO: Update to construct UpgradeInput with DisputeGameConfigs per chain.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+
+        // Upgrade superchain once (before per-chain upgrades)
+        address sc = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
+        (bool scOk,) = address(opcm).delegatecall(
+            abi.encodeCall(
+                IOPContractsManagerV700.upgradeSuperchain,
+                (
+                    IOPContractsManagerV700.SuperchainUpgradeInput({
+                        superchainConfig: ISuperchainConfig(sc),
+                        extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
+                    })
+                )
+            )
+        );
+        require(scOk, "OPCMUpgradeV700: upgradeSuperchain delegatecall failed");
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             require(upgrades[chainId].chainId != 0, "OPCMUpgradeV700: Config not found for chain");
 
-            // TODO: Build DisputeGameConfig[] from upgrades[chainId] prestates
-            IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs =
-                new IOPContractsManagerV700.DisputeGameConfig[](0);
-            IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
-                new IOPContractsManagerV700.ExtraInstruction[](0);
-
             IOPContractsManagerV700.UpgradeInput memory inp = IOPContractsManagerV700.UpgradeInput({
                 systemConfig: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                disputeGameConfigs: dgConfigs,
-                extraInstructions: extraInstructions
+                disputeGameConfigs: _buildGameConfigs(chainId),
+                extraInstructions: _buildExtraInstructions(chainId)
             });
 
             // Delegatecall the OPCM.upgrade() function once per chain
@@ -210,6 +357,10 @@ interface IOPContractsManagerStandardValidator {
 
 interface ISuperchainConfig {}
 
+interface IDisputeGameFactory {
+    function gameImpls(GameType gameType) external view returns (address);
+}
+
 interface ISystemConfig {
     struct Addresses {
         address l1CrossDomainMessenger;
@@ -222,4 +373,90 @@ interface ISystemConfig {
     }
 
     function getAddresses() external view returns (Addresses memory);
+}
+
+error InvalidGameArgsLength();
+
+/// @title LibGameArgs
+/// @notice Library for encoding and decoding dispute game arguments.
+library LibGameArgs {
+    uint256 public constant PERMISSIONLESS_ARGS_LENGTH = 124;
+    uint256 public constant PERMISSIONED_ARGS_LENGTH = 164;
+
+    struct GameArgs {
+        bytes32 absolutePrestate;
+        address vm;
+        address anchorStateRegistry;
+        address weth;
+        uint256 l2ChainId;
+        address proposer;
+        address challenger;
+    }
+
+    function encode(GameArgs memory _args) internal pure returns (bytes memory) {
+        if (_args.proposer == address(0) && _args.challenger == address(0)) {
+            return abi.encodePacked(
+                _args.absolutePrestate, _args.vm, _args.anchorStateRegistry, _args.weth, _args.l2ChainId
+            );
+        } else {
+            return abi.encodePacked(
+                _args.absolutePrestate,
+                _args.vm,
+                _args.anchorStateRegistry,
+                _args.weth,
+                _args.l2ChainId,
+                _args.proposer,
+                _args.challenger
+            );
+        }
+    }
+
+    function decode(bytes memory _gameArgs) internal pure returns (GameArgs memory) {
+        uint256 len = _gameArgs.length;
+        if (len != PERMISSIONED_ARGS_LENGTH && len != PERMISSIONLESS_ARGS_LENGTH) {
+            revert InvalidGameArgsLength();
+        }
+
+        bytes32 absolutePrestate;
+        address vm_;
+        address asr;
+        address weth;
+        uint256 l2ChainId;
+        address proposer;
+        address challenger;
+
+        assembly {
+            let d := add(_gameArgs, 32)
+            absolutePrestate := mload(d)
+            vm_ := shr(96, mload(add(d, 32)))
+            asr := shr(96, mload(add(d, 52)))
+            weth := shr(96, mload(add(d, 72)))
+            l2ChainId := mload(add(d, 92))
+        }
+
+        if (len == PERMISSIONED_ARGS_LENGTH) {
+            assembly {
+                let d := add(_gameArgs, 32)
+                proposer := shr(96, mload(add(d, 124)))
+                challenger := shr(96, mload(add(d, 144)))
+            }
+        }
+        return GameArgs({
+            absolutePrestate: absolutePrestate,
+            vm: vm_,
+            anchorStateRegistry: asr,
+            weth: weth,
+            l2ChainId: l2ChainId,
+            proposer: proposer,
+            challenger: challenger
+        });
+    }
+
+    function isValidPermissionlessArgs(bytes memory _args) internal pure returns (bool) {
+        return _args.length == PERMISSIONLESS_ARGS_LENGTH;
+    }
+
+    function isValidPermissionedArgs(bytes memory _args) internal pure returns (bool) {
+        return _args.length == PERMISSIONED_ARGS_LENGTH;
+    }
 }

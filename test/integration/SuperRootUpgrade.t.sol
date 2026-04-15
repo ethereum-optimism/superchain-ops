@@ -1,20 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
-import {stdJson} from "forge-std/StdJson.sol";
-import {stdToml} from "forge-std/StdToml.sol";
-import {
-    IOPContractsManagerV700,
-    IOPCM,
-    OPCMUpgradeV700,
-    ISuperchainConfig,
-    ISystemConfig
-} from "src/template/OPCMUpgradeV700.sol";
+import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IOPContractsManagerV700, OPCMUpgradeV700, LibGameArgs} from "src/template/OPCMUpgradeV700.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
-import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
-import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 contract DelegateCallForwarder {
     function forward(address target, bytes memory data) external {
@@ -38,131 +30,100 @@ interface ISystemConfigExt {
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
     string constant FIXTURES = "test/fixtures/super-root-upgrade/";
-    string internal state;
-    string internal configToml;
-    DisputeGameFactory internal disputeGameFactory;
-    address superchainConfig;
-    address systemConfig;
-    address systemConfigProxyAdmin;
-    address systemConfigProxyAdminOwner;
+    uint256 internal constant CHAIN_ID = 11155420;
     address rootSafe;
 
     function setUp() public {
-        // Fork sepolia
         vm.createSelectFork(vm.rpcUrl("sepolia"));
-        state = vm.readFile(string.concat(FIXTURES, "state.json"));
-        configToml = vm.readFile(string.concat(FIXTURES, "config.toml"));
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
-        systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", 11155420);
-        superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", 11155420);
-        systemConfigProxyAdmin = ISystemConfigExt(systemConfig).proxyAdmin();
-        disputeGameFactory = DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 11155420));
-        systemConfigProxyAdminOwner = IProxyAdmin(systemConfigProxyAdmin).owner();
-        opcm = IOPCM(stdToml.readAddress(configToml, ".addresses.OPCM"));
+        _templateSetup(configTomlPath, address(0));
+        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_ID);
+        rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
     }
 
-    function isEnabled(GameType gt) internal returns (bool) {
-        if (GameType.unwrap(gt) == 0) return false;
-        if (GameType.unwrap(gt) == 1) return false;
-        if (GameType.unwrap(gt) == 8) return false;
-        if (GameType.unwrap(gt) == 4) {
-            if (address(disputeGameFactory.gameImpls(GameType.wrap(0))) != address(0)) {
-                return true;
-            } else {
-                return false;
+    function test_load_data() public view {
+        assertEq(rootSafe, superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_ID));
+        assertEq(chainsToUpgrade.length, 1);
+        assertEq(chainsToUpgrade[0], CHAIN_ID);
+        assertEq(Claim.unwrap(upgrades[CHAIN_ID].cannonPrestate), bytes32(uint256(0xdead) << 240));
+        assertEq(Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
+        assertEq(upgrades[CHAIN_ID].initBond, 0.08 ether);
+        assertEq(upgrades[CHAIN_ID].startingRespectedGameType, 9);
+        assertEq(upgrades[CHAIN_ID].expectedValidationErrors, "");
+
+        IOPContractsManagerV700.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
+        assertEq(configs.length, 6);
+
+        uint32[6] memory expectedGameTypes = [uint32(0), 1, 8, 4, 5, 9];
+        for (uint256 i = 0; i < configs.length; i++) {
+            IOPContractsManagerV700.DisputeGameConfig memory config = configs[i];
+            uint32 gameType = expectedGameTypes[i];
+            assertEq(config.gameType, gameType);
+
+            if (!config.enabled) {
+                assertEq(config.initBond, 0);
+                assertEq(config.gameArgs.length, 0);
+                continue;
             }
-        }
-        if (GameType.unwrap(gt) == 5) {
-            if (address(disputeGameFactory.gameImpls(GameType.wrap(1))) != address(0)) {
-                return true;
-            } else {
-                return false;
+
+            bool isPermissioned = gameType == 1 || gameType == 5;
+            bool isKona = gameType == 8 || gameType == 9;
+
+            if (gameType == 5) {
+                (bytes32 prestate, address proposer, address challenger) =
+                    abi.decode(config.gameArgs, (bytes32, address, address));
+                assertEq(config.initBond, upgrades[CHAIN_ID].initBond);
+                assertEq(prestate, Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate));
+                assertEq(proposer, superchainAddrRegistry.getAddress("Proposer", CHAIN_ID));
+                assertEq(challenger, superchainAddrRegistry.getAddress("Challenger", CHAIN_ID));
+                continue;
             }
+
+            LibGameArgs.GameArgs memory gameArgs = LibGameArgs.decode(config.gameArgs);
+
+            assertEq(config.initBond, upgrades[CHAIN_ID].initBond);
+            assertEq(
+                gameArgs.absolutePrestate,
+                Claim.unwrap(isKona ? upgrades[CHAIN_ID].cannonKonaPrestate : upgrades[CHAIN_ID].cannonPrestate)
+            );
+            assertEq(gameArgs.vm, superchainAddrRegistry.getAddress("MIPS", CHAIN_ID));
+            assertEq(
+                gameArgs.anchorStateRegistry, superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", CHAIN_ID)
+            );
+            assertEq(
+                gameArgs.weth,
+                superchainAddrRegistry.getAddress(isPermissioned ? "PermissionedWETH" : "PermissionlessWETH", CHAIN_ID)
+            );
+            assertEq(gameArgs.l2ChainId, CHAIN_ID);
+            assertEq(
+                gameArgs.proposer, isPermissioned ? superchainAddrRegistry.getAddress("Proposer", CHAIN_ID) : address(0)
+            );
+            assertEq(
+                gameArgs.challenger,
+                isPermissioned ? superchainAddrRegistry.getAddress("Challenger", CHAIN_ID) : address(0)
+            );
         }
-        if (GameType.unwrap(gt) == 9) {
-            if (address(disputeGameFactory.gameImpls(GameType.wrap(8))) != address(0)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    function _buildGameConfigs(string memory state)
-        internal
-        returns (IOPContractsManagerV700.DisputeGameConfig[] memory)
-    {
-        // Dummy prestate — the actual value doesn't matter for validating the upgrade flow.
-        bytes32 prestate = bytes32(uint256(1));
-        address proposer = makeAddr("proposer");
-        address challenger = makeAddr("challenger");
-
-        bytes memory permArgs = abi.encode(prestate, proposer, challenger);
-
-        // OPCM requires exactly 6 game types in this order:
-        // CANNON(0), PERMISSIONED_CANNON(1), CANNON_KONA(8), SUPER_CANNON(4),
-        // SUPER_PERMISSIONED_CANNON(5), SUPER_CANNON_KONA(9).
-        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
-        uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
-        for (uint256 i = 0; i < 6; i++) {
-            bool perm = isEnabled(GameType.wrap(gts[i]));
-            cfgs[i] = IOPContractsManagerV700.DisputeGameConfig({
-                enabled: perm,
-                initBond: perm ? 0.08 ether : 0,
-                gameType: gts[i],
-                gameArgs: perm ? permArgs : bytes("")
-            });
-        }
-        return cfgs;
-    }
-
-    function test_load_data() public {
-        /// _templateSetup() and verify data loaded properly
     }
 
     function test_upgrade_sepolia() public {
+        Action[] memory actions = build(rootSafe);
+        assertGt(actions.length, 0);
+
+        _executeActions(actions);
+    }
+
+    function _executeActions(Action[] memory actions) internal {
         DelegateCallForwarder forwarder = new DelegateCallForwarder();
-        vm.etch(systemConfigProxyAdminOwner, address(forwarder).code);
-
-        DelegateCallForwarder(systemConfigProxyAdminOwner).forward(
-            address(opcm),
-            abi.encodeCall(
-                IOPContractsManagerV700.upgradeSuperchain,
-                (
-                    IOPContractsManagerV700.SuperchainUpgradeInput({
-                        superchainConfig: ISuperchainConfig(superchainConfig),
-                        extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
-                    })
-                )
-            )
-        );
-
-        // Build game configs and extra instructions
-        IOPContractsManagerV700.DisputeGameConfig[] memory dgConfigs = _buildGameConfigs(state);
-
-        IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
-            new IOPContractsManagerV700.ExtraInstruction[](2);
-        extraInstructions[0] =
-            IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
-        extraInstructions[1] = IOPContractsManagerV700.ExtraInstruction({
-            key: "overrides.cfg.startingRespectedGameType",
-            data: abi.encode(uint32(9)) // SUPER_CANNON_KONA
-        });
-
-        // Upgrade chain via delegatecall from admin
-        DelegateCallForwarder(systemConfigProxyAdminOwner).forward(
-            address(opcm),
-            abi.encodeCall(
-                IOPContractsManagerV700.upgrade,
-                (
-                    IOPContractsManagerV700.UpgradeInput({
-                        systemConfig: ISystemConfig(systemConfig),
-                        disputeGameConfigs: dgConfigs,
-                        extraInstructions: extraInstructions
-                    })
-                )
-            )
-        );
+        vm.etch(rootSafe, address(forwarder).code);
+        for (uint256 i = 0; i < actions.length; i++) {
+            if (actions[i].operation == Enum.Operation.DelegateCall) {
+                DelegateCallForwarder(rootSafe).forward(actions[i].target, actions[i].arguments);
+            } else {
+                vm.prank(rootSafe);
+                (bool ok,) = actions[i].target.call{value: actions[i].value}(actions[i].arguments);
+                require(ok, "Call failed");
+            }
+        }
     }
 }

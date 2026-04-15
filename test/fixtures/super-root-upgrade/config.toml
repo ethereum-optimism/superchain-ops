@@ -15,6 +15,8 @@ chainId = 11155420
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 expectedValidationErrors = "" # No errors expected
+initBond = 80000000000000000
+startingRespectedGameType = 9
 
 [addresses]
 OPCM = "0x8ea87d938533fa760f2a9160ccdae6a2779e89b1"  # v600 OPCM source: https://github.com/ethereum-optimism/superchain-registry/blob/c84ed822ae5a65500d8c0e323460fa688cfcca22/validation/standard/standard-versions-sepolia.toml#L23C56-L23C98
