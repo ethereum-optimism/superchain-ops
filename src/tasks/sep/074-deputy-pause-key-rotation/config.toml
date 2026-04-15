@@ -1,0 +1,6 @@
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}]
+templateName = "DeputyPauseKeyRotationTemplate"
+
+newDeputy = "0x8D2AAe4009418Ef6D83F1F2c90D4dAc3cE2b5D4f"
+
+newDeputySignature = "0x3d3d1206bfb51e9d6db5ab1d474619cffa44907b5f2055966fa26cc85c6783f45f78cdfb0300f89763e29357c9f077f1ae83cc83a2711f51f1b4c84478287e8e1c"
