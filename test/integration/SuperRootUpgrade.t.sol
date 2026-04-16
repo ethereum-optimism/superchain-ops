@@ -29,7 +29,7 @@ interface ISystemConfigExt {
 }
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
-    string constant FIXTURES = "test/fixtures/super-root-upgrade/";
+    string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v700/";
     uint256 internal constant CHAIN_ID = 11155420;
     address rootSafe;
 
