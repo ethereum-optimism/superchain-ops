@@ -50,7 +50,10 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
         assertEq(Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
         assertEq(upgrades[CHAIN_ID].initBond, 0.08 ether);
         assertEq(upgrades[CHAIN_ID].startingRespectedGameType, 9);
-        assertEq(upgrades[CHAIN_ID].expectedValidationErrors, "");
+        assertEq(
+            upgrades[CHAIN_ID].expectedValidationErrors,
+            "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCDG-SHAPE"
+        );
 
         IOPContractsManagerV700.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
         assertEq(configs.length, 6);
