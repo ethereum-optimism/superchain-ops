@@ -11,12 +11,13 @@ import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: op-contracts/v7.0.0
+/// Supports: op-contracts/v7.1.15
 contract OPCMUpgradeV700 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
     /// @notice Struct to store inputs data for each L2 chain.
+    /// @dev Fields must remain in alphabetical order for TOML decoding.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
         Claim cannonPrestate;
@@ -58,15 +59,42 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in
+    /// this function.
     function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
         super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+
+        require(chains.length > 0, "OPCMUpgradeV700: no chains configured");
 
         // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        require(_upgrades.length == chains.length, "OPCMUpgradeV700: opcmUpgrades length mismatch");
         for (uint256 i = 0; i < _upgrades.length; i++) {
+            require(_upgrades[i].chainId != 0, "OPCMUpgradeV700: chainId cannot be zero");
+            require(upgrades[_upgrades[i].chainId].chainId == 0, "OPCMUpgradeV700: duplicate chain config");
+            require(
+                Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV700: cannonPrestate is zero"
+            );
+            require(
+                Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
+                "OPCMUpgradeV700: cannonKonaPrestate is zero"
+            );
             chainsToUpgrade.push(_upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
+        }
+
+        address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
+        require(superchainConfig != address(0), "OPCMUpgradeV700: SuperchainConfig not found");
+        require(superchainConfig.code.length > 0, "OPCMUpgradeV700: SuperchainConfig has no code");
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            require(upgrades[chainId].chainId != 0, "OPCMUpgradeV700: config not found for chain");
+            require(
+                superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
+                "OPCMUpgradeV700: all chains must share the same SuperchainConfig"
+            );
         }
 
         // OPCM from TOML; must be v7.0.0
@@ -175,8 +203,12 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     }
 
     /// @notice Builds the actions for executing the operations.
+    /// @dev OPCMTaskBase uses Multicall3DelegateCall, so calls to OPCM must use delegatecall.
+    /// Any state written in this function is discarded after build completes.
+    /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        require(chains.length > 0, "OPCMUpgradeV700: no chains configured");
 
         // Upgrade superchain once (before per-chain upgrades)
         address sc = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
