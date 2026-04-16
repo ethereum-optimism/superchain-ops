@@ -36,7 +36,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](13);
+        string[] memory storageWrites = new string[](15);
         storageWrites[0] = "SuperchainConfig";
         storageWrites[1] = "ProtocolVersions";
         storageWrites[2] = "DisputeGameFactoryProxy";
@@ -46,10 +46,12 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         storageWrites[6] = "AddressManager";
         storageWrites[7] = "L1StandardBridgeProxy";
         storageWrites[8] = "L1ERC721BridgeProxy";
-        storageWrites[9] = "ProxyAdminOwner";
-        storageWrites[10] = "AnchorStateRegistryProxy";
-        storageWrites[11] = "PermissionedWETH";
-        storageWrites[12] = "PermissionlessWETH";
+        storageWrites[9] = "L1CrossDomainMessengerProxy";
+        storageWrites[10] = "ProxyAdminOwner";
+        storageWrites[11] = "AnchorStateRegistryProxy";
+        storageWrites[12] = "PermissionedWETH";
+        storageWrites[13] = "PermissionlessWETH";
+        storageWrites[14] = "EthLockboxProxy";
         return storageWrites;
     }
 
@@ -74,9 +76,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         for (uint256 i = 0; i < _upgrades.length; i++) {
             require(_upgrades[i].chainId != 0, "OPCMUpgradeV700: chainId cannot be zero");
             require(upgrades[_upgrades[i].chainId].chainId == 0, "OPCMUpgradeV700: duplicate chain config");
-            require(
-                Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV700: cannonPrestate is zero"
-            );
+            require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV700: cannonPrestate is zero");
             require(
                 Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMUpgradeV700: cannonKonaPrestate is zero"
@@ -95,6 +95,19 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
                 "OPCMUpgradeV700: all chains must share the same SuperchainConfig"
             );
+        }
+
+        // Register EthLockboxProxy for each chain from the superchain-registry addresses.json.
+        // The V700 upgrade writes to EthLockboxProxy storage, but it is not discovered by the
+        // registry's onchain discovery flow, so we register it here.
+        string memory addrJson = vm.readFile(superchainAddrRegistry.SUPERCHAIN_REGISTRY_ADDRESSES_PATH());
+        for (uint256 i = 0; i < chains.length; i++) {
+            string memory key = string.concat("$.", vm.toString(chains[i].chainId), ".EthLockboxProxy");
+            if (vm.keyExistsJson(addrJson, key)) {
+                address ethLockbox = vm.parseJsonAddress(addrJson, key);
+                superchainAddrRegistry.saveAddress("EthLockboxProxy", chains[i], ethLockbox);
+                vm.label(ethLockbox, "EthLockboxProxy");
+            }
         }
 
         // OPCM from TOML; must be v7.0.0
