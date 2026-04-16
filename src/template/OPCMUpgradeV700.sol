@@ -33,6 +33,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     IOPCM public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
+    address[] internal _codeExceptions;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
@@ -107,6 +108,18 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 address ethLockbox = vm.parseJsonAddress(addrJson, key);
                 superchainAddrRegistry.saveAddress("EthLockboxProxy", chains[i], ethLockbox);
                 vm.label(ethLockbox, "EthLockboxProxy");
+            }
+        }
+
+        // The V700 upgrade reinitializes SystemConfig, which re-writes existing storage slots.
+        // Some slots may contain addresses without code (e.g. pre-existing values from earlier
+        // upgrades). Collect these as code exceptions so post-simulation validation doesn't fail.
+        for (uint256 i = 0; i < chains.length; i++) {
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId);
+            // Slot 0x33 stores an address that may not have deployed code.
+            address slotVal = address(uint160(uint256(vm.load(sysCfg, bytes32(uint256(0x33))))));
+            if (slotVal != address(0) && slotVal.code.length == 0) {
+                _codeExceptions.push(slotVal);
             }
         }
 
@@ -302,7 +315,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
+        return _codeExceptions;
+    }
 }
 
 /* ---------- Interfaces ---------- */
