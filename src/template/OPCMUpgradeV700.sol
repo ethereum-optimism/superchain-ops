@@ -82,7 +82,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         vm.label(address(standardValidator), "OPCMStandardValidator");
     }
 
-    /// @notice Returns whether a super dispute game should be enabled based on the existing factory state.
+    /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
     function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt) internal view returns (bool) {
         if (gt == 0) return false;
         if (gt == 1) return false;
@@ -102,27 +102,13 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// @notice Addresses needed to build game configs for a single chain.
     struct GameConfigAddrs {
         IDisputeGameFactory factory;
-        address mips;
-        address asr;
-        address permissionlessWETH;
-        address permissionedWETH;
         address proposer;
         address challenger;
-    }
-
-    /// @notice SUPER_PERMISSIONED_CANNON still uses the legacy ABI-encoded args shape.
-    function _encodeSuperPermissionedGameArgs(bytes32 prestate, address proposer, address challenger)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encode(prestate, proposer, challenger);
     }
 
     /// @notice Builds a single DisputeGameConfig entry.
     function _buildOneGameConfig(
         GameConfigAddrs memory a,
-        uint256 chainId,
         uint32 gt,
         bytes32 cannonPre,
         bytes32 cannonKonaPre,
@@ -133,23 +119,12 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         if (enabled) {
             bool isPermissioned = gt == 1 || gt == 5;
             bool isKona = gt == 8 || gt == 9;
-            // if (gt == 5) {
-            //     gameArgs =
-            //         _encodeSuperPermissionedGameArgs(isKona ? cannonKonaPre : cannonPre, a.proposer, a.challenger);
-            // } 
-            // else {
-                gameArgs = LibGameArgs.encode(
-                    LibGameArgs.GameArgs({
-                        absolutePrestate: isKona ? cannonKonaPre : cannonPre,
-                        vm: a.mips,
-                        anchorStateRegistry: a.asr,
-                        weth: isPermissioned ? a.permissionedWETH : a.permissionlessWETH,
-                        l2ChainId: chainId,
-                        proposer: isPermissioned ? a.proposer : address(0),
-                        challenger: isPermissioned ? a.challenger : address(0)
-                    })
-                );
-            // }
+            bytes32 absolutePrestate = isKona ? cannonKonaPre : cannonPre;
+            if (isPermissioned) {
+                gameArgs = abi.encode(absolutePrestate, a.proposer, a.challenger);
+            } else {
+                gameArgs = abi.encode(absolutePrestate);
+            }
         }
         return IOPContractsManagerV700.DisputeGameConfig({
             enabled: enabled,
@@ -167,10 +142,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     {
         GameConfigAddrs memory a = GameConfigAddrs({
             factory: IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId)),
-            mips: superchainAddrRegistry.getAddress("MIPS", chainId),
-            asr: superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId),
-            permissionlessWETH: superchainAddrRegistry.getAddress("PermissionlessWETH", chainId),
-            permissionedWETH: superchainAddrRegistry.getAddress("PermissionedWETH", chainId),
             proposer: superchainAddrRegistry.getAddress("Proposer", chainId),
             challenger: superchainAddrRegistry.getAddress("Challenger", chainId)
         });
@@ -182,7 +153,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
         uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
         for (uint256 i = 0; i < 6; i++) {
-            cfgs[i] = _buildOneGameConfig(a, chainId, gts[i], cannonPre, cannonKonaPre, bond);
+            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond);
         }
         return cfgs;
     }
@@ -374,90 +345,4 @@ interface ISystemConfig {
     }
 
     function getAddresses() external view returns (Addresses memory);
-}
-
-error InvalidGameArgsLength();
-
-/// @title LibGameArgs
-/// @notice Library for encoding and decoding dispute game arguments.
-library LibGameArgs {
-    uint256 public constant PERMISSIONLESS_ARGS_LENGTH = 124;
-    uint256 public constant PERMISSIONED_ARGS_LENGTH = 164;
-
-    struct GameArgs {
-        bytes32 absolutePrestate;
-        address vm;
-        address anchorStateRegistry;
-        address weth;
-        uint256 l2ChainId;
-        address proposer;
-        address challenger;
-    }
-
-    function encode(GameArgs memory _args) internal pure returns (bytes memory) {
-        if (_args.proposer == address(0) && _args.challenger == address(0)) {
-            return abi.encodePacked(
-                _args.absolutePrestate, _args.vm, _args.anchorStateRegistry, _args.weth, _args.l2ChainId
-            );
-        } else {
-            return abi.encodePacked(
-                _args.absolutePrestate,
-                _args.vm,
-                _args.anchorStateRegistry,
-                _args.weth,
-                _args.l2ChainId,
-                _args.proposer,
-                _args.challenger
-            );
-        }
-    }
-
-    function decode(bytes memory _gameArgs) internal pure returns (GameArgs memory) {
-        uint256 len = _gameArgs.length;
-        if (len != PERMISSIONED_ARGS_LENGTH && len != PERMISSIONLESS_ARGS_LENGTH) {
-            revert InvalidGameArgsLength();
-        }
-
-        bytes32 absolutePrestate;
-        address vm_;
-        address asr;
-        address weth;
-        uint256 l2ChainId;
-        address proposer;
-        address challenger;
-
-        assembly {
-            let d := add(_gameArgs, 32)
-            absolutePrestate := mload(d)
-            vm_ := shr(96, mload(add(d, 32)))
-            asr := shr(96, mload(add(d, 52)))
-            weth := shr(96, mload(add(d, 72)))
-            l2ChainId := mload(add(d, 92))
-        }
-
-        if (len == PERMISSIONED_ARGS_LENGTH) {
-            assembly {
-                let d := add(_gameArgs, 32)
-                proposer := shr(96, mload(add(d, 124)))
-                challenger := shr(96, mload(add(d, 144)))
-            }
-        }
-        return GameArgs({
-            absolutePrestate: absolutePrestate,
-            vm: vm_,
-            anchorStateRegistry: asr,
-            weth: weth,
-            l2ChainId: l2ChainId,
-            proposer: proposer,
-            challenger: challenger
-        });
-    }
-
-    function isValidPermissionlessArgs(bytes memory _args) internal pure returns (bool) {
-        return _args.length == PERMISSIONLESS_ARGS_LENGTH;
-    }
-
-    function isValidPermissionedArgs(bytes memory _args) internal pure returns (bool) {
-        return _args.length == PERMISSIONED_ARGS_LENGTH;
-    }
 }

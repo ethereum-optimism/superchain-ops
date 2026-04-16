@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
 import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {IOPContractsManagerV700, OPCMUpgradeV700, LibGameArgs} from "src/template/OPCMUpgradeV700.sol";
+import {IOPContractsManagerV700, OPCMUpgradeV700} from "src/template/OPCMUpgradeV700.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
@@ -62,47 +62,30 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
             assertEq(config.gameType, gameType);
 
             if (!config.enabled) {
+                /// Games [0,1,4,8]
                 assertEq(config.initBond, 0);
                 assertEq(config.gameArgs.length, 0);
                 continue;
             }
 
-            bool isPermissioned = gameType == 1 || gameType == 5;
             bool isKona = gameType == 8 || gameType == 9;
 
             if (gameType == 5) {
-                (bytes32 prestate, address proposer, address challenger) =
+                (bytes32 permPrestate, address proposer, address challenger) =
                     abi.decode(config.gameArgs, (bytes32, address, address));
                 assertEq(config.initBond, upgrades[CHAIN_ID].initBond);
-                assertEq(prestate, Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate));
+                assertEq(permPrestate, Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate));
                 assertEq(proposer, superchainAddrRegistry.getAddress("Proposer", CHAIN_ID));
                 assertEq(challenger, superchainAddrRegistry.getAddress("Challenger", CHAIN_ID));
-                continue;
+            } else {
+                assertEq(config.initBond, upgrades[CHAIN_ID].initBond);
+                bytes32 prestate = abi.decode(config.gameArgs, (bytes32));
+                if (isKona) {
+                    assertEq(prestate, Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate));
+                } else {
+                    assertEq(prestate, Claim.unwrap(upgrades[CHAIN_ID].cannonPrestate));
+                }
             }
-
-            LibGameArgs.GameArgs memory gameArgs = LibGameArgs.decode(config.gameArgs);
-
-            assertEq(config.initBond, upgrades[CHAIN_ID].initBond);
-            assertEq(
-                gameArgs.absolutePrestate,
-                Claim.unwrap(isKona ? upgrades[CHAIN_ID].cannonKonaPrestate : upgrades[CHAIN_ID].cannonPrestate)
-            );
-            assertEq(gameArgs.vm, superchainAddrRegistry.getAddress("MIPS", CHAIN_ID));
-            assertEq(
-                gameArgs.anchorStateRegistry, superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", CHAIN_ID)
-            );
-            assertEq(
-                gameArgs.weth,
-                superchainAddrRegistry.getAddress(isPermissioned ? "PermissionedWETH" : "PermissionlessWETH", CHAIN_ID)
-            );
-            assertEq(gameArgs.l2ChainId, CHAIN_ID);
-            assertEq(
-                gameArgs.proposer, isPermissioned ? superchainAddrRegistry.getAddress("Proposer", CHAIN_ID) : address(0)
-            );
-            assertEq(
-                gameArgs.challenger,
-                isPermissioned ? superchainAddrRegistry.getAddress("Challenger", CHAIN_ID) : address(0)
-            );
         }
     }
 
