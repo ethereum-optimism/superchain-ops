@@ -113,13 +113,18 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
         // The V700 upgrade reinitializes SystemConfig, which re-writes existing storage slots.
         // Some slots may contain addresses without code (e.g. pre-existing values from earlier
-        // upgrades). Collect these as code exceptions so post-simulation validation doesn't fail.
+        // upgrades). Scan SystemConfig storage for codeless addresses and add them as exceptions
+        // so post-simulation validation doesn't fail.
         for (uint256 i = 0; i < chains.length; i++) {
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId);
-            // Slot 0x33 stores an address that may not have deployed code.
-            address slotVal = address(uint160(uint256(vm.load(sysCfg, bytes32(uint256(0x33))))));
-            if (slotVal != address(0) && slotVal.code.length == 0) {
-                _codeExceptions.push(slotVal);
+            for (uint256 slot = 0; slot <= 0x70; slot++) {
+                uint256 raw = uint256(vm.load(sysCfg, bytes32(slot)));
+                // Skip if zero or if upper 96 bits are non-zero (not an address-shaped value).
+                if (raw == 0 || raw >> 160 != 0) continue;
+                address slotVal = address(uint160(raw));
+                if (slotVal.code.length == 0) {
+                    _codeExceptions.push(slotVal);
+                }
             }
         }
 
