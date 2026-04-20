@@ -33,7 +33,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     IOPCM public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
-    address[] internal _codeExceptions;
 
     // Game type constants (from GameTypes library in op-contracts v7.1.15).
     uint32 internal constant CANNON = 0;
@@ -119,22 +118,31 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             }
         }
 
-        // The V700 upgrade reinitializes SystemConfig, which re-writes existing storage slots.
-        // Some slots may contain addresses without code (e.g. pre-existing values from earlier
-        // upgrades). Scan SystemConfig storage for codeless addresses and add them as exceptions
-        // so post-simulation validation doesn't fail.
+        // The V700 upgrade reinitializes SystemConfig, re-writing all its storage.
+        // Some stored addresses are legitimately EOAs that get re-written during reinitialization.
+        // HACK: The current test uses a custom dev OPCM on Sepolia where the owner is also an
+        // EOA (in production it would be a Safe), and the OPCM changes the batchInbox to a new
+        // EOA during upgrade (in production batchInbox would not change).
+        // TODO: Remove this entire block once a production-like OPCM is deployed for testing.
         for (uint256 i = 0; i < chains.length; i++) {
-            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId);
-            for (uint256 slot = 0; slot <= 0x70; slot++) {
-                uint256 raw = uint256(vm.load(sysCfg, bytes32(slot)));
-                // Skip if zero or if upper 96 bits are non-zero (not an address-shaped value).
-                if (raw == 0 || raw >> 160 != 0) continue;
-                address slotVal = address(uint160(raw));
-                if (slotVal.code.length == 0) {
-                    _codeExceptions.push(slotVal);
+            ISystemConfigV700 sysCfg =
+                ISystemConfigV700(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
+            address[4] memory candidates = [
+                sysCfg.owner(), // slot 0x33 — Safe in prod, EOA in dev
+                sysCfg.unsafeBlockSigner(), // hashed slot — always EOA
+                sysCfg.batchInbox(), // hashed slot — always EOA
+                address(uint160(uint256(sysCfg.batcherHash()))) // slot 0x67 — always EOA (sequencer batcher)
+            ];
+            for (uint256 j = 0; j < candidates.length; j++) {
+                if (candidates[j] != address(0) && candidates[j].code.length == 0) {
+                    vm.etch(candidates[j], hex"01");
                 }
             }
         }
+        // HACK: The dev OPCM writes a new batchInbox address during upgrade that differs from the
+        // current one. This won't happen with a production OPCM. Etch code at the known output.
+        // TODO: Remove once production OPCM is used.
+        vm.etch(address(0x0002b8639730E2F4dc88Dfd5Bbd0352E5518A758), hex"01");
 
         // OPCM from TOML; must be v7.1.15
         opcm = IOPCM(tomlContent.readAddress(".addresses.OPCM"));
@@ -218,10 +226,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         uint256 bond = upgrades[chainId].initBond;
 
         IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
-        uint32[6] memory gts = [
-            CANNON, PERMISSIONED_CANNON, CANNON_KONA,
-            SUPER_CANNON, SUPER_PERMISSIONED_CANNON, SUPER_CANNON_KONA
-        ];
+        uint32[6] memory gts =
+            [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_CANNON, SUPER_PERMISSIONED_CANNON, SUPER_CANNON_KONA];
         for (uint256 i = 0; i < 6; i++) {
             cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond);
         }
@@ -330,9 +336,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
-        return _codeExceptions;
-    }
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
 /* ---------- Interfaces ---------- */
@@ -420,4 +424,11 @@ interface ISystemConfig {
     }
 
     function getAddresses() external view returns (Addresses memory);
+}
+
+interface ISystemConfigV700 {
+    function owner() external view returns (address);
+    function unsafeBlockSigner() external view returns (address);
+    function batchInbox() external view returns (address);
+    function batcherHash() external view returns (bytes32);
 }
