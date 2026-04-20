@@ -23,7 +23,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E` (The Optimism Foundation Operations Safe)
+### `0xdee57160aafcf04c34c887b5962d0a69676d3c8b` (The Optimism Foundation Upgrade Safe)
 
 Links:
 
@@ -44,13 +44,11 @@ Enables the simulation by setting the threshold to 1:
   - **Summary:**
   - **Detail:**
 
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-
-**<TODO: Insert links for this state change then remove this line.>**
+**Update the previous Deputy with 0x6a07d585eddba8f9a4e17587f4ea5378de1c3bac to the new Deputy 0x8D2AAe4009418Ef6D83F1F2c90D4dAc3cE2b5D4f.**
 
 ---
 
-### `0xdee57160aafcf04c34c887b5962d0a69676d3c8b` (Unknown (GnosisSafe))
+### `0xdee57160aafcf04c34c887b5962d0a69676d3c8b` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
