@@ -31,7 +31,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
-    IOPCM public opcm;
+    IOPContractsManagerV700 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
 
     // Game type constants (from GameTypes library in op-contracts v7.1.15).
@@ -145,9 +145,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         vm.etch(address(0x0002b8639730E2F4dc88Dfd5Bbd0352E5518A758), hex"01");
 
         // OPCM from TOML; must be v7.1.15
-        opcm = IOPCM(tomlContent.readAddress(".addresses.OPCM"));
+        opcm = IOPContractsManagerV700(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
-        require(IOPContractsManagerV700(address(opcm)).version().eq("7.1.15"), "Incorrect OPCM");
+        require(opcm.version().eq("7.1.15"), "Incorrect OPCM");
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
@@ -371,11 +371,6 @@ interface IOPContractsManagerV700 {
 
     function upgradeSuperchain(SuperchainUpgradeInput memory _input) external;
 
-    function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
-}
-
-/// @notice Interface to retrieve the standard validator from OPCM.
-interface IOPCM {
     function opcmStandardValidator() external view returns (IOPContractsManagerStandardValidator);
 }
 
