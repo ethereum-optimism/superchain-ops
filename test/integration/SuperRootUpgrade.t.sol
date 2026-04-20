@@ -99,7 +99,11 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
                 actions[i].value,
                 actions[i].arguments,
                 actions[i].operation,
-                0, 0, 0, address(0), payable(address(0)),
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
                 safe.nonce()
             );
 
@@ -114,7 +118,11 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
                 actions[i].value,
                 actions[i].arguments,
                 actions[i].operation,
-                0, 0, 0, address(0), payable(address(0)),
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
                 signatures
             );
         }
