@@ -16,8 +16,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 >
 > ### Optimism Foundation
 >
-> Domain Hash: 0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb
-> Message Hash: 0xafab6e4cffa2647bb9f26cf85d2cb60c7ad6b9a2d4904abd7ac0f0af4279958a
+> Domain Hash: 0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb
+> Message Hash: 0x6f8c38c0b276d934e3eee0ce8638805238502f393b543a6ee7d523c25b888d98
 
 ## State Overrides
 
@@ -36,20 +36,7 @@ Enables the simulation by setting the threshold to 1:
 
 ## State Changes
 
-### `0x837de453ad5f21e89771e3c06239d8236c0efd5e` (Foundation Operations Safe)
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Before:** `11`
-  - **After:** `12`
-  - **Summary:** nonce
-  - **Detail:**
-
-This updates the nonce of the Foundation Operations Safe.
-
----
-
-### `0xc6f7c07047ba37116a3fdc444afb5018f6df5758` (DeputyPauseModule)
+### `0xc10dac07d477215a1ebebae1dd0221c1f5d241d2` (DeputyPauseModule)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Before:** `0x0000000000000000000000006a07d585eddba8f9a4e17587f4ea5378de1c3bac`
@@ -57,4 +44,19 @@ This updates the nonce of the Foundation Operations Safe.
   - **Summary:**
   - **Detail:**
 
-This updates the previous deputy `0x6A07d585eddBa8F9A4E17587F4Ea5378De1c3bAc` to `0x8D2AAe4009418Ef6D83F1F2c90D4dAc3cE2b5D4f`.
+**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
+
+**<TODO: Insert links for this state change then remove this line.>**
+
+---
+
+### `0xdee57160aafcf04c34c887b5962d0a69676d3c8b` (Unknown (GnosisSafe))
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `69`
+  - **After:** `70`
+  - **Summary:** nonce
+  - **Detail:**
+
+This updates the previous deputy `0xc10dac07d477215a1ebebae1dd0221c1f5d241d2` to `0x8D2AAe4009418Ef6D83F1F2c90D4dAc3cE2b5D4f`.
