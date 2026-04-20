@@ -17,7 +17,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 > ### Optimism Foundation
 >
 > Domain Hash: 0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb
-> Message Hash: 0x6f8c38c0b276d934e3eee0ce8638805238502f393b543a6ee7d523c25b888d98
+> Message Hash: 0xe237ee9c4707924772b6226d8fb30747291a70190ba5508ac61b89871da26f85
 
 ## State Overrides
 
