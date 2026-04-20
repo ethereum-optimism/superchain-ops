@@ -3,21 +3,10 @@ pragma solidity 0.8.15;
 
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
-import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IOPContractsManagerV700, OPCMUpgradeV700} from "src/template/OPCMUpgradeV700.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-
-contract DelegateCallForwarder {
-    function forward(address target, bytes memory data) external {
-        (bool ok, bytes memory ret) = target.delegatecall(data);
-        if (!ok) {
-            assembly {
-                revert(add(ret, 0x20), mload(ret))
-            }
-        }
-    }
-}
 
 interface IProxyAdmin {
     function owner() external view returns (address);
@@ -100,16 +89,57 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
     }
 
     function _executeActions(Action[] memory actions) internal {
-        DelegateCallForwarder forwarder = new DelegateCallForwarder();
-        vm.etch(rootSafe, address(forwarder).code);
+        IGnosisSafe safe = IGnosisSafe(rootSafe);
+        address[] memory owners = safe.getOwners();
+        uint256 threshold = safe.getThreshold();
+
         for (uint256 i = 0; i < actions.length; i++) {
-            if (actions[i].operation == Enum.Operation.DelegateCall) {
-                DelegateCallForwarder(rootSafe).forward(actions[i].target, actions[i].arguments);
-            } else {
-                vm.prank(rootSafe);
-                (bool ok,) = actions[i].target.call{value: actions[i].value}(actions[i].arguments);
-                require(ok, "Call failed");
+            bytes32 txHash = safe.getTransactionHash(
+                actions[i].target,
+                actions[i].value,
+                actions[i].arguments,
+                actions[i].operation,
+                0, 0, 0, address(0), payable(address(0)),
+                safe.nonce()
+            );
+
+            for (uint256 j = 0; j < threshold; j++) {
+                vm.prank(owners[j]);
+                safe.approveHash(txHash);
+            }
+
+            bytes memory signatures = _buildApprovedHashSignatures(owners, threshold);
+            safe.execTransaction(
+                actions[i].target,
+                actions[i].value,
+                actions[i].arguments,
+                actions[i].operation,
+                0, 0, 0, address(0), payable(address(0)),
+                signatures
+            );
+        }
+    }
+
+    function _buildApprovedHashSignatures(address[] memory owners, uint256 threshold)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        address[] memory signers = new address[](threshold);
+        for (uint256 i = 0; i < threshold; i++) {
+            signers[i] = owners[i];
+        }
+        for (uint256 i = 0; i < threshold; i++) {
+            for (uint256 j = i + 1; j < threshold; j++) {
+                if (signers[i] > signers[j]) {
+                    (signers[i], signers[j]) = (signers[j], signers[i]);
+                }
             }
         }
+        bytes memory sigs;
+        for (uint256 i = 0; i < threshold; i++) {
+            sigs = abi.encodePacked(sigs, bytes32(uint256(uint160(signers[i]))), bytes32(0), uint8(1));
+        }
+        return sigs;
     }
 }
