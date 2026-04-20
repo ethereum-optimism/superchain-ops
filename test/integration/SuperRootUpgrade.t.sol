@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IOPContractsManagerV700, OPCMUpgradeV700} from "src/template/OPCMUpgradeV700.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
@@ -86,6 +87,8 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
         assertGt(actions.length, 0);
 
         _executeActions(actions);
+
+        _validate(new VmSafe.AccountAccess[](0), actions, rootSafe);
     }
 
     function _executeActions(Action[] memory actions) internal {
