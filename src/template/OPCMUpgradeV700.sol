@@ -128,7 +128,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             }
         }
 
-        // OPCM from TOML; must be v7.0.0
+        // OPCM from TOML; must be v7.1.15
         opcm = IOPCM(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
         require(IOPContractsManagerV700(address(opcm)).version().eq("7.1.15"), "Incorrect OPCM");
@@ -236,7 +236,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// @notice Builds the actions for executing the operations.
     /// @dev OPCMTaskBase uses Multicall3DelegateCall, so calls to OPCM must use delegatecall.
     /// Any state written in this function is discarded after build completes.
-    /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         require(chains.length > 0, "OPCMUpgradeV700: no chains configured");
