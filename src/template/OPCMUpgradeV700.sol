@@ -35,6 +35,14 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     IOPContractsManagerStandardValidator public standardValidator;
     address[] internal _codeExceptions;
 
+    // Game type constants (from GameTypes library in op-contracts v7.1.15).
+    uint32 internal constant CANNON = 0;
+    uint32 internal constant PERMISSIONED_CANNON = 1;
+    uint32 internal constant SUPER_CANNON = 4;
+    uint32 internal constant SUPER_PERMISSIONED_CANNON = 5;
+    uint32 internal constant CANNON_KONA = 8;
+    uint32 internal constant SUPER_CANNON_KONA = 9;
+
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](15);
@@ -143,17 +151,17 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
     function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt) internal view returns (bool) {
-        if (gt == 0) return false;
-        if (gt == 1) return false;
-        if (gt == 8) return false;
-        if (gt == 4) {
-            return address(disputeGameFactory.gameImpls(GameType.wrap(0))) != address(0);
+        if (gt == CANNON) return false;
+        if (gt == PERMISSIONED_CANNON) return false;
+        if (gt == CANNON_KONA) return false;
+        if (gt == SUPER_CANNON) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON))) != address(0);
         }
-        if (gt == 5) {
-            return address(disputeGameFactory.gameImpls(GameType.wrap(1))) != address(0);
+        if (gt == SUPER_PERMISSIONED_CANNON) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
-        if (gt == 9) {
-            return address(disputeGameFactory.gameImpls(GameType.wrap(8))) != address(0);
+        if (gt == SUPER_CANNON_KONA) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
         }
         return false;
     }
@@ -176,8 +184,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bool enabled = _isGameTypeEnabled(a.factory, gt);
         bytes memory gameArgs;
         if (enabled) {
-            bool isPermissioned = gt == 1 || gt == 5;
-            bool isKona = gt == 8 || gt == 9;
+            bool isPermissioned = gt == PERMISSIONED_CANNON || gt == SUPER_PERMISSIONED_CANNON;
+            bool isKona = gt == CANNON_KONA || gt == SUPER_CANNON_KONA;
             bytes32 absolutePrestate = isKona ? cannonKonaPre : cannonPre;
             if (isPermissioned) {
                 gameArgs = abi.encode(absolutePrestate, a.proposer, a.challenger);
@@ -210,7 +218,10 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         uint256 bond = upgrades[chainId].initBond;
 
         IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
-        uint32[6] memory gts = [uint32(0), 1, 8, 4, 5, 9];
+        uint32[6] memory gts = [
+            CANNON, PERMISSIONED_CANNON, CANNON_KONA,
+            SUPER_CANNON, SUPER_PERMISSIONED_CANNON, SUPER_CANNON_KONA
+        ];
         for (uint256 i = 0; i < 6; i++) {
             cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond);
         }
