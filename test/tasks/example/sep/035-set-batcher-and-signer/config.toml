@@ -1,4 +1,4 @@
-templateName = "SetBatcherAndSigner"
+templateName = "SetBatcherAndOrSigner"
 
 l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}]
 

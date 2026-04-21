@@ -17,7 +17,7 @@ interface ISystemConfig {
 
 /// @notice Template for updating the batcher hash and unsafe block signer on SystemConfig.
 /// Both calls are batched into a single Multicall3 transaction from the SystemConfig owner.
-contract SetBatcherAndSigner is L2TaskBase {
+contract SetBatcherAndOrSigner is L2TaskBase {
     using stdToml for string;
 
     /// @notice Configuration for each chain's batcher and signer update.
@@ -40,7 +40,7 @@ contract SetBatcherAndSigner is L2TaskBase {
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](2);
         storageWrites[0] = "SystemConfigProxy";
-        storageWrites[1] = "FoundationUpgradeSafe";
+        storageWrites[1] = safeAddressString();
         return storageWrites;
     }
 
@@ -53,8 +53,8 @@ contract SetBatcherAndSigner is L2TaskBase {
 
         address batcherAddress = tomlContent.readAddress(".sequencerConfig.batcherAddress");
         address unsafeBlockSigner = tomlContent.readAddress(".sequencerConfig.unsafeBlockSigner");
-        require(batcherAddress != address(0), "SetBatcherAndSigner: batcherAddress is zero address");
-        require(unsafeBlockSigner != address(0), "SetBatcherAndSigner: unsafeBlockSigner is zero address");
+        require(batcherAddress != address(0), "SetBatcherAndOrSigner: batcherAddress is zero address");
+        require(unsafeBlockSigner != address(0), "SetBatcherAndOrSigner: unsafeBlockSigner is zero address");
         bytes32 batcherHash = bytes32(uint256(uint160(batcherAddress)));
 
         for (uint256 i = 0; i < _chains.length; i++) {
@@ -63,7 +63,7 @@ contract SetBatcherAndSigner is L2TaskBase {
             bool updateBatcher = batcherHash != systemConfig.batcherHash();
             bool updateSigner = unsafeBlockSigner != systemConfig.unsafeBlockSigner();
             require(
-                updateBatcher || updateSigner, "SetBatcherAndSigner: no-op (both fields already match current values)"
+                updateBatcher || updateSigner, "SetBatcherAndOrSigner: no-op (both fields already match current values)"
             );
             cfg[chainId] = TaskInputs({
                 batcherHash: batcherHash,
@@ -99,16 +99,16 @@ contract SetBatcherAndSigner is L2TaskBase {
             TaskInputs memory taskInput = cfg[chainId];
             require(
                 ISystemConfig(systemConfigProxy).batcherHash() == taskInput.batcherHash,
-                "SetBatcherAndSigner: batcher hash mismatch"
+                "SetBatcherAndOrSigner: batcher hash mismatch"
             );
             require(
                 ISystemConfig(systemConfigProxy).unsafeBlockSigner() == taskInput.unsafeBlockSigner,
-                "SetBatcherAndSigner: unsafe block signer mismatch"
+                "SetBatcherAndOrSigner: unsafe block signer mismatch"
             );
         }
     }
 
-    /// @notice The batcher and signer addresses are typically EOAs, so they won't have code.
+    /// @notice Whitelists for each chain's Batcher and UnsafeBlockSigner since batcher and signer addresses are EOAs.
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         address[] memory exceptions = new address[](chains.length * 2);
