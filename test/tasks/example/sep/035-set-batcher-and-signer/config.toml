@@ -1,0 +1,13 @@
+templateName = "SetBatcherAndOrSigner"
+
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}]
+
+[sequencerConfig]
+batcherAddress = "0x1234567890AbcdEF1234567890aBcdef12345678"
+unsafeBlockSigner = "0xAbCdEf0123456789AbCdEf0123456789AbCdEf01"
+
+[stateOverrides]
+# Override SystemConfig owner (slot 0x33) to FoundationUpgradeSafe on Sepolia
+0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x000000000000000000000000DEe57160aAfCF04c34C887B5962D0a69676d3C8B" }
+]
