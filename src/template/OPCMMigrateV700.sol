@@ -127,9 +127,7 @@ contract OPCMMigrateV700 is OPCMTaskBase {
                 || migrateParams.startingRespectedGameType == SUPER_CANNON_KONA,
             "OPCMMigrateV700: startingRespectedGameType must be a super game type (4, 5, or 9)"
         );
-        require(
-            migrateParams.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV700: startingAnchorRootRoot is zero"
-        );
+        require(migrateParams.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV700: startingAnchorRootRoot is zero");
         require(migrateParams.superProposer != address(0), "OPCMMigrateV700: superProposer is zero");
         require(migrateParams.superChallenger != address(0), "OPCMMigrateV700: superChallenger is zero");
 
@@ -252,8 +250,8 @@ contract OPCMMigrateV700 is OPCMTaskBase {
         address firstPortal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainsToMigrate[0]);
         address sharedDGF = IOptimismPortalView(firstPortal).disputeGameFactory();
 
-        IOPContractsManagerMigrationValidator.MigrationValidationInput memory input = IOPContractsManagerMigrationValidator
-            .MigrationValidationInput({
+        IOPContractsManagerMigrationValidator.MigrationValidationInput memory input =
+        IOPContractsManagerMigrationValidator.MigrationValidationInput({
             dgf: sharedDGF,
             chainSystemConfigs: sysCfgs,
             cannonPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonPrestate),
