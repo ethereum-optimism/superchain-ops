@@ -1,6 +1,6 @@
 # 075-deputy-pause-key-rotation
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x3a41370d762b275dc0b30f6c7f957d4d959d4bddea36fb14c13d76dcc0320704#eventlog)
 
 ## Objective
 
