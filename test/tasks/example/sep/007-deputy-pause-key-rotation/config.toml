@@ -4,5 +4,5 @@ templateName = "DeputyPauseKeyRotationTemplate"
 newDeputy = "0x6A07d585eddBa8F9A4E17587F4Ea5378De1c3bAc" 
 
 newDeputySignature = "0xbfa0011dc0b49416bc4f84fe477d0c059b2871f46e2e186e1fd5172c1cf67940384f8b0944dcf5c88673b5c80c51a38f55c39500afa24896eafc285f8a891a221c"
-safeAddressString = "FoundationOperationSafe"   # On sepolia the Foundation Operation Safe is use instead of the Foundation Upgrade Safe on mainnet so we can override here
+safeAddressString = "FoundationOperationsSafe"  # Sepolia signs this rotation with FOS; mainnet (default in template) uses FuS.
 
