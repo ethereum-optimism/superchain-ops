@@ -16,11 +16,6 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     address newDeputy;
     bytes newDeputySignature;
 
-    /// @notice Returns the string identifier for the safe executing this transaction.
-    function safeAddressString() public pure override returns (string memory) {
-        return "FoundationOperationsSafe";
-    }
-
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         string[] memory storageWrites = new string[](2);
