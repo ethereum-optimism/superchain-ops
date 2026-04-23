@@ -1,11 +1,11 @@
 l2chains = [{name = "OP Mainnet", chainId = 10}]
 templateName = "DeputyPauseKeyRotationTemplate"
+safeAddressString = "FoundationUpgradeSafe"  # Override: template defaults to FoundationOperationsSafe (Sepolia); Mainnet rotation is executed by FuS.
 
 newDeputy = "0x2fA150379bF32b6d79Eeb4ff9bD280E76049a87c"
 
 newDeputySignature = "0x9f1c36e3cfcc19c4e2349600477d1cd782856d62c520b4f6295f7922fe333b91772a4949015fe38ce61f34353967d0b2c33126793b7609d4227189fa828db2271c"
 
-safeAddressString = "FoundationUpgradeSafe"   # Override the template that is use the FOS 
 [stateOverrides]
 # Nonce override for simulation (storage slot 0x5 is the nonce)
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
