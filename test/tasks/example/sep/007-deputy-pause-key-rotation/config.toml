@@ -9,4 +9,4 @@ newDeputy = "0x8D2AAe4009418Ef6D83F1F2c90D4dAc3cE2b5D4f"
 
 newDeputySignature = "0x9c993717c629503892a2779150447a39cd8d1a28d6439a2d4fa7c49a32f4be941cbf0730ffdb5366dcebf3c7fdb1757e08724caab6404e8519df8abf728ba4ca1c"
 
-safeAddressString = "FoundationUpgradeSafe"  # Sepolia signs this rotation with FOS; mainnet (default in template) uses FuS.
+safeAddressString = "FoundationUpgradeSafe"
