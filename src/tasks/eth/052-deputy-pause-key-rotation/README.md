@@ -5,7 +5,7 @@ Status: READY TO SIGN
 ## Objective
 
 Rotates the `DeputyPauseModule` Deputy EOA from `0x352f1defb49718e7ea411687e850aa8d6299f7ac` to `0x2fA150379bF32b6d79Eeb4ff9bD280E76049a87c`.
-To achieve this, we will use the `setDeputy` function of the `DeputyPauseModule` contract deployed at `0x126a736B18E0a64fBA19D421647A530E327E112C`.
+To achieve this, we will use the `setDeputy` function of the `DeputyPauseModule` contract deployed at `0x76fC2F971FB355D0453cF9F64d3F9E4f640E1754`.
 
 ## Simulation
 
@@ -19,8 +19,8 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-Rotates the `DeputyPauseModule` Deputy EOA from `0x352f1defb49718e7ea411687e850aa8d6299f7ac` to `0x2fA150379bF32b6d79Eeb4ff9bD280E76049a87c` in the [DeputyPauseModule](https://etherscan.io/address/0x126a736B18E0a64fBA19D421647A530E327E112C#code).
+Rotates the `DeputyPauseModule` Deputy EOA from `0x352f1defb49718e7ea411687e850aa8d6299f7ac` to `0x2fA150379bF32b6d79Eeb4ff9bD280E76049a87c` in the [DeputyPauseModule](https://etherscan.io/address/0x76fC2F971FB355D0453cF9F64d3F9E4f640E1754#code).
 
 ## Signing and execution
 
-This task has to be signed by the [FoundationOperationsSafe](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A).
+This task has to be signed by the [FoundationUpgradeSafe](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92).

@@ -23,11 +23,11 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (The Optimism Foundation Operations Safe)
+### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (The Optimism Foundation Upgrade Safe)
 
 Links:
 
-- [Etherscan](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A)
+- [Etherscan](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
 
 Enables the simulation by setting the threshold to 1:
 
@@ -36,7 +36,7 @@ Enables the simulation by setting the threshold to 1:
 
 ## State Changes
 
-### `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` (Foundation Operations Safe)
+### `0x847b5c174615b1b7fdf770882256e2d3e95b9d92` (Foundation Upgrade Safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
@@ -45,11 +45,11 @@ Enables the simulation by setting the threshold to 1:
   - **Summary:** nonce
   - **Detail:**
 
-This updates the nonce of the Foundation Operations Safe.
+This updates the nonce of the Foundation Upgrade Safe.
 
 ---
 
-### `0x126a736b18e0a64fba19d421647a530e327e112c` (DeputyPauseModule)
+### `0x76fc2f971fb355d0453cf9f64d3f9e4f640e1754` (DeputyPauseModule)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Before:** `0x000000000000000000000000352f1defb49718e7ea411687e850aa8d6299f7ac`
