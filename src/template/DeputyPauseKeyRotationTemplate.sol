@@ -16,8 +16,21 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     address newDeputy;
     bytes newDeputySignature;
 
+    /// @notice Safe address string identifier
+    string _safeAddressString;
+
+    /// @notice Returns the safe address string identifier
+    function safeAddressString() public view override returns (string memory) {
+        return _safeAddressString;
+    }
+
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites()
+        internal
+        pure
+        override
+        returns (string[] memory)
+    {
         string[] memory storageWrites = new string[](2);
         storageWrites[0] = "DeputyPauseModule";
         storageWrites[1] = safeAddressString();
@@ -25,7 +38,10 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+    function _templateSetup(
+        string memory taskConfigFilePath,
+        address rootSafe
+    ) internal override {
         super._templateSetup(taskConfigFilePath, rootSafe);
 
         string memory file = vm.readFile(taskConfigFilePath);
@@ -38,33 +54,61 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     /// @notice Write the calls that you want to execute for the task.
     function _build(address) internal override {
         // Load the DeputyPauseModule contract.
-        IDeputyPauseModule dpm = IDeputyPauseModule(simpleAddrRegistry.get("DeputyPauseModule"));
+        IDeputyPauseModule dpm = IDeputyPauseModule(
+            simpleAddrRegistry.get("DeputyPauseModule")
+        );
         // 1. In the future task we need to check that the DeputyPauseModule address is the one that is enabled in the foundation safe since in U13 task we will execute this task before activation this is different.
         // assertEq(fos.enabledmodule(address(dpm)), true, "ERR100: DeputyPauseModule is should be enabled");
 
         // 2. Check that the input are valid.
-        assertNotEq(dpm.deputy(), address(0), "ERR101: DeputyPauseModule should have already a deputy set in the past.");
-        assertNotEq(dpm.deputy(), newDeputy, "ERR102: DeputyPauseModule should have a new deputy");
+        assertNotEq(
+            dpm.deputy(),
+            address(0),
+            "ERR101: DeputyPauseModule should have already a deputy set in the past."
+        );
+        assertNotEq(
+            dpm.deputy(),
+            newDeputy,
+            "ERR102: DeputyPauseModule should have a new deputy"
+        );
 
         // Check that the rotation signature is valid
         // The signature should be created by the new_deputy address over their own address
         // using EIP-712 typed data with the message format "DeputyAuthMessage(address deputy)"
-        require(newDeputySignature.length == 65, "ERR104: Invalid signature length");
+        require(
+            newDeputySignature.length == 65,
+            "ERR104: Invalid signature length"
+        );
 
         // 3. Rotate the new deputy and signature.
         dpm.setDeputy(newDeputy, newDeputySignature);
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
-        IDeputyPauseModule dpm = IDeputyPauseModule(simpleAddrRegistry.get("DeputyPauseModule"));
-        assertEq(dpm.deputy(), newDeputy, "ERR103: DeputyPauseModule should have a the new deputy set");
+    function _validate(
+        VmSafe.AccountAccess[] memory,
+        Action[] memory,
+        address
+    ) internal view override {
+        IDeputyPauseModule dpm = IDeputyPauseModule(
+            simpleAddrRegistry.get("DeputyPauseModule")
+        );
+        assertEq(
+            dpm.deputy(),
+            newDeputy,
+            "ERR103: DeputyPauseModule should have a the new deputy set"
+        );
         // check the foundation has the DPM enabled.
         // assertEq(fos.enabledmodule(address(dpm)), true, "ERR100: DeputyPauseModule is should be enabled");
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view override returns (address[] memory) {
+    function _getCodeExceptions()
+        internal
+        view
+        override
+        returns (address[] memory)
+    {
         address[] memory codeExceptions = new address[](1);
         codeExceptions[0] = newDeputy;
         return codeExceptions;
