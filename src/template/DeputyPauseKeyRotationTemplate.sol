@@ -27,7 +27,7 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites()
         internal
-        pure
+        view
         override
         returns (string[] memory)
     {
