@@ -4,7 +4,7 @@ safeAddressString = "FoundationUpgradeSafe"  # Override: template defaults to Fo
 
 newDeputy = "0x2fA150379bF32b6d79Eeb4ff9bD280E76049a87c"
 
-newDeputySignature = "0x9f1c36e3cfcc19c4e2349600477d1cd782856d62c520b4f6295f7922fe333b91772a4949015fe38ce61f34353967d0b2c33126793b7609d4227189fa828db2271c"
+newDeputySignature = "0xbfa0011dc0b49416bc4f84fe477d0c059b2871f46e2e186e1fd5172c1cf67940384f8b0944dcf5c88673b5c80c51a38f55c39500afa24896eafc285f8a891a221c"
 
 [stateOverrides]
 # Nonce override for simulation (storage slot 0x5 is the nonce)
