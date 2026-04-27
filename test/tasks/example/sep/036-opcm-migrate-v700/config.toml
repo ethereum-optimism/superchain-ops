@@ -1,8 +1,3 @@
-# SCAFFOLDING: This config compiles/parses so the template and integration test can
-# be developed, but the OPCM address, prestates, anchor root, proposer, challenger,
-# and the second migrated chain are all placeholders. The integration test skips
-# until these are filled in with values for a v7.1.16 OPCM that has the migrator wired in.
-
 # TODO: add a second Sepolia interop chain (e.g. Ink Sepolia / Base Sepolia) once selected.
 l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420}
@@ -21,10 +16,10 @@ initBond = 80000000000000000
 startingAnchorRootL2SequenceNumber = 0
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingRespectedGameType = 5 # SUPER_PERMISSIONED_CANNON
-superChallenger = "0x0000000000000000000000000000000000000000" # TODO: real super challenger
-superProposer = "0x0000000000000000000000000000000000000000" # TODO: real super proposer
+superChallenger = "0x000000000000000000000000000000000000dEaD" # TODO: real super challenger
+superProposer = "0x000000000000000000000000000000000000dEaD" # TODO: real super proposer
 
 [addresses]
-OPCM = "0x0000000000000000000000000000000000000000" # TODO: v7.1.16 OPCM with migrator wired in
+OPCM = "0xf309ee51d05955e84264d4b8c2d520a01f430cb2" # v7.1.16 dev OPCM on Sepolia
 
 [stateOverrides]
