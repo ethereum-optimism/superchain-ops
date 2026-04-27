@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {Claim, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
-import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {
     IOPContractsManagerV700,
@@ -27,13 +26,10 @@ interface ISystemConfigExt {
 }
 
 contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
-    using stdToml for string;
-
     string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v700/";
     uint256 internal constant CHAIN_ID = 11155420;
 
     address rootSafe;
-    bool internal _scaffoldingSkipped;
 
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
@@ -43,16 +39,6 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"));
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
-
-        // SCAFFOLDING GUARD: the fixture ships with OPCM=0 placeholder. Skip every test here
-        // until a v7.1.16 OPCM with migrator is wired in.
-        string memory tomlContent = vm.readFile(configTomlPath);
-        address configOPCM = tomlContent.readAddress(".addresses.OPCM");
-        if (configOPCM == address(0)) {
-            _scaffoldingSkipped = true;
-            return;
-        }
-
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
         _templateSetup(configTomlPath, address(0));
         address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_ID);
@@ -61,8 +47,6 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
     }
 
     function test_load_data() public view {
-        if (_scaffoldingSkipped) return;
-
         assertEq(rootSafe, superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_ID));
         assertEq(chainsToMigrate.length, 1);
         assertEq(chainsToMigrate[0], CHAIN_ID);
@@ -97,8 +81,6 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
     }
 
     function test_migrate_sepolia() public {
-        if (_scaffoldingSkipped) return;
-
         Action[] memory actions = build(rootSafe);
         assertGt(actions.length, 0);
         _executeActions(actions);
@@ -274,9 +256,9 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
         address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
         address challenger = superchainAddrRegistry.getAddress("Challenger", chainId);
 
-        bytes32 cannonPre = bytes32(uint256(0xdead) << 240);
-        bytes32 cannonKonaPre = bytes32(uint256(0xdead) << 240);
-        uint256 bond = 0.08 ether;
+        bytes32 cannonPre = Claim.unwrap(migrations[chainId].cannonPrestate);
+        bytes32 cannonKonaPre = Claim.unwrap(migrations[chainId].cannonKonaPrestate);
+        uint256 bond = migrateParams.initBond;
 
         // V2 validation requires exactly 7 entries in this fixed positional order.
         IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](7);
@@ -316,8 +298,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
         if (gt == SUPER_PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
-        // Unconditionally enabled: startingRespectedGameType=9 override requires this entry enabled.
-        if (gt == SUPER_CANNON_KONA) return true;
+        if (gt == SUPER_CANNON_KONA) return address(factory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
         return false;
     }
 
@@ -327,13 +308,11 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
         returns (IOPContractsManagerV700.ExtraInstruction[] memory)
     {
         IOPContractsManagerV700.ExtraInstruction[] memory extras = new IOPContractsManagerV700.ExtraInstruction[](2);
-        extras[0] = IOPContractsManagerV700.ExtraInstruction({
-            key: "PermittedProxyDeployment",
-            data: bytes("DelayedWETH")
-        });
+        extras[0] =
+            IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
         extras[1] = IOPContractsManagerV700.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
-            data: abi.encode(uint32(9))
+            data: abi.encode(SUPER_PERMISSIONED_CANNON)
         });
         return extras;
     }
