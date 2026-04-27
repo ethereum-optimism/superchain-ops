@@ -62,6 +62,16 @@ simulate-all-templates:
                 continue
             fi
 
+            # 036-opcm-migrate-v700: migrate() preconditions on Features.INTEROP being enabled,
+            # which only happens after the V700 upgrade flips it. The fixture-driven simulator
+            # has no way to run the upgrade first, so the migrator reverts with
+            # OPContractsManagerMigrator_InteropFeatureNotEnabled(). Coverage is provided by the
+            # SuperRootMigrate.t.sol integration test, which performs the upgrade in setUp.
+            if [ "$task_name" = "036-opcm-migrate-v700" ]; then
+                echo "Skipping $task_name (requires V700 upgrade as prerequisite)"
+                continue
+            fi
+
             # Launch each simulation in background.
             "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))
