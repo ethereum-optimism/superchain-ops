@@ -273,15 +273,9 @@ contract StateOverrideManagerUnitTest is Test {
         helper.removeFile(fileName);
     }
 
-    /// @notice This test uses the 'Base Sepolia Testnet' at a block where the ProxyAdminOwner is known to be a single safe.
-    /// It verifies that the StateOverrideManager applies only the parent overrides when the child multisig is not set.
+    /// @notice Verifies that StateOverrideManager applies only parent overrides when no child multisig is set.
     function testOnlyParentOverridesAppliedWhenSingleMultisig() public {
-        vm.createSelectFork("sepolia", 7944829);
-        string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n"
-            "fallbackAddressesJsonPath = \"test/fixtures/SuperchainRegistry/removed_base_addresses.json\"\n" "\n"
-            "templateName = \"SetEIP1967Implementation\"\n" "\n" "contractIdentifier = \"OptimismPortalProxy\"\n" "\n"
-            "newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
-        string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
+        string memory fileName = helper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "011");
 
         MockSetEIP1967ImplTask si = new MockSetEIP1967ImplTask();
         (,,, address rootSafe) = si.simulate(fileName, new address[](0));

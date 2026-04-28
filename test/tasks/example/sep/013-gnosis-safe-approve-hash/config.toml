@@ -1,6 +1,0 @@
-l2chains = [{ name = "Base Sepolia", chainId = 84532 }]
-fallbackAddressesJsonPath = "test/fixtures/SuperchainRegistry/removed_base_addresses.json"
-
-safeAddressString = "BaseNestedSafe"
-safeTxHash = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-templateName = "GnosisSafeApproveHash"
