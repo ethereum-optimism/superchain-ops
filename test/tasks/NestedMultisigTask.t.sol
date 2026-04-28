@@ -195,7 +195,8 @@ contract NestedMultisigTaskTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(baseRootSafe, baseNested, baseCouncil);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
-        string memory baseTaskConfigToml = "l2chains = [{name = \"Base\", chainId = 8453}]\n" "\n"
+        string memory baseTaskConfigToml = "l2chains = [{name = \"Base\", chainId = 8453}]\n"
+            "fallbackAddressesJsonPath = \"test/fixtures/SuperchainRegistry/removed_base_addresses.json\"\n" "\n"
             "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"DisputeGameFactoryProxy\"\n newImplementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\"\n";
 
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,) =

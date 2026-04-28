@@ -277,7 +277,8 @@ contract StateOverrideManagerUnitTest is Test {
     /// It verifies that the StateOverrideManager applies only the parent overrides when the child multisig is not set.
     function testOnlyParentOverridesAppliedWhenSingleMultisig() public {
         vm.createSelectFork("sepolia", 7944829);
-        string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n" "\n"
+        string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n"
+            "fallbackAddressesJsonPath = \"test/fixtures/SuperchainRegistry/removed_base_addresses.json\"\n" "\n"
             "templateName = \"SetEIP1967Implementation\"\n" "\n" "contractIdentifier = \"OptimismPortalProxy\"\n" "\n"
             "newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
         string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
