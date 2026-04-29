@@ -62,14 +62,6 @@ simulate-all-templates:
                 continue
             fi
 
-            # GnosisSafeApproveHash is Base-specific, but Base has been removed from the
-            # upstream superchain-registry. Keep a current-registry config so the
-            # template remains covered, but do not simulate it against OP Mainnet.
-            if [ "$task_name" = "018-gnosis-safe-approve-hash" ]; then
-                echo "Skipping $task_name (Base-specific template cannot be simulated against current registry)"
-                continue
-            fi
-
             # Launch each simulation in background.
             "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))

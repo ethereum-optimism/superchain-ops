@@ -6,7 +6,7 @@ SAFE_NAME="$2"
 
 if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
     echo "Error (get-safe.sh): Invalid safe name: ${SAFE_NAME}" >&2
-    echo "Valid safe names: foundation, council, chain-governor, foundation-operations, base-operations, <custom-safe-name>" >&2
+    echo "Valid safe names: foundation, council, chain-governor, foundation-operations, <custom-safe-name>" >&2
     exit 1
 fi
 
@@ -21,9 +21,6 @@ canonicalize_safe_name() {
         council) echo "SecurityCouncil" ;;
         chain-governor) echo "ChainGovernorSafe" ;;
         foundation-operations) echo "FoundationOperationsSafe" ;;
-        base-nested) echo "BaseNestedSafe" ;;
-        base-operations) echo "BaseOperationsSafe" ;;
-        base-council) echo "BaseSCSafe" ;;
         test-rehearsal-council) echo "TestRehearsalCouncil" ;;
         test-rehearsal-foundation) echo "TestRehearsalFoundation" ;;
         *) echo "$input_name" ;;
