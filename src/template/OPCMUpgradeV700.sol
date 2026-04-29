@@ -41,6 +41,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     uint32 internal constant SUPER_PERMISSIONED_CANNON = 5;
     uint32 internal constant CANNON_KONA = 8;
     uint32 internal constant SUPER_CANNON_KONA = 9;
+    uint32 internal constant ZK_DISPUTE_GAME = 10;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
@@ -147,7 +148,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // OPCM from TOML; must be v7.1.15
         opcm = IOPContractsManagerV700(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
-        require(opcm.version().eq("7.1.15"), "Incorrect OPCM");
+        require(opcm.version().eq("7.1.17"), "Incorrect OPCM");
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
@@ -171,6 +172,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         if (gt == SUPER_CANNON_KONA) {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
         }
+        if (gt == ZK_DISPUTE_GAME) return false;
         return false;
     }
 
@@ -225,10 +227,17 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
 
-        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](6);
-        uint32[6] memory gts =
-            [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_CANNON, SUPER_PERMISSIONED_CANNON, SUPER_CANNON_KONA];
-        for (uint256 i = 0; i < 6; i++) {
+        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](7);
+        uint32[7] memory gts = [
+            CANNON,
+            PERMISSIONED_CANNON,
+            CANNON_KONA,
+            SUPER_CANNON,
+            SUPER_PERMISSIONED_CANNON,
+            SUPER_CANNON_KONA,
+            ZK_DISPUTE_GAME
+        ];
+        for (uint256 i = 0; i < 7; i++) {
             cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond);
         }
         return cfgs;

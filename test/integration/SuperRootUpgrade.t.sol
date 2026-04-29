@@ -42,13 +42,13 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
         assertEq(upgrades[CHAIN_ID].startingRespectedGameType, 9);
         assertEq(
             upgrades[CHAIN_ID].expectedValidationErrors,
-            "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCDG-SHAPE"
+            "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
         );
 
         IOPContractsManagerV700.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
-        assertEq(configs.length, 6);
+        assertEq(configs.length, 7);
 
-        uint32[6] memory expectedGameTypes = [uint32(0), 1, 8, 4, 5, 9];
+        uint32[7] memory expectedGameTypes = [uint32(0), 1, 8, 4, 5, 9, 10];
         for (uint256 i = 0; i < configs.length; i++) {
             IOPContractsManagerV700.DisputeGameConfig memory config = configs[i];
             uint32 gameType = expectedGameTypes[i];
