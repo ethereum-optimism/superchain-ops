@@ -1,0 +1,10 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "GnosisSafeApproveHash"
+safeAddressString = "FoundationUpgradeSafe"
+safeTxHash = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+
+allowOverwrite = ["BaseNestedSafe"]
+
+[addresses]
+BaseNestedSafe = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
