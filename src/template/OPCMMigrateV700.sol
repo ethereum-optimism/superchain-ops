@@ -26,12 +26,12 @@ contract OPCMMigrateV700 is OPCMTaskBase {
         Claim cannonKonaPrestate;
         Claim cannonPrestate;
         uint256 chainId;
-        string expectedValidationErrors;
     }
 
     /// @notice Shared migrate inputs parsed from TOML.
     /// @dev Fields must remain in alphabetical order for TOML decoding.
     struct MigrateParams {
+        string expectedValidationErrors;
         uint256 initBond;
         uint256 startingAnchorRootL2SequenceNumber;
         bytes32 startingAnchorRootRoot;
@@ -104,11 +104,18 @@ contract OPCMMigrateV700 is OPCMTaskBase {
                 Claim.unwrap(_migrations[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMMigrateV700: cannonKonaPrestate is zero"
             );
-            chainsToMigrate.push(_migrations[i].chainId);
             migrations[_migrations[i].chainId] = _migrations[i];
         }
 
-        // All chains must share the same prestates — one shared DGF is deployed for all of them.
+        // Keep the migrated chain order aligned with `l2chains`, which is also the order used
+        // in the migrate() SystemConfig array and in validation.
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            require(migrations[chainId].chainId != 0, "OPCMMigrateV700: config not found for chain");
+            chainsToMigrate.push(chainId);
+        }
+
+        // All chains must share the same prestates because one shared DGF is deployed for all of them.
         bytes32 cannonPre0 = Claim.unwrap(migrations[chainsToMigrate[0]].cannonPrestate);
         bytes32 cannonKonaPre0 = Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate);
         for (uint256 i = 1; i < chainsToMigrate.length; i++) {
@@ -125,10 +132,9 @@ contract OPCMMigrateV700 is OPCMTaskBase {
         // Load shared migrate parameters.
         migrateParams = abi.decode(tomlContent.parseRaw(".migrate"), (MigrateParams));
         require(
-            migrateParams.startingRespectedGameType == SUPER_CANNON
-                || migrateParams.startingRespectedGameType == SUPER_PERMISSIONED_CANNON
+            migrateParams.startingRespectedGameType == SUPER_PERMISSIONED_CANNON
                 || migrateParams.startingRespectedGameType == SUPER_CANNON_KONA,
-            "OPCMMigrateV700: startingRespectedGameType must be a super game type (4, 5, or 9)"
+            "OPCMMigrateV700: startingRespectedGameType must be an enabled super game type (5 or 9)"
         );
         require(migrateParams.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV700: startingAnchorRootRoot is zero");
         require(migrateParams.superProposer != address(0), "OPCMMigrateV700: superProposer is zero");
@@ -138,12 +144,17 @@ contract OPCMMigrateV700 is OPCMTaskBase {
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
         require(superchainConfig != address(0), "OPCMMigrateV700: SuperchainConfig not found");
         require(superchainConfig.code.length > 0, "OPCMMigrateV700: SuperchainConfig has no code");
+        address proxyAdminOwner = superchainAddrRegistry.getAddress("ProxyAdminOwner", chains[0].chainId);
+        require(proxyAdminOwner != address(0), "OPCMMigrateV700: ProxyAdminOwner not found");
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            require(migrations[chainId].chainId != 0, "OPCMMigrateV700: config not found for chain");
             require(
                 superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
                 "OPCMMigrateV700: all chains must share the same SuperchainConfig"
+            );
+            require(
+                superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId) == proxyAdminOwner,
+                "OPCMMigrateV700: all chains must share the same ProxyAdminOwner"
             );
         }
 
@@ -215,13 +226,7 @@ contract OPCMMigrateV700 is OPCMTaskBase {
     /// @dev OPCMTaskBase uses Multicall3DelegateCall, so the call to OPCM must use delegatecall.
     /// Unlike upgrade, migrate is a single delegate-call that covers every chain at once.
     function _build(address) internal override {
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        require(chains.length > 0, "OPCMMigrateV700: no chains configured");
-
-        ISystemConfig[] memory sysCfgs = new ISystemConfig[](chains.length);
-        for (uint256 i = 0; i < chains.length; i++) {
-            sysCfgs[i] = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
-        }
+        ISystemConfig[] memory sysCfgs = _chainSystemConfigs();
 
         IOPContractsManagerMigrator.MigrateInput memory inp = IOPContractsManagerMigrator.MigrateInput({
             chainSystemConfigs: sysCfgs,
@@ -243,16 +248,8 @@ contract OPCMMigrateV700 is OPCMTaskBase {
     /// @dev Migration validation runs once with all chains' SystemConfigs; unlike upgrade, there
     /// is no per-chain loop.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
-        ISystemConfig[] memory sysCfgs = new ISystemConfig[](chainsToMigrate.length);
-        for (uint256 i = 0; i < chainsToMigrate.length; i++) {
-            sysCfgs[i] = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainsToMigrate[i]));
-        }
-
-        // Shared DGF is derived from the first chain's portal post-migration; resolve it via
-        // SystemConfig → OptimismPortal → AnchorStateRegistry → DisputeGameFactory. The validator
-        // itself does this discovery internally, so we pass the portal-side value directly.
-        address firstPortal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainsToMigrate[0]);
-        address sharedDGF = IOptimismPortalView(firstPortal).disputeGameFactory();
+        ISystemConfig[] memory sysCfgs = _chainSystemConfigs();
+        address sharedDGF = _sharedDisputeGameFactory();
 
         IOPContractsManagerMigrationValidator.MigrationValidationInput memory input =
         IOPContractsManagerMigrationValidator.MigrationValidationInput({
@@ -286,11 +283,31 @@ contract OPCMMigrateV700 is OPCMTaskBase {
             errors = standardValidator.validateMigratedChain({_input: input, _allowFailure: true});
         }
 
-        // TODO: decide whether expectedValidationErrors should be per-chain or shared. The
-        // validator returns one string for the whole migration, so for now we compare against
-        // the first chain's expectedValidationErrors. Revisit once we see real output.
-        string memory expErrors = migrations[chainsToMigrate[0]].expectedValidationErrors;
+        string memory expErrors = migrateParams.expectedValidationErrors;
         require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
+    }
+
+    function _chainSystemConfigs() internal view returns (ISystemConfig[] memory sysCfgs) {
+        require(chainsToMigrate.length > 0, "OPCMMigrateV700: no chains configured");
+        sysCfgs = new ISystemConfig[](chainsToMigrate.length);
+        for (uint256 i = 0; i < chainsToMigrate.length; i++) {
+            sysCfgs[i] = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainsToMigrate[i]));
+        }
+    }
+
+    function _sharedDisputeGameFactory() internal view returns (address sharedDGF) {
+        require(chainsToMigrate.length > 0, "OPCMMigrateV700: no chains configured");
+        address firstPortal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainsToMigrate[0]);
+        sharedDGF = IOptimismPortalView(firstPortal).disputeGameFactory();
+        require(sharedDGF != address(0), "OPCMMigrateV700: shared DGF is zero");
+
+        for (uint256 i = 1; i < chainsToMigrate.length; i++) {
+            address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainsToMigrate[i]);
+            require(
+                IOptimismPortalView(portal).disputeGameFactory() == sharedDGF,
+                "OPCMMigrateV700: portals do not share DisputeGameFactory"
+            );
+        }
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.

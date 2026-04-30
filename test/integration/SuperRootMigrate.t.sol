@@ -47,18 +47,28 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
     }
 
     function test_load_data() public view {
-        assertEq(rootSafe, superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_ID));
-        assertEq(chainsToMigrate.length, 1);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        assertEq(chains.length, 1);
+        assertEq(chainsToMigrate.length, chains.length);
+
+        for (uint256 i = 0; i < chains.length; i++) {
+            assertEq(rootSafe, superchainAddrRegistry.getAddress("ProxyAdminOwner", chains[i].chainId));
+            assertEq(chainsToMigrate[i], chains[i].chainId);
+        }
+
         assertEq(chainsToMigrate[0], CHAIN_ID);
         assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonPrestate), bytes32(uint256(0xdead) << 240));
         assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
-        assertEq(migrations[CHAIN_ID].expectedValidationErrors, "");
+        assertEq(migrateParams.expectedValidationErrors, "");
         assertEq(expectedOPCMVersion, "7.1.16");
 
         assertEq(migrateParams.initBond, 0.08 ether);
         assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 0);
         assertEq(migrateParams.startingAnchorRootRoot, bytes32(uint256(0xdead) << 240));
         assertEq(uint256(migrateParams.startingRespectedGameType), 5);
+
+        ISystemConfig[] memory sysCfgs = _chainSystemConfigs();
+        assertEq(sysCfgs.length, chains.length);
 
         IOPContractsManagerV700.DisputeGameConfig[] memory configs = _buildSharedGameConfigs();
         assertEq(configs.length, 2);
