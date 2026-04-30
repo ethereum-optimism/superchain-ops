@@ -62,6 +62,13 @@ simulate-all-templates:
                 continue
             fi
 
+            # OPCMMigrateV700 requires the chain to already be upgraded to V700.
+            # The integration test covers that prerequisite; this raw example task cannot.
+            if [ "$task_name" = "036-opcm-migrate-v700" ]; then
+                echo "Skipping $task_name (requires pre-upgraded V700 chain state)"
+                continue
+            fi
+
             # Launch each simulation in background.
             "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))
