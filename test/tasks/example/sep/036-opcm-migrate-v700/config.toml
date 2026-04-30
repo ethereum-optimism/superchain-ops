@@ -4,6 +4,7 @@ l2chains = [
 ]
 
 templateName = "OPCMMigrateV700"
+expectedOPCMVersion = "7.1.16"
 
 [[opcmMigrations]]
 chainId = 11155420

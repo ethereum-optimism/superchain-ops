@@ -49,6 +49,9 @@ contract OPCMMigrateV700 is OPCMTaskBase {
     /// @notice Shared migrate parameters (same for every chain).
     MigrateParams public migrateParams;
 
+    /// @notice Expected OPCM version for the configured migration fixture.
+    string public expectedOPCMVersion;
+
     IOPContractsManagerV700 public opcm;
     IOPContractsManagerStandardValidatorMigrate public standardValidator;
     IOPContractsManagerMigrationValidator public migrationValidator;
@@ -162,10 +165,11 @@ contract OPCMMigrateV700 is OPCMTaskBase {
         // may not be needed. Revisit once a v7.1.16 OPCM with migrator is available and we see
         // whether migrate() writes to any storage slot that previously held an EOA.
 
-        // OPCM from TOML; version prefix must be 7.1.* (migrate lives in v7.1.16).
+        // OPCM from TOML; version must match the fixture's expected deployment.
         opcm = IOPContractsManagerV700(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
-        require(opcm.version().startsWith("7.1."), "OPCMMigrateV700: OPCM version must be 7.1.*");
+        expectedOPCMVersion = tomlContent.readString(".expectedOPCMVersion");
+        require(opcm.version().eq(expectedOPCMVersion), "OPCMMigrateV700: unexpected OPCM version");
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML.

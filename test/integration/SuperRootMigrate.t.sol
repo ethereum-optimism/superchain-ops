@@ -53,6 +53,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
         assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonPrestate), bytes32(uint256(0xdead) << 240));
         assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
         assertEq(migrations[CHAIN_ID].expectedValidationErrors, "");
+        assertEq(expectedOPCMVersion, "7.1.16");
 
         assertEq(migrateParams.initBond, 0.08 ether);
         assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 0);
