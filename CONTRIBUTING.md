@@ -114,6 +114,14 @@ cd src/
 just test # Run this command before asking for a review on any PR.
 ```
 
+### Devnet Task Generator
+
+If a template is likely to be used on devnets, consider adding a matching
+adapter under [`src/script/devnet-gen/adapters/`](./src/script/devnet-gen/adapters/).
+Adapters map fields from a devnet descriptor (manifest, chain.yaml,
+prestates.json, and op-deployer state.json) into the template's `config.toml`;
+see `opcm_upgrade_v600.py` for a small example.
+
 ## Contributions Related to Spelling and Grammar
 
 At this time, we will not be accepting contributions that primarily fix spelling, stylistic or grammatical errors in documentation, code or elsewhere.

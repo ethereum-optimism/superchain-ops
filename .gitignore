@@ -34,3 +34,8 @@ test-config-files/
 
 # lcov.info files from 'forge coverage --report lcov'
 lcov.info
+
+# devnet-gen Python virtualenv and bytecode
+src/script/devnet-gen/.venv/
+src/script/devnet-gen/**/__pycache__/
+src/script/devnet-gen/**/*.pyc
