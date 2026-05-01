@@ -16,8 +16,6 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
 
     address public constant OP_MAINNET_L1PAO = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
-    address public constant BASE_L1PAO = 0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c;
-    address public constant BASE_NESTED_SAFE = 0x9855054731540A48b28990B63DcF4f33d8AE46A1;
     address public constant FOUNDATION_OPERATIONS_SAFE = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
     address public constant FOUNDATION_UPGRADE_SAFE = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92;
     address public constant UNICHAIN_L1PAO = 0x6d5B183F538ABB8572F5cD17109c617b994D5833;
@@ -29,9 +27,6 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
         tm.setEnv("./src/tasks/sep/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
-
-        tm.setEnv("./src/tasks/sep/001-opcm-upgrade-v200/");
-        assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
         tm.setEnv("./src/tasks/sep/002-unichain-superchain-config-fix/");
         assertEq(vm.envString("TENDERLY_GAS"), "");
@@ -133,22 +128,6 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertFalse(tm.checkDataToSign(fakeDataToSign, config));
     }
 
-    function testSetupDefaultChildSafes_RootSafeHasMultiLevelNesting() public {
-        vm.createSelectFork("mainnet", 23025164);
-        TaskManagerHarness tmHarness = new TaskManagerHarness();
-        address rootSafe = BASE_L1PAO;
-        address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
-        address[] memory emptyChildSafes = new address[](0);
-        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafe);
-        // Should return 2-element array for nested-nested execution
-        assertEq(resultChildSafes.length, 2, "Should have 2 child safes for nested-nested execution");
-        address[] memory firstOwnerOwners = IGnosisSafe(rootSafeOwners[0]).getOwners();
-        address leafChildSafe = firstOwnerOwners[0];
-        assertEq(resultChildSafes[0], leafChildSafe, "First element should be leaf child safe");
-        assertEq(resultChildSafes[1], rootSafeOwners[0], "Second element should be first root safe owner");
-        assertTrue(resultChildSafes.length == 2, "Should have 2 child safes for nested-nested execution");
-    }
-
     function testSetupDefaultChildSafes_RootSafeHasOneLevelOfNesting() public {
         vm.createSelectFork("mainnet", 23025164);
         TaskManagerHarness tmHarness = new TaskManagerHarness();
@@ -161,24 +140,6 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertEq(resultChildSafes.length, 1, "Should have 1 child safe for single-level nested execution");
         assertFalse(isFirstOwnerNested, "First owner should not be nested for single-level nesting");
         assertTrue(resultChildSafes.length == 1, "Should have 1 child safe for single-level nested execution");
-    }
-
-    /// Note: This test is intentionally not pinned to a block. If it fails, it means Base has updated their safe architecture.
-    function testIsNestedNestedSafe() public {
-        vm.createSelectFork("mainnet", 23336141);
-        TaskManagerHarness tmHarness = new TaskManagerHarness();
-
-        // Test the nested-nested safe (should return true)
-        address nestedNestedSafe = BASE_L1PAO;
-        (bool isNestedNested, address depth1ChildSafe) = tmHarness.exposed_isNestedNestedSafe(nestedNestedSafe);
-        assertTrue(isNestedNested, string.concat(vm.toString(nestedNestedSafe), " should be nested-nested"));
-        assertEq(depth1ChildSafe, BASE_NESTED_SAFE, "Depth 1 child safe should be BASE_NESTED_SAFE");
-
-        // Test the single-level nested safe (should return false)
-        address singleNestedSafe = OP_MAINNET_L1PAO;
-        (bool isNestedNestedOP, address depth1ChildSafeOP) = tmHarness.exposed_isNestedNestedSafe(singleNestedSafe);
-        assertFalse(isNestedNestedOP, string.concat(vm.toString(singleNestedSafe), " should not be nested-nested"));
-        assertEq(depth1ChildSafeOP, address(0), "Depth 1 child safe should be zero address");
     }
 
     /// @notice Test that the root safe is correctly retrieved for a given task.

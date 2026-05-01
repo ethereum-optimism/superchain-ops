@@ -14,7 +14,6 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
     SuperchainAddressRegistry private addrRegistry;
 
     uint256 public metalChainId;
-    uint256 public baseChainId;
     uint256 public opChainId;
     uint256 public zoraChainId;
     uint256 public modeChainId;
@@ -29,7 +28,6 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
 
         addrRegistry = new SuperchainAddressRegistry(configPath);
         metalChainId = getChain(string.concat("metal", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
-        baseChainId = getChain(string.concat("base", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
         opChainId = getChain(string.concat("optimism", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
         zoraChainId = getChain(string.concat("zora", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
         modeChainId = getChain(string.concat("mode", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
@@ -40,7 +38,6 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
 
     function testContractState() public view {
         assertTrue(addrRegistry.seenL2ChainIds(metalChainId), "Metal chain ID not supported");
-        assertTrue(addrRegistry.seenL2ChainIds(baseChainId), "Base chain ID not supported");
         assertTrue(addrRegistry.seenL2ChainIds(opChainId), "OP chain ID not supported");
         assertTrue(addrRegistry.seenL2ChainIds(zoraChainId), "Zora chain ID not supported");
         assertTrue(addrRegistry.seenL2ChainIds(modeChainId), "Mode chain ID not supported");
@@ -49,13 +46,13 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
     function testSuperchainAddressesLoaded() public {
         SuperchainAddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         assertAddresses(chains);
-        assertEq(chains.length, 6, "Expected 6 chains");
+        assertEq(chains.length, 5, "Expected 5 chains");
 
         // Now discover a new chain that isn't in the config. Make sure not addresses are overridden.
         addrRegistry.discoverNewChain(SuperchainAddressRegistry.ChainInfo({chainId: unichainChainId, name: "Unichain"}));
         chains = addrRegistry.getChains();
-        // Unichain should be the 7th chain added after discovery.
-        assertEq(chains.length, 7, "Expected 7 chains");
+        // Unichain should be the 6th chain added after discovery.
+        assertEq(chains.length, 6, "Expected 6 chains");
         assertAddresses(chains);
     }
 

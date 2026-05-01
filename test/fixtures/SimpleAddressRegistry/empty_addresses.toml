@@ -1,4 +1,4 @@
 # l2Chains is only here so we can reuse this fixture for both SimpleAddressRegistry and SuperchainAddressRegistry tests.
-l2chains = [{ name = "Base", chainId = 8453 }]
+l2chains = [{ name = "OP Mainnet", chainId = 10 }]
 
 [addresses]

@@ -231,7 +231,7 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: safe address mismatch. Caller: ",
-                MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 8453)),
+                MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 10)),
                 ". Actual address: ",
                 MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 1750))
             )
