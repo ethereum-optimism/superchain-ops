@@ -3,6 +3,7 @@ l2chains = [
 ]
 
 templateName = "OPCMUpgradeV800"
+skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 11155420

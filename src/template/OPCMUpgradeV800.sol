@@ -34,6 +34,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
 
     IOPContractsManagerV800 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
+    bool public skipOPCMVersionCheck;
 
     // Game type constants (from GameTypes library in op-contracts v7.1.17).
     uint32 internal constant CANNON = 0;
@@ -149,8 +150,11 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         // OPCM from TOML; must be v7.1.17
         opcm = IOPContractsManagerV800(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
-        // Version is intentionally not asserted while the target protocol upgrade version is still undefined.
-        // require(opcm.version().eq("7.1.17"), "Incorrect OPCM");
+        skipOPCMVersionCheck =
+            tomlContent.keyExists(".skipOPCMVersionCheck") && tomlContent.readBool(".skipOPCMVersionCheck");
+        if (!skipOPCMVersionCheck) {
+            require(opcm.version().startsWith("7.1."), "Incorrect OPCM major/minor version");
+        }
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
