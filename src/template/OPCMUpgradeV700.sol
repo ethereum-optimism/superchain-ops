@@ -172,7 +172,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         if (gt == SUPER_CANNON_KONA) {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
         }
-        if (gt == ZK_DISPUTE_GAME) return false;
+        if (gt == ZK_DISPUTE_GAME) {
+            return address(disputeGameFactory.gameImpls(GameType.wrap(ZK_DISPUTE_GAME))) != address(0);
+        }
         return false;
     }
 
