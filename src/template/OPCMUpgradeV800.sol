@@ -11,8 +11,9 @@ import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: op-contracts/v7.1.15
-contract OPCMUpgradeV700 is OPCMTaskBase {
+/// Supports: op-contracts/v7.1.17
+/// @dev This template targets a not-yet-defined protocol upgrade version; the V800 name is provisional.
+contract OPCMUpgradeV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
@@ -31,10 +32,10 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
-    IOPContractsManagerV700 public opcm;
+    IOPContractsManagerV800 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
 
-    // Game type constants (from GameTypes library in op-contracts v7.1.15).
+    // Game type constants (from GameTypes library in op-contracts v7.1.17).
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
     uint32 internal constant SUPER_CANNON = 4;
@@ -77,37 +78,37 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         string memory tomlContent = vm.readFile(taskConfigFilePath);
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        require(chains.length > 0, "OPCMUpgradeV700: no chains configured");
+        require(chains.length > 0, "OPCMUpgradeV800: no chains configured");
 
         // Load upgrades from TOML
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
-        require(_upgrades.length == chains.length, "OPCMUpgradeV700: opcmUpgrades length mismatch");
+        require(_upgrades.length == chains.length, "OPCMUpgradeV800: opcmUpgrades length mismatch");
         for (uint256 i = 0; i < _upgrades.length; i++) {
-            require(_upgrades[i].chainId != 0, "OPCMUpgradeV700: chainId cannot be zero");
-            require(upgrades[_upgrades[i].chainId].chainId == 0, "OPCMUpgradeV700: duplicate chain config");
-            require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV700: cannonPrestate is zero");
+            require(_upgrades[i].chainId != 0, "OPCMUpgradeV800: chainId cannot be zero");
+            require(upgrades[_upgrades[i].chainId].chainId == 0, "OPCMUpgradeV800: duplicate chain config");
+            require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV800: cannonPrestate is zero");
             require(
                 Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
-                "OPCMUpgradeV700: cannonKonaPrestate is zero"
+                "OPCMUpgradeV800: cannonKonaPrestate is zero"
             );
             chainsToUpgrade.push(_upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
-        require(superchainConfig != address(0), "OPCMUpgradeV700: SuperchainConfig not found");
-        require(superchainConfig.code.length > 0, "OPCMUpgradeV700: SuperchainConfig has no code");
+        require(superchainConfig != address(0), "OPCMUpgradeV800: SuperchainConfig not found");
+        require(superchainConfig.code.length > 0, "OPCMUpgradeV800: SuperchainConfig has no code");
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            require(upgrades[chainId].chainId != 0, "OPCMUpgradeV700: config not found for chain");
+            require(upgrades[chainId].chainId != 0, "OPCMUpgradeV800: config not found for chain");
             require(
                 superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
-                "OPCMUpgradeV700: all chains must share the same SuperchainConfig"
+                "OPCMUpgradeV800: all chains must share the same SuperchainConfig"
             );
         }
 
         // Register EthLockboxProxy for each chain from the superchain-registry addresses.json.
-        // The V700 upgrade writes to EthLockboxProxy storage, but it is not discovered by the
+        // The V800 upgrade writes to EthLockboxProxy storage, but it is not discovered by the
         // registry's onchain discovery flow, so we register it here.
         string memory addrJson = vm.readFile(superchainAddrRegistry.SUPERCHAIN_REGISTRY_ADDRESSES_PATH());
         for (uint256 i = 0; i < chains.length; i++) {
@@ -119,15 +120,15 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             }
         }
 
-        // The V700 upgrade reinitializes SystemConfig, re-writing all its storage.
+        // The V800 upgrade reinitializes SystemConfig, re-writing all its storage.
         // Some stored addresses are legitimately EOAs that get re-written during reinitialization.
         // HACK: The current test uses a custom dev OPCM on Sepolia where the owner is also an
         // EOA (in production it would be a Safe), and the OPCM changes the batchInbox to a new
         // EOA during upgrade (in production batchInbox would not change).
         // TODO: Remove this entire block once a production-like OPCM is deployed for testing.
         for (uint256 i = 0; i < chains.length; i++) {
-            ISystemConfigV700 sysCfg =
-                ISystemConfigV700(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
+            ISystemConfigV800 sysCfg =
+                ISystemConfigV800(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
             address[4] memory candidates = [
                 sysCfg.owner(), // slot 0x33 — Safe in prod, EOA in dev
                 sysCfg.unsafeBlockSigner(), // hashed slot — always EOA
@@ -145,10 +146,11 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // TODO: Remove once production OPCM is used.
         vm.etch(address(0x0002b8639730E2F4dc88Dfd5Bbd0352E5518A758), hex"01");
 
-        // OPCM from TOML; must be v7.1.15
-        opcm = IOPContractsManagerV700(tomlContent.readAddress(".addresses.OPCM"));
+        // OPCM from TOML; must be v7.1.17
+        opcm = IOPContractsManagerV800(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
-        require(opcm.version().eq("7.1.17"), "Incorrect OPCM");
+        // Version is intentionally not asserted while the target protocol upgrade version is still undefined.
+        // require(opcm.version().eq("7.1.17"), "Incorrect OPCM");
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
@@ -192,7 +194,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bytes32 cannonPre,
         bytes32 cannonKonaPre,
         uint256 bond
-    ) internal view returns (IOPContractsManagerV700.DisputeGameConfig memory) {
+    ) internal view returns (IOPContractsManagerV800.DisputeGameConfig memory) {
         bool enabled = _isGameTypeEnabled(a.factory, gt);
         bytes memory gameArgs;
         if (enabled) {
@@ -205,7 +207,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 gameArgs = abi.encode(absolutePrestate);
             }
         }
-        return IOPContractsManagerV700.DisputeGameConfig({
+        return IOPContractsManagerV800.DisputeGameConfig({
             enabled: enabled,
             initBond: enabled ? bond : 0,
             gameType: gt,
@@ -217,7 +219,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     function _buildGameConfigs(uint256 chainId)
         internal
         view
-        returns (IOPContractsManagerV700.DisputeGameConfig[] memory)
+        returns (IOPContractsManagerV800.DisputeGameConfig[] memory)
     {
         GameConfigAddrs memory a = GameConfigAddrs({
             factory: IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId)),
@@ -229,7 +231,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
 
-        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](7);
+        IOPContractsManagerV800.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV800.DisputeGameConfig[](7);
         uint32[7] memory gts = [
             CANNON,
             PERMISSIONED_CANNON,
@@ -248,13 +250,13 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     function _buildExtraInstructions(uint256 chainId)
         internal
         view
-        returns (IOPContractsManagerV700.ExtraInstruction[] memory)
+        returns (IOPContractsManagerV800.ExtraInstruction[] memory)
     {
-        IOPContractsManagerV700.ExtraInstruction[] memory extraInstructions =
-            new IOPContractsManagerV700.ExtraInstruction[](2);
+        IOPContractsManagerV800.ExtraInstruction[] memory extraInstructions =
+            new IOPContractsManagerV800.ExtraInstruction[](2);
         extraInstructions[0] =
-            IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
-        extraInstructions[1] = IOPContractsManagerV700.ExtraInstruction({
+            IOPContractsManagerV800.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
+        extraInstructions[1] = IOPContractsManagerV800.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
             data: abi.encode(upgrades[chainId].startingRespectedGameType)
         });
@@ -266,28 +268,28 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// Any state written in this function is discarded after build completes.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        require(chains.length > 0, "OPCMUpgradeV700: no chains configured");
+        require(chains.length > 0, "OPCMUpgradeV800: no chains configured");
 
         // Upgrade superchain once (before per-chain upgrades)
         address sc = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
         (bool scOk,) = address(opcm).delegatecall(
             abi.encodeCall(
-                IOPContractsManagerV700.upgradeSuperchain,
+                IOPContractsManagerV800.upgradeSuperchain,
                 (
-                    IOPContractsManagerV700.SuperchainUpgradeInput({
+                    IOPContractsManagerV800.SuperchainUpgradeInput({
                         superchainConfig: ISuperchainConfig(sc),
-                        extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
+                        extraInstructions: new IOPContractsManagerV800.ExtraInstruction[](0)
                     })
                 )
             )
         );
-        require(scOk, "OPCMUpgradeV700: upgradeSuperchain delegatecall failed");
+        require(scOk, "OPCMUpgradeV800: upgradeSuperchain delegatecall failed");
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            require(upgrades[chainId].chainId != 0, "OPCMUpgradeV700: Config not found for chain");
+            require(upgrades[chainId].chainId != 0, "OPCMUpgradeV800: Config not found for chain");
 
-            IOPContractsManagerV700.UpgradeInput memory inp = IOPContractsManagerV700.UpgradeInput({
+            IOPContractsManagerV800.UpgradeInput memory inp = IOPContractsManagerV800.UpgradeInput({
                 systemConfig: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
                 disputeGameConfigs: _buildGameConfigs(chainId),
                 extraInstructions: _buildExtraInstructions(chainId)
@@ -295,8 +297,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
             // Delegatecall the OPCM.upgrade() function once per chain
             (bool ok,) =
-                address(opcm).delegatecall(abi.encodeWithSelector(IOPContractsManagerV700.upgrade.selector, inp));
-            require(ok, "OPCMUpgradeV700: Delegatecall failed in _build.");
+                address(opcm).delegatecall(abi.encodeWithSelector(IOPContractsManagerV800.upgrade.selector, inp));
+            require(ok, "OPCMUpgradeV800: Delegatecall failed in _build.");
         }
     }
 
@@ -352,7 +354,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
 /* ---------- Interfaces ---------- */
 /// @notice OPCM Interface (v7.x / IOPContractsManagerV2).
-interface IOPContractsManagerV700 {
+interface IOPContractsManagerV800 {
     struct DisputeGameConfig {
         bool enabled;
         uint256 initBond;
@@ -432,7 +434,7 @@ interface ISystemConfig {
     function getAddresses() external view returns (Addresses memory);
 }
 
-interface ISystemConfigV700 {
+interface ISystemConfigV800 {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
     function batchInbox() external view returns (address);

@@ -5,7 +5,7 @@ import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {IOPContractsManagerV700, OPCMUpgradeV700} from "src/template/OPCMUpgradeV700.sol";
+import {IOPContractsManagerV800, OPCMUpgradeV800} from "src/template/OPCMUpgradeV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
@@ -18,8 +18,8 @@ interface ISystemConfigExt {
     function superchainConfig() external view returns (address);
 }
 
-contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
-    string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v700/";
+contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
+    string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
     uint256 internal constant CHAIN_ID = 11155420;
     address rootSafe;
 
@@ -42,12 +42,12 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV700 {
         assertEq(upgrades[CHAIN_ID].startingRespectedGameType, 9);
         assertEq(upgrades[CHAIN_ID].expectedValidationErrors, "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130");
 
-        IOPContractsManagerV700.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
+        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
         assertEq(configs.length, 7);
 
         uint32[7] memory expectedGameTypes = [uint32(0), 1, 8, 4, 5, 9, 10];
         for (uint256 i = 0; i < configs.length; i++) {
-            IOPContractsManagerV700.DisputeGameConfig memory config = configs[i];
+            IOPContractsManagerV800.DisputeGameConfig memory config = configs[i];
             uint32 gameType = expectedGameTypes[i];
             assertEq(config.gameType, gameType);
 
