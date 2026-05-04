@@ -3,7 +3,7 @@ l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420}
 ]
 
-templateName = "OPCMMigrateV700"
+templateName = "OPCMMigrateV800"
 expectedOPCMVersion = "7.1.16"
 
 [[opcmMigrations]]

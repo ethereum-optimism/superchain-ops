@@ -12,7 +12,7 @@ import {
     ISystemConfig,
     ISystemConfigV700
 } from "src/template/OPCMUpgradeV700.sol";
-import {OPCMMigrateV700} from "src/template/OPCMMigrateV700.sol";
+import {OPCMMigrateV800} from "src/template/OPCMMigrateV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
@@ -25,8 +25,8 @@ interface ISystemConfigExt {
     function proxyAdmin() external view returns (address);
 }
 
-contract SuperRootMigrateTest is Test, OPCMMigrateV700 {
-    string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v700/";
+contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
+    string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v800/";
     uint256 internal constant CHAIN_ID = 11155420;
 
     address rootSafe;
