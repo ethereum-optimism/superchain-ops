@@ -301,7 +301,7 @@ contract TaskManager is Script {
         return nested;
     }
 
-    /// @notice Helper function to determine if the given safe is a nested-nested multisig (e.g. Base safe architecture).
+    /// @notice Helper function to determine if the given safe is a nested-nested multisig.
     /// This function will return the first owner that is a nested safe.
     function isNestedNestedSafe(address safe) public view returns (bool, address) {
         address[] memory owners = IGnosisSafe(safe).getOwners();

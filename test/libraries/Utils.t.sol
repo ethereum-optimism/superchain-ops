@@ -156,25 +156,24 @@ contract UtilsTest is Test {
         assertTrue(result, "String array should contain non-empty string");
     }
 
-    /// @notice Using Base mainnet safe architecture to test the order function.
+    /// @notice Uses OP Mainnet governance safes to test the order function.
     function test_validateSafesOrder() public {
-        vm.createSelectFork("mainnet", 23147844);
-        address[] memory safes = new address[](3);
-        safes[0] = address(0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd); // BaseSCSafe
-        safes[1] = address(0x9855054731540A48b28990B63DcF4f33d8AE46A1); // BaseNestedSafe
-        safes[2] = address(0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c); // Base L1PAO
+        vm.createSelectFork("mainnet");
+        address[] memory safes = new address[](2);
+        safes[0] = address(0xc2819DC788505Aac350142A7A707BF9D03E3Bd03); // SecurityCouncil
+        safes[1] = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // ProxyAdminOwner
         safes.validateSafesOrder();
     }
 
     /// @notice Test validateSafesOrder with invalid order.
     function test_validateSafesOrder_InvalidOrder() public {
-        vm.createSelectFork("mainnet", 23147844);
+        vm.createSelectFork("mainnet");
         address[] memory safes = new address[](2);
-        safes[0] = address(0x9855054731540A48b28990B63DcF4f33d8AE46A1); // BaseNestedSafe
-        safes[1] = address(0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd); // BaseSCSafe
+        safes[0] = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // ProxyAdminOwner
+        safes[1] = address(0xc2819DC788505Aac350142A7A707BF9D03E3Bd03); // SecurityCouncil
         UtilsHarness utilsHarness = new UtilsHarness();
         vm.expectRevert(
-            "Utils: Safe 0x9855054731540A48b28990B63DcF4f33d8AE46A1 is not an owner of 0x20AcF55A3DCfe07fC4cecaCFa1628F788EC8A4Dd"
+            "Utils: Safe 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A is not an owner of 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
         );
         utilsHarness.exposed_validateSafesOrder(safes);
     }
