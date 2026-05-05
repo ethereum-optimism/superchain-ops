@@ -349,6 +349,25 @@ contract MultisigTaskUnitTest is Test {
         assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
+    function test_checkStateDiff_allowsReadOnlyNoCodeAccountProbe() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = createAccess(VmSafe.AccountAccessKind.StaticCall, address(0), address(0x1234), 1);
+        accesses[0].data = hex"00000000";
+
+        harness.wrapperCheckStateDiff(accesses);
+    }
+
+    function test_checkStateDiff_rejectsNoCodeStaticCallWithSelector() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = createAccess(VmSafe.AccountAccessKind.StaticCall, address(0), address(0x1234), 1);
+        accesses[0].data = abi.encodeWithSignature("version()");
+
+        vm.expectRevert("Account has no code: 0x0000000000000000000000000000000000000000");
+        harness.wrapperCheckStateDiff(accesses);
+    }
+
     // Helper to create AccountAccess struct
     function createAccess(VmSafe.AccountAccessKind kind, address account, address accessor, uint64 depth)
         internal

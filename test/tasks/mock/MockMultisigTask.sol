@@ -80,4 +80,8 @@ contract MockMultisigTask is L2TaskBase {
     {
         return super._isValidAction(access, topLevelDepth, rootSafe);
     }
+
+    function wrapperCheckStateDiff(VmSafe.AccountAccess[] memory accesses) public view {
+        super._checkStateDiff(accesses);
+    }
 }

@@ -430,6 +430,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory codeExceptions = _getCodeExceptions();
         for (uint256 i; i < accountAccesses.length; i++) {
             VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
+            if (_isReadOnlyNoCodeAccountProbe(accountAccess)) continue;
+
             // All touched accounts should have code, with the exception of precompiles.
             bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
             if (!isPrecompile) {
@@ -481,6 +483,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
+    }
+
+    function _isReadOnlyNoCodeAccountProbe(VmSafe.AccountAccess memory accountAccess) internal view returns (bool) {
+        bool hasNoSideEffects = accountAccess.value == 0 && accountAccess.oldBalance == accountAccess.newBalance
+            && accountAccess.storageAccesses.length == 0 && !accountAccess.reverted;
+        bool hasEmptySelector =
+            accountAccess.data.length == 0 || (accountAccess.data.length == 4 && bytes4(accountAccess.data) == 0);
+
+        return accountAccess.account.code.length == 0 && accountAccess.kind == VmSafe.AccountAccessKind.StaticCall
+            && hasNoSideEffects && hasEmptySelector;
     }
 
     /// @notice Helper function that returns whether or not the current context is a broadcast context.
