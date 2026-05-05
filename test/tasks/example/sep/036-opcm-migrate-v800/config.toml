@@ -24,7 +24,7 @@ expectedValidationErrors = ""
 initBond = 80000000000000000
 startingAnchorRootL2SequenceNumber = 0
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
-startingRespectedGameType = 9 # SUPER_PERMISSIONED_CANNON
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
 superChallenger = "0x293204BfA7f28C4A4275B377cCAFd525d2225D37"
 superProposer = "0x000C245B7A2E946C9eeE6b488f1Da07AF15AD4f4"
 
