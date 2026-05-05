@@ -10,6 +10,14 @@ import {OPCMMigrateV800} from "src/template/OPCMMigrateV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
+interface IProxyAdmin {
+    function owner() external view returns (address);
+}
+
+interface ISystemConfigExt {
+    function proxyAdmin() external view returns (address);
+}
+
 contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v800/";
 
@@ -26,10 +34,13 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
         _templateSetup(configTomlPath, address(0));
-        rootSafe = superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_A);
+        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A);
+        rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
     }
 
     function test_load_data_from_inline_devnet_tables() public view {
+        assertEq(rootSafe, superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_A));
+
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 2);
         assertEq(chains[0].chainId, CHAIN_A);
