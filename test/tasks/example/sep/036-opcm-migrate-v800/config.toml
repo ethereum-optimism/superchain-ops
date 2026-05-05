@@ -1,15 +1,23 @@
-# TODO: add a second Sepolia interop chain (e.g. Ink Sepolia / Base Sepolia) once selected.
+# managed-by:netchef,network:sdg-v1
+# These devnet chains are not in the superchain registry, so the fixture
+# carries per-chain addresses inline.
 l2chains = [
-    {name = "OP Sepolia Testnet", chainId = 11155420}
+    {name = "sdg-v1-0", chainId = 420120084},
+    {name = "sdg-v1-1", chainId = 420120085}
 ]
 
 templateName = "OPCMMigrateV800"
-expectedOPCMVersion = "7.1.16"
+expectedOPCMVersion = "7.1.17"
 
 [[opcmMigrations]]
-chainId = 11155420
-cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+chainId = 420120084
+cannonPrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef"
+cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
+
+[[opcmMigrations]]
+chainId = 420120085
+cannonPrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef"
+cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
 
 [migrate]
 expectedValidationErrors = ""
@@ -17,10 +25,55 @@ initBond = 80000000000000000
 startingAnchorRootL2SequenceNumber = 0
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingRespectedGameType = 5 # SUPER_PERMISSIONED_CANNON
-superChallenger = "0x000000000000000000000000000000000000dEaD" # TODO: real super challenger
-superProposer = "0x000000000000000000000000000000000000dEaD" # TODO: real super proposer
+superChallenger = "0x293204BfA7f28C4A4275B377cCAFd525d2225D37"
+superProposer = "0x000C245B7A2E946C9eeE6b488f1Da07AF15AD4f4"
 
 [addresses]
-OPCM = "0xf309ee51d05955e84264d4b8c2d520a01f430cb2" # v7.1.16 dev OPCM on Sepolia
+OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
+
+[chainAddresses.420120084]
+SuperchainConfig = "0xbb331C0Bf409ef6B39CF585221fa4FF73001668a"
+ProtocolVersions = "0x2FD7AcFED8b858F4B556A351f145032373e73Db7"
+SuperchainProxyAdmin = "0x3Ef3b91F86E9682803011cf01a74aBb629186Ae2"
+ProxyAdmin = "0xCE3403aC0b2514bF609A9bFb2dfD2968f108F78F"
+ProxyAdminOwner = "0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
+AddressManager = "0xe039c59d04168e46fbe8A105202b33f14bACC9D1"
+SystemConfigProxy = "0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f"
+OptimismPortalProxy = "0x3EBB7a84ED74C19b7d40345664C23B2faE83F137"
+DisputeGameFactoryProxy = "0x06785e5951EdE24761146c37E97ffdD807a3ee48"
+AnchorStateRegistryProxy = "0x7AdA7645065630fFECec1DcFCE9001d076600f31"
+L1StandardBridgeProxy = "0x3f9a8CBb6777c7729f2b4D2d636144cDdd6Feb52"
+L1ERC721BridgeProxy = "0x6ad4a6628D9fb7A3120e6e3A05FAaC3b60288074"
+L1CrossDomainMessengerProxy = "0x82FCDc8A7dFf0e7c6762CB60cF724C72A5A9cE58"
+OptimismMintableERC20FactoryProxy = "0x116AEB72052fea90B1647F8EEaA7dfD02dbD7470"
+PermissionedWETH = "0x2cc6bc12ae6271a5E67B5A7D072031AE6E58be4a"
+PermissionlessWETH = "0x2cc6bc12ae6271a5E67B5A7D072031AE6E58be4a"
+EthLockboxProxy = "0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1"
+FaultDisputeGame = "0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC"
+PermissionedDisputeGame = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+
+[chainAddresses.420120085]
+SuperchainConfig = "0xbb331C0Bf409ef6B39CF585221fa4FF73001668a"
+ProtocolVersions = "0x2FD7AcFED8b858F4B556A351f145032373e73Db7"
+SuperchainProxyAdmin = "0x3Ef3b91F86E9682803011cf01a74aBb629186Ae2"
+ProxyAdmin = "0xb0AcCA720A5bF747b7115e52fFa7c1C9836e9CC6"
+ProxyAdminOwner = "0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
+AddressManager = "0x0A9b218A1712dC54c0534c864DD7ed483Bb91998"
+SystemConfigProxy = "0x822AeD4EBe81A7d626b75B6074110985d61f6dE1"
+OptimismPortalProxy = "0xd5F80C08BA2Fd6ed0d9C17b5c6Cc829D50D44A23"
+DisputeGameFactoryProxy = "0x3f49D576CFf926e692dFDAe24D21AB2a84Be4612"
+AnchorStateRegistryProxy = "0x4D52F7D175FdAe2091bdA6b7C62262016750BcAd"
+L1StandardBridgeProxy = "0xBc1a0E5d9AA5490cC3563948EE39f9b908F76B40"
+L1ERC721BridgeProxy = "0x1E52b6a3dd2d3c496a7b1C1E2D83F8126Dabe02C"
+L1CrossDomainMessengerProxy = "0x526890c7c5250798aD67dcC014523203544c4ab2"
+OptimismMintableERC20FactoryProxy = "0x4332eAfFE3b1Af78dd18418e9d30eB27598540Ac"
+PermissionedWETH = "0xE82F25f9Ef35862a96AD20cBC0d0322843Ec171c"
+PermissionlessWETH = "0xE82F25f9Ef35862a96AD20cBC0d0322843Ec171c"
+EthLockboxProxy = "0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F"
+FaultDisputeGame = "0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC"
+PermissionedDisputeGame = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
 
 [stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
+]

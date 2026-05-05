@@ -267,13 +267,37 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(localJsonPath);
     }
 
+    function testConstructor_WithValidNonExistentChain_UsesInlineChainAddresses() public {
+        vm.createSelectFork("mainnet");
+        string memory tomlContent = "l2chains = [{name = \"MyLocalChain\", chainId = 12345}]\n"
+            "[chainAddresses.12345]\n" "L1StandardBridgeProxy = \"0x1111111111111111111111111111111111111111\"\n"
+            "MyCustomContract = \"0x2222222222222222222222222222222222222222\"\n";
+        string memory configFileName =
+            MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "inline-000");
+        SuperchainAddressRegistry localRegistry = new SuperchainAddressRegistry(configFileName);
+
+        assertTrue(localRegistry.seenL2ChainIds(12345), "Local chain ID 12345 not seen");
+        assertEq(
+            localRegistry.getAddress("L1StandardBridgeProxy", 12345),
+            address(0x1111111111111111111111111111111111111111),
+            "L1StandardBridgeProxy address mismatch"
+        );
+        assertEq(
+            localRegistry.getAddress("MyCustomContract", 12345),
+            address(0x2222222222222222222222222222222222222222),
+            "MyCustomContract address mismatch"
+        );
+
+        MultisigTaskTestHelper.removeFile(configFileName);
+    }
+
     function testConstructor_WithEmptyFallbackPath_Reverts() public {
         vm.createSelectFork("mainnet");
         string memory tomlContent =
             string.concat('l2chains = [{name = "MyLocalChain", chainId = 12345}]\n', 'fallbackAddressesJsonPath = ""');
         string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "003");
         vm.expectRevert(
-            "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+            "SuperchainAddressRegistry: Chain does not exist in superchain registry and no fallback or inline addresses were provided."
         );
         new SuperchainAddressRegistry(configFileName);
         MultisigTaskTestHelper.removeFile(configFileName);
@@ -314,6 +338,33 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
+    function test_chainAddresses_allowOverwrite_passes() public {
+        vm.createSelectFork("mainnet", 22919060);
+        string memory tomlContent = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n"
+            "allowOverwrite = [\"L1StandardBridgeProxy\"]\n" "[chainAddresses.10]\n"
+            "L1StandardBridgeProxy = \"0x1111111111111111111111111111111111111111\"\n";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "inline-001");
+        SuperchainAddressRegistry registry = new SuperchainAddressRegistry(fileName);
+
+        assertEq(
+            registry.getAddress("L1StandardBridgeProxy", 10),
+            address(0x1111111111111111111111111111111111111111),
+            "inline chain address mismatch"
+        );
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_chainAddresses_allowOverwrite_fails() public {
+        vm.createSelectFork("mainnet", 22919060);
+        string memory tomlContent = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "[chainAddresses.10]\n"
+            "L1StandardBridgeProxy = \"0x1111111111111111111111111111111111111111\"\n";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "inline-002");
+
+        vm.expectRevert("SuperchainAddressRegistry: duplicate key L1StandardBridgeProxy for chain 10");
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
     function test_constructor_onL2WithoutFallback_reverts() public {
         vm.createSelectFork("opSepolia");
         string memory tomlContent =
@@ -321,9 +372,22 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-000");
 
         vm.expectRevert(
-            "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades."
+            "SuperchainAddressRegistry: Must provide fallback or inline chain addresses for L2 contract upgrades."
         );
         new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_constructor_onL2WithInlineChainAddresses_passes() public {
+        vm.createSelectFork("opSepolia");
+        string memory tomlContent = "l2chains = [{name = \"MyLocalChain\", chainId = 10101010101010}]\n"
+            "[chainAddresses.10101010101010]\n" "ProxyAdminOwner = \"0x1111111111111111111111111111111111111111\"\n";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-002");
+        SuperchainAddressRegistry registry = new SuperchainAddressRegistry(fileName);
+
+        assertEq(
+            registry.getAddress("ProxyAdminOwner", 10101010101010), address(0x1111111111111111111111111111111111111111)
+        );
         MultisigTaskTestHelper.removeFile(fileName);
     }
 

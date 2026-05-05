@@ -104,14 +104,20 @@ contract SuperchainAddressRegistry is StdChains {
 
         ChainInfo[] memory _chainsMemory;
         string memory fallbackAddressesJsonPath = toml.readStringOr(".fallbackAddressesJsonPath", "");
+        bool hasInlineChainAddresses = toml.keyExists(".chainAddresses");
+        string memory allowOverwriteKey = ".allowOverwrite";
+        string[] memory allowOverwrite;
+        if (toml.keyExists(allowOverwriteKey)) {
+            allowOverwrite = toml.readStringArray(allowOverwriteKey);
+        }
         bytes memory chainListContent = toml.parseRaw(".l2chains");
         _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
         require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
 
         if (isL2Chain) {
             require(
-                bytes(fallbackAddressesJsonPath).length > 0,
-                "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades."
+                bytes(fallbackAddressesJsonPath).length > 0 || hasInlineChainAddresses,
+                "SuperchainAddressRegistry: Must provide fallback or inline chain addresses for L2 contract upgrades."
             );
         }
 
@@ -132,24 +138,30 @@ contract SuperchainAddressRegistry is StdChains {
             ChainInfo memory currentChain = chains[i];
             bool chainExists =
                 vm.keyExistsJson(superchainRegistryChainAddrs, string.concat("$.", vm.toString(currentChain.chainId)));
+            bool hasInlineAddressesForChain = _hasInlineChainAddresses(toml, currentChain.chainId);
             if (!chainExists) {
                 require(
-                    bytes(fallbackAddressesJsonPath).length > 0,
-                    "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+                    bytes(fallbackAddressesJsonPath).length > 0 || hasInlineAddressesForChain,
+                    "SuperchainAddressRegistry: Chain does not exist in superchain registry and no fallback or inline addresses were provided."
                 );
-                console.log(
-                    string.concat(
-                        string("[INFO]").green().bold(),
-                        " SuperchainAddressRegistry: Chain ",
-                        currentChain.name,
-                        " not found in superchain registry, using fallback path ",
-                        fallbackAddressesJsonPath
-                    )
-                );
-                string memory customAddresses = vm.readFile(fallbackAddressesJsonPath);
-                saveAllAddressesLocal(customAddresses, currentChain);
+                if (bytes(fallbackAddressesJsonPath).length > 0) {
+                    console.log(
+                        string.concat(
+                            string("[INFO]").green().bold(),
+                            " SuperchainAddressRegistry: Chain ",
+                            currentChain.name,
+                            " not found in superchain registry, using fallback path ",
+                            fallbackAddressesJsonPath
+                        )
+                    );
+                    string memory customAddresses = vm.readFile(fallbackAddressesJsonPath);
+                    saveAllAddressesLocal(customAddresses, currentChain);
+                }
             } else {
                 _processAddresses(currentChain, superchainRegistryChainAddrs);
+            }
+            if (hasInlineAddressesForChain) {
+                _saveInlineChainAddresses(toml, currentChain, allowOverwrite);
             }
         }
 
@@ -164,12 +176,6 @@ contract SuperchainAddressRegistry is StdChains {
 
         // Lastly, we read in addresses from the `[addresses]` section of the config file.
         if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
-
-        string memory allowOverwriteKey = ".allowOverwrite";
-        string[] memory allowOverwrite;
-        if (toml.keyExists(allowOverwriteKey)) {
-            allowOverwrite = toml.readStringArray(allowOverwriteKey);
-        }
 
         string[] memory _identifiers = vm.parseTomlKeys(toml, ".addresses");
         for (uint256 i = 0; i < _identifiers.length; i++) {
@@ -388,6 +394,26 @@ contract SuperchainAddressRegistry is StdChains {
                 vm.parseJsonAddress(_chainAddressesContent, string.concat("$.", vm.toString(_chain.chainId), ".", key));
             saveAddress(key, _chain, addr);
         }
+    }
+
+    function _hasInlineChainAddresses(string memory toml, uint256 chainId) internal view returns (bool) {
+        return toml.keyExists(_inlineChainAddressesPath(chainId));
+    }
+
+    function _saveInlineChainAddresses(string memory toml, ChainInfo memory chain, string[] memory allowOverwrite)
+        internal
+    {
+        string memory chainAddressesPath = _inlineChainAddressesPath(chain.chainId);
+        string[] memory keys = vm.parseTomlKeys(toml, chainAddressesPath);
+        for (uint256 i = 0; i < keys.length; i++) {
+            string memory key = keys[i];
+            address addr = toml.readAddress(string.concat(chainAddressesPath, ".", key));
+            saveAddress(key, chain, addr, allowOverwrite);
+        }
+    }
+
+    function _inlineChainAddressesPath(uint256 chainId) internal pure returns (string memory) {
+        return string.concat(".chainAddresses.", vm.toString(chainId));
     }
 
     function parseContractAddress(
