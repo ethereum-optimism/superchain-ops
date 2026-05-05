@@ -6,7 +6,6 @@ templateName = "GasConfigTemplate"
 
 l2chains = [
   { name = "Metal", chainId = 1750 },
-  { name = "Base", chainId = 8453 },
   { name = "OP Mainnet", chainId = 10 },
   { name = "Zora", chainId = 7777777 },
   { name = "Mode", chainId = 34443 },
@@ -17,7 +16,6 @@ l2chains = [
   gasLimits = [
     { chainId = 291, gasLimit = 100000000 },
     { chainId = 1750, gasLimit = 100000000 },
-    { chainId = 8453, gasLimit = 100000000 },
     { chainId = 10, gasLimit = 100000000 },
     { chainId = 7777777, gasLimit = 100000000 },
     { chainId = 480, gasLimit = 100000000 },
