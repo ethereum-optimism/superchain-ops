@@ -22,8 +22,8 @@ cannonKonaPrestate = "0x03a70000000000000000000000000000000000000000000000000000
 [migrate]
 expectedValidationErrors = ""
 initBond = 80000000000000000
-startingAnchorRootL2SequenceNumber = 0
-startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1778004858
+startingAnchorRootRoot = "0xc212da871d761b597a3c1531bff571351c974432bdedd1eb67f4e181eb9f49ef"
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
 superChallenger = "0x293204BfA7f28C4A4275B377cCAFd525d2225D37"
 superProposer = "0x000C245B7A2E946C9eeE6b488f1Da07AF15AD4f4"
