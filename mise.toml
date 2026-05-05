@@ -18,7 +18,7 @@ forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
 cast = "v1.1.0"
 anvil = "v1.1.0"
 
-[alias]
+[tool_alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"
 cast = "ubi:foundry-rs/foundry[exe=cast]"
 anvil = "ubi:foundry-rs/foundry[exe=anvil]"
