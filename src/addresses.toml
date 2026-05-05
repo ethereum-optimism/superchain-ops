@@ -2,6 +2,7 @@
 SuperchainConfig = "0x95703e0982140D16f8ebA6d158FccEde42f04a4C"
 ProtocolVersions = "0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
 DeputyGuardianModule = "0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B"
+DeputyPauseModule = "0x76fC2F971FB355D0453cF9F64d3F9E4f640E1754"
 FoundationUpgradeSafe = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
 SecurityCouncil = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
 LivenessGuard = "0x24424336F04440b1c28685a38303aC33C9D14a25" # LivenessGuard on security council
