@@ -85,8 +85,10 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
 
         assertEq(migrateParams.expectedValidationErrors, "");
         assertEq(migrateParams.initBond, 0.08 ether);
-        assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 0);
-        assertEq(migrateParams.startingAnchorRootRoot, bytes32(uint256(0xdead) << 240));
+        assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 1778004858);
+        assertEq(
+            migrateParams.startingAnchorRootRoot, 0xc212da871d761b597a3c1531bff571351c974432bdedd1eb67f4e181eb9f49ef
+        );
         assertEq(uint256(migrateParams.startingRespectedGameType), 9);
         assertEq(migrateParams.superProposer, 0x000c245B7a2e946C9EeE6b488f1Da07aF15Ad4f4);
         assertEq(migrateParams.superChallenger, 0x293204BFA7f28C4A4275b377CcAFd525d2225D37);
