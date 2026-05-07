@@ -81,7 +81,11 @@ contract OPCMMigrateV800 is OPCMTaskBase {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
-    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
+    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
+        string[] memory balanceChanges = new string[](1);
+        balanceChanges[0] = "EthLockboxProxy";
+        return balanceChanges;
+    }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
