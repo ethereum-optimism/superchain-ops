@@ -22,9 +22,11 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///     to `address(0)` so no new `CANNON` (op-program) games can be created post-upgrade.
 ///     Existing `CANNON` instances are unaffected (their impl is bytecode-bound at game
 ///     creation) and can still resolve to completion.
-///   - Rewires `PERMISSIONED_CANNON` (1) to its v7.1.17 impl on chains that currently
-///     run it. Permissioned games created pre-upgrade are unaffected; new permissioned
-///     games will be created against the new impl.
+///   - Rewires `PERMISSIONED_CANNON` (1) to its v7.1.17 impl on every chain — installed
+///     fresh if the slot wasn't live, rewired if it was. Permissioned games created
+///     pre-upgrade are unaffected; new permissioned games will be created against the
+///     new impl. This guarantees every U19 chain has a permissioned fallback game
+///     available for emergency rollback.
 ///   - Does NOT touch super-root or super game types — the deployed v7.1.17 OPCM ships
 ///     `address(0)` for `superFaultDisputeGameImpl`, `superPermissionedDisputeGameImpl`,
 ///     and `zkDisputeGameImpl`. Those slots stay disabled in this upgrade.
@@ -201,6 +203,14 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// @dev
     ///   - `CANNON_KONA`: always enabled. This is what U19 introduces — `kona-client`
     ///     becomes the primary FPVM and the new respected game type.
+    ///   - `PERMISSIONED_CANNON`: always enabled. Every U19 chain wants a permissioned
+    ///     fallback game live — both for emergency rollback (if Kona has issues, the
+    ///     Guardian can flip respected back to PERMISSIONED_CANNON) and as the canonical
+    ///     game on permissioned-only betanets. The OPCM rewires `gameImpls[1]` to the
+    ///     v7.1.17 `PermissionedDisputeGame` impl with the supplied `cannonPrestate` and
+    ///     `(proposer, challenger)`. Pre-upgrade game instances continue to resolve
+    ///     against their old bytecode-bound impl. This requires `Proposer` and
+    ///     `Challenger` to be registered for the chain (they are for every real chain).
     ///   - `CANNON`: always **disabled**. U19 retires `op-program` as a fault-proof
     ///     program; new CANNON games must not be creatable. Because OPCMv2 turns a
     ///     `disabled` slot into `setImplementation(gameType, 0, "")` on the
@@ -209,18 +219,12 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///     CANNON game instances are unaffected (their impl is bytecode-bound at game
     ///     creation time) so they can still resolve to completion; only new CANNON games
     ///     are blocked from being created.
-    ///   - `PERMISSIONED_CANNON`: enabled iff the chain currently has it registered. The
-    ///     OPCM rewires the slot's impl to the v7.1.17 PermissionedDisputeGame, which
-    ///     keeps the permissioned path available on permissioned-only chains
-    ///     (e.g. u19 betanets) without disabling games created pre-upgrade.
     ///   - `SUPER_CANNON`, `SUPER_PERMISSIONED_CANNON`, `SUPER_CANNON_KONA`,
     ///     `ZK_DISPUTE_GAME`: always disabled. The v7.1.17 OPCM container ships
     ///     `address(0)` for these impls; they belong to a later release, not U19.
-    function _isEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
+    function _isEnabled(IDisputeGameFactory, uint32 gt) internal pure returns (bool) {
         if (gt == CANNON_KONA) return true;
-        if (gt == PERMISSIONED_CANNON) {
-            return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
-        }
+        if (gt == PERMISSIONED_CANNON) return true;
         // CANNON: explicitly disabled (Paul / U19 thread). SUPER_*, ZK: not in U19.
         return false;
     }
@@ -233,15 +237,14 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///       `abi.encode(absolutePrestate, proposer, challenger)`
     /// CANNON_KONA uses `cannonKonaPrestate` (Kona-built); the others use `cannonPrestate`.
     function _gameConfig(
-        IDisputeGameFactory factory,
         address proposer,
         address challenger,
         uint32 gt,
         bytes32 cannonPre,
         bytes32 cannonKonaPre,
         uint256 bond
-    ) internal view returns (IOPContractsManagerV700.DisputeGameConfig memory) {
-        bool enabled = _isEnabled(factory, gt);
+    ) internal pure returns (IOPContractsManagerV700.DisputeGameConfig memory) {
+        bool enabled = _isEnabled(IDisputeGameFactory(address(0)), gt);
         bytes memory args;
         if (enabled) {
             bytes32 prestate = (gt == CANNON_KONA) ? cannonKonaPre : cannonPre;
@@ -262,8 +265,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         view
         returns (IOPContractsManagerV700.DisputeGameConfig[] memory configs)
     {
-        IDisputeGameFactory factory =
-            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
         address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
         address challenger = superchainAddrRegistry.getAddress("Challenger", chainId);
 
@@ -285,7 +286,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         ];
         configs = new IOPContractsManagerV700.DisputeGameConfig[](7);
         for (uint256 i = 0; i < 7; i++) {
-            configs[i] = _gameConfig(factory, proposer, challenger, gts[i], cannonPre, cannonKonaPre, bond);
+            configs[i] = _gameConfig(proposer, challenger, gts[i], cannonPre, cannonKonaPre, bond);
         }
     }
 
