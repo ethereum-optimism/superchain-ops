@@ -1,12 +1,11 @@
-# Upgrade 19 ("Kona") example task on the u19-beta-0 betanet (Sepolia L1).
+# Upgrade 19 example task on the u19-beta-0 betanet (Sepolia L1).
 #
 # What this task does (per https://docs.optimism.io/notices/upgrade-19):
 #   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for the chain.
 #   - Rotates the chain's respected dispute game type to CANNON_KONA (8) — kona-client
 #     becomes the primary FPVM. Pre-upgrade games keep their existing impls so they
 #     can resolve.
-#   - Does NOT touch super-root or ZK game types (the v7.1.17 OPCM ships zero impls
-#     for those).
+#   - Does NOT touch super-root or ZK game types.
 #
 # Betanet chains are not in the public superchain-registry, so we point
 # `fallbackAddressesJsonPath` at a sibling addresses.json populated from the betanet's

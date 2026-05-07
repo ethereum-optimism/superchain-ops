@@ -11,9 +11,9 @@ import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice Upgrade 19 ("Kona") OPCM template — targets op-contracts/v7.1.17 (OPCMv2).
+/// @notice Upgrade 19 OPCM template — targets op-contracts/v7.1.17 (OPCMv2).
 ///
-/// What U19 actually does (per https://docs.optimism.io/notices/upgrade-19):
+/// U19 does:
 ///   - Rotates the **respected game type** to `CANNON_KONA` (8). The Rust-based
 ///     `kona-client` becomes the primary fault-proof program.
 ///   - Installs the `CANNON_KONA` (8) game in the `DisputeGameFactory` with the new
@@ -21,8 +21,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///   - **Disables `CANNON` (0) in the `DisputeGameFactory`** — sets `gameImpls[CANNON]`
 ///     to `address(0)` so no new `CANNON` (op-program) games can be created post-upgrade.
 ///     Existing `CANNON` instances are unaffected (their impl is bytecode-bound at game
-///     creation) and can still resolve to completion. Per Paul on the U19 thread; on a
-///     chain that didn't have `CANNON` live (most betanets) this is a no-op.
+///     creation) and can still resolve to completion.
 ///   - Rewires `PERMISSIONED_CANNON` (1) to its v7.1.17 impl on chains that currently
 ///     run it. Permissioned games created pre-upgrade are unaffected; new permissioned
 ///     games will be created against the new impl.
@@ -39,7 +38,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///      rewires the dispute games via `setImplementation` + `setInitBond`.
 /// Both calls go through Multicall3DelegateCall via `OPCMTaskBase`.
 ///
-/// Inputs to `OPCM.upgrade(UpgradeInput)` are not negotiable:
+/// Inputs to `OPCM.upgrade(UpgradeInput)` are:
 ///   - `disputeGameConfigs` MUST contain exactly 7 entries in this fixed insertion order
 ///       [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_CANNON, SUPER_PERMISSIONED_CANNON,
 ///        SUPER_CANNON_KONA, ZK_DISPUTE_GAME]
@@ -95,7 +94,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// L1ProxyAdminOwner / Challenger (typical on betanets).
     IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
-    /* ---------- GameType IDs (op-contracts/v7.1.x GameTypes.sol) ---------- */
+    /* ---------- GameType IDs (op-contracts/v7.0.0 GameTypes.sol) ---------- */
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
     uint32 internal constant SUPER_CANNON = 4;
