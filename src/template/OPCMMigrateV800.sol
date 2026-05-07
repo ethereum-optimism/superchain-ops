@@ -10,7 +10,7 @@ import {LibString} from "solady/utils/LibString.sol";
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {IOPContractsManagerV700, ISystemConfig} from "src/template/OPCMUpgradeV700.sol";
+import {IOPContractsManagerV800, ISystemConfig} from "src/template/OPCMUpgradeV800.sol";
 
 /// @notice A template contract for driving OPCM.migrate(...) from superchain-ops.
 /// Supports: op-contracts/v7.1.16 (OPCM with OPContractsManagerMigrator wired in).
@@ -52,7 +52,7 @@ contract OPCMMigrateV800 is OPCMTaskBase {
     /// @notice Expected OPCM version for the configured migration fixture.
     string public expectedOPCMVersion;
 
-    IOPContractsManagerV700 public opcm;
+    IOPContractsManagerV800 public opcm;
     IOPContractsManagerStandardValidatorMigrate public standardValidator;
     IOPContractsManagerMigrationValidator public migrationValidator;
 
@@ -171,13 +171,13 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             }
         }
 
-        // TODO: The V700 upgrade template etches code at EOA slots that are rewritten during
+        // TODO: The V800 upgrade template etches code at EOA slots that are rewritten during
         // SystemConfig reinitialization. Migrate does not reinitialize SystemConfig, so the hack
         // may not be needed. Revisit once a v7.1.16 OPCM with migrator is available and we see
         // whether migrate() writes to any storage slot that previously held an EOA.
 
         // OPCM from TOML; version must match the fixture's expected deployment.
-        opcm = IOPContractsManagerV700(tomlContent.readAddress(".addresses.OPCM"));
+        opcm = IOPContractsManagerV800(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
         expectedOPCMVersion = tomlContent.readString(".expectedOPCMVersion");
         require(opcm.version().eq(expectedOPCMVersion), "OPCMMigrateV800: unexpected OPCM version");
@@ -199,20 +199,20 @@ contract OPCMMigrateV800 is OPCMTaskBase {
     /// @dev Migration deploys a single shared DGF used by every migrated chain, so we only emit
     /// entries for super-game types: SUPER_PERMISSIONED_CANNON (5) and SUPER_CANNON_KONA (9).
     /// SUPER_CANNON (4) is intentionally not enabled — see TODO(#20030) in OPContractsManagerMigrator.
-    function _buildSharedGameConfigs() internal view returns (IOPContractsManagerV700.DisputeGameConfig[] memory) {
+    function _buildSharedGameConfigs() internal view returns (IOPContractsManagerV800.DisputeGameConfig[] memory) {
         bytes32 cannonPre = Claim.unwrap(migrations[chainsToMigrate[0]].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate);
 
-        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](2);
+        IOPContractsManagerV800.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV800.DisputeGameConfig[](2);
 
-        cfgs[0] = IOPContractsManagerV700.DisputeGameConfig({
+        cfgs[0] = IOPContractsManagerV800.DisputeGameConfig({
             enabled: true,
             initBond: migrateParams.initBond,
             gameType: SUPER_PERMISSIONED_CANNON,
             gameArgs: abi.encode(cannonPre, migrateParams.superProposer, migrateParams.superChallenger)
         });
 
-        cfgs[1] = IOPContractsManagerV700.DisputeGameConfig({
+        cfgs[1] = IOPContractsManagerV800.DisputeGameConfig({
             enabled: true,
             initBond: migrateParams.initBond,
             gameType: SUPER_CANNON_KONA,
@@ -332,7 +332,7 @@ struct Proposal {
 interface IOPContractsManagerMigrator {
     struct MigrateInput {
         ISystemConfig[] chainSystemConfigs;
-        IOPContractsManagerV700.DisputeGameConfig[] disputeGameConfigs;
+        IOPContractsManagerV800.DisputeGameConfig[] disputeGameConfigs;
         Proposal startingAnchorRoot;
         GameType startingRespectedGameType;
     }

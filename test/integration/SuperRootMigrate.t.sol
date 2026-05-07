@@ -6,12 +6,12 @@ import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {
-    IOPContractsManagerV700,
+    IOPContractsManagerV800,
     ISuperchainConfig,
     IDisputeGameFactory,
     ISystemConfig,
-    ISystemConfigV700
-} from "src/template/OPCMUpgradeV700.sol";
+    ISystemConfigV800
+} from "src/template/OPCMUpgradeV800.sol";
 import {OPCMMigrateV800} from "src/template/OPCMMigrateV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
@@ -70,7 +70,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         ISystemConfig[] memory sysCfgs = _chainSystemConfigs();
         assertEq(sysCfgs.length, chains.length);
 
-        IOPContractsManagerV700.DisputeGameConfig[] memory configs = _buildSharedGameConfigs();
+        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildSharedGameConfigs();
         assertEq(configs.length, 2);
 
         // SUPER_PERMISSIONED_CANNON (5) — permissioned triple.
@@ -162,13 +162,13 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     }
 
     function _upgradeChainFirst() internal {
-        IOPContractsManagerV700 upgradeOpcm = opcm;
+        IOPContractsManagerV800 upgradeOpcm = opcm;
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
-            ISystemConfigV700 sysCfg =
-                ISystemConfigV700(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
+            ISystemConfigV800 sysCfg =
+                ISystemConfigV800(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
             address[4] memory candidates = [
                 sysCfg.owner(),
                 sysCfg.unsafeBlockSigner(),
@@ -191,11 +191,11 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             target: address(upgradeOpcm),
             allowFailure: false,
             callData: abi.encodeCall(
-                IOPContractsManagerV700.upgradeSuperchain,
+                IOPContractsManagerV800.upgradeSuperchain,
                 (
-                    IOPContractsManagerV700.SuperchainUpgradeInput({
+                    IOPContractsManagerV800.SuperchainUpgradeInput({
                         superchainConfig: ISuperchainConfig(sc),
-                        extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
+                        extraInstructions: new IOPContractsManagerV800.ExtraInstruction[](0)
                     })
                 )
             )
@@ -207,8 +207,8 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
                 target: address(upgradeOpcm),
                 allowFailure: false,
                 callData: abi.encodeWithSelector(
-                    IOPContractsManagerV700.upgrade.selector,
-                    IOPContractsManagerV700.UpgradeInput({
+                    IOPContractsManagerV800.upgrade.selector,
+                    IOPContractsManagerV800.UpgradeInput({
                         systemConfig: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
                         disputeGameConfigs: _buildUpgradeGameConfigs(chainId),
                         extraInstructions: _buildUpgradeExtraInstructions()
@@ -254,13 +254,13 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             payable(address(0)),
             signatures
         );
-        require(success, "V700 upgrade failed");
+        require(success, "V800 upgrade failed");
     }
 
     function _buildUpgradeGameConfigs(uint256 chainId)
         internal
         view
-        returns (IOPContractsManagerV700.DisputeGameConfig[] memory)
+        returns (IOPContractsManagerV800.DisputeGameConfig[] memory)
     {
         IDisputeGameFactory factory =
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
@@ -272,7 +272,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         uint256 bond = migrateParams.initBond;
 
         // V2 validation requires exactly 7 entries in this fixed positional order.
-        IOPContractsManagerV700.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV700.DisputeGameConfig[](7);
+        IOPContractsManagerV800.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV800.DisputeGameConfig[](7);
         uint32[7] memory gts = [
             CANNON,
             PERMISSIONED_CANNON,
@@ -293,7 +293,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
                 bytes32 prestate = isKona ? cannonKonaPre : cannonPre;
                 gameArgs = isPermissioned ? abi.encode(prestate, proposer, challenger) : abi.encode(prestate);
             }
-            cfgs[i] = IOPContractsManagerV700.DisputeGameConfig({
+            cfgs[i] = IOPContractsManagerV800.DisputeGameConfig({
                 enabled: enabled,
                 initBond: enabled ? bond : 0,
                 gameType: gt,
@@ -316,12 +316,12 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     function _buildUpgradeExtraInstructions()
         internal
         pure
-        returns (IOPContractsManagerV700.ExtraInstruction[] memory)
+        returns (IOPContractsManagerV800.ExtraInstruction[] memory)
     {
-        IOPContractsManagerV700.ExtraInstruction[] memory extras = new IOPContractsManagerV700.ExtraInstruction[](2);
+        IOPContractsManagerV800.ExtraInstruction[] memory extras = new IOPContractsManagerV800.ExtraInstruction[](2);
         extras[0] =
-            IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
-        extras[1] = IOPContractsManagerV700.ExtraInstruction({
+            IOPContractsManagerV800.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
+        extras[1] = IOPContractsManagerV800.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
             data: abi.encode(SUPER_PERMISSIONED_CANNON)
         });

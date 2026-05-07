@@ -62,12 +62,12 @@ simulate-all-templates:
                 continue
             fi
 
-            # OPCMMigrateV800 requires the target chain to already be upgraded to V700/Super Root.
+            # OPCMMigrateV800 requires the target chain to already be upgraded to V800/Super Root.
             # The raw example task simulation forks current chain state and cannot perform that
             # prerequisite upgrade before invoking migrate. Coverage lives in SuperRootMigrateTest,
             # which forks Sepolia, upgrades the chain, then runs migrate in the same forked state.
             if [ "$task_name" = "036-opcm-migrate-v800" ]; then
-                echo "Skipping $task_name (requires pre-upgraded V700/Super Root chain state)"
+                echo "Skipping $task_name (requires pre-upgraded V800/Super Root chain state)"
                 continue
             fi
 
