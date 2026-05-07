@@ -34,6 +34,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
     uint32 internal constant CANNON_KONA = 8;
+    uint32 internal constant RESERVED_SUPER_CANNON_GAME_TYPE = 4;
     uint32 internal constant ZK_DISPUTE_GAME = 10;
 
     function setUp() public {
@@ -275,7 +276,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             CANNON,
             PERMISSIONED_CANNON,
             CANNON_KONA,
-            SUPER_CANNON,
+            RESERVED_SUPER_CANNON_GAME_TYPE,
             SUPER_PERMISSIONED_CANNON,
             SUPER_CANNON_KONA,
             ZK_DISPUTE_GAME
@@ -303,7 +304,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
 
     function _isUpgradeGameTypeEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
         if (gt == CANNON || gt == PERMISSIONED_CANNON || gt == CANNON_KONA || gt == ZK_DISPUTE_GAME) return false;
-        if (gt == SUPER_CANNON) return false;
+        if (gt == RESERVED_SUPER_CANNON_GAME_TYPE) return false;
         if (gt == SUPER_PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
