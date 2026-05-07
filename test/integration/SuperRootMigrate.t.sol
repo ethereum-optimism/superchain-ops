@@ -57,7 +57,6 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         }
 
         assertEq(chainsToMigrate[0], CHAIN_ID);
-        assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonPrestate), bytes32(uint256(0xdead) << 240));
         assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
         assertEq(migrateParams.expectedValidationErrors, "");
         assertEq(expectedOPCMVersion, "7.1.16");
@@ -79,7 +78,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         assertEq(configs[0].initBond, migrateParams.initBond);
         (bytes32 permPrestate, address proposer, address challenger) =
             abi.decode(configs[0].gameArgs, (bytes32, address, address));
-        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_ID].cannonPrestate));
+        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate));
         assertEq(proposer, migrateParams.superProposer);
         assertEq(challenger, migrateParams.superChallenger);
 
@@ -267,7 +266,6 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         address proposer = superchainAddrRegistry.getAddress("Proposer", chainId);
         address challenger = superchainAddrRegistry.getAddress("Challenger", chainId);
 
-        bytes32 cannonPre = Claim.unwrap(migrations[chainId].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(migrations[chainId].cannonKonaPrestate);
         uint256 bond = migrateParams.initBond;
 
@@ -290,7 +288,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             if (enabled) {
                 bool isPermissioned = gt == PERMISSIONED_CANNON || gt == SUPER_PERMISSIONED_CANNON;
                 bool isKona = gt == CANNON_KONA || gt == SUPER_CANNON_KONA;
-                bytes32 prestate = isKona ? cannonKonaPre : cannonPre;
+                bytes32 prestate = isKona || isPermissioned ? cannonKonaPre : bytes32(0);
                 gameArgs = isPermissioned ? abi.encode(prestate, proposer, challenger) : abi.encode(prestate);
             }
             cfgs[i] = IOPContractsManagerV800.DisputeGameConfig({
@@ -305,7 +303,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
 
     function _isUpgradeGameTypeEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
         if (gt == CANNON || gt == PERMISSIONED_CANNON || gt == CANNON_KONA || gt == ZK_DISPUTE_GAME) return false;
-        if (gt == SUPER_CANNON) return address(factory.gameImpls(GameType.wrap(CANNON))) != address(0);
+        if (gt == SUPER_CANNON) return false;
         if (gt == SUPER_PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
