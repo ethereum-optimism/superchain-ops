@@ -65,7 +65,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo "  just simulate-stack eth                                      # All tasks"
         echo "  just simulate-stack eth 001-example                          # Specific task"
         echo "  just simulate-stack eth 001-example foundation               # On child safe"
-        echo "  just simulate-stack eth 001-example base-nested base-council # Multiple child safes"
+        echo "  just simulate-stack eth 001-example foundation council       # Multiple child safes"
         echo "  just simulate-stack eth rehearsals                           # All rehearsal tasks"
         echo "  just simulate-stack eth rehearsals/2025-01-08-R1-welcome     # Specific rehearsal task"
         echo "  just simulate-stack eth rehearsals/2025-01-08-R3 council     # Rehearsal with nested safe"
@@ -246,14 +246,14 @@ list-stack NETWORK="" TASK="":
 # Example of 'depth' as a concept when using nested safes:
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
-#  │ e.g. 'base-council'│
+#  │    e.g. council    │
 #  └────────────────────┘      
 #             │                
 #             └─────────────────┬
 #                               ▼     
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
-#                           │  e.g. 'base-nested'│
+#                           │  e.g. foundation   │
 #                           └────────────────────┘
 #                                      │          
 #                                      └──────────┬
