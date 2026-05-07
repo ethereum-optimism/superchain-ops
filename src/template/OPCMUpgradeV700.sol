@@ -16,8 +16,16 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// What U19 actually does (per https://docs.optimism.io/notices/upgrade-19):
 ///   - Rotates the **respected game type** to `CANNON_KONA` (8). The Rust-based
 ///     `kona-client` becomes the primary fault-proof program.
-///   - Keeps `CANNON` (0) and `PERMISSIONED_CANNON` (1) impls available so any games
-///     created before the upgrade can still resolve. We do NOT disable them.
+///   - Installs the `CANNON_KONA` (8) game in the `DisputeGameFactory` with the new
+///     Kona prestate.
+///   - **Disables `CANNON` (0) in the `DisputeGameFactory`** — sets `gameImpls[CANNON]`
+///     to `address(0)` so no new `CANNON` (op-program) games can be created post-upgrade.
+///     Existing `CANNON` instances are unaffected (their impl is bytecode-bound at game
+///     creation) and can still resolve to completion. Per Paul on the U19 thread; on a
+///     chain that didn't have `CANNON` live (most betanets) this is a no-op.
+///   - Rewires `PERMISSIONED_CANNON` (1) to its v7.1.17 impl on chains that currently
+///     run it. Permissioned games created pre-upgrade are unaffected; new permissioned
+///     games will be created against the new impl.
 ///   - Does NOT touch super-root or super game types — the deployed v7.1.17 OPCM ships
 ///     `address(0)` for `superFaultDisputeGameImpl`, `superPermissionedDisputeGameImpl`,
 ///     and `zkDisputeGameImpl`. Those slots stay disabled in this upgrade.
@@ -98,8 +106,12 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice Registry identifiers expected to receive storage writes during the task.
     /// Used by L2TaskBase for state-diff assertions.
+    /// @dev `PermissionlessWETH` is included so the template stays safe on permissionless
+    /// chains too. Permissioned-only chains that don't register that identifier just
+    /// emit a `[WARN]` from `_tryAddAddress` and continue (the parent's lookup is
+    /// `try`/`catch`); cost is one log line at simulation start.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory writes = new string[](14);
+        string[] memory writes = new string[](15);
         writes[0] = "SuperchainConfig";
         writes[1] = "ProtocolVersions";
         writes[2] = "DisputeGameFactoryProxy";
@@ -113,7 +125,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         writes[10] = "ProxyAdminOwner";
         writes[11] = "AnchorStateRegistryProxy";
         writes[12] = "PermissionedWETH";
-        writes[13] = "EthLockboxProxy";
+        writes[13] = "PermissionlessWETH";
+        writes[14] = "EthLockboxProxy";
         return writes;
     }
 
@@ -189,21 +202,27 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// @dev
     ///   - `CANNON_KONA`: always enabled. This is what U19 introduces — `kona-client`
     ///     becomes the primary FPVM and the new respected game type.
-    ///   - `CANNON` and `PERMISSIONED_CANNON`: enabled iff the chain currently has them
-    ///     registered. We don't reset live impls to zero on chains that are using them
-    ///     (e.g. permissionless chains keep CANNON; permissioned chains keep
-    ///     PERMISSIONED_CANNON). On chains that don't run them, we leave the slot
-    ///     disabled rather than installing a fresh game post-upgrade.
+    ///   - `CANNON`: always **disabled**. U19 retires `op-program` as a fault-proof
+    ///     program; new CANNON games must not be creatable. Because OPCMv2 turns a
+    ///     `disabled` slot into `setImplementation(gameType, 0, "")` on the
+    ///     `DisputeGameFactory`, the on-chain `gameImpls[CANNON]` ends up at `address(0)`
+    ///     post-upgrade — this is the explicit ask from Paul on the U19 thread. Existing
+    ///     CANNON game instances are unaffected (their impl is bytecode-bound at game
+    ///     creation time) so they can still resolve to completion; only new CANNON games
+    ///     are blocked from being created.
+    ///   - `PERMISSIONED_CANNON`: enabled iff the chain currently has it registered. The
+    ///     OPCM rewires the slot's impl to the v7.1.17 PermissionedDisputeGame, which
+    ///     keeps the permissioned path available on permissioned-only chains
+    ///     (e.g. u19 betanets) without disabling games created pre-upgrade.
     ///   - `SUPER_CANNON`, `SUPER_PERMISSIONED_CANNON`, `SUPER_CANNON_KONA`,
-    ///     `ZK_DISPUTE_GAME`: always disabled. The v7.1.17 OPCM ships `address(0)` for
-    ///     these impls; they are not part of U19 (super-root and ZK come in a later
-    ///     release).
+    ///     `ZK_DISPUTE_GAME`: always disabled. The v7.1.17 OPCM container ships
+    ///     `address(0)` for these impls; they belong to a later release, not U19.
     function _isEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
         if (gt == CANNON_KONA) return true;
-        if (gt == CANNON) return address(factory.gameImpls(GameType.wrap(CANNON))) != address(0);
         if (gt == PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
+        // CANNON: explicitly disabled (Paul / U19 thread). SUPER_*, ZK: not in U19.
         return false;
     }
 
