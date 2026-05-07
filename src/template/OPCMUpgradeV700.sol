@@ -11,32 +11,45 @@ import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice U19 OPCM upgrade template targeting op-contracts/v7.1.17.
+/// @notice Upgrade 19 ("Kona") OPCM template — targets op-contracts/v7.1.17 (OPCMv2).
 ///
-/// Chain-agnostic: works for permissioned-only chains (only PERMISSIONED_CANNON live,
-/// e.g. u19 betanets), permissionless chains (CANNON / SUPER_CANNON live, e.g. OP
-/// Sepolia post-superroot), or both. Each `SUPER_*` variant in the post-upgrade
-/// `DisputeGameConfig[]` is enabled iff its pre-super counterpart is currently
-/// registered in the chain's `DisputeGameFactory`; the rest stay disabled. The example
-/// task at `test/tasks/example/sep/037-opcm-upgrade-v700` exercises the permissioned-
-/// only path on u19-beta-0.
+/// What U19 actually does (per https://docs.optimism.io/notices/upgrade-19):
+///   - Rotates the **respected game type** to `CANNON_KONA` (8). The Rust-based
+///     `kona-client` becomes the primary fault-proof program.
+///   - Keeps `CANNON` (0) and `PERMISSIONED_CANNON` (1) impls available so any games
+///     created before the upgrade can still resolve. We do NOT disable them.
+///   - Does NOT touch super-root or super game types — the deployed v7.1.17 OPCM ships
+///     `address(0)` for `superFaultDisputeGameImpl`, `superPermissionedDisputeGameImpl`,
+///     and `zkDisputeGameImpl`. Those slots stay disabled in this upgrade.
 ///
-/// V7.1.x is the "OPCMv2" architecture: the upgrade path is split in two.
-///   1. `upgradeSuperchain(SuperchainUpgradeInput)` is called once and bumps the shared
-///      SuperchainConfig + ProtocolVersions state.
-///   2. `upgrade(UpgradeInput)` is called once per L2 and rewires SystemConfig, the
-///      dispute game stack (seven game-type slots), and registers the EthLockbox.
-/// Both calls are delegated through Multicall3DelegateCall by `OPCMTaskBase`.
+/// Mechanics: the v7.1.17 OPCM (a.k.a. "OPCMv2") splits its API in two:
+///   1. `upgradeSuperchain(SuperchainUpgradeInput)` — once per task, re-initialises the
+///      shared SuperchainConfig.
+///   2. `upgrade(UpgradeInput)` — once per L2, re-initialises the chain stack
+///      (SystemConfig, OptimismPortal, ETHLockbox, L1{CDM,SB,ERC721Bridge}, OptimismMint
+///      ableERC20Factory, DisputeGameFactory, DelayedWETH, AnchorStateRegistry) and
+///      rewires the dispute games via `setImplementation` + `setInitBond`.
+/// Both calls go through Multicall3DelegateCall via `OPCMTaskBase`.
 ///
-/// Designed to work with chains that are NOT in the public superchain-registry.
-/// Such chains (e.g. u19 betanets) supply addresses via `fallbackAddressesJsonPath` in
-/// the task TOML — `SuperchainAddressRegistry` reads that file when a chain is missing
-/// from `lib/superchain-registry/.../addresses.json`. The template makes no
-/// assumptions about which JSON the addresses come from.
+/// Inputs to `OPCM.upgrade(UpgradeInput)` are not negotiable:
+///   - `disputeGameConfigs` MUST contain exactly 7 entries in this fixed insertion order
+///       [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_CANNON, SUPER_PERMISSIONED_CANNON,
+///        SUPER_CANNON_KONA, ZK_DISPUTE_GAME]
+///     anything else reverts with `OPContractsManagerV2_InvalidGameConfigs()`.
+///   - For each entry: `enabled=true` rewires `gameImpls[gameType]` to the impl held in
+///     the OPCM's container (with the supplied prestate); `enabled=false` clears it.
+///   - `extraInstructions` carries the `startingRespectedGameType` override the OPCM
+///     uses to pin `AnchorStateRegistry.respectedGameType` (must point at one of the
+///     enabled slots).
+/// Source: https://github.com/ethereum-optimism/optimism/blob/feat/cannon-kona-make-default/packages/contracts-bedrock/src/L1/opcm/OPContractsManagerV2.sol
 ///
-/// Per-chain config is decoded from `[[opcmUpgrades]]` rows. Solidity's `abi.decode`
-/// on `parseRaw` requires the struct fields to be in alphabetical order — that is the
-/// only reason `OPCMUpgrade` looks the way it does.
+/// Chain-agnostic: the example task at `test/tasks/example/sep/037-opcm-upgrade-v700`
+/// runs against the permissioned-only u19-beta-0 betanet, but the template itself
+/// works on any chain — currently-registered pre-superroot game types are kept
+/// enabled (so we don't reset live impls to zero on permissionless chains).
+///
+/// Designed to work with chains that are NOT in the public superchain-registry. Such
+/// chains supply addresses via `fallbackAddressesJsonPath` in the task TOML.
 contract OPCMUpgradeV700 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -44,6 +57,15 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice Per-chain inputs.
     /// @dev Field order MUST be alphabetical (forge-std TOML decoder constraint).
+    /// @dev `startingRespectedGameType` is the **post-upgrade** value to write into
+    ///      `AnchorStateRegistry.respectedGameType`. The "starting" prefix is a name
+    ///      leak from the OPCM's `FullConfig` deploy struct — on the upgrade path it
+    ///      is not a "start from zero" value, it is a SET. Whatever the chain's current
+    ///      respected game type is (could be 0, 1, anything), the OPCM uses this value
+    ///      via the `overrides.cfg.startingRespectedGameType` extraInstruction and
+    ///      writes it directly into the registry. For U19 this is always 8 (CANNON_KONA).
+    ///      Must correspond to an `enabled=true` slot in `disputeGameConfigs` or the
+    ///      OPCM reverts with `OPContractsManagerV2_InvalidGameConfigs`.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
         Claim cannonPrestate;
@@ -65,7 +87,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// L1ProxyAdminOwner / Challenger (typical on betanets).
     IOPContractsManagerStandardValidator public STANDARD_VALIDATOR;
 
-    /* ---------- GameType constants (op-contracts/v7.1.x GameTypes.sol) ---------- */
+    /* ---------- GameType IDs (op-contracts/v7.1.x GameTypes.sol) ---------- */
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
     uint32 internal constant SUPER_CANNON = 4;
@@ -75,10 +97,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     uint32 internal constant ZK_DISPUTE_GAME = 10;
 
     /// @notice Registry identifiers expected to receive storage writes during the task.
-    /// Used by the OPCMTaskBase / L2TaskBase parent for state-diff assertions.
-    /// @dev `PermissionlessWETH` is intentionally absent: this template targets the U19
-    /// upgrade path on permissioned-only chains. Add it back if a permissionless-enabled
-    /// chain is included.
+    /// Used by L2TaskBase for state-diff assertions.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory writes = new string[](14);
         writes[0] = "SuperchainConfig";
@@ -104,11 +123,10 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// @notice Allowlist storage writes for the upgrade.
     /// @dev L2TaskBase's default `_setAllowedStorageAccesses` calls `addrRegistry.get(key)`
     /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
-    /// like "SuperchainConfig" and "ProtocolVersions", `get(key)` resolves against the
+    /// like `SuperchainConfig` and `ProtocolVersions`, `get(key)` resolves against the
     /// sentinel-chain entries hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet
-    /// values), so the betanet-specific addresses never make it into the allowlist. We
-    /// re-add them explicitly per chain after super runs so betanet upgrades pass the
-    /// post-execution storage-access check.
+    /// values), so betanet-specific addresses never make it into the allowlist. We re-add
+    /// them explicitly per chain so betanet upgrades pass the post-execution check.
     function _setAllowedStorageAccesses() internal virtual override {
         super._setAllowedStorageAccesses();
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -167,25 +185,35 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /* ---------- DisputeGameConfig builders ---------- */
 
-    /// @notice Should the OPCM enable / re-init `gt` for `factory`?
-    /// @dev Pre-superroot game types (CANNON / PERMISSIONED_CANNON / CANNON_KONA) are
-    /// never re-enabled — they are deprecated in favour of their SUPER_* variants. Each
-    /// SUPER_* variant is enabled iff its pre-super counterpart is currently registered
-    /// in the factory; that lets the same template upgrade permissioned-only chains
-    /// (only SUPER_PERMISSIONED_CANNON enabled) and permissionless chains (also
-    /// SUPER_CANNON / SUPER_CANNON_KONA, depending on what's live). ZK_DISPUTE_GAME stays
-    /// disabled — the OPCM gates it behind a dev feature flag and U19 doesn't ship a ZK
-    /// prestate.
+    /// @notice U19-specific enabled-flag policy for each of the 7 OPCMv2 game-type slots.
+    /// @dev
+    ///   - `CANNON_KONA`: always enabled. This is what U19 introduces — `kona-client`
+    ///     becomes the primary FPVM and the new respected game type.
+    ///   - `CANNON` and `PERMISSIONED_CANNON`: enabled iff the chain currently has them
+    ///     registered. We don't reset live impls to zero on chains that are using them
+    ///     (e.g. permissionless chains keep CANNON; permissioned chains keep
+    ///     PERMISSIONED_CANNON). On chains that don't run them, we leave the slot
+    ///     disabled rather than installing a fresh game post-upgrade.
+    ///   - `SUPER_CANNON`, `SUPER_PERMISSIONED_CANNON`, `SUPER_CANNON_KONA`,
+    ///     `ZK_DISPUTE_GAME`: always disabled. The v7.1.17 OPCM ships `address(0)` for
+    ///     these impls; they are not part of U19 (super-root and ZK come in a later
+    ///     release).
     function _isEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
-        if (gt == SUPER_CANNON) return address(factory.gameImpls(GameType.wrap(CANNON))) != address(0);
-        if (gt == SUPER_PERMISSIONED_CANNON) {
+        if (gt == CANNON_KONA) return true;
+        if (gt == CANNON) return address(factory.gameImpls(GameType.wrap(CANNON))) != address(0);
+        if (gt == PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
-        if (gt == SUPER_CANNON_KONA) return address(factory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
         return false;
     }
 
     /// @notice Pack one DisputeGameConfig row.
+    /// @dev `gameArgs` encoding mirrors `OPContractsManagerUtils._makeGameArgs`:
+    ///   - permissionless families (CANNON, CANNON_KONA, SUPER_CANNON, SUPER_CANNON_KONA):
+    ///       `abi.encode(absolutePrestate)`
+    ///   - permissioned families (PERMISSIONED_CANNON, SUPER_PERMISSIONED_CANNON):
+    ///       `abi.encode(absolutePrestate, proposer, challenger)`
+    /// CANNON_KONA uses `cannonKonaPrestate` (Kona-built); the others use `cannonPrestate`.
     function _gameConfig(
         IDisputeGameFactory factory,
         address proposer,
@@ -198,8 +226,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bool enabled = _isEnabled(factory, gt);
         bytes memory args;
         if (enabled) {
-            bytes32 prestate = (gt == CANNON_KONA || gt == SUPER_CANNON_KONA) ? cannonKonaPre : cannonPre;
-            bool permissioned = (gt == PERMISSIONED_CANNON || gt == SUPER_PERMISSIONED_CANNON);
+            bytes32 prestate = (gt == CANNON_KONA) ? cannonKonaPre : cannonPre;
+            bool permissioned = (gt == PERMISSIONED_CANNON);
             args = permissioned ? abi.encode(prestate, proposer, challenger) : abi.encode(prestate);
         }
         return IOPContractsManagerV700.DisputeGameConfig({
@@ -210,7 +238,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         });
     }
 
-    /// @notice Build the 6-row DisputeGameConfig array for one chain.
+    /// @notice Build the 7-row DisputeGameConfig array for one chain in the OPCMv2-mandated order.
     function _gameConfigs(uint256 chainId)
         internal
         view
@@ -225,12 +253,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
 
-        // The v7.x OPCM requires EXACTLY 7 configs in this exact insertion order — not
-        // numeric ascending — and a 7-element validGameTypes array literal in
-        // OPContractsManagerV2.sol drives the equality check. Any deviation reverts with
-        // OPContractsManagerV2_InvalidGameConfigs:
-        //   [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_CANNON,
-        //    SUPER_PERMISSIONED_CANNON, SUPER_CANNON_KONA, ZK_DISPUTE_GAME].
+        // OPCMv2 requires EXACTLY this 7-element insertion order — see the validGameTypes
+        // literal in OPContractsManagerV2._assertValidFullConfig. Any deviation reverts
+        // with OPContractsManagerV2_InvalidGameConfigs.
         uint32[7] memory gts = [
             CANNON,
             PERMISSIONED_CANNON,
@@ -247,12 +272,20 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     }
 
     /// @notice Build the per-chain ExtraInstruction array.
-    /// @dev v7.1.x recognises:
-    ///   - "PermittedProxyDeployment": the OPCM may deploy this proxy (DelayedWETH).
-    ///   - "overrides.cfg.startingRespectedGameType": abi.encode(uint32) override for
-    ///     AnchorStateRegistry.startingRespectedGameType. Defaults to SUPER_CANNON_KONA
-    ///     (9) if unset; permissioned-only chains typically pass SUPER_PERMISSIONED_CANNON
-    ///     (5) instead.
+    /// @dev v7.1.17 recognises (among others):
+    ///   - `PermittedProxyDeployment`: authorises the OPCM to deploy a fresh
+    ///     `DelayedWETH` proxy if needed during the upgrade.
+    ///   - `overrides.cfg.startingRespectedGameType`: `abi.encode(uint32)` value that
+    ///     the OPCM writes verbatim into `AnchorStateRegistry.respectedGameType` when
+    ///     it re-initialises the registry. This is a SET, not a delta — the chain's
+    ///     current respected game type can be anything; this override replaces it
+    ///     wholesale. Omitting this instruction would make the OPCM carry over the
+    ///     live value (no rotation). For U19 we always send `8` (CANNON_KONA),
+    ///     because rotating to Kona is the whole point of the upgrade.
+    /// @dev The OPCM additionally enforces that the value here corresponds to an
+    ///      `enabled=true` slot in `disputeGameConfigs` (asserted in
+    ///      `_assertValidFullConfig`). Slot 2 (CANNON_KONA) is always enabled by
+    ///      this template, so the value 8 always validates.
     function _extraInstructions(uint256 chainId)
         internal
         view
@@ -349,7 +382,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     }
 
     /// @notice Code-length exceptions for storage values written by the upgrade.
-    /// @dev v7.1.x reinitializes SystemConfig and rewrites the slots that hold
+    /// @dev v7.1.17 reinitialises SystemConfig and rewrites the slots that hold
     /// `owner`, `unsafeBlockSigner`, `batchInbox`, and the address derived from
     /// `batcherHash`. On betanets these are typically EOAs, not contracts, so the
     /// post-execution `Likely address in storage has no code` check would reject the
@@ -378,7 +411,11 @@ interface ISystemConfigEOAs {
     function batcherHash() external view returns (bytes32);
 }
 
-/* ---------- v7.1.x interfaces ("OPCMv2") ---------- */
+/* ---------- v7.1.17 ("OPCMv2") interfaces ---------- */
+/// @dev Mirrors the structs in
+///   https://github.com/ethereum-optimism/optimism/blob/feat/cannon-kona-make-default/packages/contracts-bedrock/src/L1/opcm/OPContractsManagerV2.sol
+/// and the validator in
+///   https://github.com/ethereum-optimism/optimism/blob/feat/cannon-kona-make-default/packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol
 
 interface IOPContractsManagerV700 {
     struct DisputeGameConfig {
