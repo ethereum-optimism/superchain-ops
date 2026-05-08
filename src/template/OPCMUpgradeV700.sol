@@ -316,10 +316,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // CANNON is an irreversible footgun on the AnchorStateRegistry — refuse it at the
         // override construction site so a config typo can never reach the OPCM.
         uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
-        require(
-            startingRespectedGameType != CANNON,
-            "OPCMUpgradeV700: startingRespectedGameType cannot be CANNON"
-        );
+        require(startingRespectedGameType != CANNON, "OPCMUpgradeV700: startingRespectedGameType cannot be CANNON");
 
         ix = new IOPContractsManagerV700.ExtraInstruction[](2);
         ix[0] = IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
