@@ -165,7 +165,12 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     }
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
-    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt) internal view returns (bool) {
+    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt, uint32 startingRespectedGameType)
+        internal
+        view
+        returns (bool)
+    {
+        if (gt == startingRespectedGameType) return true;
         if (gt == CANNON) return false;
         if (gt == PERMISSIONED_CANNON) return false;
         if (gt == CANNON_KONA) return false;
@@ -173,7 +178,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON))) != address(0);
         }
         if (gt == SUPER_PERMISSIONED_CANNON) {
-            return address(disputeGameFactory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
+            return true;
         }
         if (gt == SUPER_CANNON_KONA) {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
@@ -197,9 +202,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         uint32 gt,
         bytes32 cannonPre,
         bytes32 cannonKonaPre,
-        uint256 bond
+        uint256 bond,
+        uint32 startingRespectedGameType
     ) internal view returns (IOPContractsManagerV800.DisputeGameConfig memory) {
-        bool enabled = _isGameTypeEnabled(a.factory, gt);
+        bool enabled = _isGameTypeEnabled(a.factory, gt, startingRespectedGameType);
         bytes memory gameArgs;
         if (enabled) {
             bool isPermissioned = gt == PERMISSIONED_CANNON || gt == SUPER_PERMISSIONED_CANNON;
@@ -234,6 +240,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         bytes32 cannonPre = Claim.unwrap(upgrades[chainId].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
+        uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
 
         IOPContractsManagerV800.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV800.DisputeGameConfig[](7);
         uint32[7] memory gts = [
@@ -246,7 +253,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             ZK_DISPUTE_GAME
         ];
         for (uint256 i = 0; i < 7; i++) {
-            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond);
+            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond, startingRespectedGameType);
         }
         return cfgs;
     }

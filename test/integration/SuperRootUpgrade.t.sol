@@ -5,7 +5,7 @@ import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {IOPContractsManagerV800, OPCMUpgradeV800} from "src/template/OPCMUpgradeV800.sol";
+import {IDisputeGameFactory, IOPContractsManagerV800, OPCMUpgradeV800} from "src/template/OPCMUpgradeV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
@@ -77,6 +77,32 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
                 }
             }
         }
+    }
+
+    function test_starting_respected_game_type_overrides_disabled_guard() public {
+        upgrades[CHAIN_ID].startingRespectedGameType = 8;
+
+        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
+
+        assertEq(configs[0].gameType, 0);
+        assertFalse(configs[0].enabled);
+        assertEq(configs[0].initBond, 0);
+        assertEq(configs[0].gameArgs.length, 0);
+
+        assertEq(configs[1].gameType, 1);
+        assertFalse(configs[1].enabled);
+        assertEq(configs[1].initBond, 0);
+        assertEq(configs[1].gameArgs.length, 0);
+
+        assertEq(configs[2].gameType, 8);
+        assertTrue(configs[2].enabled);
+        assertEq(configs[2].initBond, upgrades[CHAIN_ID].initBond);
+        bytes32 prestate = abi.decode(configs[2].gameArgs, (bytes32));
+        assertEq(prestate, Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate));
+    }
+
+    function test_super_permissioned_cannon_is_enabled_by_default() public view {
+        assertTrue(_isGameTypeEnabled(IDisputeGameFactory(address(0)), 5, 0));
     }
 
     function test_upgrade_sepolia() public {
