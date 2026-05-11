@@ -13,7 +13,7 @@ l2chains = [
 
 fallbackAddressesJsonPath = "src/tasks/sep/076-U19-op-betanet-permissioned/addresses.json"
 
-templateName = "OPCMUpgradeV800"
+templateName = "OPCMUpgradeV700"
 
 [[opcmUpgrades]]
 chainId = 420120035

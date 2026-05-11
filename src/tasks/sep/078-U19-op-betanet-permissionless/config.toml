@@ -14,7 +14,7 @@ l2chains = [
 
 fallbackAddressesJsonPath = "src/tasks/sep/078-U19-op-betanet-permissionless/addresses.json"
 
-templateName = "OPCMUpgradeV800"
+templateName = "OPCMUpgradeV700"
 
 [[opcmUpgrades]]
 chainId = 420120036
@@ -24,8 +24,10 @@ cannonPrestate = "0xdead00000000000000000000000000000000000000000000000000000000
 cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: betanet uses non-standard L1PAO and challenger addresses.
 # SYSCON-130: the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one.
-# No PLDG-10 here — u19-beta-1 has been flipped to permissionless before this task runs.
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+# PLDG-10: u19-beta-1's DGF has no permissionless `CANNON` slot wired in (task 077
+# only flipped the respected game type; an AddGameType step is still a pre-requisite
+# to make the permissionless flow live). PLDG-10 will drop once that gap is filled.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10"
 initBond = 80000000000000000
 # Post-upgrade respected game type. U19 always rotates the AnchorStateRegistry's
 # respectedGameType to CANNON_KONA (8) — kona-client becomes the primary FPVM.
