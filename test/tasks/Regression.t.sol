@@ -1308,8 +1308,8 @@ contract RegressionTest is Test {
     /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate
     function testRegressionCallDataMatches_TransferSystemConfigOwnership() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/036-transfer-systemconfig-ownership/config.toml";
-        // TODO: paste calldata captured from a manual `just simulate` run at block 10624099 on sepolia.
-        string memory expectedCallData = "0x";
+        string memory expectedCallData =
+            "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b5380000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000001234567890abcdef1234567890abcdef1234567800000000000000000000000000000000000000000000000000000000";
         MultisigTask multisigTask = new TransferSystemConfigOwnership();
         address rootSafe = address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B); // FoundationUpgradeSafe on Sepolia
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe);
@@ -1321,8 +1321,8 @@ contract RegressionTest is Test {
             _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
 
-        // TODO: paste dataToSign captured from a manual `just simulate` run at block 10624099 on sepolia.
-        string memory expectedDataToSign = "0x";
+        string memory expectedDataToSign =
+            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb411cb33f48a202d35b607be6fc43dac14874042226d61a3bb7b89f463cdc4422";
 
         _assertDataToSignSingleMultisig(
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
