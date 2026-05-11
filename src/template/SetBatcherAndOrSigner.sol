@@ -32,15 +32,15 @@ contract SetBatcherAndOrSigner is L2TaskBase {
     mapping(uint256 => TaskInputs) public cfg;
 
     /// @notice Returns the safe address string identifier.
+    /// Must be set via `safeAddressString` in the task's config.toml.
     function safeAddressString() public pure override returns (string memory) {
-        return "FoundationUpgradeSafe";
+        revert("SetBatcherAndOrSigner: safeAddressString must be set in the config file");
     }
 
     /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](2);
+        string[] memory storageWrites = new string[](1);
         storageWrites[0] = "SystemConfigProxy";
-        storageWrites[1] = safeAddressString();
         return storageWrites;
     }
 
