@@ -28,7 +28,7 @@ contract TransferSystemConfigOwnership is L2TaskBase {
 
     /// @notice Must be set via the top-level `safeAddressString` key in the config file.
     function safeAddressString() public pure override returns (string memory) {
-        revert("safeAddressString must be set in the config file");
+        revert("TransferSystemConfigOwnership: safeAddressString must be set in the config file");
     }
 
     /// @notice Returns the storage write permissions required for this task.
