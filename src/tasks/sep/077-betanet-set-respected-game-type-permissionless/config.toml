@@ -1,0 +1,35 @@
+# Switch u19-beta-1 from permissioned to permissionless by setting the respected
+# dispute game type in its AnchorStateRegistry to game type 0 (Permissionless `CANNON`).
+#
+# Pre-condition: u19-beta-1 currently has only PERMISSIONED_CANNON wired in its
+# DisputeGameFactory (its `DelayedWethPermissionlessGameProxy` is the zero address
+# in betanets/u19-beta/u19-beta-1/chain.yaml). The permissionless game type must
+# be added to the DGF before this task can resolve any new disputes — that step
+# follows the U18-era pattern of task 050 (AddGameTypeTemplate). The U19 upgrade
+# itself happens in the follow-up task 078 once u19-beta-1 is officially
+# permissionless.
+
+l2chains = [
+    {name = "u19-beta-1", chainId = 420120036}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/077-betanet-set-respected-game-type-permissionless/addresses.json"
+templateName = "SetRespectedGameTypeTemplate"
+
+# On the betanet, the AnchorStateRegistry checks
+# `msg.sender == SystemConfig.guardian()`, and the guardian is the PAO Safe EOA,
+# not a separate GuardianSafe multisig as on OP Sepolia. We therefore run as the
+# ProxyAdminOwner Safe rather than the template's default GuardianSafe.
+safeAddressString = "ProxyAdminOwner"
+
+[gameTypes]
+configs = [
+    {chainId = 420120036, gameType = 0}
+]
+
+[stateOverrides]
+# Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# TODO: update the value below to the current on-chain nonce before simulating/signing.
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+]
