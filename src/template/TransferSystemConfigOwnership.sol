@@ -54,8 +54,7 @@ contract TransferSystemConfigOwnership is L2TaskBase {
         address currentOwner = ISystemConfig(systemConfigProxy).owner();
         require(currentOwner != newOwner, "TransferSystemConfigOwnership: newOwner equals current owner");
         require(
-            currentOwner == _rootSafe, "TransferSystemConfigOwnership: rootSafe is not current SystemConfig owner"
-        );
+            currentOwner == _rootSafe, "TransferSystemConfigOwnership: rootSafe is not current SystemConfig owner");
     }
 
     /// @notice Builds the action that transfers SystemConfig ownership.
@@ -68,8 +67,7 @@ contract TransferSystemConfigOwnership is L2TaskBase {
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", activeChain.chainId);
         require(
-            ISystemConfig(systemConfigProxy).owner() == newOwner,
-            "TransferSystemConfigOwnership: owner not updated"
+            ISystemConfig(systemConfigProxy).owner() == newOwner, "TransferSystemConfigOwnership: owner not updated"
         );
     }
 
