@@ -29,7 +29,8 @@ configs = [
 
 [stateOverrides]
 # Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
-# TODO: update the value below to the current on-chain nonce before simulating/signing.
+# Current on-chain nonce at time of authoring is 82; this task runs after 076 in the stack,
+# which bumps the Safe's nonce by 1 → expected nonce here is 83.
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 83}
 ]
