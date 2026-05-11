@@ -53,8 +53,7 @@ contract TransferSystemConfigOwnership is L2TaskBase {
         address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", activeChain.chainId);
         address currentOwner = ISystemConfig(systemConfigProxy).owner();
         require(currentOwner != newOwner, "TransferSystemConfigOwnership: newOwner equals current owner");
-        require(
-            currentOwner == _rootSafe, "TransferSystemConfigOwnership: rootSafe is not current SystemConfig owner");
+        require(currentOwner == _rootSafe, "TransferSystemConfigOwnership: rootSafe is not current SystemConfig owner");
     }
 
     /// @notice Builds the action that transfers SystemConfig ownership.
