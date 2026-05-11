@@ -92,6 +92,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
                 Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMUpgradeV800: cannonKonaPrestate is zero"
             );
+            require(
+                _upgrades[i].startingRespectedGameType != CANNON,
+                "OPCMUpgradeV800: startingRespectedGameType cannot be CANNON"
+            );
             chainsToUpgrade.push(_upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
