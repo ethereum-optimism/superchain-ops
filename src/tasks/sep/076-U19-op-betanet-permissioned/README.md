@@ -14,8 +14,9 @@ was never enabled). After the task, the AnchorStateRegistry `respectedGameType`
 is rotated to `CANNON_KONA` (8), per U19 protocol design.
 
 `u19-beta-1` is handled by tasks
-[077-betanet-set-respected-game-type-permissionless](../077-betanet-set-respected-game-type-permissionless)
-and [078-U19-op-betanet-permissionless](../078-U19-op-betanet-permissionless).
+[077-betanet-set-dispute-game-impl-permissionless](../077-betanet-set-dispute-game-impl-permissionless),
+[078-betanet-set-respected-game-type-permissionless](../078-betanet-set-respected-game-type-permissionless),
+and [079-U19-op-betanet-permissionless](../079-U19-op-betanet-permissionless).
 
 ## Simulation & Signing
 

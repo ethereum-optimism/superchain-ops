@@ -1,0 +1,62 @@
+# Wire the permissionless `CANNON` (game type 0) impl into u19-beta-1's DisputeGameFactory.
+#
+# This is the missing piece between U18-era task 050 (AddGameType, which deploys a
+# fresh game contract) and the U19 flow: the v7.1.17 betanet deployment already
+# shipped a shared `FaultDisputeGame` impl at `0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499`
+# (same impl OP Sepolia uses for its CANNON slot), so we don't need to deploy a new
+# game — we only need to call `factory.setImplementation(CANNON, impl, gameArgs)`.
+# `SetDisputeGameImpl` does exactly that, leaving the existing `PERMISSIONED_CANNON`
+# slot untouched.
+#
+# Sequencing: this runs BEFORE 078 (set-respected-game-type) so that by the time
+# 078 flips ASR.respectedGameType to 0, u19-beta-1's DGF actually has a CANNON impl
+# wired in. The follow-up 079 task then runs U19 (V700) against a chain that is
+# "officially permissionless" (CANNON wired + respected = CANNON), so the validator
+# should NOT emit PLDG-10.
+
+l2chains = [
+    {name = "u19-beta-1", chainId = 420120036}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/077-betanet-set-dispute-game-impl-permissionless/addresses.json"
+templateName = "SetDisputeGameImpl"
+
+[[gameImplConfig]]
+chainId = 420120036
+# --- FDG (permissionless CANNON, game type 0) — being wired for the first time --- #
+# fdgImpl: shared FaultDisputeGame impl deployed during u19-beta op-deployer run
+# (see betanets/u19-beta/u19-beta-1/chain.yaml -> implementationsDeployment.FaultDisputeGameV2Impl).
+fdgImpl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"
+# prevFdgImpl is set to the same address as fdgImpl as a workaround.
+# SetDisputeGameImpl._validateBasicInvariants calls `newFdg.l2ChainId()` on the impl,
+# which returns 0 for the shared (blueprint-style) FaultDisputeGame impl used in U19+
+# — chain-specific data lives in `gameArgs`, not in the impl's immutables. Setting
+# prevFdgImpl == fdgImpl makes the template skip that branch (the `setImplementation`
+# call still fires because `currentFDG (0) != fdgImpl`).
+prevFdgImpl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"
+# fdgGameArgs (124 bytes, big-endian concatenation):
+#   prestate(32)   = 0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c
+#                    (matches the chain's current PERMISSIONED_CANNON prestate)
+#   vm(20)         = 0x6463dee3828677f6270d83d45408044fc5edb908  (MIPS impl)
+#   asr(20)        = 0x5eb0bfa945aceffc2b0552893bc97772adcb49be  (AnchorStateRegistryProxy)
+#   delayedWETH(20)= 0xd9c1fdd2a3d65ea74fb471cec163b995fdfce78e  (reused permissioned DelayedWETH,
+#                                                                mirroring sepolia task 050 / U18 pattern)
+#   chainId(32)    = 0x190a85e4  (= 420120036)
+fdgGameArgs = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c6463dee3828677f6270d83d45408044fc5edb9085eb0bfa945aceffc2b0552893bc97772adcb49bed9c1fdd2a3d65ea74fb471cec163b995fdfce78e00000000000000000000000000000000000000000000000000000000190a85e4"
+fdgBond = 80000000000000000  # 0.08 ETH (matches the U18 betanet initialBond)
+
+# --- PDG (PERMISSIONED_CANNON, game type 1) — unchanged, passthrough --- #
+# Passing the current on-chain impl + gameArgs causes SetDisputeGameImpl to early-return for PDG
+# (see _setPDGImplementation: skip if currentPDG == c.pdgImpl AND gameArgs match).
+pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"
+pdgGameArgs = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c6463dee3828677f6270d83d45408044fc5edb9085eb0bfa945aceffc2b0552893bc97772adcb49bed9c1fdd2a3d65ea74fb471cec163b995fdfce78e00000000000000000000000000000000000000000000000000000000190a85e4d69785aa18144f03d0e4e41507b69a30b6cc3249e7a94b6ce760f20ceb697508f3e649074728e12e"
+pdgBond = 0  # bond unchanged; SetDisputeGameImpl skips setInitBond when value is 0
+
+[stateOverrides]
+# Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# Current on-chain nonce is 83; this task runs after 076 in the stack, which bumps
+# the Safe's nonce by 1 → expected nonce here is 84.
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 84}
+]

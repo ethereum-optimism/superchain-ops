@@ -1,0 +1,26 @@
+{
+  "_comment": "u19-beta-1 (chainId 420120036) addresses copied from https://github.com/ethereum-optimism/devnets/blob/main/betanets/u19-beta/u19-beta-1/chain.yaml — used as fallback because the betanet is not in the public superchain-registry.",
+  "420120036": {
+    "ProxyAdmin": "0x7D4803747f5dE400318B323EA17baEB716c1E35f",
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "SuperchainConfig": "0xc35da0F6Ee957E270f21E2Db093C29B8D97cBFBF",
+    "ProtocolVersions": "0x19BAB4A987272937A7607321E9E08fcc60102560",
+    "SystemConfigProxy": "0x84A95B22c5c0a056F3089A4B1e2eA49b250fF1DA",
+    "OptimismPortalProxy": "0x2403133fF0BF25119E6AEC10eC5609A81f99D2b7",
+    "L1ERC721BridgeProxy": "0x83970953Dbfc6e878De057F83C326f6f8143Fc37",
+    "OptimismMintableERC20FactoryProxy": "0xeFd187b7667E93B3E9651C5123DEb1D868661c62",
+    "L1StandardBridgeProxy": "0xC9Ae5E530D77c149E2A411B386B758896EcE2C25",
+    "L1CrossDomainMessengerProxy": "0xeF441A9D087175Eb44075a1Aa616B182fE04dd77",
+    "EthLockboxProxy": "0x5c280537684CBcbbf6Ac252DC87CF74130BdfFB6",
+    "DisputeGameFactoryProxy": "0x0d074d28b0748a3079751221fdC57f30F048Dc97",
+    "AnchorStateRegistryProxy": "0x5eB0Bfa945aceFfc2B0552893BC97772AdcB49Be",
+    "PermissionedWETH": "0xd9c1Fdd2a3D65ea74fb471Cec163B995FDfCE78E",
+    "AddressManager": "0x764e41648E620e6dF7AbaFaCbf87F3f45D952721",
+    "Challenger": "0xe7a94b6ce760f20ceb697508f3e649074728e12e",
+    "Proposer": "0xd69785aa18144f03d0e4e41507b69a30b6cc3249",
+    "Guardian": "0xe934dc97e347c6acef74364b50125bb8689c40ff",
+    "SystemConfigOwner": "0xa23e74755932d10f18d57e5a2357374e7c841ece",
+    "UnsafeBlockSigner": "0x11ef149a6f7e9e003f1cfb4975778155458578c3",
+    "BatchSubmitter": "0xc9359749a258843d62dca92e77a4f3532d583218"
+  }
+}
