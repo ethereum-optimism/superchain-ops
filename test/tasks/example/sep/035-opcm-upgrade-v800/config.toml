@@ -1,0 +1,19 @@
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMUpgradeV800"
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 11155420
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[addresses]
+OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4" # OPCM v0.7.0-alpha.2 devnet on Sepolia
+
+[stateOverrides]

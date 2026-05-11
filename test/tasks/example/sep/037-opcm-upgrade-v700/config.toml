@@ -1,0 +1,52 @@
+# Upgrade 19 example task on the u19-beta-0 betanet (Sepolia L1).
+#
+# What this task does (per https://docs.optimism.io/notices/upgrade-19):
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for the chain.
+#   - Rotates the chain's respected dispute game type to CANNON_KONA (8) — kona-client
+#     becomes the primary FPVM. Pre-upgrade games keep their existing impls so they
+#     can resolve.
+#   - Does NOT touch super-root or ZK game types.
+#
+# Betanet chains are not in the public superchain-registry, so we point
+# `fallbackAddressesJsonPath` at a sibling addresses.json populated from the betanet's
+# chain.yaml in ethereum-optimism/devnets:
+#   https://github.com/ethereum-optimism/devnets/tree/main/betanets/u19-beta/u19-beta-0
+
+l2chains = [
+    {name = "u19-beta-0", chainId = 420120035}
+]
+
+fallbackAddressesJsonPath = "test/tasks/example/sep/037-opcm-upgrade-v700/addresses.json"
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 420120035
+# TODO: replace placeholder prestates with the U19 release prestates once published.
+# (See https://github.com/ethereum-optimism/superchain-registry standard-prestates.toml.)
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Live validator output captured during simulation against the dev v7.1.17 OPCM. Will
+# tighten once real prestates are wired in.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10"
+initBond = 80000000000000000
+# Post-upgrade respected game type. The OPCM writes this verbatim into
+# AnchorStateRegistry.respectedGameType — it is a SET, not a delta, so it doesn't
+# matter what the chain's current respected game type is. U19 always rotates to
+# CANNON_KONA (8). Must match an enabled slot in the disputeGameConfigs array
+# (slot 2 / CANNON_KONA, always enabled by OPCMUpgradeV700).
+startingRespectedGameType = 8
+
+[addresses]
+# v7.1.17 dev OPCM on Sepolia (the U19 release candidate).
+# `OPCM.version()` returns "7.1.17"; `OPCM.opcmStandardValidator()` returns
+# 0x03a10AAd7683E56fF57bd787cE4b81EB363E591B.
+OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
+
+# State override: pin the Sepolia betanet ProxyAdminOwner Safe (0xe934...40ff) nonce.
+# Slot 5 is the Gnosis Safe `nonce` slot. We pin it to the current on-chain value so
+# message-hash regeneration is reproducible across simulations until we sign and execute.
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 74}  # current nonce on Sepolia
+]

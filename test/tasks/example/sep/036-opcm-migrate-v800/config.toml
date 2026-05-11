@@ -1,0 +1,25 @@
+# TODO: add a second Sepolia interop chain (e.g. Ink Sepolia / Base Sepolia) once selected.
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMMigrateV800"
+expectedOPCMVersion = "7.1.16"
+
+[[opcmMigrations]]
+chainId = 11155420
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+
+[migrate]
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingAnchorRootL2SequenceNumber = 0
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingRespectedGameType = 5 # SUPER_PERMISSIONED_CANNON
+superChallenger = "0x000000000000000000000000000000000000dEaD" # TODO: real super challenger
+superProposer = "0x000000000000000000000000000000000000dEaD" # TODO: real super proposer
+
+[addresses]
+OPCM = "0xf309ee51d05955e84264d4b8c2d520a01f430cb2" # v7.1.16 dev OPCM on Sepolia
+
+[stateOverrides]

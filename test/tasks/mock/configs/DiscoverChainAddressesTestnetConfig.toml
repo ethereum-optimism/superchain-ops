@@ -6,7 +6,6 @@ templateName = "GasConfigTemplate"
 
 l2chains = [
   { name = "Metal Sepolia", chainId = 1740 },
-  { name = "Base Sepolia", chainId = 84532 },
   { name = "OP Sepolia", chainId = 11155420 },
   { name = "Zora Sepolia", chainId = 999999999 },
   { name = "Mode Sepolia", chainId = 919 },
@@ -16,7 +15,6 @@ l2chains = [
 [gasConfigs]
   gasLimits = [
     { chainId = 1740, gasLimit = 100000000 },
-    { chainId = 84532, gasLimit = 100000000 },
     { chainId = 11155420, gasLimit = 100000000 },
     { chainId = 999999999, gasLimit = 100000000 },
     { chainId = 919, gasLimit = 100000000 },
