@@ -83,10 +83,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_B), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
         );
 
-        bytes32 cannonPrestate = 0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef;
         bytes32 cannonKonaPrestate = 0x03a7000000000000000000000000000000000000000000000000000000000001;
-        assertEq(Claim.unwrap(migrations[CHAIN_A].cannonPrestate), cannonPrestate);
-        assertEq(Claim.unwrap(migrations[CHAIN_B].cannonPrestate), cannonPrestate);
         assertEq(Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(Claim.unwrap(migrations[CHAIN_B].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(migrateParams.expectedValidationErrors, "");
@@ -111,7 +108,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         assertEq(configs[0].initBond, migrateParams.initBond);
         (bytes32 permPrestate, address proposer, address challenger) =
             abi.decode(configs[0].gameArgs, (bytes32, address, address));
-        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_A].cannonPrestate));
+        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate));
         assertEq(proposer, migrateParams.superProposer);
         assertEq(challenger, migrateParams.superChallenger);
 

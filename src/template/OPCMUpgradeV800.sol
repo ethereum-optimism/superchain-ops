@@ -73,7 +73,13 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
 
-    /// @notice Add per-chain shared addresses that may differ from the network sentinel entries.
+    /// @notice Allowlist storage writes for the upgrade.
+    /// @dev L2TaskBase's default `_setAllowedStorageAccesses` calls `addrRegistry.get(key)`
+    /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
+    /// like `SuperchainConfig` and `ProtocolVersions`, `get(key)` resolves against the
+    /// sentinel-chain entries hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet
+    /// values), so devnet-specific addresses never make it into the allowlist. We re-add
+    /// them explicitly per chain so devnet upgrades pass the post-execution check.
     function _setAllowedStorageAccesses() internal virtual override {
         super._setAllowedStorageAccesses();
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
