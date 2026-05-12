@@ -22,17 +22,15 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
     uint256 internal constant CHAIN_A = 420120084;
     uint256 internal constant CHAIN_B = 420120085;
+    uint256 internal constant FORK_BLOCK_NUMBER = 10_796_650;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
     address internal constant SUPERCHAIN_CONFIG = 0xbb331C0Bf409ef6B39CF585221fa4FF73001668a;
-    bytes32 internal constant ANCHOR_STATE_REGISTRY_SLOT = bytes32(uint256(62));
-    bytes32 internal constant ETH_LOCKBOX_SLOT = bytes32(uint256(63));
     address rootSafe;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("sepolia"));
+        vm.createSelectFork(vm.envString("SEPOLIA_RPC_URL"), FORK_BLOCK_NUMBER);
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
-        _restoreTaskEthLockboxPointers();
         _templateSetup(configTomlPath, address(0));
         address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A);
         rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
@@ -213,17 +211,5 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
             sigs = abi.encodePacked(sigs, bytes32(uint256(uint160(signers[i]))), bytes32(0), uint8(1));
         }
         return sigs;
-    }
-
-    function _restoreTaskEthLockboxPointers() internal {
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        for (uint256 i = 0; i < chains.length; i++) {
-            address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[i].chainId);
-            address anchorStateRegistry =
-                superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chains[i].chainId);
-            address ethLockbox = superchainAddrRegistry.getAddress("EthLockboxProxy", chains[i].chainId);
-            vm.store(portal, ANCHOR_STATE_REGISTRY_SLOT, bytes32(uint256(uint160(anchorStateRegistry))));
-            vm.store(portal, ETH_LOCKBOX_SLOT, bytes32(uint256(uint160(ethLockbox))));
-        }
     }
 }
