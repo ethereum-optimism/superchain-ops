@@ -6,6 +6,7 @@ import {Hash} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
@@ -19,6 +20,7 @@ import {IOPContractsManagerV800, ISystemConfig} from "src/template/OPCMUpgradeV8
 contract OPCMMigrateV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice Per-chain inputs parsed from TOML.
     /// @dev Fields must remain in alphabetical order for TOML decoding.
@@ -83,6 +85,22 @@ contract OPCMMigrateV800 is OPCMTaskBase {
         string[] memory balanceChanges = new string[](1);
         balanceChanges[0] = "EthLockboxProxy";
         return balanceChanges;
+    }
+
+    /// @notice Allowlist storage writes for the migration.
+    /// @dev L2TaskBase's default `_setAllowedStorageAccesses` calls `addrRegistry.get(key)`
+    /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
+    /// like `SuperchainConfig` and `ProtocolVersions`, `get(key)` resolves against the
+    /// sentinel-chain entries hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet
+    /// values), so devnet-specific addresses never make it into the allowlist. We re-add
+    /// them explicitly per chain so devnet migrations pass the post-execution check.
+    function _setAllowedStorageAccesses() internal virtual override {
+        super._setAllowedStorageAccesses();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId));
+        }
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.

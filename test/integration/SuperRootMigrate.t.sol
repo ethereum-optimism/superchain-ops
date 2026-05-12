@@ -77,11 +77,15 @@ contract MockMigrationStandardValidator {
     }
 }
 
-contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
+contract SuperRootMigrateIntegrationTest is Test, OPCMMigrateV800 {
     string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v800/";
-    uint256 internal constant CHAIN_ID = 11155420;
+    uint256 internal constant FORK_BLOCK_NUMBER = 10_796_650;
+    address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
 
+    uint256 internal chainA;
+    uint256 internal chainB;
     address rootSafe;
+    address superchainConfig;
 
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
@@ -90,18 +94,24 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     uint32 internal constant ZK_DISPUTE_GAME = 10;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("sepolia"));
+        vm.createSelectFork(vm.rpcUrl("sepolia"), FORK_BLOCK_NUMBER);
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        chainA = chains[0].chainId;
+        chainB = chains[1].chainId;
+        superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chainA);
         _templateSetup(configTomlPath, address(0));
-        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_ID);
+        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", chainA);
         rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
         _upgradeChainFirst();
     }
 
     function test_load_data() public view {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        assertEq(chains.length, 1);
+        assertEq(chains.length, 2);
+        assertEq(chains[0].chainId, chainA);
+        assertEq(chains[1].chainId, chainB);
         assertEq(chainsToMigrate.length, chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -109,15 +119,36 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             assertEq(chainsToMigrate[i], chains[i].chainId);
         }
 
-        assertEq(chainsToMigrate[0], CHAIN_ID);
-        assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
+        assertEq(rootSafe, ROOT_SAFE);
+        assertEq(chainsToMigrate[0], chainA);
+        assertEq(chainsToMigrate[1], chainB);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainA), superchainConfig);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainB), superchainConfig);
+        assertEq(
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainA), 0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainB), 0x822AeD4EBe81A7d626b75B6074110985d61f6dE1
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("EthLockboxProxy", chainA), 0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("EthLockboxProxy", chainB), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
+        );
+
+        bytes32 cannonKonaPrestate = 0x03a7000000000000000000000000000000000000000000000000000000000001;
+        assertEq(Claim.unwrap(migrations[chainA].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(Claim.unwrap(migrations[chainB].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(migrateParams.expectedValidationErrors, "");
-        assertEq(expectedOPCMVersion, "7.1.16");
+        assertEq(expectedOPCMVersion, "7.1.17");
 
         assertEq(migrateParams.initBond, 0.08 ether);
-        assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 0);
-        assertEq(migrateParams.startingAnchorRootRoot, bytes32(uint256(0xdead) << 240));
-        assertEq(uint256(migrateParams.startingRespectedGameType), 5);
+        assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 1778004858);
+        assertEq(
+            migrateParams.startingAnchorRootRoot, 0xc212da871d761b597a3c1531bff571351c974432bdedd1eb67f4e181eb9f49ef
+        );
+        assertEq(uint256(migrateParams.startingRespectedGameType), 9);
 
         ISystemConfig[] memory sysCfgs = _chainSystemConfigs();
         assertEq(sysCfgs.length, chains.length);
@@ -125,22 +156,22 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildSharedGameConfigs();
         assertEq(configs.length, 2);
 
-        // SUPER_PERMISSIONED_CANNON (5) — permissioned triple.
+        // SUPER_PERMISSIONED_CANNON (5) - permissioned triple.
         assertEq(uint256(configs[0].gameType), 5);
         assertTrue(configs[0].enabled);
         assertEq(configs[0].initBond, migrateParams.initBond);
         (bytes32 permPrestate, address proposer, address challenger) =
             abi.decode(configs[0].gameArgs, (bytes32, address, address));
-        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate));
+        assertEq(permPrestate, Claim.unwrap(migrations[chainA].cannonKonaPrestate));
         assertEq(proposer, migrateParams.superProposer);
         assertEq(challenger, migrateParams.superChallenger);
 
-        // SUPER_CANNON_KONA (9) — non-permissioned single.
+        // SUPER_CANNON_KONA (9) - non-permissioned single.
         assertEq(uint256(configs[1].gameType), 9);
         assertTrue(configs[1].enabled);
         assertEq(configs[1].initBond, migrateParams.initBond);
         bytes32 konaPrestate = abi.decode(configs[1].gameArgs, (bytes32));
-        assertEq(konaPrestate, Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate));
+        assertEq(konaPrestate, Claim.unwrap(migrations[chainA].cannonKonaPrestate));
     }
 
     function test_migrate_sepolia() public {
@@ -362,6 +393,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     function _isUpgradeGameTypeEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
         if (gt == CANNON || gt == PERMISSIONED_CANNON || gt == CANNON_KONA || gt == ZK_DISPUTE_GAME) return false;
         if (gt == RESERVED_SUPER_CANNON_GAME_TYPE) return false;
+        if (gt == migrateParams.startingRespectedGameType) return true;
         if (gt == SUPER_PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
@@ -371,7 +403,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
 
     function _buildUpgradeExtraInstructions()
         internal
-        pure
+        view
         returns (IOPContractsManagerV800.ExtraInstruction[] memory)
     {
         IOPContractsManagerV800.ExtraInstruction[] memory extras = new IOPContractsManagerV800.ExtraInstruction[](2);
@@ -379,7 +411,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             IOPContractsManagerV800.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
         extras[1] = IOPContractsManagerV800.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
-            data: abi.encode(SUPER_PERMISSIONED_CANNON)
+            data: abi.encode(migrateParams.startingRespectedGameType)
         });
         return extras;
     }

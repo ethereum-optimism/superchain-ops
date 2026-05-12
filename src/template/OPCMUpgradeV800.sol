@@ -5,6 +5,7 @@ import {Claim, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
@@ -16,6 +17,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 contract OPCMUpgradeV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice Struct to store inputs data for each L2 chain.
     /// @dev Fields must remain in alphabetical order for TOML decoding.
@@ -70,6 +72,22 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// Contracts with these names are expected to have their balance changes during the task.
     /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
+
+    /// @notice Allowlist storage writes for the upgrade.
+    /// @dev L2TaskBase's default `_setAllowedStorageAccesses` calls `addrRegistry.get(key)`
+    /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
+    /// like `SuperchainConfig` and `ProtocolVersions`, `get(key)` resolves against the
+    /// sentinel-chain entries hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet
+    /// values), so devnet-specific addresses never make it into the allowlist. We re-add
+    /// them explicitly per chain so devnet upgrades pass the post-execution check.
+    function _setAllowedStorageAccesses() internal virtual override {
+        super._setAllowedStorageAccesses();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId));
+        }
+    }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in
