@@ -249,8 +249,7 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             chainSystemConfigs: sysCfgs,
             cannonPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate),
             cannonKonaPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate),
-            proposer: migrateParams.superProposer,
-            challenger: migrateParams.superChallenger
+            proposer: migrateParams.superProposer
         });
 
         address standardL1PAO = standardValidator.l1PAOMultisig();
@@ -340,10 +339,7 @@ interface IOPContractsManagerMigrationValidator {
         bytes32 cannonPrestate;
         bytes32 cannonKonaPrestate;
         address proposer;
-        address challenger;
     }
-
-    function version() external view returns (string memory);
 }
 
 /// @notice Extended standard validator interface that adds migration entry points plus
