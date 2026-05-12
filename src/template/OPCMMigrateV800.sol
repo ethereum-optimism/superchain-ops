@@ -6,6 +6,7 @@ import {Hash} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
@@ -19,11 +20,13 @@ import {IOPContractsManagerV800, ISystemConfig} from "src/template/OPCMUpgradeV8
 contract OPCMMigrateV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice Per-chain inputs parsed from TOML.
     /// @dev Fields must remain in alphabetical order for TOML decoding.
     struct OPCMMigration {
         Claim cannonKonaPrestate;
+        Claim cannonPrestate;
         uint256 chainId;
     }
 
@@ -56,6 +59,7 @@ contract OPCMMigrateV800 is OPCMTaskBase {
     IOPContractsManagerMigrationValidator public migrationValidator;
 
     // Game type constants (from GameTypes library in op-contracts v7.1.16).
+    uint32 internal constant SUPER_CANNON = 4;
     uint32 internal constant SUPER_PERMISSIONED_CANNON = 5;
     uint32 internal constant SUPER_CANNON_KONA = 9;
 
@@ -85,6 +89,16 @@ contract OPCMMigrateV800 is OPCMTaskBase {
         return balanceChanges;
     }
 
+    /// @notice Add per-chain shared addresses that may differ from the network sentinel entries.
+    function _setAllowedStorageAccesses() internal virtual override {
+        super._setAllowedStorageAccesses();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId));
+        }
+    }
+
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
         super._templateSetup(taskConfigFilePath, rootSafe);
@@ -100,6 +114,9 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             require(_migrations[i].chainId != 0, "OPCMMigrateV800: chainId cannot be zero");
             require(migrations[_migrations[i].chainId].chainId == 0, "OPCMMigrateV800: duplicate chain config");
             require(
+                Claim.unwrap(_migrations[i].cannonPrestate) != bytes32(0), "OPCMMigrateV800: cannonPrestate is zero"
+            );
+            require(
                 Claim.unwrap(_migrations[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMMigrateV800: cannonKonaPrestate is zero"
             );
@@ -114,9 +131,14 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             chainsToMigrate.push(chainId);
         }
 
-        // All chains must share the same Kona prestate because one shared DGF is deployed for all of them.
+        // All chains must share the same prestates because one shared DGF is deployed for all of them.
+        bytes32 cannonPre0 = Claim.unwrap(migrations[chainsToMigrate[0]].cannonPrestate);
         bytes32 cannonKonaPre0 = Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate);
         for (uint256 i = 1; i < chainsToMigrate.length; i++) {
+            require(
+                Claim.unwrap(migrations[chainsToMigrate[i]].cannonPrestate) == cannonPre0,
+                "OPCMMigrateV800: all chains must share the same cannonPrestate"
+            );
             require(
                 Claim.unwrap(migrations[chainsToMigrate[i]].cannonKonaPrestate) == cannonKonaPre0,
                 "OPCMMigrateV800: all chains must share the same cannonKonaPrestate"
@@ -192,7 +214,9 @@ contract OPCMMigrateV800 is OPCMTaskBase {
     /// @notice Builds the shared DisputeGameConfig array for the single migrate() call.
     /// @dev Migration deploys a single shared DGF used by every migrated chain, so we only emit
     /// entries for super-game types: SUPER_PERMISSIONED_CANNON (5) and SUPER_CANNON_KONA (9).
+    /// SUPER_CANNON (4) is intentionally not enabled - see TODO(#20030) in OPContractsManagerMigrator.
     function _buildSharedGameConfigs() internal view returns (IOPContractsManagerV800.DisputeGameConfig[] memory) {
+        bytes32 cannonPre = Claim.unwrap(migrations[chainsToMigrate[0]].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate);
 
         IOPContractsManagerV800.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV800.DisputeGameConfig[](2);
@@ -201,7 +225,7 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             enabled: true,
             initBond: migrateParams.initBond,
             gameType: SUPER_PERMISSIONED_CANNON,
-            gameArgs: abi.encode(cannonKonaPre, migrateParams.superProposer, migrateParams.superChallenger)
+            gameArgs: abi.encode(cannonPre, migrateParams.superProposer, migrateParams.superChallenger)
         });
 
         cfgs[1] = IOPContractsManagerV800.DisputeGameConfig({
@@ -247,10 +271,9 @@ contract OPCMMigrateV800 is OPCMTaskBase {
         IOPContractsManagerMigrationValidator.MigrationValidationInput({
             dgf: sharedDGF,
             chainSystemConfigs: sysCfgs,
-            cannonPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate),
+            cannonPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonPrestate),
             cannonKonaPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate),
-            proposer: migrateParams.superProposer,
-            challenger: migrateParams.superChallenger
+            proposer: migrateParams.superProposer
         });
 
         address standardL1PAO = standardValidator.l1PAOMultisig();
@@ -340,10 +363,7 @@ interface IOPContractsManagerMigrationValidator {
         bytes32 cannonPrestate;
         bytes32 cannonKonaPrestate;
         address proposer;
-        address challenger;
     }
-
-    function version() external view returns (string memory);
 }
 
 /// @notice Extended standard validator interface that adds migration entry points plus

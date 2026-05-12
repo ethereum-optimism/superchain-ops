@@ -27,7 +27,12 @@ interface ISystemConfigExt {
 
 contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v800/";
-    uint256 internal constant CHAIN_ID = 11155420;
+    uint256 internal constant CHAIN_A = 420120084;
+    uint256 internal constant CHAIN_B = 420120085;
+    address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
+    address internal constant SUPERCHAIN_CONFIG = 0xbb331C0Bf409ef6B39CF585221fa4FF73001668a;
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_SLOT = bytes32(uint256(62));
+    bytes32 internal constant ETH_LOCKBOX_SLOT = bytes32(uint256(63));
 
     address rootSafe;
 
@@ -41,15 +46,18 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         vm.createSelectFork(vm.rpcUrl("sepolia"));
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
+        _restoreTaskEthLockboxPointers();
         _templateSetup(configTomlPath, address(0));
-        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_ID);
+        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A);
         rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
         _upgradeChainFirst();
     }
 
     function test_load_data() public view {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        assertEq(chains.length, 1);
+        assertEq(chains.length, 2);
+        assertEq(chains[0].chainId, CHAIN_A);
+        assertEq(chains[1].chainId, CHAIN_B);
         assertEq(chainsToMigrate.length, chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -57,15 +65,39 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             assertEq(chainsToMigrate[i], chains[i].chainId);
         }
 
-        assertEq(chainsToMigrate[0], CHAIN_ID);
-        assertEq(Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate), bytes32(uint256(0xdead) << 240));
+        assertEq(rootSafe, ROOT_SAFE);
+        assertEq(chainsToMigrate[0], CHAIN_A);
+        assertEq(chainsToMigrate[1], CHAIN_B);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", CHAIN_A), SUPERCHAIN_CONFIG);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", CHAIN_B), SUPERCHAIN_CONFIG);
+        assertEq(
+            superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A), 0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_B), 0x822AeD4EBe81A7d626b75B6074110985d61f6dE1
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_A), 0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_B), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
+        );
+
+        bytes32 cannonPrestate = 0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef;
+        bytes32 cannonKonaPrestate = 0x03a7000000000000000000000000000000000000000000000000000000000001;
+        assertEq(Claim.unwrap(migrations[CHAIN_A].cannonPrestate), cannonPrestate);
+        assertEq(Claim.unwrap(migrations[CHAIN_B].cannonPrestate), cannonPrestate);
+        assertEq(Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(Claim.unwrap(migrations[CHAIN_B].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(migrateParams.expectedValidationErrors, "");
-        assertEq(expectedOPCMVersion, "7.1.16");
+        assertEq(expectedOPCMVersion, "7.1.17");
 
         assertEq(migrateParams.initBond, 0.08 ether);
-        assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 0);
-        assertEq(migrateParams.startingAnchorRootRoot, bytes32(uint256(0xdead) << 240));
-        assertEq(uint256(migrateParams.startingRespectedGameType), 5);
+        assertEq(migrateParams.startingAnchorRootL2SequenceNumber, 1778004858);
+        assertEq(
+            migrateParams.startingAnchorRootRoot, 0xc212da871d761b597a3c1531bff571351c974432bdedd1eb67f4e181eb9f49ef
+        );
+        assertEq(uint256(migrateParams.startingRespectedGameType), 9);
 
         ISystemConfig[] memory sysCfgs = _chainSystemConfigs();
         assertEq(sysCfgs.length, chains.length);
@@ -73,22 +105,22 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildSharedGameConfigs();
         assertEq(configs.length, 2);
 
-        // SUPER_PERMISSIONED_CANNON (5) — permissioned triple.
+        // SUPER_PERMISSIONED_CANNON (5) - permissioned triple.
         assertEq(uint256(configs[0].gameType), 5);
         assertTrue(configs[0].enabled);
         assertEq(configs[0].initBond, migrateParams.initBond);
         (bytes32 permPrestate, address proposer, address challenger) =
             abi.decode(configs[0].gameArgs, (bytes32, address, address));
-        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate));
+        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_A].cannonPrestate));
         assertEq(proposer, migrateParams.superProposer);
         assertEq(challenger, migrateParams.superChallenger);
 
-        // SUPER_CANNON_KONA (9) — non-permissioned single.
+        // SUPER_CANNON_KONA (9) - non-permissioned single.
         assertEq(uint256(configs[1].gameType), 9);
         assertTrue(configs[1].enabled);
         assertEq(configs[1].initBond, migrateParams.initBond);
         bytes32 konaPrestate = abi.decode(configs[1].gameArgs, (bytes32));
-        assertEq(konaPrestate, Claim.unwrap(migrations[CHAIN_ID].cannonKonaPrestate));
+        assertEq(konaPrestate, Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate));
     }
 
     function test_migrate_sepolia() public {
@@ -305,6 +337,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     function _isUpgradeGameTypeEnabled(IDisputeGameFactory factory, uint32 gt) internal view returns (bool) {
         if (gt == CANNON || gt == PERMISSIONED_CANNON || gt == CANNON_KONA || gt == ZK_DISPUTE_GAME) return false;
         if (gt == RESERVED_SUPER_CANNON_GAME_TYPE) return false;
+        if (gt == migrateParams.startingRespectedGameType) return true;
         if (gt == SUPER_PERMISSIONED_CANNON) {
             return address(factory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
         }
@@ -314,7 +347,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
 
     function _buildUpgradeExtraInstructions()
         internal
-        pure
+        view
         returns (IOPContractsManagerV800.ExtraInstruction[] memory)
     {
         IOPContractsManagerV800.ExtraInstruction[] memory extras = new IOPContractsManagerV800.ExtraInstruction[](2);
@@ -322,8 +355,20 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
             IOPContractsManagerV800.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
         extras[1] = IOPContractsManagerV800.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
-            data: abi.encode(SUPER_PERMISSIONED_CANNON)
+            data: abi.encode(migrateParams.startingRespectedGameType)
         });
         return extras;
+    }
+
+    function _restoreTaskEthLockboxPointers() internal {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[i].chainId);
+            address anchorStateRegistry =
+                superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chains[i].chainId);
+            address ethLockbox = superchainAddrRegistry.getAddress("EthLockboxProxy", chains[i].chainId);
+            vm.store(portal, ANCHOR_STATE_REGISTRY_SLOT, bytes32(uint256(uint160(anchorStateRegistry))));
+            vm.store(portal, ETH_LOCKBOX_SLOT, bytes32(uint256(uint160(ethLockbox))));
+        }
     }
 }
