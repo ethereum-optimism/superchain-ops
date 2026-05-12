@@ -57,6 +57,14 @@ class Adapter(ABC):
         """
         return None
 
+    def validate_offline(self, devnet: Devnet, task_files: TaskFiles) -> None:
+        """Optional validation when the user skips onchain checks.
+
+        Adapters that normally fill fields during :meth:`verify` should override
+        this to prevent writing unresolved placeholders under ``--offline``.
+        """
+        return None
+
 
 ADAPTERS: dict[str, Adapter] = {}
 

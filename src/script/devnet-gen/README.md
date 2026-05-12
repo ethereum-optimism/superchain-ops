@@ -27,6 +27,13 @@ just gen-devnet-task OPCMUpgradeV600 ../devnets/alphanets/u18-alpha \
 just gen-devnet-task OPCMUpgradeV800 ../devnets/alphanets/u18-alpha \
     --override startingRespectedGameType=9
 
+# OPCMMigrateV800 reads cannonKonaPrestate from game type 9 and starting
+# anchor root from AnchorStateRegistry onchain, and defaults the shared
+# proposer/challenger from the first chain's op-deployer roles. It still
+# requires the starting game type.
+just gen-devnet-task OPCMMigrateV800 ../devnets/alphanets/sdg-v1 \
+    --override startingRespectedGameType=5
+
 # Print the planned files without writing.
 just gen-devnet-task OPCMUpgradeV600 ../devnets/alphanets/u18-alpha --dry-run
 
@@ -44,7 +51,8 @@ After the adapter has produced the task config, the generator calls
 `adapter.verify(devnet, task_files, rpc_url)` to do any onchain sanity
 checks. For OPCM adapters this means calling `OPCM.version()` on the
 resolved address and asserting it matches the version the template expects
-(`6.0.0` for `OPCMUpgradeV600`, any `7.1.x` for `OPCMUpgradeV800`). A
+(`6.0.0` for `OPCMUpgradeV600`, any `7.1.x` for `OPCMUpgradeV800`,
+any `7.1.x` for `OPCMMigrateV800`). A
 mismatch aborts before any files are written.
 
 L1 RPC URLs are hardcoded per L1 network in
@@ -82,6 +90,11 @@ parent directory's name. They're kept out of stacked simulations of the
 parent network via the `Status: DEVNET` filter in
 [../fetch-tasks.sh](../fetch-tasks.sh) — direct invocations from the task
 directory still work normally.
+
+If `manifest.yaml` omits `l1.owner_safe_address`, the generator warns and
+defaults `ProxyAdminOwner` to `0xe934Dc97E347C6aCef74364B50125bb8689c40ff`.
+Pass a manifest with `l1.owner_safe_address` when the devnet uses a different
+owner safe.
 
 ## Adding a new adapter
 

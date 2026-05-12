@@ -93,6 +93,17 @@ contract OPCMMigrateV800 is OPCMTaskBase {
 
         require(chains.length > 0, "OPCMMigrateV800: no chains configured");
 
+        // Load shared migrate parameters.
+        migrateParams = abi.decode(tomlContent.parseRaw(".migrate"), (MigrateParams));
+        require(
+            migrateParams.startingRespectedGameType == SUPER_PERMISSIONED_CANNON
+                || migrateParams.startingRespectedGameType == SUPER_CANNON_KONA,
+            "OPCMMigrateV800: startingRespectedGameType must be an enabled super game type (5 or 9)"
+        );
+        require(migrateParams.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV800: startingAnchorRootRoot is zero");
+        require(migrateParams.superProposer != address(0), "OPCMMigrateV800: superProposer is zero");
+        require(migrateParams.superChallenger != address(0), "OPCMMigrateV800: superChallenger is zero");
+
         // Load per-chain migrations from TOML.
         OPCMMigration[] memory _migrations = abi.decode(tomlContent.parseRaw(".opcmMigrations"), (OPCMMigration[]));
         require(_migrations.length == chains.length, "OPCMMigrateV800: opcmMigrations length mismatch");
@@ -100,7 +111,8 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             require(_migrations[i].chainId != 0, "OPCMMigrateV800: chainId cannot be zero");
             require(migrations[_migrations[i].chainId].chainId == 0, "OPCMMigrateV800: duplicate chain config");
             require(
-                Claim.unwrap(_migrations[i].cannonKonaPrestate) != bytes32(0),
+                migrateParams.startingRespectedGameType != SUPER_CANNON_KONA
+                    || Claim.unwrap(_migrations[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMMigrateV800: cannonKonaPrestate is zero"
             );
             migrations[_migrations[i].chainId] = _migrations[i];
@@ -122,17 +134,6 @@ contract OPCMMigrateV800 is OPCMTaskBase {
                 "OPCMMigrateV800: all chains must share the same cannonKonaPrestate"
             );
         }
-
-        // Load shared migrate parameters.
-        migrateParams = abi.decode(tomlContent.parseRaw(".migrate"), (MigrateParams));
-        require(
-            migrateParams.startingRespectedGameType == SUPER_PERMISSIONED_CANNON
-                || migrateParams.startingRespectedGameType == SUPER_CANNON_KONA,
-            "OPCMMigrateV800: startingRespectedGameType must be an enabled super game type (5 or 9)"
-        );
-        require(migrateParams.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV800: startingAnchorRootRoot is zero");
-        require(migrateParams.superProposer != address(0), "OPCMMigrateV800: superProposer is zero");
-        require(migrateParams.superChallenger != address(0), "OPCMMigrateV800: superChallenger is zero");
 
         // All chains must share the same SuperchainConfig.
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
@@ -249,8 +250,7 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             chainSystemConfigs: sysCfgs,
             cannonPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate),
             cannonKonaPrestate: Claim.unwrap(migrations[chainsToMigrate[0]].cannonKonaPrestate),
-            proposer: migrateParams.superProposer,
-            challenger: migrateParams.superChallenger
+            proposer: migrateParams.superProposer
         });
 
         address standardL1PAO = standardValidator.l1PAOMultisig();
@@ -340,10 +340,7 @@ interface IOPContractsManagerMigrationValidator {
         bytes32 cannonPrestate;
         bytes32 cannonKonaPrestate;
         address proposer;
-        address challenger;
     }
-
-    function version() external view returns (string memory);
 }
 
 /// @notice Extended standard validator interface that adds migration entry points plus

@@ -86,6 +86,12 @@ def render(
         "adapter_description": adapter.description,
         "devnet": devnet,
         "generated_on": date.today().isoformat(),
+        "cannon_prestate": None,
+        "cannon_prestate_overridden": False,
+        "cannon_kona_prestate": None,
+        "cannon_kona_prestate_overridden": False,
+        "opcm": None,
+        "opcm_overridden": False,
         **task_files.readme_context,
     }
     readme_text = env.get_template("README.md.j2").render(**readme_ctx)

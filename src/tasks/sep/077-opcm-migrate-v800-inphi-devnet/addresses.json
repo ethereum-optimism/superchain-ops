@@ -1,0 +1,30 @@
+{
+  "420120092": {
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "ProxyAdmin": "0x69E54d811e4767F389400275db4ADd344B6d31CC",
+    "AddressManager": "0x75b602169404f5E1f370Fa5903848923ce972484",
+    "SystemConfigProxy": "0x28F1BC57527A7b93d3f0b8AB7312a60C5F076D9E",
+    "L1CrossDomainMessengerProxy": "0x090F92B3c9aEe054ff7A7C34981fFEe8Bd834640",
+    "L1StandardBridgeProxy": "0xEc003C652B0Bdf0E09e2b6F1877037B59b300c52",
+    "OptimismPortalProxy": "0x62Ba802cA2c109b416Adf1662f8569b1F09e7204",
+    "DisputeGameFactoryProxy": "0xCAF8d9327B6c8B2F3a267ff575bb1a3db73Eab17",
+    "AnchorStateRegistryProxy": "0xEC639db30eC84E237DFB4FD75973eFcFd11F406E",
+    "EthLockboxProxy": "0x13B065A7613AdD89814832CAebb9C2116f792081",
+    "SuperchainConfig": "0x00B4eC90dCBfa9D2B66c996AbbC61B51Dd20d40A",
+    "ProtocolVersions": "0x7E8C4F6b85bE7f9A887D7ae82b16C8C947F4349b"
+  },
+  "420120093": {
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "ProxyAdmin": "0xf23e88B1a5a8A4b4D6037Ae551C76f98b96f5A0C",
+    "AddressManager": "0x1E166B90Be868D1c6F3cF91Cc6162bC7877B5394",
+    "SystemConfigProxy": "0xE22f7E9b417a926567c8B2cfE533875b8C8D1f28",
+    "L1CrossDomainMessengerProxy": "0x2a41d2a35aD9c51039BCdb8C708563c8184D86B6",
+    "L1StandardBridgeProxy": "0xeC5e17B2F3c7F2F2693aFaF872C8668A2dF6113D",
+    "OptimismPortalProxy": "0xA3E8Bd7535f685d4c5383176c7151909Ff0c3dD2",
+    "DisputeGameFactoryProxy": "0x904D0E3529A5Ff440c5b4B6038efBc202fD8b9B9",
+    "AnchorStateRegistryProxy": "0x88927a6B2087018AF73a8e31561adC7497714dD4",
+    "EthLockboxProxy": "0xCEBC34BBC2a50a4668f9b4c61CC3b657f2ea6FE9",
+    "SuperchainConfig": "0x00B4eC90dCBfa9D2B66c996AbbC61B51Dd20d40A",
+    "ProtocolVersions": "0x7E8C4F6b85bE7f9A887D7ae82b16C8C947F4349b"
+  }
+}

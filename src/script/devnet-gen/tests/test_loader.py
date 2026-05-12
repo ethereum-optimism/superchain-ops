@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from devnet import LoaderError, load_devnet
+from devnet.loader import DEFAULT_OWNER_SAFE_ADDRESS, LoaderWarning
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "devnets" / "freya-u16"
 
@@ -102,3 +103,28 @@ l2:
     d = load_devnet(tmp_path)
     assert d.name == "sdg-v1"
     assert d.chains[0].chain_id == 420100099
+
+
+def test_missing_owner_safe_defaults_with_warning(tmp_path):
+    manifest = """\
+name: no-owner-safe
+type: alphanet
+l1:
+  name: sepolia
+  chain_id: 11155111
+l2:
+  chains:
+    - name: no-owner-safe-0
+      chain_id: "420100099"
+"""
+    (tmp_path / "manifest.yaml").write_text(manifest)
+    chain_dir = tmp_path / "no-owner-safe-0"
+    chain_dir.mkdir()
+    (chain_dir / "chain.yaml").write_text(
+        "name: no-owner-safe-0\nchain_id: 420100099\ncontracts:\n  opChainDeployment: {}\n"
+    )
+
+    with pytest.warns(LoaderWarning, match="l1.owner_safe_address"):
+        d = load_devnet(tmp_path)
+
+    assert d.l1.owner_safe_address == DEFAULT_OWNER_SAFE_ADDRESS

@@ -139,6 +139,8 @@ def _cmd_gen(args: argparse.Namespace) -> int:
     if not args.offline:
         rpc_url = args.rpc_url or l1_rpc_url(devnet.l1.name)
         adapter.verify(devnet, task_files, rpc_url)
+    else:
+        adapter.validate_offline(devnet, task_files)
 
     if args.dry_run:
         return _dry_run(devnet, task_files, out_dir)

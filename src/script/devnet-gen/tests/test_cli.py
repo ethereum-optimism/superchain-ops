@@ -18,6 +18,7 @@ def _stub_opcm_version(monkeypatch):
     expected_by_template = {
         "OPCMUpgradeV600": "6.0.0",
         "OPCMUpgradeV800": "7.1.17",
+        "OPCMMigrateV800": "7.1.17",
     }
 
     def _fake(rpc_url, address, expected, *, _expected_by_template=expected_by_template):
@@ -35,6 +36,7 @@ def test_cli_list(capsys):
     assert rc == 0
     out = capsys.readouterr().out
     assert "OPCMUpgradeV600" in out
+    assert "OPCMMigrateV800" in out
 
 
 def test_cli_info(capsys):

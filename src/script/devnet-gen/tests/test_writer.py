@@ -6,6 +6,7 @@ import tomllib
 import pytest
 
 from adapters import get
+from adapters.base import TaskFiles
 from devnet import load_devnet
 from writer import WriterError, render
 
@@ -143,3 +144,20 @@ def test_writer_readme_includes_devnet_context(tmp_path):
     assert "Devnet Context" in readme
     assert "(overridden)" in readme  # OPCM was overridden
     assert "Status: DEVNET" in readme
+
+
+def test_writer_readme_defaults_optional_context(tmp_path):
+    repo_root, out_dir, devnet, adapter = _setup(tmp_path)
+    files = TaskFiles(
+        config_toml={"templateName": adapter.template_name, "l2chains": []},
+        addresses_json={},
+    )
+    result = render(
+        adapter=adapter,
+        devnet=devnet,
+        task_files=files,
+        out_dir=out_dir,
+        repo_root=repo_root,
+    )
+    readme = (result.task_dir / "README.md").read_text()
+    assert "Devnet Context" in readme

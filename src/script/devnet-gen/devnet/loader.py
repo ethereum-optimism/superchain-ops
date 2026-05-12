@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -9,8 +10,14 @@ import yaml
 
 from .descriptor import Chain, Devnet, L1Info, Prestates
 
+DEFAULT_OWNER_SAFE_ADDRESS = "0xe934Dc97E347C6aCef74364B50125bb8689c40ff"
+
 
 class LoaderError(Exception):
+    pass
+
+
+class LoaderWarning(UserWarning):
     pass
 
 
@@ -83,10 +90,20 @@ def _load_l1(manifest: dict[str, Any], src: Path) -> L1Info:
     # eth_rpc deliberately not read — devnet manifests aren't a reliable source
     # for an L1 RPC URL, so the generator hardcodes one per L1 network in
     # networks.py and lets users override via --rpc-url.
+    owner_safe_address = _dig_optional(manifest, "l1.owner_safe_address")
+    if not owner_safe_address:
+        warnings.warn(
+            f"{src}: missing field 'l1.owner_safe_address'; "
+            f"defaulting to {DEFAULT_OWNER_SAFE_ADDRESS}",
+            LoaderWarning,
+            stacklevel=2,
+        )
+        owner_safe_address = DEFAULT_OWNER_SAFE_ADDRESS
+
     return L1Info(
         name=_dig(manifest, "l1.name", src),
         chain_id=int(_dig(manifest, "l1.chain_id", src)),
-        owner_safe_address=_dig(manifest, "l1.owner_safe_address", src),
+        owner_safe_address=owner_safe_address,
     )
 
 
@@ -190,4 +207,13 @@ def _dig(data: dict[str, Any], dotted: str, src: Path) -> Any:
         cur = cur[part]
     if cur is None:
         raise LoaderError(f"{src}: field '{dotted}' is null")
+    return cur
+
+
+def _dig_optional(data: dict[str, Any], dotted: str) -> Any | None:
+    cur: Any = data
+    for part in dotted.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return None
+        cur = cur[part]
     return cur

@@ -1,0 +1,27 @@
+l2chains = [
+    { name = "inphi-devnet-0", chainId = 420120092 },
+    { name = "inphi-devnet-1", chainId = 420120093 },
+]
+templateName = "OPCMMigrateV800"
+expectedOPCMVersion = "7.1.17"
+fallbackAddressesJsonPath = "src/tasks/sep/077-opcm-migrate-v800-inphi-devnet/addresses.json"
+
+[[opcmMigrations]]
+cannonKonaPrestate = "0x03b483ec22e6620627670d3d9902d2088977310999a9d1ff70711ed504fa49a3"
+chainId = 420120092
+
+[[opcmMigrations]]
+cannonKonaPrestate = "0x03b483ec22e6620627670d3d9902d2088977310999a9d1ff70711ed504fa49a3"
+chainId = 420120093
+
+[migrate]
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingAnchorRootL2SequenceNumber = 1778523798
+startingAnchorRootRoot = "0x53978c9473832f3d9b40a172a2985d73db3d6fe7df2095e78d2dcce31d50da98"
+startingRespectedGameType = 9
+superChallenger = "0x84bec10f4ada1218c288add22ab8e85bc958da8f"
+superProposer = "0x1b4491812992e38137ed65ddb1d4c86eccb9b49a"
+
+[addresses]
+OPCM = "0x0d38af819dd2a486eba94bb5a723d95b2ef326dc"
