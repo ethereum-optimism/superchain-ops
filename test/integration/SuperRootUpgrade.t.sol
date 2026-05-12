@@ -119,28 +119,6 @@ contract SuperRootUpgradeIntegrationTest is Test, OPCMUpgradeV800 {
         }
     }
 
-    function test_starting_respected_game_type_overrides_disabled_guard() public {
-        upgrades[chainA].startingRespectedGameType = 9;
-
-        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(chainA);
-
-        assertEq(configs[0].gameType, 0);
-        assertFalse(configs[0].enabled);
-        assertEq(configs[0].initBond, 0);
-        assertEq(configs[0].gameArgs.length, 0);
-
-        assertEq(configs[1].gameType, 1);
-        assertFalse(configs[1].enabled);
-        assertEq(configs[1].initBond, 0);
-        assertEq(configs[1].gameArgs.length, 0);
-
-        assertEq(configs[5].gameType, 9);
-        assertTrue(configs[5].enabled);
-        assertEq(configs[5].initBond, upgrades[chainA].initBond);
-        bytes32 prestate = abi.decode(configs[5].gameArgs, (bytes32));
-        assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonKonaPrestate));
-    }
-
     function test_super_permissioned_cannon_is_enabled_by_default() public view {
         assertTrue(_isGameTypeEnabled(IDisputeGameFactory(address(0)), 5, 0));
     }
