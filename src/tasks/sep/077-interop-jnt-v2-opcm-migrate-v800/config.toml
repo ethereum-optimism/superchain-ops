@@ -24,11 +24,11 @@ initBond = 80000000000000000
 startingAnchorRootL2SequenceNumber = 0
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
-superChallenger = "0x8c42706f457e2775ddd9aa9453ac76de53a0a3f6"
-superProposer = "0xe4b36013d5d8a58bc038779f19cfa1cba0decf78"
+superChallenger = "0x8C42706f457E2775dDd9aa9453aC76de53A0a3F6"
+superProposer = "0xe4b36013D5d8A58bC038779F19CFA1CBa0DecF78"
 
 [addresses]
-OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
+OPCM = "0x15C65eE282777e4a2856FDf26D33EE4D5bAb30C4"
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [

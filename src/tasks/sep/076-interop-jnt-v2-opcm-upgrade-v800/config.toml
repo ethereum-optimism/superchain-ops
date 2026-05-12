@@ -27,7 +27,7 @@ initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
 [addresses]
-OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
+OPCM = "0x15C65eE282777e4a2856FDf26D33EE4D5bAb30C4"
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
