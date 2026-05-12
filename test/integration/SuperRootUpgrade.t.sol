@@ -5,7 +5,7 @@ import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {IOPContractsManagerV800, OPCMUpgradeV800} from "src/template/OPCMUpgradeV800.sol";
+import {IDisputeGameFactory, IOPContractsManagerV800, OPCMUpgradeV800} from "src/template/OPCMUpgradeV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
@@ -16,6 +16,30 @@ interface IProxyAdmin {
 interface ISystemConfigExt {
     function proxyAdmin() external view returns (address);
     function superchainConfig() external view returns (address);
+}
+
+contract OPCMUpgradeV800SetupHarness is OPCMUpgradeV800 {
+    function setupForTest(string memory configPath) external {
+        superchainAddrRegistry = new SuperchainAddressRegistry(configPath);
+        _templateSetup(configPath, address(0));
+    }
+}
+
+contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
+    string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
+    string constant INVALID_CONFIG =
+        "test/tasks/example/sep/035-opcm-upgrade-v800/opcm-upgrade-v800-cannon-starting-game-type.toml";
+
+    function test_rejects_cannon_starting_respected_game_type() public {
+        vm.createSelectFork(vm.rpcUrl("sepolia"));
+        string memory config = vm.readFile(string.concat(FIXTURES, "config.toml"));
+        config = vm.replace(config, "startingRespectedGameType = 9", "startingRespectedGameType = 0");
+        vm.writeFile(INVALID_CONFIG, config);
+
+        OPCMUpgradeV800SetupHarness harness = new OPCMUpgradeV800SetupHarness();
+        vm.expectRevert("OPCMUpgradeV800: startingRespectedGameType cannot be CANNON");
+        harness.setupForTest(INVALID_CONFIG);
+    }
 }
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
@@ -77,6 +101,54 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
                 }
             }
         }
+    }
+
+    function test_super_permissioned_cannon_is_enabled_by_default() public view {
+        assertTrue(_isGameTypeEnabled(IDisputeGameFactory(address(0)), 5, 0));
+    }
+
+    /// @notice Exercises the upgrade where a chain currently respecting
+    /// SUPER_PERMISSIONED_CANNON (gt=5) transitions to SUPER_CANNON_KONA (gt=9).
+    /// SUPER_CANNON_KONA must be enabled via the startingRespectedGameType override
+    /// even when CANNON_KONA isn't yet wired into the factory, while
+    /// SUPER_PERMISSIONED_CANNON remains enabled for the transition window.
+    function test_upgrade_super_permissioned_to_super_cannon_kona() public {
+        upgrades[CHAIN_ID].startingRespectedGameType = 9;
+
+        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_ID);
+
+        // _buildGameConfigs order: [CANNON, PERMISSIONED_CANNON, CANNON_KONA,
+        // SUPER_CANNON, SUPER_PERMISSIONED_CANNON, SUPER_CANNON_KONA, ZK_DISPUTE_GAME]
+        assertEq(configs.length, 7);
+
+        // Base games stay disabled.
+        assertEq(configs[0].gameType, 0);
+        assertFalse(configs[0].enabled);
+        assertEq(configs[0].initBond, 0);
+        assertEq(configs[0].gameArgs.length, 0);
+
+        assertEq(configs[1].gameType, 1);
+        assertFalse(configs[1].enabled);
+        assertEq(configs[1].initBond, 0);
+        assertEq(configs[1].gameArgs.length, 0);
+
+        // SUPER_PERMISSIONED_CANNON (gt=5) is always enabled and keeps permissioned encoding.
+        assertEq(configs[4].gameType, 5);
+        assertTrue(configs[4].enabled);
+        assertEq(configs[4].initBond, upgrades[CHAIN_ID].initBond);
+        (bytes32 permPrestate, address proposer, address challenger) =
+            abi.decode(configs[4].gameArgs, (bytes32, address, address));
+        assertEq(permPrestate, Claim.unwrap(upgrades[CHAIN_ID].cannonPrestate));
+        assertEq(proposer, superchainAddrRegistry.getAddress("Proposer", CHAIN_ID));
+        assertEq(challenger, superchainAddrRegistry.getAddress("Challenger", CHAIN_ID));
+
+        // SUPER_CANNON_KONA (gt=9) is enabled because gt == startingRespectedGameType,
+        // even though CANNON_KONA impl is not in the factory. Permissionless encoding.
+        assertEq(configs[5].gameType, 9);
+        assertTrue(configs[5].enabled);
+        assertEq(configs[5].initBond, upgrades[CHAIN_ID].initBond);
+        bytes32 konaPrestate = abi.decode(configs[5].gameArgs, (bytes32));
+        assertEq(konaPrestate, Claim.unwrap(upgrades[CHAIN_ID].cannonKonaPrestate));
     }
 
     function test_upgrade_sepolia() public {
