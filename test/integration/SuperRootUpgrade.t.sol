@@ -27,13 +27,12 @@ contract OPCMUpgradeV800SetupHarness is OPCMUpgradeV800 {
 
 contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
-    string constant INVALID_CONFIG = ".context/opcm-upgrade-v800-cannon-starting-game-type.toml";
+    string constant INVALID_CONFIG = "test/tasks/example/sep/035-opcm-upgrade-v800/opcm-upgrade-v800-cannon-starting-game-type.toml";
 
     function test_rejects_cannon_starting_respected_game_type() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"));
         string memory config = vm.readFile(string.concat(FIXTURES, "config.toml"));
         config = vm.replace(config, "startingRespectedGameType = 9", "startingRespectedGameType = 0");
-        vm.createDir(".context", false);
         vm.writeFile(INVALID_CONFIG, config);
 
         OPCMUpgradeV800SetupHarness harness = new OPCMUpgradeV800SetupHarness();
