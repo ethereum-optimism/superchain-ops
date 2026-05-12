@@ -14,7 +14,8 @@ skipOPCMVersionCheck = false
 chainId = 420120102
 cannonPrestate = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c"
 cannonKonaPrestate = "0x035ef680a6fa34c50d8d8169075b5d133ecd7b38fe2b2a83cc76fc81ae5d7c52"
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
+expectedValidationErrors = "OVERRIDES-CHALLENGER,SYSCON-130"
+# SYSCON-130: expected because interop-jnt-v2 uses a devnet SuperchainConfig, not the standard OP Sepolia one.
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
@@ -22,7 +23,8 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 chainId = 420120103
 cannonPrestate = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c"
 cannonKonaPrestate = "0x035ef680a6fa34c50d8d8169075b5d133ecd7b38fe2b2a83cc76fc81ae5d7c52"
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
+expectedValidationErrors = "OVERRIDES-CHALLENGER,SYSCON-130"
+# SYSCON-130: expected because interop-jnt-v2 uses a devnet SuperchainConfig, not the standard OP Sepolia one.
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
