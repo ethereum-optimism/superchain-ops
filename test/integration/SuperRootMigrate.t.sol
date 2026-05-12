@@ -77,7 +77,7 @@ contract MockMigrationStandardValidator {
     }
 }
 
-contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
+contract SuperRootMigrateIntegrationTest is Test, OPCMMigrateV800 {
     string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v800/";
     uint256 internal constant FORK_BLOCK_NUMBER = 10_796_650;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
@@ -94,7 +94,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     uint32 internal constant ZK_DISPUTE_GAME = 10;
 
     function setUp() public {
-        vm.createSelectFork(vm.envString("SEPOLIA_RPC_URL"), FORK_BLOCK_NUMBER);
+        vm.createSelectFork(vm.rpcUrl("sepolia"), FORK_BLOCK_NUMBER);
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
