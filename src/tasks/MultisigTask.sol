@@ -433,10 +433,20 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             // All touched accounts should have code, with the exception of precompiles.
             bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
             if (!isPrecompile) {
-                require(
-                    accountAccess.account.code.length != 0,
-                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
-                );
+                // HACK: Allow OPCM Migrate usage of loadOrDeployProxy(address(0), bytes4(0), ...)
+                // Where loadOrDeployProxy makes a staticcall to the zero address
+                if (
+                    !(
+                        accountAccess.account == address(0) && accountAccess.data.length == 4
+                            && bytes4(accountAccess.data) == bytes4(0)
+                            && accountAccess.kind == VmSafe.AccountAccessKind.StaticCall
+                    )
+                ) {
+                    require(
+                        accountAccess.account.code.length != 0,
+                        string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                    );
+                }
             }
 
             if (!_allowedBalanceChanges.contains(accountAccess.account)) {
