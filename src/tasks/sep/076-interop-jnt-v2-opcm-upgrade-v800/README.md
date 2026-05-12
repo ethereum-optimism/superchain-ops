@@ -1,6 +1,6 @@
 # 076-interop-jnt-v2-opcm-upgrade-v800
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

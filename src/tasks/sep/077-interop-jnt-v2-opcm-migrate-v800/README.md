@@ -1,6 +1,6 @@
 # 077-interop-jnt-v2-opcm-migrate-v800
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
