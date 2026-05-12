@@ -18,7 +18,7 @@ forge = "1.2.3"
 cast = "1.2.3"
 anvil = "1.2.3"
 
-[tool_alias]
+[alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"
 cast = "ubi:foundry-rs/foundry[exe=cast]"
 anvil = "ubi:foundry-rs/foundry[exe=anvil]"
