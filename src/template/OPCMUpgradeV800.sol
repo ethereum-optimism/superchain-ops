@@ -174,10 +174,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         view
         returns (bool)
     {
-        if (gt == startingRespectedGameType) return true;
         if (gt == CANNON) return false;
         if (gt == PERMISSIONED_CANNON) return false;
         if (gt == CANNON_KONA) return false;
+        if (gt == startingRespectedGameType) return true;
         if (gt == SUPER_CANNON) {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON))) != address(0);
         }
