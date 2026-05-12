@@ -1,6 +1,6 @@
 # 050-fus-rotation
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x9592d29403a878a9ad6041a8cac8f0789a160fe4ea7b5cf364aff4a08b5656ee)
 
 ## Objective
 
