@@ -1,0 +1,35 @@
+# managed-by:netchef,network:interop-jnt-v2
+# These devnet chains are not in the superchain registry, so the task points at a sibling fallback addresses.json.
+l2chains = [
+    {name = "interop-jnt-v2-0", chainId = 420120102},
+    {name = "interop-jnt-v2-1", chainId = 420120103}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/076-interop-jnt-v2-opcm-upgrade-v800/addresses.json"
+
+templateName = "OPCMUpgradeV800"
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 420120102
+cannonPrestate = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c"
+cannonKonaPrestate = "0x035ef680a6fa34c50d8d8169075b5d133ecd7b38fe2b2a83cc76fc81ae5d7c52"
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 420120103
+cannonPrestate = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c"
+cannonKonaPrestate = "0x035ef680a6fa34c50d8d8169075b5d133ecd7b38fe2b2a83cc76fc81ae5d7c52"
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[addresses]
+OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 85}
+]
