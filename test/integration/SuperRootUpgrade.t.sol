@@ -20,19 +20,23 @@ interface ISystemConfigExt {
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
-    uint256 internal constant CHAIN_A = 420120084;
-    uint256 internal constant CHAIN_B = 420120085;
     uint256 internal constant FORK_BLOCK_NUMBER = 10_796_650;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
-    address internal constant SUPERCHAIN_CONFIG = 0xbb331C0Bf409ef6B39CF585221fa4FF73001668a;
+    uint256 internal chainA;
+    uint256 internal chainB;
     address rootSafe;
+    address superchainConfig;
 
     function setUp() public {
         vm.createSelectFork(vm.envString("SEPOLIA_RPC_URL"), FORK_BLOCK_NUMBER);
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        chainA = chains[0].chainId;
+        chainB = chains[1].chainId;
+        superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chainA);
         _templateSetup(configTomlPath, address(0));
-        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A);
+        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", chainA);
         rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
     }
 
@@ -41,44 +45,44 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 2);
-        assertEq(chains[0].chainId, CHAIN_A);
-        assertEq(chains[1].chainId, CHAIN_B);
+        assertEq(chains[0].chainId, chainA);
+        assertEq(chains[1].chainId, chainB);
 
         assertEq(chainsToUpgrade.length, chains.length);
-        assertEq(chainsToUpgrade[0], CHAIN_A);
-        assertEq(chainsToUpgrade[1], CHAIN_B);
+        assertEq(chainsToUpgrade[0], chainA);
+        assertEq(chainsToUpgrade[1], chainB);
 
-        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", CHAIN_A), SUPERCHAIN_CONFIG);
-        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", CHAIN_B), SUPERCHAIN_CONFIG);
-        assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_A), ROOT_SAFE);
-        assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", CHAIN_B), ROOT_SAFE);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainA), superchainConfig);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainB), superchainConfig);
+        assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", chainA), ROOT_SAFE);
+        assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", chainB), ROOT_SAFE);
         assertEq(
-            superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A), 0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainA), 0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f
         );
         assertEq(
-            superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_B), 0x822AeD4EBe81A7d626b75B6074110985d61f6dE1
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainB), 0x822AeD4EBe81A7d626b75B6074110985d61f6dE1
         );
         assertEq(
-            superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_A), 0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1
+            superchainAddrRegistry.getAddress("EthLockboxProxy", chainA), 0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1
         );
         assertEq(
-            superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_B), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
+            superchainAddrRegistry.getAddress("EthLockboxProxy", chainB), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
         );
 
         bytes32 cannonPrestate = 0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef;
         bytes32 cannonKonaPrestate = 0x03a7000000000000000000000000000000000000000000000000000000000001;
-        assertEq(Claim.unwrap(upgrades[CHAIN_A].cannonPrestate), cannonPrestate);
-        assertEq(Claim.unwrap(upgrades[CHAIN_B].cannonPrestate), cannonPrestate);
-        assertEq(Claim.unwrap(upgrades[CHAIN_A].cannonKonaPrestate), cannonKonaPrestate);
-        assertEq(Claim.unwrap(upgrades[CHAIN_B].cannonKonaPrestate), cannonKonaPrestate);
-        assertEq(upgrades[CHAIN_A].initBond, 0.08 ether);
-        assertEq(upgrades[CHAIN_B].initBond, 0.08 ether);
-        assertEq(upgrades[CHAIN_A].startingRespectedGameType, 9);
-        assertEq(upgrades[CHAIN_B].startingRespectedGameType, 9);
-        assertEq(upgrades[CHAIN_A].expectedValidationErrors, "OVERRIDES-CHALLENGER");
-        assertEq(upgrades[CHAIN_B].expectedValidationErrors, "OVERRIDES-CHALLENGER");
+        assertEq(Claim.unwrap(upgrades[chainA].cannonPrestate), cannonPrestate);
+        assertEq(Claim.unwrap(upgrades[chainB].cannonPrestate), cannonPrestate);
+        assertEq(Claim.unwrap(upgrades[chainA].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(Claim.unwrap(upgrades[chainB].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(upgrades[chainA].initBond, 0.08 ether);
+        assertEq(upgrades[chainB].initBond, 0.08 ether);
+        assertEq(upgrades[chainA].startingRespectedGameType, 9);
+        assertEq(upgrades[chainB].startingRespectedGameType, 9);
+        assertEq(upgrades[chainA].expectedValidationErrors, "OVERRIDES-CHALLENGER");
+        assertEq(upgrades[chainB].expectedValidationErrors, "OVERRIDES-CHALLENGER");
 
-        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_A);
+        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(chainA);
         assertEq(configs.length, 7);
 
         uint32[7] memory expectedGameTypes = [uint32(0), 1, 8, 4, 5, 9, 10];
@@ -99,26 +103,26 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
             if (gameType == 5) {
                 (bytes32 permPrestate, address proposer, address challenger) =
                     abi.decode(config.gameArgs, (bytes32, address, address));
-                assertEq(config.initBond, upgrades[CHAIN_A].initBond);
-                assertEq(permPrestate, Claim.unwrap(upgrades[CHAIN_A].cannonPrestate));
-                assertEq(proposer, superchainAddrRegistry.getAddress("Proposer", CHAIN_A));
-                assertEq(challenger, superchainAddrRegistry.getAddress("Challenger", CHAIN_A));
+                assertEq(config.initBond, upgrades[chainA].initBond);
+                assertEq(permPrestate, Claim.unwrap(upgrades[chainA].cannonPrestate));
+                assertEq(proposer, superchainAddrRegistry.getAddress("Proposer", chainA));
+                assertEq(challenger, superchainAddrRegistry.getAddress("Challenger", chainA));
             } else {
-                assertEq(config.initBond, upgrades[CHAIN_A].initBond);
+                assertEq(config.initBond, upgrades[chainA].initBond);
                 bytes32 prestate = abi.decode(config.gameArgs, (bytes32));
                 if (isKona) {
-                    assertEq(prestate, Claim.unwrap(upgrades[CHAIN_A].cannonKonaPrestate));
+                    assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonKonaPrestate));
                 } else {
-                    assertEq(prestate, Claim.unwrap(upgrades[CHAIN_A].cannonPrestate));
+                    assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonPrestate));
                 }
             }
         }
     }
 
     function test_starting_respected_game_type_overrides_disabled_guard() public {
-        upgrades[CHAIN_A].startingRespectedGameType = 9;
+        upgrades[chainA].startingRespectedGameType = 9;
 
-        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(CHAIN_A);
+        IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(chainA);
 
         assertEq(configs[0].gameType, 0);
         assertFalse(configs[0].enabled);
@@ -132,9 +136,9 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
 
         assertEq(configs[5].gameType, 9);
         assertTrue(configs[5].enabled);
-        assertEq(configs[5].initBond, upgrades[CHAIN_A].initBond);
+        assertEq(configs[5].initBond, upgrades[chainA].initBond);
         bytes32 prestate = abi.decode(configs[5].gameArgs, (bytes32));
-        assertEq(prestate, Claim.unwrap(upgrades[CHAIN_A].cannonKonaPrestate));
+        assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonKonaPrestate));
     }
 
     function test_super_permissioned_cannon_is_enabled_by_default() public view {

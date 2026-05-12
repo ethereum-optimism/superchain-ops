@@ -79,13 +79,13 @@ contract MockMigrationStandardValidator {
 
 contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     string constant FIXTURES = "test/tasks/example/sep/036-opcm-migrate-v800/";
-    uint256 internal constant CHAIN_A = 420120084;
-    uint256 internal constant CHAIN_B = 420120085;
     uint256 internal constant FORK_BLOCK_NUMBER = 10_796_650;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
-    address internal constant SUPERCHAIN_CONFIG = 0xbb331C0Bf409ef6B39CF585221fa4FF73001668a;
 
+    uint256 internal chainA;
+    uint256 internal chainB;
     address rootSafe;
+    address superchainConfig;
 
     uint32 internal constant CANNON = 0;
     uint32 internal constant PERMISSIONED_CANNON = 1;
@@ -97,8 +97,12 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         vm.createSelectFork(vm.envString("SEPOLIA_RPC_URL"), FORK_BLOCK_NUMBER);
         string memory configTomlPath = string.concat(FIXTURES, "config.toml");
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        chainA = chains[0].chainId;
+        chainB = chains[1].chainId;
+        superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chainA);
         _templateSetup(configTomlPath, address(0));
-        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A);
+        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", chainA);
         rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
         _upgradeChainFirst();
     }
@@ -106,8 +110,8 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
     function test_load_data() public view {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 2);
-        assertEq(chains[0].chainId, CHAIN_A);
-        assertEq(chains[1].chainId, CHAIN_B);
+        assertEq(chains[0].chainId, chainA);
+        assertEq(chains[1].chainId, chainB);
         assertEq(chainsToMigrate.length, chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -116,26 +120,26 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         }
 
         assertEq(rootSafe, ROOT_SAFE);
-        assertEq(chainsToMigrate[0], CHAIN_A);
-        assertEq(chainsToMigrate[1], CHAIN_B);
-        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", CHAIN_A), SUPERCHAIN_CONFIG);
-        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", CHAIN_B), SUPERCHAIN_CONFIG);
+        assertEq(chainsToMigrate[0], chainA);
+        assertEq(chainsToMigrate[1], chainB);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainA), superchainConfig);
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainB), superchainConfig);
         assertEq(
-            superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_A), 0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainA), 0x811a0Bf7d84a717E3b21C47e9E44e34447F5Ce6f
         );
         assertEq(
-            superchainAddrRegistry.getAddress("SystemConfigProxy", CHAIN_B), 0x822AeD4EBe81A7d626b75B6074110985d61f6dE1
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainB), 0x822AeD4EBe81A7d626b75B6074110985d61f6dE1
         );
         assertEq(
-            superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_A), 0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1
+            superchainAddrRegistry.getAddress("EthLockboxProxy", chainA), 0xC0024116b4e830920d4aF8FC9b1eD43C649b71E1
         );
         assertEq(
-            superchainAddrRegistry.getAddress("EthLockboxProxy", CHAIN_B), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
+            superchainAddrRegistry.getAddress("EthLockboxProxy", chainB), 0x5b581A2D29E5Db7bd30DD6C597c4ba77f9f2E10F
         );
 
         bytes32 cannonKonaPrestate = 0x03a7000000000000000000000000000000000000000000000000000000000001;
-        assertEq(Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate), cannonKonaPrestate);
-        assertEq(Claim.unwrap(migrations[CHAIN_B].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(Claim.unwrap(migrations[chainA].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(Claim.unwrap(migrations[chainB].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(migrateParams.expectedValidationErrors, "");
         assertEq(expectedOPCMVersion, "7.1.17");
 
@@ -158,7 +162,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         assertEq(configs[0].initBond, migrateParams.initBond);
         (bytes32 permPrestate, address proposer, address challenger) =
             abi.decode(configs[0].gameArgs, (bytes32, address, address));
-        assertEq(permPrestate, Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate));
+        assertEq(permPrestate, Claim.unwrap(migrations[chainA].cannonKonaPrestate));
         assertEq(proposer, migrateParams.superProposer);
         assertEq(challenger, migrateParams.superChallenger);
 
@@ -167,7 +171,7 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         assertTrue(configs[1].enabled);
         assertEq(configs[1].initBond, migrateParams.initBond);
         bytes32 konaPrestate = abi.decode(configs[1].gameArgs, (bytes32));
-        assertEq(konaPrestate, Claim.unwrap(migrations[CHAIN_A].cannonKonaPrestate));
+        assertEq(konaPrestate, Claim.unwrap(migrations[chainA].cannonKonaPrestate));
     }
 
     function test_migrate_sepolia() public {
