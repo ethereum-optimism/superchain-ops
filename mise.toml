@@ -2,7 +2,7 @@
 
 # Core dependencies
 go = "1.24.6"
-just = "1.37.0"
+just = "1.46.0"
 shellcheck = "0.10.0"
 jq = "1.7.1"
 yq = "4.44.5"
@@ -14,11 +14,11 @@ fzf = "0.65.0"
 # The git ref here should be on the `stable` branch.
 # WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
 # The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
-forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
-cast = "v1.1.0"
-anvil = "v1.1.0"
+forge = "1.2.3"
+cast = "1.2.3"
+anvil = "1.2.3"
 
-[alias]
+[tool_alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"
 cast = "ubi:foundry-rs/foundry[exe=cast]"
 anvil = "ubi:foundry-rs/foundry[exe=anvil]"
