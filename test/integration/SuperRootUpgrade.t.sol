@@ -33,6 +33,7 @@ contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
         vm.createSelectFork(vm.rpcUrl("sepolia"));
         string memory config = vm.readFile(string.concat(FIXTURES, "config.toml"));
         config = vm.replace(config, "startingRespectedGameType = 9", "startingRespectedGameType = 0");
+        vm.createDir(".context", false);
         vm.writeFile(INVALID_CONFIG, config);
 
         OPCMUpgradeV800SetupHarness harness = new OPCMUpgradeV800SetupHarness();
