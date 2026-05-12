@@ -12,7 +12,11 @@ import {
     ISystemConfig,
     ISystemConfigV800
 } from "src/template/OPCMUpgradeV800.sol";
-import {OPCMMigrateV800} from "src/template/OPCMMigrateV800.sol";
+import {
+    OPCMMigrateV800,
+    IOPContractsManagerMigrationValidator,
+    IOPContractsManagerStandardValidatorMigrate
+} from "src/template/OPCMMigrateV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
@@ -23,6 +27,54 @@ interface IProxyAdmin {
 
 interface ISystemConfigExt {
     function proxyAdmin() external view returns (address);
+}
+
+contract MockMigrationStandardValidator {
+    address internal immutable expectedL1PAO;
+    address internal immutable expectedChallenger;
+    address internal immutable expectedProposer;
+
+    constructor(address _expectedL1PAO, address _expectedChallenger, address _expectedProposer) {
+        expectedL1PAO = _expectedL1PAO;
+        expectedChallenger = _expectedChallenger;
+        expectedProposer = _expectedProposer;
+    }
+
+    function l1PAOMultisig() external view returns (address) {
+        return address(uint160(expectedL1PAO) ^ 1);
+    }
+
+    function challenger() external view returns (address) {
+        return address(uint160(expectedChallenger) ^ 1);
+    }
+
+    function version() external pure returns (string memory) {
+        return "mock";
+    }
+
+    function migrationValidator() external pure returns (IOPContractsManagerMigrationValidator) {
+        return IOPContractsManagerMigrationValidator(address(0x1));
+    }
+
+    function validateMigratedChain(IOPContractsManagerMigrationValidator.MigrationValidationInput memory, bool)
+        external
+        pure
+        returns (string memory)
+    {
+        revert("overrides expected");
+    }
+
+    function validateMigratedChainWithOverrides(
+        IOPContractsManagerMigrationValidator.MigrationValidationInput memory _input,
+        bool _allowFailure,
+        IOPContractsManagerStandardValidatorMigrate.ValidationOverrides memory _overrides
+    ) external view returns (string memory) {
+        require(_allowFailure, "allowFailure not set");
+        require(_input.proposer == expectedProposer, "proposer mismatch");
+        require(_overrides.l1PAOMultisig == expectedL1PAO, "l1PAO override mismatch");
+        require(_overrides.challenger == expectedChallenger, "challenger override mismatch");
+        return "";
+    }
 }
 
 contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
@@ -95,6 +147,11 @@ contract SuperRootMigrateTest is Test, OPCMMigrateV800 {
         Action[] memory actions = build(rootSafe);
         assertGt(actions.length, 0);
         _executeActions(actions);
+        standardValidator = IOPContractsManagerStandardValidatorMigrate(
+            address(
+                new MockMigrationStandardValidator(rootSafe, migrateParams.superChallenger, migrateParams.superProposer)
+            )
+        );
         _validate(new VmSafe.AccountAccess[](0), actions, rootSafe);
     }
 
