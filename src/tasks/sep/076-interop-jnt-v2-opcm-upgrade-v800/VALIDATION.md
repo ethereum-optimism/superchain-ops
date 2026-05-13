@@ -8,8 +8,8 @@ First, validate the domain and message hashes. These values should match both th
 >
 > ### Betanet 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
-> - Domain Hash: `TODO`
-> - Message Hash: `TODO`
+> - Domain Hash: `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
+> - Message Hash: `0x96ebd2c79f3ae666c11764872b6f952281d09100f214e12da2ee734830a20f26`
 
 ## State Changes
 

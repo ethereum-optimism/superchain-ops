@@ -19,7 +19,7 @@ chainId = 420120103
 cannonKonaPrestate = "0x035ef680a6fa34c50d8d8169075b5d133ecd7b38fe2b2a83cc76fc81ae5d7c52"
 
 [migrate]
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
+expectedValidationErrors = ""
 initBond = 80000000000000000
 startingAnchorRootL2SequenceNumber = 0
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
