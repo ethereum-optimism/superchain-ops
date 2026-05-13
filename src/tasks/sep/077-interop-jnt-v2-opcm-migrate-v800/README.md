@@ -1,6 +1,6 @@
 # 077-interop-jnt-v2-opcm-migrate-v800
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x7bf7f64f71652aec08e94254783e15028268f8fdb2a294f0305aae00247ce883)
 
 ## Objective
 

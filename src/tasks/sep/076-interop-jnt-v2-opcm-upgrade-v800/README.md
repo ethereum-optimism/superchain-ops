@@ -1,6 +1,6 @@
 # 076-interop-jnt-v2-opcm-upgrade-v800
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x0fa92c4fc409a5f211b8d87a98dd56582ccb607288a575ee11d1beca2e0ab79d)
 
 ## Objective
 
