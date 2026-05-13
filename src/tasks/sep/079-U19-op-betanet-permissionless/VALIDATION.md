@@ -20,8 +20,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Betanet 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
-> - Domain Hash: `TBD — populate from simulation output`
-> - Message Hash: `TBD — populate from simulation output`
+> - Domain Hash: `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
+> - Message Hash: `0x3c469c9c32758e1cdac0f9de215876f2e2fab124b94fd6882bc5b5f919189500`
 
 ## Task Calldata
 
