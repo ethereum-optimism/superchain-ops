@@ -1,6 +1,6 @@
 # 052-deputy-pause-key-rotation
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x9be0d40037f1a556aafcf1b6fd700005d49552826e27b494c8ddc549685b8b8b)
 
 ## Objective
 

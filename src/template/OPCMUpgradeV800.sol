@@ -5,6 +5,7 @@ import {Claim, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
@@ -16,6 +17,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 contract OPCMUpgradeV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice Struct to store inputs data for each L2 chain.
     /// @dev Fields must remain in alphabetical order for TOML decoding.
@@ -71,6 +73,22 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
 
+    /// @notice Allowlist storage writes for the upgrade.
+    /// @dev L2TaskBase's default `_setAllowedStorageAccesses` calls `addrRegistry.get(key)`
+    /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
+    /// like `SuperchainConfig` and `ProtocolVersions`, `get(key)` resolves against the
+    /// sentinel-chain entries hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet
+    /// values), so devnet-specific addresses never make it into the allowlist. We re-add
+    /// them explicitly per chain so devnet upgrades pass the post-execution check.
+    function _setAllowedStorageAccesses() internal virtual override {
+        super._setAllowedStorageAccesses();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId));
+        }
+    }
+
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in
     /// this function.
@@ -91,6 +109,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             require(
                 Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMUpgradeV800: cannonKonaPrestate is zero"
+            );
+            require(
+                _upgrades[i].startingRespectedGameType != CANNON,
+                "OPCMUpgradeV800: startingRespectedGameType cannot be CANNON"
             );
             chainsToUpgrade.push(_upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
@@ -165,15 +187,20 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     }
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
-    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt) internal view returns (bool) {
+    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt, uint32 startingRespectedGameType)
+        internal
+        view
+        returns (bool)
+    {
         if (gt == CANNON) return false;
         if (gt == PERMISSIONED_CANNON) return false;
         if (gt == CANNON_KONA) return false;
+        if (gt == startingRespectedGameType) return true;
         if (gt == SUPER_CANNON) {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON))) != address(0);
         }
         if (gt == SUPER_PERMISSIONED_CANNON) {
-            return address(disputeGameFactory.gameImpls(GameType.wrap(PERMISSIONED_CANNON))) != address(0);
+            return true;
         }
         if (gt == SUPER_CANNON_KONA) {
             return address(disputeGameFactory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
@@ -197,9 +224,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         uint32 gt,
         bytes32 cannonPre,
         bytes32 cannonKonaPre,
-        uint256 bond
+        uint256 bond,
+        uint32 startingRespectedGameType
     ) internal view returns (IOPContractsManagerV800.DisputeGameConfig memory) {
-        bool enabled = _isGameTypeEnabled(a.factory, gt);
+        bool enabled = _isGameTypeEnabled(a.factory, gt, startingRespectedGameType);
         bytes memory gameArgs;
         if (enabled) {
             bool isPermissioned = gt == PERMISSIONED_CANNON || gt == SUPER_PERMISSIONED_CANNON;
@@ -234,6 +262,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         bytes32 cannonPre = Claim.unwrap(upgrades[chainId].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
+        uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
 
         IOPContractsManagerV800.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV800.DisputeGameConfig[](7);
         uint32[7] memory gts = [
@@ -246,7 +275,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             ZK_DISPUTE_GAME
         ];
         for (uint256 i = 0; i < 7; i++) {
-            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond);
+            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond, startingRespectedGameType);
         }
         return cfgs;
     }

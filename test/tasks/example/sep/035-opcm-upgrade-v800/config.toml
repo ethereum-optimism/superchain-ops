@@ -1,19 +1,33 @@
+# managed-by:netchef,network:sdg-v1
+# These devnet chains are not in the superchain registry, so the fixture
+# points at a sibling fallback addresses.json.
 l2chains = [
-    {name = "OP Sepolia Testnet", chainId = 11155420}
+    {name = "sdg-v1-0", chainId = 420120084},
+    {name = "sdg-v1-1", chainId = 420120085}
 ]
+
+fallbackAddressesJsonPath = "test/tasks/example/sep/035-opcm-upgrade-v800/addresses.json"
 
 templateName = "OPCMUpgradeV800"
 skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
-chainId = 11155420
-cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+chainId = 420120084
+cannonPrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef"
+cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[[opcmUpgrades]]
+chainId = 420120085
+cannonPrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef"
+cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
 [addresses]
-OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4" # OPCM v0.7.0-alpha.2 devnet on Sepolia
+OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
 
 [stateOverrides]
