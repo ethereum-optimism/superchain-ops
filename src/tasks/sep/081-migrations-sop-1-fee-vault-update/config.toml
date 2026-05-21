@@ -1,21 +1,47 @@
-templateName = "UpdateFeeVaultRecipient"
+# Fee Vault Upgrade — migrations-sop-1 (chainId 420120110, Sepolia)
+#
+# Deploys new v1.6.0 fee-vault implementations on the migrations-sop-1 L2 and
+# upgrades the three predeploys to them in a single L1 Safe transaction, each
+# initialized with its own OP-controlled recipient.
+#
+# This is Migration Log step 15 (post-cutover). Unlike the immutable-recipient
+# approach in the prior draft of this task, the v1.6.0 impls store the recipient
+# in storage (settable post-init), so a single shared impl can serve all chains
+# and per-vault recipients are passed via initialize(...).
+#
+# Migration Log: https://www.notion.so/oplabs/Chain-Migration-Log-367f153ee16280be835deeb764aca44e
+
+templateName = "FeeVaultUpgradeTemplate"
 fallbackAddressesJsonPath = "src/tasks/sep/081-migrations-sop-1-fee-vault-update/addresses.json"
 
 l2chains = [
     {name = "migrations-sop-1", chainId = 420120110}
 ]
 
-[[feeVaultConfig]]
-chainId = 420120110
-# Pre-deployed L2 implementations with OP recipients baked in as immutables:
-#   - seqFeeVaultImpl:     RECIPIENT() == 0xced11d52f2262d51a1f05ef483e5fd24619ad130 (seqFee)
-#   - defaultFeeVaultImpl: RECIPIENT() == 0xde7d944a4b6314bbb9da10f89c6a685c2465cfa0 (baseFee, also used for l1Fee 0x1b8dc99ae8142303884eb0e8956007f622279d7e — adjust if separate impls are deployed)
-# Both must be deployed on L2 BEFORE this L1 task is executed.
-seqFeeVaultImpl = "<TBD_SEQ_FEE_VAULT_IMPL>"
-defaultFeeVaultImpl = "<TBD_DEFAULT_FEE_VAULT_IMPL>"
-upgradeGasLimit = 150000
+# Which fee-vault predeploys to upgrade (same addresses on every OP Stack chain).
+vaultProxies = [
+    "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
+    "0x4200000000000000000000000000000000000019",  # BaseFeeVault
+    "0x420000000000000000000000000000000000001a",  # L1FeeVault
+]
 
+# Recipients per (chain, vault), flat row-major (chain-major) layout.
+# Length must equal l2chains.length * vaultProxies.length = 1 * 3 = 3.
+# Order MUST match the vaultProxies order above.
+recipients = [
+    "0xced11d52f2262d51a1f05ef483e5fd24619ad130",  # SequencerFeeVault → OP seqFee
+    "0xde7d944a4b6314bbb9da10f89c6a685c2465cfa0",  # BaseFeeVault     → OP baseFee
+    "0x1b8dc99ae8142303884eb0e8956007f622279d7e",  # L1FeeVault       → OP l1Fee
+]
+
+# Per-chain settings (one entry per l2chains entry).
+networks             = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn to L1
+minWithdrawalAmounts = [0]   # no minimum threshold
+
+# State override: PAO Safe nonce. Current on-chain value is 94.
+# For stacked simulation in order 076 → 077 → 080 → 081, override to 97
+# (076, 077, 080 each consume one PAO nonce; 078 is EOA-only; 079 hits OPE Admin Safe).
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "<TBD_NONCE>"}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 94}
 ]
