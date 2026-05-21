@@ -74,7 +74,6 @@ jobs:
     parameters:
       network:
         type: string
-    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     resource_class: xlarge
@@ -120,7 +119,6 @@ jobs:
             forge fmt --check
 
   forge_test:
-    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     resource_class: xlarge
@@ -144,7 +142,6 @@ jobs:
           mentions: "@security-oncall"
 
   template_regression_tests:
-    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     environment:
@@ -161,7 +158,6 @@ jobs:
           mentions: "@security-oncall"
 
   just_new_recipe_tests:
-    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -347,9 +343,11 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-rpc-secrets
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-rpc-secrets
       - just_new_recipe_tests
       - shellcheck:
           context:
@@ -370,6 +368,7 @@ workflows:
           network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-rpc-secrets
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -377,6 +376,7 @@ workflows:
           network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-rpc-secrets
 
   close-issue-workflow:
     when:
