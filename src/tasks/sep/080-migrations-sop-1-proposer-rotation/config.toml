@@ -1,0 +1,31 @@
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]
+
+templateName = "SetDisputeGameImpl"
+fallbackAddressesJsonPath = "src/tasks/sep/080-migrations-sop-1-proposer-rotation/addresses.json"
+
+[[gameImplConfig]]
+# Rotates the proposer for the PermissionedDisputeGame (game type 1) — same impl, new gameArgs.
+# FDG (game type 0) is left untouched (added & retained as the chain's primary permissionless game).
+chainId = 420120110
+fdgBond = 0
+pdgBond = 0
+fdgImpl = "0x0000000000000000000000000000000000000000"
+fdgGameArgs = "0x"
+pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # PermissionedDisputeGameImpl (from Migration Log)
+prevFdgImpl = "0x0000000000000000000000000000000000000000"
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only gameArgs change (new proposer)
+# 164-byte encoded constructor args. Layout (from 072-arena-z-proposer-rotation):
+#   prestate(32) | vm(20) | gameType(32) | anchorStateRegistry(20) | delayedWeth(20) | chainId(32) | proposer(20) | challenger(20) | bondAmount(8)
+# Operator must regenerate this blob with:
+#   - new OP proposer:   0x31f018d02be7a6e89b8933bd28a05780a6ecf7c8
+#   - challenger:        0x55744b685bd143385d118fc1f413d2b93758602c
+#   - chainId:           420120110 (= 0x1908004E)
+#   - prestate, vm, ASR, delayedWeth, bond from migrations-sop-1 deploy artifacts
+pdgGameArgs = "<TBD_PDG_GAME_ARGS>"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "<TBD_NONCE>"}
+]

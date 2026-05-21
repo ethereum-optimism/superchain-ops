@@ -1,0 +1,13 @@
+templateName = "TransferSystemConfigOwnership"
+fallbackAddressesJsonPath = "src/tasks/sep/078-migrations-sop-1-transfer-system-config-owner/addresses.json"
+
+# IMPORTANT: SystemConfig is currently owned by an EOA (0x2c9b39d22340b8de532ab5c548e0c773da05a487),
+# NOT a Safe. The superchain-ops Safe-signing flow does not apply here — this task ships as
+# documentation + calldata. See README.md for the actual EOA execution instructions.
+safeAddressString = "SystemConfigOwner"
+
+newOwner = "0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9" # OPE Admin Safe on Sepolia. ⚠ Verify with ≥3 OP Labs engineers before signing.
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]

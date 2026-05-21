@@ -1,0 +1,21 @@
+templateName = "UpdateFeeVaultRecipient"
+fallbackAddressesJsonPath = "src/tasks/sep/081-migrations-sop-1-fee-vault-update/addresses.json"
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]
+
+[[feeVaultConfig]]
+chainId = 420120110
+# Pre-deployed L2 implementations with OP recipients baked in as immutables:
+#   - seqFeeVaultImpl:     RECIPIENT() == 0xced11d52f2262d51a1f05ef483e5fd24619ad130 (seqFee)
+#   - defaultFeeVaultImpl: RECIPIENT() == 0xde7d944a4b6314bbb9da10f89c6a685c2465cfa0 (baseFee, also used for l1Fee 0x1b8dc99ae8142303884eb0e8956007f622279d7e — adjust if separate impls are deployed)
+# Both must be deployed on L2 BEFORE this L1 task is executed.
+seqFeeVaultImpl = "<TBD_SEQ_FEE_VAULT_IMPL>"
+defaultFeeVaultImpl = "<TBD_DEFAULT_FEE_VAULT_IMPL>"
+upgradeGasLimit = 150000
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "<TBD_NONCE>"}
+]

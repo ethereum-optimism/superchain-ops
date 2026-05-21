@@ -1,0 +1,18 @@
+l2chains = [
+  {name = "migrations-sop-1", chainId = 420120110}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/077-migrations-sop-1-set-respected-game-type/addresses.json"
+templateName = "SetRespectedGameTypeTemplate"
+
+safeAddressString = "ProxyAdminOwner" # On migrations-sop-1 the ASR checks msg.sender == SystemConfig.guardian() which is the PAO Safe, not a separate GuardianSafe.
+
+[gameTypes]
+configs = [
+  {chainId = 420120110, gameType = 0}
+]
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "<TBD_NONCE>"}
+]

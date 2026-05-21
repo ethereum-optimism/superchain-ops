@@ -1,0 +1,32 @@
+templateName = "AddGameTypeTemplate"
+fallbackAddressesJsonPath = "src/tasks/sep/076-migrations-sop-1-add-game-type/addresses.json"
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110},
+]
+
+[[configs]]
+# migrations-sop-1 devnet — not in superchain-registry.
+# Source: https://github.com/ethereum-optimism/devnets-private/tree/main/dev/migrations-sop
+chainId = 420120110
+saltMixer = "this is a salt mixer"
+systemConfig = "0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc"
+proxyAdmin = "<TBD_PROXY_ADMIN>" # Not listed in Migration Log; fetch from devnets-private chain.yaml
+delayedWETH = "0x4cA719DE2459CcF0a3194b2265f8870df7BcF169" # DelayedWethPermissionedGameProxy (shared)
+disputeGameType = 0
+disputeAbsolutePrestate = "<TBD_PRESTATE>" # Chain-specific; fetch from devnets-private migrations-sop-1 deploy artifacts
+disputeMaxGameDepth = 73
+disputeSplitDepth = 30
+disputeClockExtension = 10800
+disputeMaxClockDuration = 302400
+initialBond = 80000000000000000
+vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908" # Standard MIPS VM v5.0.0. Source: https://github.com/ethereum-optimism/superchain-registry/blob/ad5becd08007b80988679b8f0c08d415e1294066/validation/standard/standard-versions-sepolia.toml#L11
+permissioned = false
+
+[addresses]
+OPCM = "0xc69e4c24db479191676611a25d977203c3bdca62" # Standard OPCM for contracts v5.0.0. Source: https://github.com/ethereum-optimism/superchain-registry/blob/74d9bb4ad4cd8d6fd453f2e9dfe5380d97c07ca9/validation/standard/standard-versions-sepolia.toml#L23
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "<TBD_NONCE>"}
+]
