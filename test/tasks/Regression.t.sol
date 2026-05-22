@@ -1366,7 +1366,7 @@ contract RegressionTest is Test {
         MultisigTask multisigTask = new FeeVaultUpgradeTemplate();
 
         // Arena Z testnet ProxyAdminOwner is the Sepolia L1PAO — a nested 2-of-2 multisig.
-        address rootSafe = address(0x1Eb2FfC903729a0F03966b117003800b145f56E2); // Sepolia L1PAO
+        address rootSafe = address(0x1Eb2fFc903729a0F03966B917003800b145F56E2); // Sepolia L1PAO
         address foundationChildMultisig = address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B); // Foundation Upgrades Safe (Sepolia)
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
 
