@@ -1,6 +1,6 @@
 # 081-migrations-sop-1-fee-vault-update
 
-Status: DRAFT — NOT READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

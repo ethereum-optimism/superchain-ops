@@ -1,6 +1,6 @@
 # 080-migrations-sop-1-proposer-rotation
 
-Status: DRAFT — NOT READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

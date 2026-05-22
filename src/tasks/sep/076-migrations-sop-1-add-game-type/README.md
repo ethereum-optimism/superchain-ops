@@ -1,6 +1,6 @@
 # 076-migrations-sop-1-add-game-type
 
-Status: DRAFT — NOT READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

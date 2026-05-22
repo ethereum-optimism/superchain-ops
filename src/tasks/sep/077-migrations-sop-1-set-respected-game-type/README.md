@@ -1,6 +1,6 @@
 # 077-migrations-sop-1-set-respected-game-type
 
-Status: DRAFT — NOT READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
