@@ -20,8 +20,9 @@ the values printed to the terminal when you run the task.
 >
 > ### OPE Admin Safe (`0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`)
 >
-> - Domain Hash:  `<TBD_DOMAIN_HASH>`
-> - Message Hash: `<TBD_MESSAGE_HASH>`
+> **NO-OP — DO NOT SIGN.** As of 2026-05-22 both fields are already set on-chain (see [README.md](./README.md)). The template reverts with `SetBatcherAndOrSigner: no-op (both fields already match current values)` so no domain/message hash can be produced.
+>
+> If, in the future, one of `batcherHash` or `unsafeBlockSigner` is rotated away from the OP-controlled value and needs to be restored, re-simulate (with the OPE Admin Safe nonce stateOverride matching current on-chain) and replace these placeholders.
 
 ## Understanding Task Calldata
 

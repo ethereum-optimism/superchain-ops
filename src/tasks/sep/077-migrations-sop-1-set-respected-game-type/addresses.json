@@ -1,7 +1,8 @@
 {
   "420120110": {
-    "ProxyAdmin": "<TBD_PROXY_ADMIN>",
+    "ProxyAdmin": "0x7d6ca596d15a1db882f8dbfd3bc41452045aaa3c",
     "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "GuardianSafe": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
     "SystemConfigProxy": "0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc",
     "L1CrossDomainMessengerProxy": "0x25789f4Ac1d0611A1cb34368222bB2c4802Ba6cA",
     "L1StandardBridgeProxy": "0x2fc80cDA6f5A90f623c110170614E9082b963D36",

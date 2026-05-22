@@ -5,7 +5,11 @@ l2chains = [
 fallbackAddressesJsonPath = "src/tasks/sep/077-migrations-sop-1-set-respected-game-type/addresses.json"
 templateName = "SetRespectedGameTypeTemplate"
 
-safeAddressString = "ProxyAdminOwner" # On migrations-sop-1 the ASR checks msg.sender == SystemConfig.guardian() which is the PAO Safe, not a separate GuardianSafe.
+# Template default `safeAddressString()` is "GuardianSafe", which resolves globally to the
+# Sepolia top-level GuardianSafe (0x7a50…cf7E) — wrong for this chain. ASR auth on
+# migrations-sop-1 checks SystemConfig.guardian() = PAO Safe (0xe934…40ff), so override
+# the safe to "ProxyAdminOwner" (resolved per-chain via addresses.json).
+safeAddressString = "ProxyAdminOwner"
 
 [gameTypes]
 configs = [
@@ -14,5 +18,5 @@ configs = [
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "<TBD_NONCE>"}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 97}
 ]

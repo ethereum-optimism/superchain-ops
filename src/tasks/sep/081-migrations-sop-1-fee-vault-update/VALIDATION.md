@@ -21,9 +21,15 @@ the values on your ledger and the values printed to the terminal when you run th
 > ### Migrations-sop-1 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0xc83cbf4e88ec58c8f5058b822f1318773112cdf6e00f43c03f129c7c4f0f1af7`
+> - Message Hash: `0x6fcacd5d17b101cd018ed85d1981387da3d30d31ff681362e46bd88c53580613`
+> - Safe Hash:    `0x245b79d8f41ad521cec9bda858c4539193e236c7acd37b54f0ae8ab226cf1e42`
 >
-> _Hashes above were generated with `stateOverrides` PAO nonce = **94** (current on-chain). If the operator updates the nonce override for stacked execution, both hashes will change — re-run `just simulate` and replace these values before signing._
+> _Hashes above were generated with `stateOverrides` PAO nonce = **99** (stacked after 076, 077, 080). For standalone simulation use 96. If you change the nonce override, both hashes change — re-run `just simulate` and replace these values before signing._
+
+EIP-712 digest (Safe v1.4.1):
+```
+0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e6fcacd5d17b101cd018ed85d1981387da3d30d31ff681362e46bd88c53580613
+```
 
 ## Understanding Task Calldata
 

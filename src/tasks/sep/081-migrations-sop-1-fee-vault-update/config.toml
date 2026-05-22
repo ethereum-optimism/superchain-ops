@@ -38,10 +38,10 @@ recipients = [
 networks             = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn to L1
 minWithdrawalAmounts = [0]   # no minimum threshold
 
-# State override: PAO Safe nonce. Current on-chain value is 94.
-# For stacked simulation in order 076 → 077 → 080 → 081, override to 97
+# State override: PAO Safe nonce. Current on-chain value is 96.
+# For stacked simulation in order 076 → 077 → 080 → 081, override to 99
 # (076, 077, 080 each consume one PAO nonce; 078 is EOA-only; 079 hits OPE Admin Safe).
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 94}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 99}
 ]
