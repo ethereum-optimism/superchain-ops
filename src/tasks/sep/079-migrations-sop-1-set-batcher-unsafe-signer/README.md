@@ -2,18 +2,12 @@
 
 Status: DRAFT, NOT READY TO SIGN
 
-> **Currently a no-op** (as of 2026-05-22). On-chain reads:
-> - `SystemConfig.batcherHash()` = `0x000…973c3abee371b32838e672411f386404bac704f3` (already OP batcher)
-> - `SystemConfig.unsafeBlockSigner()` = `0x8cBf8D7Ad5B2F12C5FFC255d2982Ec39f9DF1991` (already OP sequencer)
->
-> Simulation reverts with `SetBatcherAndOrSigner: no-op (both fields already match current values)`. Migration Log steps 3/4 are effectively already satisfied on-chain. The task can be re-armed (and re-simulated) if either value is later rotated away from the OP-controlled address and needs to be restored.
-
 ## Objective
 
-Registers the OP batcher and OP unsafe block signer on the `migrations-sop-1` (chainId 420120110) `SystemConfig`. This batches Migration Log steps **3** (`setBatcherHash`) and **4** (`setUnsafeBlockSigner`) into a single Multicall3 transaction.
+Registers the batcher and unsafe block signer on the `migrations-sop-1` (chainId 420120110) `SystemConfig`. This batches Migration Log steps **3** (`setBatcherHash`) and **4** (`setUnsafeBlockSigner`) into a single Multicall3 transaction.
 
-- **Batcher**: `0x973c3abee371b32838e672411f386404bac704f3` (OP batcher)
-- **UnsafeBlockSigner**: `0x8cbf8d7ad5b2f12c5ffc255d2982ec39f9df1991` (OP sequencer)
+- **Batcher**: `0xdead000000000000000000000000000000000001` (test placeholder)
+- **UnsafeBlockSigner**: `0xdead000000000000000000000000000000000002` (test placeholder)
 - **Target**: `SystemConfigProxy` `0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc`
 - **Signer**: OPE Admin Safe `0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`
 

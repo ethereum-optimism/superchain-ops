@@ -10,8 +10,8 @@ l2chains = [
 ]
 
 [sequencerConfig]
-batcherAddress = "0x973c3abee371b32838e672411f386404bac704f3"
-unsafeBlockSigner = "0x8cbf8d7ad5b2f12c5ffc255d2982ec39f9df1991"
+batcherAddress = "0xdead000000000000000000000000000000000001"
+unsafeBlockSigner = "0xdead000000000000000000000000000000000002"
 
 [stateOverrides]
 # OPE Admin Safe nonce (current on-chain = 1).
