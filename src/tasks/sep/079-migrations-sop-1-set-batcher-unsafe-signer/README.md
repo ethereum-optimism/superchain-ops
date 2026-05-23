@@ -14,6 +14,18 @@ Registers the batcher and unsafe block signer on the `migrations-sop-1` (chainId
 > [!IMPORTANT]
 > This task can only run AFTER [078-migrations-sop-1-transfer-system-config-owner](../078-migrations-sop-1-transfer-system-config-owner/) has executed on-chain — the OPE Admin Safe must be the current `SystemConfig` owner for these setters to authorize.
 
+## State Changes
+
+Writes to `SystemConfigProxy` ([`0xc771958a…f9Fc`](https://sepolia.etherscan.io/address/0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc#readProxyContract)):
+
+| Field | Current (on-chain) | New |
+|-------|--------------------|-----|
+| `batcherHash()` | `0x000000000000000000000000973c3abee371b32838e672411f386404bac704f3` | `0x000000000000000000000000dead000000000000000000000000000000000001` |
+| `unsafeBlockSigner()` | `0x8cBf8D7Ad5B2F12C5FFC255d2982Ec39f9DF1991` | `0xdead000000000000000000000000000000000002` |
+
+- **Current values**: read on-chain on Sepolia at block 10900000 from the SystemConfig (link above). Verified with `cast call 0xc771958a… "batcherHash()(bytes32)"` and `"unsafeBlockSigner()(address)"`.
+- **New values**: `0xdead…0001` and `0xdead…0002` are test placeholders chosen for CI/sim only — they do **not** correspond to real OP-controlled keys. Replace with production batcher / sequencer addresses (e.g. from the [Chain Migration Log](https://www.notion.so/oplabs/Chain-Migration-Log-367f153ee16280be835deeb764aca44e)) before any live signing.
+
 ## Simulation & Signing
 
 Simulation commands:
