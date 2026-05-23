@@ -1,6 +1,6 @@
 # 078-migrations-sop-1-transfer-system-config-owner
 
-Status: DRAFT, NOT READY TO SIGN
+Status: CANCELLED
 
 > Note: this task is **EOA-signed** by the current Partner-EOA `SystemConfig` owner, not via a Safe. See [README.md](#why-this-task-does-not-use-just-simulatesign) below and [VALIDATION.md](./VALIDATION.md) for the calldata fingerprint.
 
