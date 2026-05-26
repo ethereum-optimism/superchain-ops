@@ -55,8 +55,8 @@ pdgBond = 0  # bond unchanged; SetDisputeGameImpl skips setInitBond when value i
 
 [stateOverrides]
 # Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
-# Current on-chain nonce is 87; this task runs after 076 in the stack, which bumps
-# the Safe's nonce by 1 → expected nonce here is 88.
+# Current on-chain nonce is 96; this task runs after 076 in the stack, which bumps
+# the Safe's nonce by 1 → expected nonce here is 97.
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 88}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 97}
 ]

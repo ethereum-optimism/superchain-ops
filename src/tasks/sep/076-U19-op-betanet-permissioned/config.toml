@@ -17,10 +17,12 @@ templateName = "OPCMUpgradeV700"
 
 [[opcmUpgrades]]
 chainId = 420120035
-# TODO: replace placeholder prestates with the U19 release prestates for the betanet
-# once published (Notion: Betanet release notes / standard-prestates.toml).
+# CANNON is kept only as a Guardian fallback (op-program is being deprecated);
+# use an obviously-invalid prestate so it can't be played.
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# cannon64-kona for kona-client/v1.5.2 — [[prestates."1.5.2"]] in superchain-registry
+# standard-prestates.toml.
+cannonKonaPrestate = "0x0342fb4df7931013ac09dd028d083e1b641f044a2085b2a807b67417ec912d6e"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: betanet uses non-standard L1PAO and challenger addresses.
 # SYSCON-130: the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one.
 # PLDG-10: u19-beta-0 is a Permissioned chain (no permissionless `CANNON` slot in the DGF).
@@ -32,13 +34,14 @@ initBond = 80000000000000000
 startingRespectedGameType = 8
 
 [addresses]
-# v7.1.17 dev OPCM on Sepolia. TODO: swap to the production U19 OPCM proxy once
-# it lands in superchain-registry standard-versions-sepolia.toml.
+# v7.1.17 OPCM on Sepolia (also reused for v7.0.0-rc.2). Published in
+# superchain-registry validation/standard/standard-versions-sepolia.toml under
+# ["op-contracts/v7.1.17"].op_contracts_manager.
 OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
 
 [stateOverrides]
 # Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
-# Current on-chain nonce at time of authoring: 87.
+# Current on-chain nonce: 96. Re-verify against `cast call $SAFE "nonce()"` before signing.
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 87}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 96}
 ]

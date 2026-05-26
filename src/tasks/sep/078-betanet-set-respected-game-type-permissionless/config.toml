@@ -26,8 +26,8 @@ configs = [
 
 [stateOverrides]
 # Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
-# Current on-chain nonce is 87; this task runs after 076 + 077 in the stack,
-# each of which bumps the Safe's nonce by 1 → expected nonce here is 89.
+# Current on-chain nonce is 96; this task runs after 076 + 077 in the stack,
+# each of which bumps the Safe's nonce by 1 → expected nonce here is 98.
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 89}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 98}
 ]
