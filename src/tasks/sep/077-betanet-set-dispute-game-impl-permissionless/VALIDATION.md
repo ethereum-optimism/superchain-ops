@@ -21,7 +21,7 @@ the values printed to the terminal when you run the task.
 > ### Betanet 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash: `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0x8beddd0bf1e6693579600663caf4fb2e2e9fe359749cf616a07f62f32ae4b14c`
+> - Message Hash: `0x6ad06864b535d23cdbbfce094ad8b5380c229e70e0d1db7c3e9ca4d36383c32f`
 
 ## Task Calldata
 
