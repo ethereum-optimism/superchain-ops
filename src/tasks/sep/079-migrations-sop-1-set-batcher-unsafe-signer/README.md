@@ -9,10 +9,10 @@ Registers the batcher and unsafe block signer on the `migrations-sop-1` (chainId
 - **Batcher**: `0xdead000000000000000000000000000000000001` (test placeholder)
 - **UnsafeBlockSigner**: `0xdead000000000000000000000000000000000002` (test placeholder)
 - **Target**: `SystemConfigProxy` `0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc`
-- **Signer**: OPE Admin Safe `0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`
+- **Signer**: OPE Receiving Safe (Safe B) `0xb3228B623da92283280C87aB8019A405967A2B8f`
 
 > [!IMPORTANT]
-> This task can only run AFTER [078-migrations-sop-1-transfer-system-config-owner](../078-migrations-sop-1-transfer-system-config-owner/) has executed on-chain — the OPE Admin Safe must be the current `SystemConfig` owner for these setters to authorize.
+> This task can only run AFTER [078-migrations-sop-1-transfer-system-config-owner](../078-migrations-sop-1-transfer-system-config-owner/) has executed on-chain — the OPE Receiving Safe (Safe B) must be the current `SystemConfig` owner for these setters to authorize.
 
 ## State Changes
 

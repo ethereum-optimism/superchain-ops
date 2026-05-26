@@ -18,7 +18,7 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### safeB (`0xb3228B623da92283280C87aB8019A405967A2B8f`)
+> ### OPE Receiving Safe (Safe B) (`0xb3228B623da92283280C87aB8019A405967A2B8f`)
 >
 > - Domain Hash:  `0x3e8aab7bcaa16ba1ae02e15a7c0fcc9d46b96cb5afed054d4e620ccfc5f62f35`
 > - Message Hash: `0x5f9e312ffaac4cecac3ee32face0233e29115733e864e43f5d0e2bf03424f0e1`
@@ -47,7 +47,7 @@ cast calldata "setUnsafeBlockSigner(address)" 0xdead0000000000000000000000000000
 
 - `SystemConfigProxy.batcherHash()` updates to `0x000000000000000000000000dead000000000000000000000000000000000001`
 - `SystemConfigProxy.unsafeBlockSigner()` updates to `0xdead000000000000000000000000000000000002`
-- safeB (`0xb3228B623da92283280C87aB8019A405967A2B8f`) nonce increments by 1
+- OPE Receiving Safe (Safe B) (`0xb3228B623da92283280C87aB8019A405967A2B8f`) nonce increments by 1
 
 ## Post-execution verification
 

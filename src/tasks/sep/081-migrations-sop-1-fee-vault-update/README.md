@@ -43,7 +43,7 @@ Each vault is also re-initialized with:
 This task is **Migration Log step 15**. Run **after** the chain-cutover sequence:
 1. `076-migrations-sop-1-add-game-type`
 2. `077-migrations-sop-1-set-respected-game-type`
-3. `078-migrations-sop-1-transfer-system-config-owner` (Safe-signed by OPE Admin Safe → safeB)
+3. `078-migrations-sop-1-transfer-system-config-owner` (Safe-signed by Safe A → OPE Receiving Safe / Safe B)
 4. `079-migrations-sop-1-set-batcher-unsafe-signer`
 5. `080-migrations-sop-1-proposer-rotation`
 6. **`081-migrations-sop-1-fee-vault-update`** ← this task

@@ -17,12 +17,12 @@ First, validate the domain and message hashes. These values should match both th
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### OPE Admin Safe (`0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`)
+> ### Safe A (`0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`) — Partner-impersonating, OPE-controlled
 >
 > - Domain Hash:  `0x85cc686e8cbc7571a70994af7e216c5525d22203d359558d46a795125c38de14`
 > - Message Hash: `0x715b71ba25a947940252fe5586460e786db8befe52ee5d9de593569476020d87`
 >
-> _Hashes above were generated with the state overrides in `config.toml` (OPE Admin Safe nonce = 1, SystemConfig.owner() pinned to 0x8E85… at the fork block). If those overrides change, re-run `just simulate` and replace these values before signing._
+> _Hashes above were generated with the state overrides in `config.toml` (Safe A nonce = 1). If those overrides change, re-run `just simulate` and replace these values before signing._
 
 ## Understanding Task Calldata
 
@@ -43,8 +43,8 @@ cast calldata "transferOwnership(address)" 0xb3228B623da92283280C87aB8019A405967
 
 ## Task State Changes
 
-- `SystemConfigProxy.owner()` updates from `0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9` (OPE Admin Safe) to `0xb3228B623da92283280C87aB8019A405967A2B8f` (safeB).
-- OPE Admin Safe (`0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`) nonce increments by 1.
+- `SystemConfigProxy.owner()` updates from `0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9` (Safe A) to `0xb3228B623da92283280C87aB8019A405967A2B8f` (OPE Receiving Safe / Safe B).
+- Safe A (`0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`) nonce increments by 1.
 
 ## Post-execution verification
 
