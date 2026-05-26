@@ -12,16 +12,10 @@ l2chains = [
     {name = "migrations-sop-1", chainId = 420120110}
 ]
 
-# State overrides.
-# 1. OPE Admin Safe nonce (current on-chain = 1).
-# 2. SystemConfig.owner() slot (0x33) — overridden to the OPE Admin Safe so the
-#    template's `currentOwner == rootSafe` assertion passes when simulating against
-#    a fork where the prior EOA→Safe transfer has not yet been executed on-chain.
-#    Remove this override once the SystemConfig owner is actually the OPE Admin Safe on-chain.
+# State override: OPE Admin Safe nonce (current on-chain = 1).
+# The prior EOA → OPE Admin Safe SystemConfig owner transfer is now executed on-chain
+# (tx hash recorded in the Migration Log), so no SystemConfig storage override is needed.
 [stateOverrides]
 0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1}
-]
-0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000008E851F7d8bAeaD95F592847a020cAC7A062dafd9"}
 ]
