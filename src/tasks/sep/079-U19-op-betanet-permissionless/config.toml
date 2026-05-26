@@ -23,9 +23,12 @@ chainId = 420120036
 # CANNON is kept only as a Guardian fallback (op-program is being deprecated);
 # use an obviously-invalid prestate so it can't be played.
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# cannon64-kona for kona-client/v1.5.2 — [[prestates."1.5.2"]] in superchain-registry
-# standard-prestates.toml.
-cannonKonaPrestate = "0x0342fb4df7931013ac09dd028d083e1b641f044a2085b2a807b67417ec912d6e"
+# Betanet-custom kona absolute prestate. Built reproducibly from kona-client/v1.5.2
+# (commit a5f807798b0896becd497d27b92afe911b088ad4) with KONA_CUSTOM_CONFIGS_DIR
+# carrying u19-beta-0 and u19-beta-1 rollup configs (karst_time = 1779937200).
+# The standard v1.5.2 prestate from superchain-registry does NOT apply here — the
+# betanets aren't in SCR and the karst activation must be embedded.
+cannonKonaPrestate = "0x03d550f31d5599d634d725a182191296d0711886e62596e3591b50ec17b2af42"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: betanet uses non-standard L1PAO and challenger addresses.
 # SYSCON-130: the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one.
 # PLDG-10: u19-beta-1's DGF ends up with `gameImpls(CANNON) = 0` after this upgrade.
