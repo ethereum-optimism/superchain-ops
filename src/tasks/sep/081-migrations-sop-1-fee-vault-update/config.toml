@@ -23,15 +23,24 @@ vaultProxies = [
     "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
     "0x4200000000000000000000000000000000000019",  # BaseFeeVault
     "0x420000000000000000000000000000000000001a",  # L1FeeVault
+    "0x420000000000000000000000000000000000001b",  # OperatorFeeVault (U18+)
 ]
 
 # Recipients per (chain, vault), flat row-major (chain-major) layout.
-# Length must equal l2chains.length * vaultProxies.length = 1 * 3 = 3.
+# Length must equal l2chains.length * vaultProxies.length = 1 * 4 = 4.
 # Order MUST match the vaultProxies order above.
+#
+# Test placeholders for the migration exercise: low-nibble matches the
+# corresponding predeploy address so the state diff is visually obvious
+# (0xdead…0011 → SequencerFeeVault, 0xdead…0019 → BaseFeeVault, etc.).
+# Replace with the real OP-controlled recipients (Migration Log step 15:
+# seqFee 0xced11d52…, baseFee 0xde7d944a…, l1Fee 0x1b8dc99a…, opFee
+# 0x8a3d5ba5…) before any production signing.
 recipients = [
-    "0xced11d52f2262d51a1f05ef483e5fd24619ad130",  # SequencerFeeVault → OP seqFee
-    "0xde7d944a4b6314bbb9da10f89c6a685c2465cfa0",  # BaseFeeVault     → OP baseFee
-    "0x1b8dc99ae8142303884eb0e8956007f622279d7e",  # L1FeeVault       → OP l1Fee
+    "0xdead000000000000000000000000000000000011",  # SequencerFeeVault test placeholder
+    "0xdead000000000000000000000000000000000019",  # BaseFeeVault test placeholder
+    "0xdead00000000000000000000000000000000001a",  # L1FeeVault test placeholder
+    "0xdead00000000000000000000000000000000001b",  # OperatorFeeVault test placeholder
 ]
 
 # Per-chain settings (one entry per l2chains entry).
