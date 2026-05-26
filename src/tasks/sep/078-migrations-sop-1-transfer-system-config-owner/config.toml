@@ -1,13 +1,27 @@
 templateName = "TransferSystemConfigOwnership"
 fallbackAddressesJsonPath = "src/tasks/sep/078-migrations-sop-1-transfer-system-config-owner/addresses.json"
 
-# IMPORTANT: SystemConfig is currently owned by an EOA (0x2c9b39d22340b8de532ab5c548e0c773da05a487),
-# NOT a Safe. The superchain-ops Safe-signing flow does not apply here — this task ships as
-# documentation + calldata. See README.md for the actual EOA execution instructions.
+# Current SystemConfig owner is the OPE Admin Safe (0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9).
+# This task transfers ownership to safeB (0xb3228B623da92283280C87aB8019A405967A2B8f).
+# Signed via the superchain-ops Safe-signing flow.
 safeAddressString = "SystemConfigOwner"
 
-newOwner = "0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9" # OPE Admin Safe on Sepolia. ⚠ Verify with ≥3 OP Labs engineers before signing.
+newOwner = "0xb3228B623da92283280C87aB8019A405967A2B8f" # safeB. ⚠ Verify with ≥3 OP Labs engineers before signing.
 
 l2chains = [
     {name = "migrations-sop-1", chainId = 420120110}
+]
+
+# State overrides.
+# 1. OPE Admin Safe nonce (current on-chain = 1).
+# 2. SystemConfig.owner() slot (0x33) — overridden to the OPE Admin Safe so the
+#    template's `currentOwner == rootSafe` assertion passes when simulating against
+#    a fork where the prior EOA→Safe transfer has not yet been executed on-chain.
+#    Remove this override once the SystemConfig owner is actually the OPE Admin Safe on-chain.
+[stateOverrides]
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1}
+]
+0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000008E851F7d8bAeaD95F592847a020cAC7A062dafd9"}
 ]
