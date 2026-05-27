@@ -1,9 +1,5 @@
 templateName = "UpdateFeeVaultRecipient"
 
-# Arena-Z was removed from the superchain-registry (upstream PR #1247, sunsetting chains),
-# so we provide addresses via fallbackAddressesJsonPath for this regression-test fixture.
-fallbackAddressesJsonPath = "test/tasks/example/sep/034-update-fee-vault-recipient/addresses.json"
-
 l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420}
 ]
