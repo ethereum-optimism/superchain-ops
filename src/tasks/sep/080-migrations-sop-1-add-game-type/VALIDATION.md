@@ -20,10 +20,10 @@ the values printed to the terminal when you run the task.
 > ### Migrations-sop-1 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0x4ebb5313b6c891fd78e19d654040e62f7e9adb60c9243aabb8b0f6e62a3451e6`
-> - Safe Hash:    `0x4248de63ee559d90c02b0af92923243a2513628e7623de4faff8a00ee9d0beec`
+> - Message Hash: `0x769c7d31a78ed1e17e56442dd0785864eff4361ce5ebbb76949226570e30283e`
+> - Safe Hash:    `0x945bbb5beedd86c91efcd5e917d3ecf2e5ffaac4aeea84dc16388162dced45ef`
 >
-> _Hashes generated with PAO Safe nonce stateOverride = 96 (current on-chain). If the operator stacks tasks (overrides to 96/97/98/99 for 080/081/084/085), re-run `just simulate` and replace before signing._
+> _Hashes generated with PAO Safe nonce stateOverride = 100 (stacked after the 4 U19 betanet tasks 076-079 share this Safe and each consume one nonce, so 96 + 4 = 100). For standalone simulation use 96; re-run `just simulate` and replace before signing._
 
 ## Task Calldata
 
@@ -36,5 +36,5 @@ Inner call: `OPCM.addGameType(AddGameInput[])` for migrations-sop-1 (chainId 420
 
 EIP-712 digest (Safe v1.4.1):
 ```
-0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e4ebb5313b6c891fd78e19d654040e62f7e9adb60c9243aabb8b0f6e62a3451e6
+0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e769c7d31a78ed1e17e56442dd0785864eff4361ce5ebbb76949226570e30283e
 ```

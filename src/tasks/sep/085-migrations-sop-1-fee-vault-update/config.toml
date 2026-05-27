@@ -48,9 +48,10 @@ networks             = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn t
 minWithdrawalAmounts = [0]   # no minimum threshold
 
 # State override: PAO Safe nonce. Current on-chain value is 96.
-# For stacked simulation in order 080 → 081 → 084 → 085, override to 99
-# (080, 081, 084 each consume one PAO nonce; 082 hits Safe A; 083 hits the OPE Receiving Safe).
+# For stacked simulation (076-079 U19 betanet tasks + 080 + 081 + 084 ahead),
+# override to 103. Each PAO-using task in the stack consumes one nonce;
+# 082 hits Safe A and 083 hits the OPE Receiving Safe (different safes).
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 99}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 103}
 ]

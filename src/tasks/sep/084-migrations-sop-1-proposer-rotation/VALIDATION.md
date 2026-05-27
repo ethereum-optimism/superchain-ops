@@ -21,10 +21,10 @@ the values printed to the terminal when you run the task.
 > ### Migrations-sop-1 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0x96b31d0608bc29c01646f8794b3ddc69af2276324f5c230508704628f0326961`
-> - Safe Hash:    `0x2ac6e9400ba234f6b39f0f03ab3a22146a0b784797a7058cf46428ef17aca3bd`
+> - Message Hash: `0x8204f10498181c45ed48185e964896caa5c59bd7ec5b3edaf717c4324f07f7f4`
+> - Safe Hash:    `0x6108c033a3457e0b6a7325beffb5c2339aaa01d545154a237cc5db77d0d718d0`
 >
-> _Hashes generated with PAO Safe nonce stateOverride = 98 (stacked after 080 & 081). For standalone simulation use 96; re-run `just simulate` and replace before signing._
+> _Hashes generated with PAO Safe nonce stateOverride = 102 (stacked after U19 betanet tasks 076-079 + 080 + 081, all of which share this Safe). For standalone simulation use 96; re-run `just simulate` and replace before signing._
 
 ## Task Calldata
 
@@ -38,7 +38,7 @@ The task calls `setImplementation(gameType=1, impl, gameArgs)` on the `migration
 
 EIP-712 digest (Safe v1.4.1):
 ```
-0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e96b31d0608bc29c01646f8794b3ddc69af2276324f5c230508704628f0326961
+0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e8204f10498181c45ed48185e964896caa5c59bd7ec5b3edaf717c4324f07f7f4
 ```
 
 ### Decoding the calldata
