@@ -1,0 +1,59 @@
+# U19 upgrade on the (now-Permissionless) OP Labs Betanet u19-beta-1.
+#
+# Pre-conditions:
+#   - Task 077 (SetDisputeGameImpl) wired the permissionless `CANNON` impl into
+#     u19-beta-1's DisputeGameFactory.
+#   - Task 078 (SetRespectedGameType) flipped ASR.respectedGameType to 0 (CANNON).
+# After this upgrade runs, U19 will rotate ASR.respectedGameType to `CANNON_KONA`
+# (8) — kona-client becomes the primary FPVM. `PERMISSIONED_CANNON` (1) is
+# rewired by OPCMv2 as the emergency Guardian fallback game.
+#
+# Source addresses: https://github.com/ethereum-optimism/devnets/tree/main/betanets/u19-beta/u19-beta-1
+
+l2chains = [
+    {name = "u19-beta-1", chainId = 420120036}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/079-U19-op-betanet-permissionless/addresses.json"
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 420120036
+# CANNON is kept only as a Guardian fallback (op-program is being deprecated);
+# use an obviously-invalid prestate so it can't be played.
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Betanet-custom kona absolute prestate. Built reproducibly from kona-client/v1.5.2
+# (commit a5f807798b0896becd497d27b92afe911b088ad4) with KONA_CUSTOM_CONFIGS_DIR
+# carrying u19-beta-0 and u19-beta-1 rollup configs (karst_time = 1779937200).
+# The standard v1.5.2 prestate from superchain-registry does NOT apply here — the
+# betanets aren't in SCR and the karst activation must be embedded.
+cannonKonaPrestate = "0x032b9fcfec87499aa19eee78acccaa2399f1e7a11fd446c3d934989c68af823b"
+# OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: betanet uses non-standard L1PAO and challenger addresses.
+# SYSCON-130: the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one.
+# PLDG-10: u19-beta-1's DGF ends up with `gameImpls(CANNON) = 0` after this upgrade.
+# Even though task 077 wires `CANNON → 0x6dDBa…7499` before 079 runs, V700's OPCM
+# explicitly zeroes the CANNON slot during the upgrade (see OPCMUpgradeV700._isEnabled:
+# returns false for CANNON, triggering `factory.setImplementation(CANNON, 0x0, "")`).
+# Post-U19 the chain is functionally permissionless via CANNON_KONA, but the standard
+# validator's `assertValidPermissionlessDisputeGame` still checks CANNON, so PLDG-10
+# is the unavoidable side-effect of the U19 deprecation of CANNON in favor of CANNON_KONA.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,PLDG-10"
+initBond = 80000000000000000
+# Post-upgrade respected game type. U19 always rotates the AnchorStateRegistry's
+# respectedGameType to CANNON_KONA (8) — kona-client becomes the primary FPVM.
+startingRespectedGameType = 8
+
+[addresses]
+# v7.1.17 OPCM on Sepolia (also reused for v7.0.0-rc.2). Published in
+# superchain-registry validation/standard/standard-versions-sepolia.toml under
+# ["op-contracts/v7.1.17"].op_contracts_manager.
+OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
+
+[stateOverrides]
+# Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# Current on-chain nonce is 96; this task runs after 076 + 077 + 078 in the stack,
+# each of which bumps the Safe's nonce by 1 → expected nonce here is 99.
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 99}
+]
