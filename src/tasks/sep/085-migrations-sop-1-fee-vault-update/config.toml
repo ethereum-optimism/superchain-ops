@@ -1,0 +1,57 @@
+# Fee Vault Upgrade — migrations-sop-1 (chainId 420120110, Sepolia)
+#
+# Deploys new v1.6.0 fee-vault implementations on the migrations-sop-1 L2 and
+# upgrades the three predeploys to them in a single L1 Safe transaction, each
+# initialized with its own OP-controlled recipient.
+#
+# This is Migration Log step 15 (post-cutover). Unlike the immutable-recipient
+# approach in the prior draft of this task, the v1.6.0 impls store the recipient
+# in storage (settable post-init), so a single shared impl can serve all chains
+# and per-vault recipients are passed via initialize(...).
+#
+# Migration Log: https://www.notion.so/oplabs/Chain-Migration-Log-367f153ee16280be835deeb764aca44e
+
+templateName = "FeeVaultUpgradeTemplate"
+fallbackAddressesJsonPath = "src/tasks/sep/085-migrations-sop-1-fee-vault-update/addresses.json"
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]
+
+# Which fee-vault predeploys to upgrade (same addresses on every OP Stack chain).
+vaultProxies = [
+    "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
+    "0x4200000000000000000000000000000000000019",  # BaseFeeVault
+    "0x420000000000000000000000000000000000001a",  # L1FeeVault
+    "0x420000000000000000000000000000000000001b",  # OperatorFeeVault (U18+)
+]
+
+# Recipients per (chain, vault), flat row-major (chain-major) layout.
+# Length must equal l2chains.length * vaultProxies.length = 1 * 4 = 4.
+# Order MUST match the vaultProxies order above.
+#
+# Test placeholders for the migration exercise: low-nibble matches the
+# corresponding predeploy address so the state diff is visually obvious
+# (0xdead…0011 → SequencerFeeVault, 0xdead…0019 → BaseFeeVault, etc.).
+# Replace with the real OP-controlled recipients (Migration Log step 15:
+# seqFee 0xced11d52…, baseFee 0xde7d944a…, l1Fee 0x1b8dc99a…, opFee
+# 0x8a3d5ba5…) before any production signing.
+recipients = [
+    "0xdead000000000000000000000000000000000011",  # SequencerFeeVault test placeholder
+    "0xdead000000000000000000000000000000000019",  # BaseFeeVault test placeholder
+    "0xdead00000000000000000000000000000000001a",  # L1FeeVault test placeholder
+    "0xdead00000000000000000000000000000000001b",  # OperatorFeeVault test placeholder
+]
+
+# Per-chain settings (one entry per l2chains entry).
+networks             = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn to L1
+minWithdrawalAmounts = [0]   # no minimum threshold
+
+# State override: PAO Safe nonce. Current on-chain value is 96.
+# For stacked simulation (076-079 U19 betanet tasks + 080 + 081 + 084 ahead),
+# override to 103. Each PAO-using task in the stack consumes one nonce;
+# 082 hits Safe A and 083 hits the OPE Receiving Safe (different safes).
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 103}
+]

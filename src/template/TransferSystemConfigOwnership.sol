@@ -70,10 +70,18 @@ contract TransferSystemConfigOwnership is L2TaskBase {
         );
     }
 
-    /// @notice newOwner may be an EOA or a Safe with no runtime code at the pinned block.
+    /// @notice newOwner may be an EOA, an undeployed Safe (no code at the fork block), or
+    /// a deployed Safe (has code). The state-diff check classifies storage values into
+    /// "should have code" / "should not have code"; the codeExceptions list is the set
+    /// of addresses we declare *will not* have code. Add newOwner only if it actually
+    /// has no code at simulation time — otherwise let the standard "should have code"
+    /// check pass naturally.
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {
-        address[] memory exceptions = new address[](1);
-        exceptions[0] = newOwner;
-        return exceptions;
+        if (newOwner.code.length == 0) {
+            address[] memory exceptions = new address[](1);
+            exceptions[0] = newOwner;
+            return exceptions;
+        }
+        return new address[](0);
     }
 }

@@ -1,0 +1,31 @@
+templateName = "AddGameTypeTemplate"
+fallbackAddressesJsonPath = "src/tasks/sep/080-migrations-sop-1-add-game-type/addresses.json"
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110},
+]
+
+[[configs]]
+# migrations-sop-1 devnet — not in superchain-registry.
+# Source: https://github.com/ethereum-optimism/devnets-private/tree/main/dev/migrations-sop
+chainId = 420120110
+saltMixer = "this is a salt mixer"
+systemConfig = "0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc"
+delayedWETH = "0x4cA719DE2459CcF0a3194b2265f8870df7BcF169" # DelayedWethPermissionedGameProxy (shared)
+disputeGameType = 0
+disputeAbsolutePrestate = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed" # op-program/v1.9.0-rc.1 Cannon64
+disputeMaxGameDepth = 73
+disputeSplitDepth = 30
+disputeClockExtension = 10800
+disputeMaxClockDuration = 302400
+initialBond = 80000000000000000
+vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908" # Standard MIPS VM v1.9.0 (unchanged between v5.0.0 and v6.0.0)
+permissioned = false
+
+[addresses]
+OPCM = "0xf0a2e224519e876979ea6b2cd15ef5cc3d6703bd" # Standard OPCM for op-contracts/v6.0.0 (chain is on v6.0.0: SystemConfig 3.13.1, OptimismPortal 5.2.0, DGF 1.4.0, ASR 3.7.0). Source: https://github.com/ethereum-optimism/superchain-registry/blob/HEAD/validation/standard/standard-versions-sepolia.toml
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 100}
+]

@@ -1,0 +1,13 @@
+{
+  "420120110": {
+    "ProxyAdmin": "0x7d6ca596d15a1db882f8dbfd3bc41452045aaa3c",
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "SystemConfigProxy": "0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc",
+    "L1StandardBridgeProxy": "0x2fc80cDA6f5A90f623c110170614E9082b963D36",
+    "OptimismPortalProxy": "0xE257b9bf8Ca550B3595978c86d0A358ca4132731",
+    "DisputeGameFactoryProxy": "0xD22e520F9005402a80715A3C2A60a6271B823A23",
+    "DelayedWETHProxy": "0x4cA719DE2459CcF0a3194b2265f8870df7BcF169",
+    "PermissionedDelayedWETHProxy": "0x4cA719DE2459CcF0a3194b2265f8870df7BcF169",
+    "AnchorStateRegistryProxy": "0x8Faf920fAd8138DeBF666949b9e41ff71Cce1C5a"
+  }
+}

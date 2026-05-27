@@ -1,0 +1,41 @@
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]
+
+templateName = "SetDisputeGameImpl"
+fallbackAddressesJsonPath = "src/tasks/sep/084-migrations-sop-1-proposer-rotation/addresses.json"
+
+[[gameImplConfig]]
+# Rotates the proposer for the PermissionedDisputeGame (game type 1) — same impl, new gameArgs.
+# FDG (game type 0) is left untouched — task 080 installs it earlier in the stack, so we
+# mirror its post-080 impl + gameArgs here to trigger the template's skip-if-unchanged guard
+# (SetDisputeGameImpl._setFDGImplementation). With fdgImpl == prevFdgImpl == current and
+# fdgGameArgs == current, no FDG state changes are emitted.
+chainId = 420120110
+fdgBond = 0
+pdgBond = 0
+fdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # faultDisputeGameV2Impl installed by 080 (OPCM v6.0.0)
+# 124-byte permissionless gameArgs installed by 080: prestate|vm|ASR|weth|chainId
+fdgGameArgs = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e"
+pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # PermissionedDisputeGameImpl (from Migration Log)
+prevFdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # Same impl — no FDG change
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only gameArgs change (new proposer)
+# 164-byte encoded constructor args for PermissionedDisputeGame.
+# Layout (per SetDisputeGameImpl._validateGameArgsFormat, permissioned=164 bytes):
+#   prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32) | proposer(20) | challenger(20)
+# Values:
+#   prestate            = 0x0355d19a…6aed  (op-program/v1.9.0-rc.1 Cannon64) — UPDATED from on-chain 0x038512e0…d54c
+#   vm                  = 0x6463dee3…b908  (MIPS 1.9.0)
+#   anchorStateRegistry = 0x8faf920f…1c5a
+#   delayedWETH         = 0x4ca719de…f169  (PermissionedDelayedWETHProxy — shared)
+#   chainId             = 420120110 (= 0x190a862e), 32-byte left-padded
+#   proposer            = 0x31f018d0…f7c8  (OP proposer — already on-chain, unchanged)
+#   challenger          = 0x55744b68…602c  (OP challenger — already on-chain, unchanged)
+# Note: only the prestate is actually changing; proposer/challenger were already
+# set to OP-controlled addresses on-chain.
+pdgGameArgs = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e31f018d02be7a6e89b8933bd28a05780a6ecf7c855744b685bd143385d118fc1f413d2b93758602c"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 102}
+]

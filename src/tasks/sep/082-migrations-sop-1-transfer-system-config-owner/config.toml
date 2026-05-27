@@ -1,0 +1,22 @@
+templateName = "TransferSystemConfigOwnership"
+fallbackAddressesJsonPath = "src/tasks/sep/082-migrations-sop-1-transfer-system-config-owner/addresses.json"
+
+# Migration Exercise note: both Safe A and Safe B are OPE-controlled on Sepolia.
+# Safe A (0x8E85…) is the current SystemConfig owner and impersonates the Partner-side
+# role for the exercise. Safe B (0xb3228B…), the OPE Receiving Safe, takes over.
+# Signed via the superchain-ops Safe-signing flow.
+safeAddressString = "SystemConfigOwner"
+
+newOwner = "0xb3228B623da92283280C87aB8019A405967A2B8f" # OPE Receiving Safe. ⚠ Verify with ≥3 OP Labs engineers before signing.
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]
+
+# State override: Safe A nonce (current on-chain = 1).
+# The prior EOA → Safe A SystemConfig owner transfer is executed on-chain (tx hash in
+# the Migration Log), so no SystemConfig storage override is needed.
+[stateOverrides]
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1}
+]

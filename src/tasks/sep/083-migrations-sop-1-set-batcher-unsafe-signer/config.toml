@@ -1,0 +1,30 @@
+templateName = "SetBatcherAndOrSigner"
+fallbackAddressesJsonPath = "src/tasks/sep/083-migrations-sop-1-set-batcher-unsafe-signer/addresses.json"
+
+# Must run AFTER task 082 (TransferSystemConfigOwnership) has been executed on-chain —
+# the OPE Receiving Safe (Safe B) must be the current SystemConfig owner for these
+# setters to authorize.
+safeAddressString = "SystemConfigOwner"
+
+l2chains = [
+    {name = "migrations-sop-1", chainId = 420120110}
+]
+
+[sequencerConfig]
+batcherAddress = "0xdead000000000000000000000000000000000001"
+unsafeBlockSigner = "0xdead000000000000000000000000000000000002"
+
+[stateOverrides]
+# OPE Receiving Safe (Safe B) nonce (current on-chain = 0). For stacked simulation
+# after 082, the framework advances this automatically; for non-stacked simulation
+# of 083 alone, we pretend 082 has executed but Safe B has not yet performed any tx
+# (nonce still 0).
+0xb3228B623da92283280C87aB8019A405967A2B8f = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+# Pretend task 082 has already executed: override SystemConfig.owner() (slot 0x33)
+# from Safe A to the OPE Receiving Safe so setBatcherHash / setUnsafeBlockSigner
+# authorize. Once 082 is executed on-chain, remove this override.
+0xc771958aF69D4fa44deC2555c41c48800Ca1F9Fc = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x000000000000000000000000b3228B623da92283280C87aB8019A405967A2B8f"}
+]
