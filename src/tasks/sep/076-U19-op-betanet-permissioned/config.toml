@@ -25,7 +25,7 @@ cannonPrestate = "0xdead00000000000000000000000000000000000000000000000000000000
 # carrying u19-beta-0 and u19-beta-1 rollup configs (karst_time = 1779937200).
 # The standard v1.5.2 prestate from superchain-registry does NOT apply here — the
 # betanets aren't in SCR and the karst activation must be embedded.
-cannonKonaPrestate = "0x03d550f31d5599d634d725a182191296d0711886e62596e3591b50ec17b2af42"
+cannonKonaPrestate = "0x032b9fcfec87499aa19eee78acccaa2399f1e7a11fd446c3d934989c68af823b"
 # OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER: betanet uses non-standard L1PAO and challenger addresses.
 # SYSCON-130: the SystemConfig proxyAdmin on betanets is not the standard OP Sepolia one.
 # PLDG-10: u19-beta-0 is a Permissioned chain (no permissionless `CANNON` slot in the DGF).
