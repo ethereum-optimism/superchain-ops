@@ -1,15 +1,15 @@
-# Fee Vault Upgrade — Arena Z Testnet (Gelato → AltLayer migration)
+# Fee Vault Upgrade — OP Sepolia (example / regression-test fixture)
 #
-# Upgrades SequencerFeeVault, BaseFeeVault, and L1FeeVault on Arena Z testnet
-# to new v1.6.0 implementations, re-initializing the fee recipient to AltLayer's
-# address and setting WithdrawalNetwork = L1 (0).
+# Upgrades SequencerFeeVault, BaseFeeVault, and L1FeeVault on OP Sepolia
+# to new v1.6.0 implementations, re-initializing the fee recipient and setting
+# WithdrawalNetwork = L1 (0).
 #
-# Chain details: https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/arena-z.toml
+# Chain details: https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml
 
 templateName = "FeeVaultUpgradeTemplate"
 
 l2chains = [
-  {name = "arena-z-testnet", chainId = 9899}
+  {name = "OP Sepolia", chainId = 11155420}
 ]
 
 # Which fee vault predeploys to upgrade — modular, same addresses on every OP Stack chain.
@@ -20,14 +20,14 @@ vaultProxies = [
 ]
 
 # Per-chain config (one entry per entry in l2chains, in the same order).
-recipients             = ["0xE75f598754A552841E65f43197C85028874A96a4"]  # AltLayer testnet fee recipient
+recipients             = ["0xE75f598754A552841E65f43197C85028874A96a4"]  # Example fee recipient
 networks               = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn to L1
 minWithdrawalAmounts   = [0]
 
 [addresses]
-# source: superchain-registry sepolia/arena-z.toml
+# source: superchain-registry sepolia/op.toml
 ProxyAdminOwner      = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
-OptimismPortalProxy  = "0x90FdCE6eFFF020605462150cdE42257193d1e558"
+OptimismPortalProxy  = "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
 
 [stateOverrides]
 # L1PAO — override nonce (slot 5) to match the live value at the fork block used in the regression test.
