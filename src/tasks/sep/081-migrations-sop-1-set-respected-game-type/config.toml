@@ -2,7 +2,7 @@ l2chains = [
   {name = "migrations-sop-1", chainId = 420120110}
 ]
 
-fallbackAddressesJsonPath = "src/tasks/sep/077-migrations-sop-1-set-respected-game-type/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/081-migrations-sop-1-set-respected-game-type/addresses.json"
 templateName = "SetRespectedGameTypeTemplate"
 
 # Template default `safeAddressString()` is "GuardianSafe", which resolves globally to the

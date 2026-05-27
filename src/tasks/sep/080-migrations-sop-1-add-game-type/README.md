@@ -1,4 +1,4 @@
-# 076-migrations-sop-1-add-game-type
+# 080-migrations-sop-1-add-game-type
 
 Status: DRAFT, NOT READY TO SIGN
 
@@ -27,12 +27,12 @@ Writes to `DisputeGameFactoryProxy` ([`0xD22e520F…23`](https://sepolia.ethersc
 
 Simulation commands:
 ```bash
-cd src/tasks/sep/076-migrations-sop-1-add-game-type
-just simulate-stack sep 076-migrations-sop-1-add-game-type
+cd src/tasks/sep/080-migrations-sop-1-add-game-type
+just simulate-stack sep 080-migrations-sop-1-add-game-type
 ```
 
 Signing commands:
 ```bash
-cd src/tasks/sep/076-migrations-sop-1-add-game-type
+cd src/tasks/sep/080-migrations-sop-1-add-game-type
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
 ```

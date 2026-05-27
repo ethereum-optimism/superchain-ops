@@ -12,7 +12,7 @@
 # Migration Log: https://www.notion.so/oplabs/Chain-Migration-Log-367f153ee16280be835deeb764aca44e
 
 templateName = "FeeVaultUpgradeTemplate"
-fallbackAddressesJsonPath = "src/tasks/sep/081-migrations-sop-1-fee-vault-update/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/085-migrations-sop-1-fee-vault-update/addresses.json"
 
 l2chains = [
     {name = "migrations-sop-1", chainId = 420120110}
@@ -48,8 +48,8 @@ networks             = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn t
 minWithdrawalAmounts = [0]   # no minimum threshold
 
 # State override: PAO Safe nonce. Current on-chain value is 96.
-# For stacked simulation in order 076 → 077 → 080 → 081, override to 99
-# (076, 077, 080 each consume one PAO nonce; 078 hits Safe A; 079 hits the OPE Receiving Safe).
+# For stacked simulation in order 080 → 081 → 084 → 085, override to 99
+# (080, 081, 084 each consume one PAO nonce; 082 hits Safe A; 083 hits the OPE Receiving Safe).
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 99}

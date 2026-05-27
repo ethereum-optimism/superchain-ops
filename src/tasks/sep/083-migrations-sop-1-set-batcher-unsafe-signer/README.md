@@ -1,4 +1,4 @@
-# 079-migrations-sop-1-set-batcher-unsafe-signer
+# 083-migrations-sop-1-set-batcher-unsafe-signer
 
 Status: DRAFT, NOT READY TO SIGN
 
@@ -12,7 +12,7 @@ Registers the batcher and unsafe block signer on the `migrations-sop-1` (chainId
 - **Signer**: OPE Receiving Safe (Safe B) `0xb3228B623da92283280C87aB8019A405967A2B8f`
 
 > [!IMPORTANT]
-> This task can only run AFTER [078-migrations-sop-1-transfer-system-config-owner](../078-migrations-sop-1-transfer-system-config-owner/) has executed on-chain — the OPE Receiving Safe (Safe B) must be the current `SystemConfig` owner for these setters to authorize.
+> This task can only run AFTER [082-migrations-sop-1-transfer-system-config-owner](../082-migrations-sop-1-transfer-system-config-owner/) has executed on-chain — the OPE Receiving Safe (Safe B) must be the current `SystemConfig` owner for these setters to authorize.
 
 ## State Changes
 
@@ -30,12 +30,12 @@ Writes to `SystemConfigProxy` ([`0xc771958a…f9Fc`](https://sepolia.etherscan.i
 
 Simulation commands:
 ```bash
-cd src/tasks/sep/079-migrations-sop-1-set-batcher-unsafe-signer
-just simulate-stack sep 079-migrations-sop-1-set-batcher-unsafe-signer
+cd src/tasks/sep/083-migrations-sop-1-set-batcher-unsafe-signer
+just simulate-stack sep 083-migrations-sop-1-set-batcher-unsafe-signer
 ```
 
 Signing commands:
 ```bash
-cd src/tasks/sep/079-migrations-sop-1-set-batcher-unsafe-signer
+cd src/tasks/sep/083-migrations-sop-1-set-batcher-unsafe-signer
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
 ```

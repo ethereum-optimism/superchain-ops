@@ -1,4 +1,4 @@
-# 078-migrations-sop-1-transfer-system-config-owner
+# 082-migrations-sop-1-transfer-system-config-owner
 
 Status: DRAFT — NOT READY TO SIGN
 
@@ -20,13 +20,13 @@ Transfers ownership of the `migrations-sop-1` (chainId 420120110) `SystemConfigP
 
 Simulation commands:
 ```bash
-cd src/tasks/sep/078-migrations-sop-1-transfer-system-config-owner
-just simulate-stack sep 078-migrations-sop-1-transfer-system-config-owner
+cd src/tasks/sep/082-migrations-sop-1-transfer-system-config-owner
+just simulate-stack sep 082-migrations-sop-1-transfer-system-config-owner
 ```
 
 Signing commands:
 ```bash
-cd src/tasks/sep/078-migrations-sop-1-transfer-system-config-owner
+cd src/tasks/sep/082-migrations-sop-1-transfer-system-config-owner
 SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
 ```
 

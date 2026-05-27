@@ -1,5 +1,5 @@
 templateName = "TransferSystemConfigOwnership"
-fallbackAddressesJsonPath = "src/tasks/sep/078-migrations-sop-1-transfer-system-config-owner/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/082-migrations-sop-1-transfer-system-config-owner/addresses.json"
 
 # Migration Exercise note: both Safe A and Safe B are OPE-controlled on Sepolia.
 # Safe A (0x8E85…) is the current SystemConfig owner and impersonates the Partner-side

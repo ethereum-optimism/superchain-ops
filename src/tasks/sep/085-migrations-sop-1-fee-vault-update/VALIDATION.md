@@ -24,7 +24,7 @@ the values on your ledger and the values printed to the terminal when you run th
 > - Message Hash: `0x7028738272fb166ce92ebe9a4afe7ad0e94ec7a295652168b095ce11f8969de3`
 > - Safe Hash:    `0x49ef9800b87d393e57bcb836af3b1b826b17516281958fe1426ba1f28445941d`
 >
-> _Hashes above were generated with `stateOverrides` PAO nonce = **99** (stacked after 076, 077, 080). For standalone simulation use 96. If you change the nonce override, both hashes change — re-run `just simulate` and replace these values before signing._
+> _Hashes above were generated with `stateOverrides` PAO nonce = **99** (stacked after 080, 081, 084). For standalone simulation use 96. If you change the nonce override, both hashes change — re-run `just simulate` and replace these values before signing._
 
 EIP-712 digest (Safe v1.4.1):
 ```

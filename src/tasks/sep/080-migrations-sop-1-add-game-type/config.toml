@@ -1,5 +1,5 @@
 templateName = "AddGameTypeTemplate"
-fallbackAddressesJsonPath = "src/tasks/sep/076-migrations-sop-1-add-game-type/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/080-migrations-sop-1-add-game-type/addresses.json"
 
 l2chains = [
     {name = "migrations-sop-1", chainId = 420120110},

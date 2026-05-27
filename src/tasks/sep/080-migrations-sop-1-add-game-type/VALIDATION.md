@@ -23,7 +23,7 @@ the values printed to the terminal when you run the task.
 > - Message Hash: `0x4ebb5313b6c891fd78e19d654040e62f7e9adb60c9243aabb8b0f6e62a3451e6`
 > - Safe Hash:    `0x4248de63ee559d90c02b0af92923243a2513628e7623de4faff8a00ee9d0beec`
 >
-> _Hashes generated with PAO Safe nonce stateOverride = 96 (current on-chain). If the operator stacks tasks (overrides to 96/97/98/99 for 076/077/080/081), re-run `just simulate` and replace before signing._
+> _Hashes generated with PAO Safe nonce stateOverride = 96 (current on-chain). If the operator stacks tasks (overrides to 96/97/98/99 for 080/081/084/085), re-run `just simulate` and replace before signing._
 
 ## Task Calldata
 

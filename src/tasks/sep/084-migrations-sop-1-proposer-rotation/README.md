@@ -1,4 +1,4 @@
-# 080-migrations-sop-1-proposer-rotation
+# 084-migrations-sop-1-proposer-rotation
 
 Status: DRAFT, NOT READY TO SIGN
 
@@ -13,7 +13,7 @@ This is Migration Log step **3a** (`DisputeGameFactory.setImplementation`).
 - **DisputeGameFactoryProxy**: `0xD22e520F9005402a80715A3C2A60a6271B823A23`
 - **Signer**: L1 ProxyAdminOwner Safe `0xe934Dc97E347C6aCef74364B50125bb8689c40ff`
 
-The FDG slot (game type 0) is mirrored to its post-076 state in this config (impl `0x6ddba09b…`, 124-byte gameArgs) so the template's skip-if-unchanged guard fires and no FDG write is emitted. FDG was added in task 076 and is retained as the chain's primary permissionless dispute game.
+The FDG slot (game type 0) is mirrored to its post-080 state in this config (impl `0x6ddba09b…`, 124-byte gameArgs) so the template's skip-if-unchanged guard fires and no FDG write is emitted. FDG was added in task 080 and is retained as the chain's primary permissionless dispute game.
 
 ## State Changes
 
@@ -38,12 +38,12 @@ Writes to `DisputeGameFactoryProxy` ([`0xD22e520F…23`](https://sepolia.ethersc
 
 Simulation commands:
 ```bash
-cd src/tasks/sep/080-migrations-sop-1-proposer-rotation
+cd src/tasks/sep/084-migrations-sop-1-proposer-rotation
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 ```
 
 Signing commands:
 ```bash
-cd src/tasks/sep/080-migrations-sop-1-proposer-rotation
+cd src/tasks/sep/084-migrations-sop-1-proposer-rotation
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
 ```

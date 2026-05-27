@@ -3,19 +3,19 @@ l2chains = [
 ]
 
 templateName = "SetDisputeGameImpl"
-fallbackAddressesJsonPath = "src/tasks/sep/080-migrations-sop-1-proposer-rotation/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/084-migrations-sop-1-proposer-rotation/addresses.json"
 
 [[gameImplConfig]]
 # Rotates the proposer for the PermissionedDisputeGame (game type 1) — same impl, new gameArgs.
-# FDG (game type 0) is left untouched — task 076 installs it earlier in the stack, so we
-# mirror its post-076 impl + gameArgs here to trigger the template's skip-if-unchanged guard
+# FDG (game type 0) is left untouched — task 080 installs it earlier in the stack, so we
+# mirror its post-080 impl + gameArgs here to trigger the template's skip-if-unchanged guard
 # (SetDisputeGameImpl._setFDGImplementation). With fdgImpl == prevFdgImpl == current and
 # fdgGameArgs == current, no FDG state changes are emitted.
 chainId = 420120110
 fdgBond = 0
 pdgBond = 0
-fdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # faultDisputeGameV2Impl installed by 076 (OPCM v6.0.0)
-# 124-byte permissionless gameArgs installed by 076: prestate|vm|ASR|weth|chainId
+fdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # faultDisputeGameV2Impl installed by 080 (OPCM v6.0.0)
+# 124-byte permissionless gameArgs installed by 080: prestate|vm|ASR|weth|chainId
 fdgGameArgs = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e"
 pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # PermissionedDisputeGameImpl (from Migration Log)
 prevFdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # Same impl — no FDG change
