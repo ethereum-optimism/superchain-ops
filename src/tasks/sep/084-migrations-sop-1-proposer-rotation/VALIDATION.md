@@ -21,10 +21,10 @@ the values printed to the terminal when you run the task.
 > ### Migrations-sop-1 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0xb7fde5abeaddbd94253c836eaed6f3695b13b585ba08adde08e5fb2b1f44d925`
-> - Safe Hash:    `0x060fb19cfca4fc367ed9a25aed04b889c17c3d032c0bd41cc94bd022f141c73d`
+> - Message Hash: `0x412a36f92ab4f1433e231e767be29bdc4bf2451c06941cc8486b073687df90f4`
+> - Safe Hash:    `0x0913fbe3a01117f2d5f8ea6bba47784fe52b9a0c333b7bb1e0816297b8a3c3d4`
 >
-> _Hashes generated with PAO Safe nonce stateOverride = 107 (current on-chain nonce 105 + 080 + 081 stacked ahead, all of which share this Safe). For standalone simulation use 105; re-run `just simulate` and replace before signing._
+> _Hashes generated via `just simulate-stack sep 084-…` at `FORK_BLOCK_NUMBER=10926900` (PAO Safe on-chain nonce = 96; 076–079 + 080 + 081 stacked ahead → 084 signs with nonce 102). Re-run `just simulate-stack` and update if the fork block or stack changes._
 
 ## Task Calldata
 
@@ -41,7 +41,7 @@ The task calls `setImplementation(gameType=1, impl, gameArgs)` on the `migration
 
 EIP-712 digest (Safe v1.4.1):
 ```
-0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61eb7fde5abeaddbd94253c836eaed6f3695b13b585ba08adde08e5fb2b1f44d925
+0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e412a36f92ab4f1433e231e767be29bdc4bf2451c06941cc8486b073687df90f4
 ```
 
 ### Decoding the calldata
