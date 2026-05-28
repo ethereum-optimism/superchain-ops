@@ -21,14 +21,14 @@ the values on your ledger and the values printed to the terminal when you run th
 > ### Migrations-sop-1 1/1 Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0xa263e47c9b68b02abcbf955fdc82a1c32ce8fe972f75aea979bbc39a94f409ac`
-> - Safe Hash:    `0x266b5c539e6a11cc8fee4851b29a4d303ba9ad426db37d3a939500ab204f28ae`
+> - Message Hash: `0xc039d6abbf546bb2ba84f5284038d38037947b2116ca58ca1ecd935ca2e58124`
+> - Safe Hash:    `0x8e15aad6c92c8db0be19362c46cfac3f2b4886cd284554cd66f8e18284aadffa`
 >
-> _Hashes above were generated with `stateOverrides` PAO nonce = **103** (stacked after U19 betanet tasks 076-079 + 080 + 081 + 084, all of which share this Safe). For standalone simulation use 96. If you change the nonce override, both hashes change — re-run `just simulate` and replace these values before signing._
+> _Hashes generated via `just simulate` at latest block, PAO Safe nonce override = **106** (current on-chain 105 + 084 ahead of 085 in the migration SOP stack; 080/081 are canceled and 082/083 hit different safes). For standalone simulation set the override to 105. Re-run `just simulate` and replace these values if the override changes._
 
 EIP-712 digest (Safe v1.4.1):
 ```
-0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61ea263e47c9b68b02abcbf955fdc82a1c32ce8fe972f75aea979bbc39a94f409ac
+0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61ec039d6abbf546bb2ba84f5284038d38037947b2116ca58ca1ecd935ca2e58124
 ```
 
 ## Understanding Task Calldata

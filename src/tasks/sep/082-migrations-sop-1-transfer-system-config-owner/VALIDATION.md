@@ -21,6 +21,7 @@ First, validate the domain and message hashes. These values should match both th
 >
 > - Domain Hash:  `0x85cc686e8cbc7571a70994af7e216c5525d22203d359558d46a795125c38de14`
 > - Message Hash: `0x715b71ba25a947940252fe5586460e786db8befe52ee5d9de593569476020d87`
+> - Safe Hash:    `0xd82c4c1ef81808f2d4fc55e38eaf3013821bd50532ddecf30161b0ca5eef9738`
 >
 > _Hashes above were generated with the state overrides in `config.toml` (Safe A nonce = 1). If those overrides change, re-run `just simulate` and replace these values before signing._
 
