@@ -14,9 +14,10 @@ fallbackAddressesJsonPath = "src/tasks/sep/084-migrations-sop-1-proposer-rotatio
 chainId = 420120110
 fdgBond = 0
 pdgBond = 0
-fdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # faultDisputeGameV2Impl installed by 080 (OPCM v6.0.0)
-# 124-byte permissionless gameArgs installed by 080: prestate|vm|ASR|weth|chainId
-fdgGameArgs = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e"
+fdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # FaultDisputeGameImpl (OPCM v6.0.0) — already installed on-chain by netchef bring-up at block 10937343
+# 124-byte permissionless gameArgs as currently installed on-chain (prestate|vm|ASR|weth|chainId).
+# Differs from task 080's draft values: prestate is 0x038c5780… (not 0x0355d19a…) and weth is 0x82f1d0b2… (fresh per-FDG WETH, not the shared 0x4cA719DE… PermissionedDelayedWETH).
+fdgGameArgs = "0x038c5780df7d899a222bcdd835efc7cbd05d7d19e09ba5d04f356bd040a4ec6c6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a82f1d0b2d95a8660bee211be0dabd5177966e88600000000000000000000000000000000000000000000000000000000190a862e"
 pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # PermissionedDisputeGameImpl (from Migration Log)
 prevFdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # Same impl — no FDG change
 prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only gameArgs change (new proposer/challenger)
@@ -34,8 +35,8 @@ prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only 
 pdgGameArgs = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e5e9ee0aa455425aad2b55742077f95113fbaeb719805e7976880e6e48ce765118846078b877d80d0"
 
 [stateOverrides]
-# PAO Safe nonce override at FORK_BLOCK_NUMBER=10926900 (on-chain nonce = 96):
-# stacked after U19 betanet 076-079 + 080 + 081, all of which share this Safe → 102.
+# PAO Safe nonce override = current on-chain (105). Tasks 080+081 in the SOP stack are canceled
+# (already executed on-chain), and 082+083 hit different safes — so 084 signs at the live nonce.
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 107}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 105}
 ]
