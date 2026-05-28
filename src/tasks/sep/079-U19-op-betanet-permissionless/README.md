@@ -1,6 +1,6 @@
 # 079-U19-op-betanet-permissionless
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x1b64de8763564ed35003db4b8cbd651936b884e2c608b3614da6ed67642cb070)
 
 ## Objective
 
