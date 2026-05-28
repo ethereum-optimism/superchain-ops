@@ -53,5 +53,5 @@ minWithdrawalAmounts = [0]   # no minimum threshold
 # 082 hits Safe A and 083 hits the OPE Receiving Safe (different safes).
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 103}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 108}
 ]
