@@ -1,6 +1,6 @@
 # 085-migrations-sop-1-fee-vault-update
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x4e92b55e0e944ac89743f7562393a929d8efd82dfdb94972ac5a43b02b9edd12)
 
 ## Objective
 

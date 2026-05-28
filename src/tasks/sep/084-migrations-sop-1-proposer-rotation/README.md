@@ -1,6 +1,6 @@
 # 084-migrations-sop-1-proposer-rotation
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x5ad3e635c34d61b3d865f45aa0b999162968a8695f002ab400fd1d04386db092)
 
 ## Objective
 
