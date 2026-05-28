@@ -1,6 +1,8 @@
 # 080-migrations-sop-1-add-game-type
 
-Status: **CANCELLED** — already executed at block 10937343 ([tx `0x6d72b29e…`](https://sepolia.etherscan.io/tx/0x6d72b29e51559778653d6581d63a921deac46eb52948b098cfc922776fb390ed)) by the netchef bring-up of the `migrated-sop-1` permissionless receiving infra. On-chain `gameArgs(0)` uses a different prestate (`0x038c5780…`) and a fresh DelayedWETH (`0x82f1d0b2…`) than this config — do not re-run.
+Status: CANCELLED
+
+- Already executed at block 10937343 ([tx `0x6d72b29e…`](https://sepolia.etherscan.io/tx/0x6d72b29e51559778653d6581d63a921deac46eb52948b098cfc922776fb390ed)) by the netchef bring-up of the `migrated-sop-1` permissionless receiving infra. On-chain `gameArgs(0)` uses a different prestate (`0x038c5780…`) and a fresh DelayedWETH (`0x82f1d0b2…`) than this config — do not re-run.
 
 ## Objective
 
