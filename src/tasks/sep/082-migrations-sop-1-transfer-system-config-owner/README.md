@@ -1,6 +1,6 @@
 # 082-migrations-sop-1-transfer-system-config-owner
 
-Status: DRAFT — NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xcf538dcc797c0104247a92ccaf9a29269bd8d96f608fc2c740dc40e209ebdf7c)
 
 ## Objective
 

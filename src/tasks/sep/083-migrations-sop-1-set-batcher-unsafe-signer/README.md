@@ -1,6 +1,6 @@
 # 083-migrations-sop-1-set-batcher-unsafe-signer
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x6eebd08849b13d1f5245860b609b60e24bbd8a9209f26dd2873bf4d3d8a3ffc0)
 
 ## Objective
 
