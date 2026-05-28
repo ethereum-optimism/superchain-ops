@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import {console} from "forge-std/console.sol";
 
 import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
@@ -13,6 +14,8 @@ import {RevShareCommon} from "src/libraries/RevShareCommon.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {IFeeVault} from "src/interfaces/IFeeVault.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
+import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
+import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 
 /// @notice Template for upgrading L2 fee vault predeploys to a new implementation with a
 ///         configurable fee recipient and withdrawal network. Calls are made via
@@ -114,7 +117,75 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
             require(networks[i] <= 1, "FeeVaultUpgradeTemplate: network must be 0 (L1) or 1 (L2)");
         }
 
+        _preflightCheckL2ProxyAdminOwners(toml, chains, _rootSafe);
+
         super._templateSetup(_taskConfigFilePath, _rootSafe);
+    }
+
+    /// @notice Verifies that the L2 ProxyAdmin on each target chain is owned by the aliased rootSafe.
+    ///         If it isn't, the `upgradeAndCall` deposits this template generates will land on L2
+    ///         but silently revert with `onlyOwner`, leaving the L1 task tx successful and the L2
+    ///         state unchanged — an extremely confusing failure mode.
+    ///
+    ///         The check is opt-in via the `l2RpcUrls` TOML field (one URL or `foundry.toml`
+    ///         rpc alias per chain, in the same order as `l2chains`). When the field is absent,
+    ///         a warning is printed and the check is skipped (preserves backward compatibility
+    ///         with existing configs and offline simulation).
+    function _preflightCheckL2ProxyAdminOwners(
+        string memory toml,
+        SuperchainAddressRegistry.ChainInfo[] memory chains,
+        address _rootSafe
+    ) internal {
+        if (!toml.keyExists(".l2RpcUrls")) {
+            console.log(
+                "[WARN] FeeVaultUpgradeTemplate: `l2RpcUrls` not set in config.toml -- "
+                "skipping L2 ProxyAdmin owner pre-flight check. Add `l2RpcUrls = [...]` "
+                "(one URL or foundry.toml rpc alias per chain) to verify the L2 ProxyAdmin "
+                "on each chain is owned by the aliased rootSafe before signing."
+            );
+            return;
+        }
+
+        string[] memory l2RpcUrls = abi.decode(toml.parseRaw(".l2RpcUrls"), (string[]));
+        require(
+            l2RpcUrls.length == chains.length, "FeeVaultUpgradeTemplate: l2RpcUrls length must equal l2chains.length"
+        );
+
+        address aliasedRootSafe = AddressAliasHelper.applyL1ToL2Alias(_rootSafe);
+        uint256 originalFork = vm.activeFork();
+
+        for (uint256 i; i < chains.length; i++) {
+            vm.createSelectFork(l2RpcUrls[i]);
+            require(
+                block.chainid == chains[i].chainId,
+                string.concat(
+                    "FeeVaultUpgradeTemplate: l2RpcUrls[",
+                    vm.toString(i),
+                    "] chainId=",
+                    vm.toString(block.chainid),
+                    " does not match l2chains[",
+                    vm.toString(i),
+                    "].chainId=",
+                    vm.toString(chains[i].chainId)
+                )
+            );
+            address l2Owner = IProxyAdmin(Predeploys.PROXY_ADMIN).owner();
+            require(
+                l2Owner == aliasedRootSafe,
+                string.concat(
+                    "FeeVaultUpgradeTemplate: L2 ProxyAdmin on chainId ",
+                    vm.toString(chains[i].chainId),
+                    " is owned by ",
+                    vm.toString(l2Owner),
+                    " -- expected aliased rootSafe ",
+                    vm.toString(aliasedRootSafe),
+                    ". upgradeAndCall deposits would revert on L2. Fix by transferring L2 ProxyAdmin ",
+                    "ownership to the aliased L1 PAO before signing (see TransferL2PAOFromL1 template)."
+                )
+            );
+        }
+
+        vm.selectFork(originalFork);
     }
 
     /// @notice Builds portal deposit calls: for each chain × vault, deploy the implementation
