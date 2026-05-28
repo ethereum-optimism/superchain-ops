@@ -148,8 +148,7 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
 
         string[] memory l2RpcUrls = abi.decode(toml.parseRaw(".l2RpcUrls"), (string[]));
         require(
-            l2RpcUrls.length == chains.length,
-            "FeeVaultUpgradeTemplate: l2RpcUrls length must equal l2chains.length"
+            l2RpcUrls.length == chains.length, "FeeVaultUpgradeTemplate: l2RpcUrls length must equal l2chains.length"
         );
 
         address aliasedRootSafe = AddressAliasHelper.applyL1ToL2Alias(_rootSafe);
