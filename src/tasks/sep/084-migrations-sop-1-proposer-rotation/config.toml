@@ -6,33 +6,46 @@ templateName = "SetDisputeGameImpl"
 fallbackAddressesJsonPath = "src/tasks/sep/084-migrations-sop-1-proposer-rotation/addresses.json"
 
 [[gameImplConfig]]
-# Rotates the proposer and challenger for the PermissionedDisputeGame (game type 1) — same impl, new gameArgs.
-# FDG (game type 0) is left untouched — task 080 installs it earlier in the stack, so we
-# mirror its post-080 impl + gameArgs here to trigger the template's skip-if-unchanged guard
-# (SetDisputeGameImpl._setFDGImplementation). With fdgImpl == prevFdgImpl == current and
-# fdgGameArgs == current, no FDG state changes are emitted.
+# Two changes in this task:
+#   1. Rotate the PermissionedDisputeGame (PDG, game type 1) proposer and challenger to the
+#      migrated-sop-1 receiving infrastructure.
+#   2. Update the absolute prestate for BOTH FaultDisputeGame (FDG, game type 0) and PDG to the
+#      freshly-built op-program/v1.9.0-rc.1 Cannon64 prestate
+#      0x032ab5ac33a98dc99947c54eeb0bf84f22abe4be0b01537235218164492ecab9
+#      (covering migrations-sop-0 and migrations-sop-1 chain configs).
+# Both gameArgs change (prestate bytes 0..32 are new); the impls are unchanged. The
+# template's skip-if-unchanged guard (SetDisputeGameImpl._setFDGImplementation /
+# _setPDGImplementation) compares c.fdgGameArgs and c.pdgGameArgs against the live on-chain
+# gameArgs, so each game type emits a setImplementation call.
 chainId = 420120110
 fdgBond = 0
 pdgBond = 0
 fdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # FaultDisputeGameImpl (OPCM v6.0.0) — already installed on-chain by netchef bring-up at block 10937343
-# 124-byte permissionless gameArgs as currently installed on-chain (prestate|vm|ASR|weth|chainId).
-# Differs from task 080's draft values: prestate is 0x038c5780… (not 0x0355d19a…) and weth is 0x82f1d0b2… (fresh per-FDG WETH, not the shared 0x4cA719DE… PermissionedDelayedWETH).
-fdgGameArgs = "0x038c5780df7d899a222bcdd835efc7cbd05d7d19e09ba5d04f356bd040a4ec6c6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a82f1d0b2d95a8660bee211be0dabd5177966e88600000000000000000000000000000000000000000000000000000000190a862e"
+# 124-byte permissionless gameArgs (prestate|vm|ASR|weth|chainId).
+# Layout (per SetDisputeGameImpl._validateGameArgsFormat, permissionless=124 bytes):
+#   prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
+# Values:
+#   prestate            = 0x032ab5ac…ecab9  (op-program/v1.9.0-rc.1 Cannon64) — UPDATED from on-chain 0x038c5780…ec6c
+#   vm                  = 0x6463dee3…b908  (MIPS 1.9.0)
+#   anchorStateRegistry = 0x8faf920f…1c5a
+#   delayedWETH         = 0x82f1d0b2…e886  (fresh per-FDG WETH — UNCHANGED from on-chain)
+#   chainId             = 420120110 (= 0x190a862e), 32-byte left-padded
+fdgGameArgs = "0x032ab5ac33a98dc99947c54eeb0bf84f22abe4be0b01537235218164492ecab96463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a82f1d0b2d95a8660bee211be0dabd5177966e88600000000000000000000000000000000000000000000000000000000190a862e"
 pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # PermissionedDisputeGameImpl (from Migration Log)
-prevFdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # Same impl — no FDG change
-prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only gameArgs change (new proposer/challenger)
+prevFdgImpl = "0x6ddba09bc4ccb0d6ca9fc5350580f74165707499" # Same impl — only gameArgs change (new prestate)
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only gameArgs change (new prestate, new proposer/challenger)
 # 164-byte encoded constructor args for PermissionedDisputeGame.
 # Layout (per SetDisputeGameImpl._validateGameArgsFormat, permissioned=164 bytes):
 #   prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32) | proposer(20) | challenger(20)
 # Values:
-#   prestate            = 0x0355d19a…6aed  (op-program/v1.9.0-rc.1 Cannon64) — UPDATED from on-chain 0x038512e0…d54c
+#   prestate            = 0x032ab5ac…ecab9  (op-program/v1.9.0-rc.1 Cannon64) — UPDATED from on-chain 0x038512e0…d54c
 #   vm                  = 0x6463dee3…b908  (MIPS 1.9.0)
 #   anchorStateRegistry = 0x8faf920f…1c5a
 #   delayedWETH         = 0x4ca719de…f169  (PermissionedDelayedWETHProxy — shared)
 #   chainId             = 420120110 (= 0x190a862e), 32-byte left-padded
 #   proposer            = 0x5e9eE0Aa…eB71  (migrated-sop-1 receiving infra — UPDATED from on-chain 0x31f018d0…f7c8)
 #   challenger          = 0x9805e797…80D0  (migrated-sop-1 receiving infra — UPDATED from on-chain 0x55744b68…602c)
-pdgGameArgs = "0x0355d19a9da58fccf469c60293543f95f520ef38c055a23502ee0bace5f06aed6463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e5e9ee0aa455425aad2b55742077f95113fbaeb719805e7976880e6e48ce765118846078b877d80d0"
+pdgGameArgs = "0x032ab5ac33a98dc99947c54eeb0bf84f22abe4be0b01537235218164492ecab96463dee3828677f6270d83d45408044fc5edb9088faf920fad8138debf666949b9e41ff71cce1c5a4ca719de2459ccf0a3194b2265f8870df7bcf16900000000000000000000000000000000000000000000000000000000190a862e5e9ee0aa455425aad2b55742077f95113fbaeb719805e7976880e6e48ce765118846078b877d80d0"
 
 [stateOverrides]
 # PAO Safe nonce override = current on-chain (105). Tasks 080+081 in the SOP stack are canceled
