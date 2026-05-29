@@ -466,12 +466,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 if (candidates[j].code.length == 0) exceptions[cursor++] = candidates[j];
             }
         }
-        // Trim to actual length. cursor <= chains.length * 4 = exceptions.length by construction,
-        // so the mstore cannot corrupt adjacent memory.
-        assembly {
-            mstore(exceptions, cursor)
-        }
-        return exceptions;
+        address[] memory result = new address[](cursor);
+        for (uint256 i = 0; i < cursor; i++) result[i] = exceptions[i];
+        return result;
     }
 }
 
