@@ -341,14 +341,6 @@ contract SuperchainAddressRegistry is StdChains {
 
         optimismPortalProxy = getOptimismPortalProxy(l1CrossDomainMessengerProxy);
         saveAddress("OptimismPortalProxy", chain, optimismPortalProxy);
-
-        // EthLockboxProxy cannot be discovered on-chain via a standard getter; read from
-        // the registry JSON when present (introduced in op-contracts v7.x).
-        string memory ethLockboxKey = string.concat("$.", vm.toString(chain.chainId), ".EthLockboxProxy");
-        if (vm.keyExistsJson(chainAddressesContent, ethLockboxKey)) {
-            address ethLockbox = parseContractAddress(chainAddressesContent, chain.chainId, "EthLockboxProxy");
-            if (ethLockbox != address(0)) saveAddress("EthLockboxProxy", chain, ethLockbox);
-        }
     }
 
     function _saveProxyAdminEntries(ChainInfo memory chain, address systemConfigProxy) internal {
