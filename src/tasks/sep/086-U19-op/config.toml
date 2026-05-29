@@ -1,0 +1,51 @@
+# U19 upgrade for OP Sepolia Testnet.
+#
+# This task is first in the U19 Sepolia upgrade sequence and serves as the
+# gas benchmark. Once simulated, use the Tenderly gas output to confirm
+# whether the 16,777,216 gas cap allows bundling additional chains in 087.
+
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 11155420
+# CANNON (game type 0) is deprecated and disabled in U19.
+# Use an obviously-invalid prestate so it cannot be used.
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with the standard kona absolute prestate from
+# superchain-registry/validation/standard/standard-prestates.toml once published.
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# PLDG-10: V700 OPCM zeroes the CANNON slot during upgrade — the standard
+# validator's assertValidPermissionlessDisputeGame still checks CANNON, so
+# PLDG-10 is the unavoidable side-effect of U19's deprecation of CANNON.
+expectedValidationErrors = "PLDG-10"
+# initBond must be present to avoid forge-std TOML struct misalignment (alphabetical field order).
+# Matches the current on-chain CANNON_KONA (type 8) initBonds on OP Sepolia DGF.
+initBond = 80000000000000000
+# Post-upgrade respected game type. U19 always rotates AnchorStateRegistry's
+# respectedGameType to CANNON_KONA (8) — kona-client becomes the primary FPVM.
+startingRespectedGameType = 8
+
+[addresses]
+# v7.1.17 OPCM on Sepolia.
+# Source: superchain-registry/validation/standard/standard-versions-sepolia.toml
+# under ["op-contracts/v7.1.17"].op_contracts_manager
+OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
+
+[stateOverrides]
+# Sepolia L1PAO (0x1Eb2fFc903729a0F03966B917003800b145F56E2)
+# Verify nonce before signing: cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" --rpc-url sepolia
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
+# Sepolia Security Council (0xf64bc17485f0B4Ea5F06A96514182FC4cB561977)
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
+# Sepolia Foundation Upgrade Safe (0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B)
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
