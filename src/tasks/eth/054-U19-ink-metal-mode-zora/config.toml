@@ -1,0 +1,80 @@
+# U19 upgrade for Ink, Metal, Mode, and Zora Mainnet.
+#
+# All four chains share the Mainnet L1PAO (0x5a0Aae59...) and are bundled here
+# for efficiency. If this bundle exceeds the 16,777,216 gas cap during simulation,
+# split into two tasks: 054-U19-ink-metal and 055-U19-mode-zora (renumbering
+# 055-U19-soneium and 056-U19-unichain accordingly).
+#
+# Executes after 053-U19-op; Safe nonces are offset by 1 from task 053.
+
+l2chains = [
+    {name = "Ink", chainId = 57073},
+    {name = "Metal L2", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777}
+]
+
+templateName = "OPCMUpgradeV700"
+
+# Ink Mainnet (Permissionless)
+[[opcmUpgrades]]
+chainId = 57073
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "PLDG-10"
+initBond = 80000000000000000
+startingRespectedGameType = 8
+
+# Metal L2 Mainnet (Permissioned)
+[[opcmUpgrades]]
+chainId = 1750
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "PLDG-10"
+initBond = 0
+startingRespectedGameType = 8
+
+# Mode Mainnet (Permissioned)
+[[opcmUpgrades]]
+chainId = 34443
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "PLDG-10"
+initBond = 0
+startingRespectedGameType = 8
+
+# Zora Mainnet (Permissioned)
+[[opcmUpgrades]]
+chainId = 7777777
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+# (Zora Mainnet uses the standard challenger, unlike Zora Sepolia.)
+expectedValidationErrors = "PLDG-10"
+initBond = 0
+startingRespectedGameType = 8
+
+[addresses]
+OPCM = "0x9ce712ff84e02659846dc6450bb9b7642fe8be5d"  # v7.1.17 OPCM on Mainnet. Source: superchain-registry standard-versions-mainnet.toml
+
+[stateOverrides]
+# Mainnet L1PAO — nonce is 35 + 1 (task 053 consumes nonce 35).
+# Verify before signing: cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" --rpc-url mainnet
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+]
+# Foundation Upgrade Safe — nonce 57 + 1.
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+]
+# Security Council — nonce 58 + 1.
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
+]
