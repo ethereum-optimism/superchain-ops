@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Claim, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {console} from "forge-std/console.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -141,12 +142,26 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// sentinel-chain entries hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet
     /// values), so betanet-specific addresses never make it into the allowlist. We re-add
     /// them explicitly per chain so betanet upgrades pass the post-execution check.
+    /// For standard chains, `ProtocolVersions` is only registered on the sentinel chain
+    /// (via addresses.toml), so we fall back to `get()` when per-chain lookup fails.
     function _setAllowedStorageAccesses() internal virtual override {
         super._setAllowedStorageAccesses();
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
-            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId));
+            // ProtocolVersions is registered per-chain for betanets (via fallback addresses.json)
+            // but only on the sentinel chain for standard superchain-registry chains. Try per-chain
+            // first (betanet case), fall back to sentinel chain (standard chain case).
+
+            try superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId) returns (address pv) {
+                _allowedStorageAccesses.add(pv);
+            } catch {
+                console.log(
+                    "OPCMUpgradeV700: per-chain ProtocolVersions lookup failed for chainId %d, falling back to global ProtocolVersions",
+                    chains[i].chainId
+                );
+                _allowedStorageAccesses.add(superchainAddrRegistry.get("ProtocolVersions"));
+            }
         }
     }
 
@@ -335,16 +350,37 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         address sharedSC = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
 
-        (bool scOk,) = address(OPCM).delegatecall(
-            abi.encodeCall(
-                IOPContractsManagerV700.upgradeSuperchain,
-                IOPContractsManagerV700.SuperchainUpgradeInput({
-                    superchainConfig: ISuperchainConfig(sharedSC),
-                    extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
-                })
-            )
-        );
-        require(scOk, "OPCMUpgradeV700: upgradeSuperchain failed");
+        // ERC-1967 implementation slot: keccak256("eip1967.proxy.implementation") - 1
+        bytes32 ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+
+        // Skip upgradeSuperchain if the SuperchainConfig proxy is already pointing at the
+        // v7.1.17 implementation. This happens in the stacked execution model when a prior
+        // task (e.g. 086-U19-op with the shared L1PAO) already ran upgradeSuperchain.
+        // Chains with non-standard L1PAOs (e.g. Unichain) cannot authorize ProxyAdmin.upgrade()
+        // on the shared SuperchainConfig, so they must rely on a prior task having done it.
+        address currentSCImpl = address(uint160(uint256(vm.load(sharedSC, ERC1967_IMPL_SLOT))));
+
+        // Decode only the first return value (superchainConfigImpl) from implementations().
+        (, bytes memory implData) = address(OPCM).staticcall(abi.encodeWithSignature("implementations()"));
+        address targetSCImpl = abi.decode(implData, (address));
+
+        if (currentSCImpl != targetSCImpl) {
+            (bool scOk,) = address(OPCM).delegatecall(
+                abi.encodeCall(
+                    IOPContractsManagerV700.upgradeSuperchain,
+                    IOPContractsManagerV700.SuperchainUpgradeInput({
+                        superchainConfig: ISuperchainConfig(sharedSC),
+                        extraInstructions: new IOPContractsManagerV700.ExtraInstruction[](0)
+                    })
+                )
+            );
+            require(scOk, "OPCMUpgradeV700: upgradeSuperchain failed");
+        } else {
+            console.log(
+                "OPCMUpgradeV700: skipping upgradeSuperchain - SuperchainConfig proxy already points at target implementation %s",
+                targetSCImpl
+            );
+        }
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -421,12 +457,20 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             ISystemConfigEOAs sc =
                 ISystemConfigEOAs(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
-            exceptions[cursor++] = sc.owner();
-            exceptions[cursor++] = sc.unsafeBlockSigner();
-            exceptions[cursor++] = sc.batchInbox();
-            exceptions[cursor++] = address(uint160(uint256(sc.batcherHash())));
+            // Only include true EOAs (no code). Contract addresses (e.g. multisig owners)
+            // must not be in the exceptions list — they are handled by the normal allowed
+            // storage accesses check instead.
+            address[4] memory candidates =
+                [sc.owner(), sc.unsafeBlockSigner(), sc.batchInbox(), address(uint160(uint256(sc.batcherHash())))];
+            for (uint256 j = 0; j < 4; j++) {
+                if (candidates[j].code.length == 0) exceptions[cursor++] = candidates[j];
+            }
         }
-        return exceptions;
+        address[] memory result = new address[](cursor);
+        for (uint256 i = 0; i < cursor; i++) {
+            result[i] = exceptions[i];
+        }
+        return result;
     }
 }
 
