@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Claim, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {console} from "forge-std/console.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -344,15 +345,19 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         address sharedSC = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
 
+        // ERC-1967 implementation slot: keccak256("eip1967.proxy.implementation") - 1
+        bytes32 ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+
         // Skip upgradeSuperchain if the SuperchainConfig proxy is already pointing at the
         // v7.1.17 implementation. This happens in the stacked execution model when a prior
         // task (e.g. 086-U19-op with the shared L1PAO) already ran upgradeSuperchain.
         // Chains with non-standard L1PAOs (e.g. Unichain) cannot authorize ProxyAdmin.upgrade()
         // on the shared SuperchainConfig, so they must rely on a prior task having done it.
-        bytes32 erc1967Slot = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
-        address currentSCImpl = address(uint160(uint256(vm.load(sharedSC, erc1967Slot))));
+        address currentSCImpl = address(uint160(uint256(vm.load(sharedSC, ERC1967_IMPL_SLOT))));
         // Decode only the first return value (superchainConfigImpl) from implementations().
-        (, bytes memory implData) = address(OPCM).staticcall(abi.encodeWithSignature("implementations()"));
+        (bool implCallSuccess, bytes memory implData) =
+            address(OPCM).staticcall(abi.encodeWithSignature("implementations()"));
+        require(implCallSuccess && implData.length >= 32, "OPCMUpgradeV700: implementations() call failed");
         address targetSCImpl = abi.decode(implData, (address));
 
         if (currentSCImpl != targetSCImpl) {
@@ -366,6 +371,11 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 )
             );
             require(scOk, "OPCMUpgradeV700: upgradeSuperchain failed");
+        } else {
+            console.log(
+                "OPCMUpgradeV700: skipping upgradeSuperchain - SuperchainConfig already at target impl %s",
+                targetSCImpl
+            );
         }
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -456,8 +466,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 if (candidates[j].code.length == 0) exceptions[cursor++] = candidates[j];
             }
         }
-        // Trim to actual length.
+        // Trim to actual length (cursor <= exceptions.length by construction).
         assembly {
+            if gt(cursor, mload(exceptions)) { revert(0, 0) }
             mstore(exceptions, cursor)
         }
         return exceptions;
