@@ -15,9 +15,9 @@ chainId = 11155420
 # CANNON (game type 0) is deprecated and disabled in U19.
 # Use an obviously-invalid prestate so it cannot be used.
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# TBD: Replace with the standard kona absolute prestate from
-# superchain-registry/validation/standard/standard-prestates.toml once published.
-cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# Standard kona-client v1.6.0-rc.1 cannon64-kona absolute prestate from
+# superchain-registry/validation/standard/standard-prestates.toml.
+cannonKonaPrestate = "0x03cdb57a890f7e129d5abbe074f19425f94cf2b84f614aab008a96f91debae65"
 # PLDG-10: V700 OPCM zeroes the CANNON slot during upgrade — the standard
 # validator's assertValidPermissionlessDisputeGame still checks CANNON, so
 # PLDG-10 is the unavoidable side-effect of U19's deprecation of CANNON.

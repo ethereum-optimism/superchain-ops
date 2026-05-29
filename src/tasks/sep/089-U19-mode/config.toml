@@ -9,8 +9,9 @@ templateName = "OPCMUpgradeV700"
 [[opcmUpgrades]]
 chainId = 919
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
-cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# Standard kona-client v1.6.0-rc.1 cannon64-kona absolute prestate from
+# superchain-registry/validation/standard/standard-prestates.toml.
+cannonKonaPrestate = "0x03cdb57a890f7e129d5abbe074f19425f94cf2b84f614aab008a96f91debae65"
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "PLDG-10"
 initBond = 0

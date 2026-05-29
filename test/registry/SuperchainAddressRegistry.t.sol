@@ -43,6 +43,15 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         assertTrue(addrRegistry.seenL2ChainIds(modeChainId), "Mode chain ID not supported");
     }
 
+    function testEthLockboxDiscoveredViaPortal() public view {
+        // OP chains already have their EthLockbox wired at the Portal, so the registry
+        // should resolve `EthLockboxProxy` via the `ethLockbox()` getter. Chains whose
+        // Portal predates v5.2.0 or returns address(0) simply skip registration (the
+        // try/catch + non-zero guard in `_fetchAndSaveInitialContracts`).
+        address lockbox = addrRegistry.getAddress("EthLockboxProxy", opChainId);
+        assertNotEq(lockbox, address(0), "EthLockboxProxy missing for OP chain");
+    }
+
     function testSuperchainAddressesLoaded() public {
         SuperchainAddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         assertAddresses(chains);
