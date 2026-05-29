@@ -1,0 +1,44 @@
+# U19 upgrade for Unichain Mainnet.
+
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 130
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# OVERRIDES-L1PAOMULTISIG: Unichain uses a non-standard L1PAO.
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,PLDG-10"
+initBond = 80000000000000000
+startingRespectedGameType = 8
+
+[addresses]
+OPCM = "0x9ce712ff84e02659846dc6450bb9b7642fe8be5d"
+
+[stateOverrides]
+# Unichain 3/3 ProxyAdminOwner — independent of tasks 053-058.
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9}
+]
+# Unichain Operations Safe.
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 17}
+]
+# Foundation Upgrade Safe — nonce 57 + 6 (tasks 053-058 each consume one nonce).
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
+# Security Council — nonce 58 + 6.
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
+# Mock SuperchainConfig as already upgraded to v7.1.17.
+# In real execution, tasks 053-058 run first and upgrade the superchain.
+0x95703e0982140D16f8ebA6d158FccEde42f04a4C = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x000000000000000000000000E4F9779ab53070a55db24dFAeFf9AF147c6ED550"}
+]
