@@ -345,6 +345,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         address sharedSC = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
 
+
         // ERC-1967 implementation slot: keccak256("eip1967.proxy.implementation") - 1
         bytes32 ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
@@ -355,15 +356,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // on the shared SuperchainConfig, so they must rely on a prior task having done it.
         address currentSCImpl = address(uint160(uint256(vm.load(sharedSC, ERC1967_IMPL_SLOT))));
 
-        // The ERC-1967 implementation slot: keccak256("eip1967.proxy.implementation") - 1
-        bytes32 constant ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
-
-        // Skip upgradeSuperchain if the SuperchainConfig proxy is already pointing at the
-        // v7.1.17 implementation. This happens in the stacked execution model when a prior
-        // task (e.g. 086-U19-op with the shared L1PAO) already ran upgradeSuperchain.
-        // Chains with non-standard L1PAOs (e.g. Unichain) cannot authorize ProxyAdmin.upgrade()
-        // on the shared SuperchainConfig, so they must rely on a prior task having done it.
-        address currentSCImpl = address(uint160(uint256(vm.load(sharedSC, ERC1967_IMPL_SLOT))));
         // Decode only the first return value (superchainConfigImpl) from implementations().
         (, bytes memory implData) = address(OPCM).staticcall(abi.encodeWithSignature("implementations()"));
         address targetSCImpl = abi.decode(implData, (address));
