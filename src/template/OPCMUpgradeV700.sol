@@ -457,18 +457,16 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             // Only include true EOAs (no code). Contract addresses (e.g. multisig owners)
             // must not be in the exceptions list — they are handled by the normal allowed
             // storage accesses check instead.
-            address[4] memory candidates = [
-                sc.owner(),
-                sc.unsafeBlockSigner(),
-                sc.batchInbox(),
-                address(uint160(uint256(sc.batcherHash())))
-            ];
+            address[4] memory candidates =
+                [sc.owner(), sc.unsafeBlockSigner(), sc.batchInbox(), address(uint160(uint256(sc.batcherHash())))];
             for (uint256 j = 0; j < 4; j++) {
                 if (candidates[j].code.length == 0) exceptions[cursor++] = candidates[j];
             }
         }
         address[] memory result = new address[](cursor);
-        for (uint256 i = 0; i < cursor; i++) result[i] = exceptions[i];
+        for (uint256 i = 0; i < cursor; i++) {
+            result[i] = exceptions[i];
+        }
         return result;
     }
 }
