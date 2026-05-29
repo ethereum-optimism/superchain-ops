@@ -152,10 +152,16 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             // ProtocolVersions is registered per-chain for betanets (via fallback addresses.json)
             // but only on the sentinel chain for standard superchain-registry chains. Try per-chain
             // first (betanet case), fall back to sentinel chain (standard chain case).
+
             try superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId) returns (address pv) {
                 _allowedStorageAccesses.add(pv);
             } catch {
+                console.log(
+                    "OPCMUpgradeV700: per-chain ProtocolVersions lookup failed for chainId %d, falling back to global ProtocolVersions",
+                    chains[i].chainId
+                );
                 _allowedStorageAccesses.add(superchainAddrRegistry.get("ProtocolVersions"));
+
             }
         }
     }
