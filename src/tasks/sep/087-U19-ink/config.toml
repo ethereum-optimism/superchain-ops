@@ -1,0 +1,37 @@
+# U19 upgrade for Ink Sepolia Testnet.
+
+l2chains = [
+    {name = "Ink Sepolia Testnet", chainId = 763373}
+]
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 763373
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "PLDG-10"
+initBond = 80000000000000000
+startingRespectedGameType = 8
+
+[addresses]
+# v7.1.17 OPCM on Sepolia.
+# Source: superchain-registry/validation/standard/standard-versions-sepolia.toml
+# under ["op-contracts/v7.1.17"].op_contracts_manager
+OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
+
+[stateOverrides]
+# Sepolia L1PAO — nonce 50 + 1 (task 086 consumes nonce 50).
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 51}
+]
+# Sepolia Security Council — nonce 64 + 1.
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]
+# Sepolia Foundation Upgrade Safe — nonce 70 + 1.
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 71}
+]
