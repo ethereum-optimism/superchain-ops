@@ -21,7 +21,7 @@ First, validate the domain and message hashes. These values should match both th
 > ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x0000000000000000000000000000000000000000000000000000000000000000`
+> - Message Hash: `0xae53964e92aa3f04d4abfaf936277b6e58c53e719201b465ac7466b49db8028a`
 
 ## Task Calldata
 

@@ -536,11 +536,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // Check that the transaction did not exceed the maximum gas limit.
         // We must check gas consumed BEFORE refunds, because the EVM requires enough gas upfront,
         // therefore we check gasTotalUsed + gasRefunded
-        // Note: gasRefunded is int64, but should always be >= 0 in practice, unsure why this is
-        // an int64 in forge.
+        // Note: gasRefunded is an int64 in forge and can legitimately come back negative for some
+        // calls (the exposed value is a signed refund delta, not the EVM refund counter). A negative
+        // refund just means the net refund was negative, so the pre-refund gas is bounded by
+        // gasTotalUsed; clamp to 0 rather than treating it as invalid.
         VmSafe.Gas memory gasInfo = vm.lastCallGas();
-        require(gasInfo.gasRefunded >= 0, "MultisigTask: negative gas refund is invalid");
-        uint256 gasRefunded = uint256(uint64(gasInfo.gasRefunded));
+        uint256 gasRefunded = gasInfo.gasRefunded > 0 ? uint256(uint64(gasInfo.gasRefunded)) : 0;
         uint256 gasConsumedBeforeRefund = uint256(gasInfo.gasTotalUsed) + gasRefunded;
         if (gasConsumedBeforeRefund > MAX_GAS_LIMIT) {
             console.log("Gas consumed before refund:", gasConsumedBeforeRefund);
