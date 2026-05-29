@@ -161,7 +161,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                     chains[i].chainId
                 );
                 _allowedStorageAccesses.add(superchainAddrRegistry.get("ProtocolVersions"));
-
             }
         }
     }
