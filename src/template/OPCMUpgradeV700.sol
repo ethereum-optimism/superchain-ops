@@ -152,9 +152,14 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             // ProtocolVersions is registered per-chain for betanets (via fallback addresses.json)
             // but only on the sentinel chain for standard superchain-registry chains. Try per-chain
             // first (betanet case), fall back to sentinel chain (standard chain case).
+
             try superchainAddrRegistry.getAddress("ProtocolVersions", chains[i].chainId) returns (address pv) {
                 _allowedStorageAccesses.add(pv);
             } catch {
+                console.log(
+                    "OPCMUpgradeV700: per-chain ProtocolVersions lookup failed for chainId %d, falling back to global ProtocolVersions",
+                    chains[i].chainId
+                );
                 _allowedStorageAccesses.add(superchainAddrRegistry.get("ProtocolVersions"));
             }
         }
@@ -345,7 +350,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         address sharedSC = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
 
-
         // ERC-1967 implementation slot: keccak256("eip1967.proxy.implementation") - 1
         bytes32 ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
@@ -377,7 +381,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 targetSCImpl
             );
         }
-
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
