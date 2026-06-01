@@ -475,7 +475,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
                     require(address(uint160(value)).code.length != 0, err);
-                } else {
+                } else if (value <= type(uint160).max) {
+                    // Only assert "no code" when the value could actually be an address.
+                    // A value above uint160.max is a packed storage slot (e.g. SystemConfig
+                    // slot 0x6c packs the `superchainConfig` address with `minBaseFee`), so its
+                    // low 160 bits are not an address — interpreting them as one is a false
+                    // positive. Such slots are skipped here.
                     // Log account, slot, and value if there is code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
