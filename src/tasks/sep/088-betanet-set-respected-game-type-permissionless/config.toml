@@ -1,0 +1,35 @@
+# Switch karst-u19-beta-1 from permissioned to permissionless by setting the respected
+# dispute game type in its AnchorStateRegistry to game type 0 (Permissionless `CANNON`).
+#
+# Redo of task 078 against the fresh `karst-u19-beta` replacement network.
+#
+# Pre-condition: task 087-betanet-set-dispute-game-impl-permissionless has already
+# wired the permissionless `CANNON` impl into karst-u19-beta-1's DisputeGameFactory.
+# Together, 087 + this task make karst-u19-beta-1 "officially permissionless", and the
+# U19 upgrade itself happens in 089.
+
+l2chains = [
+    {name = "karst-u19-beta-1", chainId = 420110024}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/088-betanet-set-respected-game-type-permissionless/addresses.json"
+templateName = "SetRespectedGameTypeTemplate"
+
+# On the betanet, the AnchorStateRegistry checks
+# `msg.sender == SystemConfig.guardian()`, and the guardian is the PAO Safe,
+# not a separate GuardianSafe multisig as on OP Sepolia. We therefore run as the
+# ProxyAdminOwner Safe rather than the template's default GuardianSafe.
+safeAddressString = "ProxyAdminOwner"
+
+[gameTypes]
+configs = [
+    {chainId = 420110024, gameType = 0}
+]
+
+[stateOverrides]
+# Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# On-chain nonce was 3; this task runs after 086 + 087 in the stack (each bumps the
+# Safe's nonce by 1) → nonce 5. Re-verify against `cast call $SAFE "nonce()"`.
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 5}
+]
