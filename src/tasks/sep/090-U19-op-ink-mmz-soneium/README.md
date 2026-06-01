@@ -1,4 +1,4 @@
-# 086-U19-op-ink-mmz-soneium
+# 090-U19-op-ink-mmz-soneium
 
 Status: [DRAFT, NOT READY TO SIGN]()
 
@@ -17,7 +17,7 @@ via `OPCM.upgradeSuperchain` + `OPCM.upgrade`, bundled into a single transaction
 These six chains share the standard Sepolia ProxyAdminOwner, Security Council,
 and Foundation Upgrade Safe, so they upgrade together in one OPCM call
 (one nonce consumed per safe). Unichain uses a separate ProxyAdminOwner and is
-handled in its own task (`087-U19-unichain`).
+handled in its own task (`091-U19-unichain`).
 
 U19 installs `CANNON_KONA` (game type 8) as the new primary FPVM, rotates
 `AnchorStateRegistry.respectedGameType` to `CANNON_KONA` (8), and disables
@@ -31,12 +31,12 @@ proceeding.
 
 ```bash
 # Simulate
-just simulate-stack sep 086-U19-op-ink-mmz-soneium
+just simulate-stack sep 090-U19-op-ink-mmz-soneium
 
 # Sign
-USE_KEYSTORE=1 just sign-stack sep 086-U19-op-ink-mmz-soneium
+USE_KEYSTORE=1 just sign-stack sep 090-U19-op-ink-mmz-soneium
 
 # Execute
-cd src/tasks/sep/086-U19-op-ink-mmz-soneium
+cd src/tasks/sep/090-U19-op-ink-mmz-soneium
 SIGNATURES=0x just execute
 ```

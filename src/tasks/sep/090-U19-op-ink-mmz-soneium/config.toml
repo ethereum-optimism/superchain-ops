@@ -4,7 +4,7 @@
 # These six chains share the standard Sepolia L1PAO / Security Council /
 # Foundation Upgrade Safe, so they are bundled into a single OPCM upgrade
 # transaction (one nonce consumed per safe). Unichain uses a separate
-# ProxyAdminOwner and is handled in its own task (087-U19-unichain).
+# ProxyAdminOwner and is handled in its own task (091-U19-unichain).
 #
 # Once simulated, confirm the Tenderly gas output stays under the
 # 16,777,216 per-transaction gas cap for the bundled upgrade.

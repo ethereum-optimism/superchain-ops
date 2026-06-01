@@ -475,12 +475,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
                     require(address(uint160(value)).code.length != 0, err);
-                } else if (value <= type(uint160).max) {
-                    // Only assert "no code" when the value could actually be an address.
-                    // A value above uint160.max is a packed storage slot (e.g. SystemConfig
-                    // slot 0x6c packs the `superchainConfig` address with `minBaseFee`), so its
-                    // low 160 bits are not an address — interpreting them as one is a false
-                    // positive. Such slots are skipped here.
+                } else {
                     // Log account, slot, and value if there is code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
@@ -541,12 +536,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // Check that the transaction did not exceed the maximum gas limit.
         // We must check gas consumed BEFORE refunds, because the EVM requires enough gas upfront,
         // therefore we check gasTotalUsed + gasRefunded
-        // Note: gasRefunded is an int64 in forge and can legitimately come back negative for some
-        // calls (the exposed value is a signed refund delta, not the EVM refund counter). A negative
-        // refund just means the net refund was negative, so the pre-refund gas is bounded by
-        // gasTotalUsed; clamp to 0 rather than treating it as invalid.
+        // Note: gasRefunded is int64, but should always be >= 0 in practice, unsure why this is
+        // an int64 in forge.
         VmSafe.Gas memory gasInfo = vm.lastCallGas();
-        uint256 gasRefunded = gasInfo.gasRefunded > 0 ? uint256(uint64(gasInfo.gasRefunded)) : 0;
+        require(gasInfo.gasRefunded >= 0, "MultisigTask: negative gas refund is invalid");
+        uint256 gasRefunded = uint256(uint64(gasInfo.gasRefunded));
         uint256 gasConsumedBeforeRefund = uint256(gasInfo.gasTotalUsed) + gasRefunded;
         if (gasConsumedBeforeRefund > MAX_GAS_LIMIT) {
             console.log("Gas consumed before refund:", gasConsumedBeforeRefund);
