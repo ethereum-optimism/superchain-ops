@@ -1,6 +1,6 @@
-# 092-alpha-set-respected-game-type-permissionless
+# 093-alpha-set-respected-game-type-permissionless
 
-Status: READY TO SIGN
+Status: DRAFT
 
 ## Objective
 
