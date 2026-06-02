@@ -1,0 +1,90 @@
+# OP Sepolia: Increase gas target (10M → 20M gas/s)
+
+> [!NOTE]
+> This is **not** a superchain-ops Safe task. OP Sepolia's `SystemConfig` is owned
+> by an **EOA** (`0xfd1D2e729aE8eEe2E146c033bf4400fE75284301` — the
+> `SystemConfigOwner` per the superchain-registry), not the `FoundationUpgradeSafe`.
+> The change is therefore made by sending transactions directly from that EOA.
+> The OP Mainnet equivalent is the Safe task at `src/tasks/eth/053-gas-params-op`.
+
+## Objective
+
+Double the block `gasLimit` on OP Sepolia from `40_000_000` to `80_000_000`, keeping
+`eip1559_elasticity = 2` and `eip1559_denominator = 250` unchanged. This 2x's the
+gasTarget:
+
+```
+gasTarget = (onchain gasLimit) / (eip1559_elasticity) = 80M / 2 = 40Mgas/block
+```
+
+With 2s blocks this raises the target from 10Mgas/s to 20Mgas/s.
+
+## Parameters
+
+| Field | Value |
+|---|---|
+| Chain | OP Sepolia (chainId 11155420) |
+| L1 | Ethereum Sepolia (chainId 11155111) |
+| SystemConfig (L1) | `0x034edD2A225f7f429A63E0f1D2084B9E0A93b538` |
+| Owner (sender) | `0xfd1D2e729aE8eEe2E146c033bf4400fE75284301` (EOA) |
+| `gasLimit` | `40000000` → **`80000000`** |
+| `eip1559Elasticity` | `2` (unchanged) |
+| `eip1559Denominator` | `250` (unchanged) |
+
+## Pre-checks
+
+Set the L1 RPC (must be Sepolia, chainId 11155111):
+
+```bash
+export ETH_RPC_URL=<sepolia-l1-rpc>
+SC=0x034edD2A225f7f429A63E0f1D2084B9E0A93b538
+
+cast chain-id                                   # expect 11155111
+cast call $SC "owner()(address)"                # expect 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301
+cast call $SC "gasLimit()(uint64)"              # expect 40000000
+cast call $SC "eip1559Elasticity()(uint32)"     # expect 2
+cast call $SC "eip1559Denominator()(uint32)"    # expect 250
+```
+
+## Execute
+
+Send from the owner EOA. Use whichever signer you hold the key with — `--ledger`,
+`--account <keystore>`, or `--private-key`. Both calls revert unless `--from` is the
+owner above.
+
+```bash
+# 1. Raise the block gas limit to 80M (raises target to 40M/block = 20M gas/s)
+cast send $SC "setGasLimit(uint64)" 80000000 \
+  --rpc-url "$ETH_RPC_URL" \
+  --ledger   # or: --account <keystore-name> / --private-key <key>
+
+# 2. Re-assert EIP-1559 params (no-op: 250/2 are already set; included for completeness).
+#    Skip this call if you only intend to change the gas limit — current denom/elasticity
+#    are already 250/2.
+cast send $SC "setEIP1559Params(uint32,uint32)" 250 2 \
+  --rpc-url "$ETH_RPC_URL" \
+  --ledger   # or: --account <keystore-name> / --private-key <key>
+```
+
+Encoded calldata for reference (verify against your wallet):
+
+- `setGasLimit(uint64)` → `0xb40a817c0000000000000000000000000000000000000000000000000000000004c4b400`
+- `setEIP1559Params(uint32,uint32)` → `0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000fa0000000000000000000000000000000000000000000000000000000000000002`
+
+## Post-checks
+
+```bash
+cast call $SC "gasLimit()(uint64)"            # expect 80000000
+cast call $SC "eip1559Elasticity()(uint32)"   # expect 2
+cast call $SC "eip1559Denominator()(uint32)"  # expect 250
+```
+
+Storage slot `0x68` should change from
+`0x...000d273000001db00000000002625a00` (gasLimit 40M) to
+`0x...000d273000001db00000000004c4b400` (gasLimit 80M); `basefeeScalar` (`0xd2730`)
+and `blobbasefeeScalar` (`0x1db0`) are unchanged. Slot `0x6a`
+(`0x...0002000000fa`, elasticity 2 / denominator 250) is unchanged.
+
+After the change, monitor per the [Raising gas target/limit runbook (RB-180)](https://www.notion.so/13df153ee16280199d3acf26b9a50614):
+base fee should rise when `gasUsed > gasTarget` and fall when below it, and no block
+should exceed `gasLimit`.
