@@ -1,6 +1,6 @@
 # 092-alpha-set-dispute-game-impl-permissionless
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

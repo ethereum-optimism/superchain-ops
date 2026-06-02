@@ -1,6 +1,6 @@
 # 096-beta-0-zero-cannon-kona-game-type
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # 094-alpha-0-set-permissioned-prestate-dead
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # 095-beta-0-set-respected-game-type-permissioned
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
