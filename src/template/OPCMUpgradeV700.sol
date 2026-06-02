@@ -76,7 +76,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///      writes it directly into the registry. Must be one of:
     ///        - `PERMISSIONED_CANNON` (1) — for chains that stay permissioned through U19
     ///          (no `CANNON_KONA` impl is installed; the slot is zeroed instead). Their
-    ///          `cannonKonaPrestate` is unused and can be a `0xdead...` placeholder.
+    ///          `cannonKonaPrestate` is unused and MUST be the zero address (not a `0xdead`
+    ///          placeholder) — enforced in `_templateSetup`.
     ///        - `CANNON_KONA` (8) — for chains that move to a kona-client permissionless
     ///          FPVM post-upgrade. `PERMISSIONED_CANNON` (1) remains wired as a fallback;
     ///          its `cannonPrestate` can be a `0xdead...` placeholder.
@@ -199,9 +200,20 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             require(parsed[i].chainId != 0, "OPCMUpgradeV700: chainId zero");
             require(upgrades[parsed[i].chainId].chainId == 0, "OPCMUpgradeV700: duplicate chain config");
             require(Claim.unwrap(parsed[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV700: cannonPrestate zero");
-            require(
-                Claim.unwrap(parsed[i].cannonKonaPrestate) != bytes32(0), "OPCMUpgradeV700: cannonKonaPrestate zero"
-            );
+            // CANNON_KONA (game type 8) is only wired on permissionless chains. Permissioned chains
+            // (startingRespectedGameType == PERMISSIONED_CANNON) skip game type 8 entirely, so their
+            // kona prestate is unused and MUST be left at the zero address — not a 0xdead placeholder.
+            // Permissionless chains MUST supply a real (non-zero) kona prestate.
+            if (parsed[i].startingRespectedGameType == PERMISSIONED_CANNON) {
+                require(
+                    Claim.unwrap(parsed[i].cannonKonaPrestate) == bytes32(0),
+                    "OPCMUpgradeV700: cannonKonaPrestate must be zero for permissioned chains"
+                );
+            } else {
+                require(
+                    Claim.unwrap(parsed[i].cannonKonaPrestate) != bytes32(0), "OPCMUpgradeV700: cannonKonaPrestate zero"
+                );
+            }
             upgrades[parsed[i].chainId] = parsed[i];
         }
 

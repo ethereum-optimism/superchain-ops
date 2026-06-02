@@ -75,9 +75,10 @@ startingRespectedGameType = 8
 [[opcmUpgrades]]
 chainId = 1740
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# Placeholder. `_isPermissionedChain` is true (startingRespectedGameType == 1),
-# so CANNON_KONA is `enabled=false` and this prestate never reaches `setImplementation`.
-cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Permissioned chain: `_isPermissionedChain` is true (startingRespectedGameType == 1), so
+# CANNON_KONA is `enabled=false` and never wired. The kona prestate MUST be the zero address
+# (not a 0xdead placeholder) — enforced by OPCMUpgradeV700._templateSetup.
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "PLDG-10"
 initBond = 0
@@ -87,7 +88,8 @@ startingRespectedGameType = 1
 [[opcmUpgrades]]
 chainId = 919
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Permissioned chain — kona prestate MUST be the zero address (CANNON_KONA not wired).
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "PLDG-10"
 initBond = 0
@@ -97,7 +99,8 @@ startingRespectedGameType = 1
 [[opcmUpgrades]]
 chainId = 999999999
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Permissioned chain — kona prestate MUST be the zero address (CANNON_KONA not wired).
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 # OVERRIDES-CHALLENGER: Zora uses a non-standard challenger address on Sepolia.
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "OVERRIDES-CHALLENGER,PLDG-10"
