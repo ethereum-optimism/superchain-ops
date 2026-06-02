@@ -1,6 +1,6 @@
 # 090-U19-betanet-kona-prestate-update
 
-Status: READY
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
