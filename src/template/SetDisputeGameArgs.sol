@@ -166,8 +166,10 @@ contract SetDisputeGameArgs is L2TaskBase {
                 IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", r.chainId));
 
             // Idempotent: skip a slot that already holds exactly this impl + gameArgs.
-            if (factory.gameImpls(r.gameType) == r.impl && keccak256(factory.gameArgs(r.gameType)) == keccak256(r.gameArgs))
-            {
+            if (
+                factory.gameImpls(r.gameType) == r.impl
+                    && keccak256(factory.gameArgs(r.gameType)) == keccak256(r.gameArgs)
+            ) {
                 continue;
             }
             factory.setImplementation(r.gameType, r.impl, r.gameArgs);
@@ -188,7 +190,8 @@ contract SetDisputeGameArgs is L2TaskBase {
 
             require(factory.gameImpls(r.gameType) == r.impl, "SetDisputeGameArgs: impl mismatch");
             require(
-                keccak256(factory.gameArgs(r.gameType)) == keccak256(r.gameArgs), "SetDisputeGameArgs: gameArgs mismatch"
+                keccak256(factory.gameArgs(r.gameType)) == keccak256(r.gameArgs),
+                "SetDisputeGameArgs: gameArgs mismatch"
             );
 
             if (r.impl != address(0)) {
