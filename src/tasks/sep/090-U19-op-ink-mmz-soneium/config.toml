@@ -6,6 +6,21 @@
 # transaction (one nonce consumed per safe). Unichain uses a separate
 # ProxyAdminOwner and is handled in its own task (091-U19-unichain).
 #
+# Post-upgrade respected game type split (per Adrian, Sepolia U19 thread):
+#   - Permissionless (rotate to CANNON_KONA = 8): OP, Ink, Soneium Minato.
+#     These chains currently have `respectedGameType == CANNON (0)` on chain.
+#     `cannonKonaPrestate` carries the real kona-client v1.6.0-rc.1 prestate;
+#     `cannonPrestate` is a `0xdead...` placeholder (PERMISSIONED_CANNON acts
+#     only as a Guardian fallback, and its games are not expected to run).
+#   - Permissioned (keep respectedGameType = PERMISSIONED_CANNON = 1):
+#     Metal, Mode, Zora. These chains currently have `respectedGameType == 1`
+#     on chain and `gameImpls[8] == address(0)` — they MUST NOT receive a
+#     CANNON_KONA implementation. The template's `_isPermissionedChain` infers
+#     this from `startingRespectedGameType == 1`; in that mode `_isEnabled`
+#     returns false for CANNON_KONA and the OPCM emits
+#     `setImplementation(8, 0, "")` on the DGF (no-op write — the slot is
+#     already zero). `cannonKonaPrestate` is unused and is set to `0xdead...`.
+#
 # Once simulated, confirm the Tenderly gas output stays under the
 # 16,777,216 per-transaction gas cap for the bundled upgrade.
 
@@ -36,8 +51,11 @@ expectedValidationErrors = "PLDG-10"
 # initBond must be present to avoid forge-std TOML struct misalignment (alphabetical field order).
 # Matches the current on-chain CANNON_KONA (type 8) initBonds on OP Sepolia DGF.
 initBond = 80000000000000000
-# Post-upgrade respected game type. U19 always rotates AnchorStateRegistry's
+# Post-upgrade respected game type. OP Sepolia is permissionless today
+# (on-chain respectedGameType = 0); U19 rotates AnchorStateRegistry's
 # respectedGameType to CANNON_KONA (8) — kona-client becomes the primary FPVM.
+# Permissioned chains in this bundle (Metal/Mode/Zora) keep `1` instead;
+# see the header comment for the per-chain split.
 startingRespectedGameType = 8
 
 # Ink Sepolia Testnet
@@ -50,36 +68,41 @@ expectedValidationErrors = "PLDG-10"
 initBond = 80000000000000000
 startingRespectedGameType = 8
 
-# Metal L2 Testnet
+# Metal L2 Testnet — PERMISSIONED CHAIN
+# On-chain pre-task: respectedGameType=1 (PERMISSIONED_CANNON), gameImpls[8]=0.
+# U19 keeps this chain permissioned per Adrian (Sepolia U19 thread): no CANNON_KONA
+# implementation is wired, and respectedGameType stays at 1.
 [[opcmUpgrades]]
 chainId = 1740
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0x03cdb57a890f7e129d5abbe074f19425f94cf2b84f614aab008a96f91debae65"
+# Placeholder. `_isPermissionedChain` is true (startingRespectedGameType == 1),
+# so CANNON_KONA is `enabled=false` and this prestate never reaches `setImplementation`.
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "PLDG-10"
 initBond = 0
-startingRespectedGameType = 8
+startingRespectedGameType = 1
 
-# Mode Testnet
+# Mode Testnet — PERMISSIONED CHAIN (see Metal note above)
 [[opcmUpgrades]]
 chainId = 919
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0x03cdb57a890f7e129d5abbe074f19425f94cf2b84f614aab008a96f91debae65"
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "PLDG-10"
 initBond = 0
-startingRespectedGameType = 8
+startingRespectedGameType = 1
 
-# Zora Sepolia Testnet
+# Zora Sepolia Testnet — PERMISSIONED CHAIN (see Metal note above)
 [[opcmUpgrades]]
 chainId = 999999999
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-cannonKonaPrestate = "0x03cdb57a890f7e129d5abbe074f19425f94cf2b84f614aab008a96f91debae65"
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 # OVERRIDES-CHALLENGER: Zora uses a non-standard challenger address on Sepolia.
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "OVERRIDES-CHALLENGER,PLDG-10"
 initBond = 0
-startingRespectedGameType = 8
+startingRespectedGameType = 1
 
 # Soneium Testnet Minato
 [[opcmUpgrades]]
