@@ -1,0 +1,67 @@
+# Kona absolute-prestate update for the U19 OP Labs Betanet (karst-u19-beta).
+#
+# Both betanet chains — karst-u19-beta-0 (420110023) and karst-u19-beta-1
+# (420110024) — are already on U19 (op-contracts/v7.1.17). This task does NOT
+# re-run the U19 upgrade. It only re-points the CANNON_KONA (game type 8) slot in
+# each chain's DisputeGameFactory at a new absolute prestate.
+#
+# Mechanism: the CANNON_KONA game uses the blueprint pattern — the absolute
+# prestate lives in the factory's `gameArgs` (layout: prestate(32) | vm(20) |
+# anchorStateRegistry(20) | delayedWETH(20) | chainId(32)), NOT as an immutable on
+# the game impl. So the prestate is updated by calling
+# `DisputeGameFactory.setImplementation(8, impl, newGameArgs)` with:
+#   - the SAME on-chain impl (0x2DDA35…, FaultDisputeGame v2.4.2), and
+#   - `gameArgs` identical to the live value with only the 32-byte prestate swapped.
+# Reusing the live impl preserves the game's contract version exactly. (AddGameType
+# was rejected: the only OPCMs exposing addGameType deploy older FDG versions —
+# v6.0.0 OPCM ships FDG v2.2.0 — which would silently downgrade the v2.4.2 kona
+# game on a v7.1.17 stack. The v7.1.17 OPCM has no addGameType.)
+#
+# New kona prestate: 0x0335abee576086a6d8628e809ed166af671c643e98d678d66dee27b8bb307a28
+#   Tag:        kona-client/v1.6.0-rc.1
+#   Source SHA: 1e4fe99977885a6efd517251e08afe1ef13c8334
+#   Variant:    cannon64-kona (game type 8 CANNON_KONA)
+#   Embedded:   karst-u19-beta-0 (420110023), karst-u19-beta-1 (420110024),
+#               both with karst_time = 1780421400.
+# Supersedes the 0x03a887…7e88 prestate (karst_time = 1780372800) installed by
+# tasks 086/089. The only delta is the karst activation time.
+#
+# Source addresses:
+#   https://github.com/ethereum-optimism/devnets/tree/main/dev/karst-u19-beta
+#   (added in PR ethereum-optimism/devnets#350)
+
+templateName = "SetDisputeGameArgs"
+fallbackAddressesJsonPath = "src/tasks/sep/090-U19-betanet-kona-prestate-update/addresses.json"
+
+l2chains = [
+    {name = "karst-u19-beta-0", chainId = 420110023},
+    {name = "karst-u19-beta-1", chainId = 420110024}
+]
+
+# Each [[gameConfig]] row updates the CANNON_KONA (game type 8) prestate only. The
+# SetDisputeGameArgs template reads the chain's current gameArgs(8) and keeps every field that
+# isn't specified here (impl, vm, anchorStateRegistry, delayedWETH, chainId, bond, permissioned),
+# repacking the 124-byte permissionless blob with just the new prestate swapped in:
+#   prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
+
+# karst-u19-beta-0 — CANNON_KONA (8): bump prestate only.
+[[gameConfig]]
+chainId = 420110023
+gameType = 8
+prestate = "0x0335abee576086a6d8628e809ed166af671c643e98d678d66dee27b8bb307a28"
+
+# karst-u19-beta-1 — CANNON_KONA (8): bump prestate only.
+[[gameConfig]]
+chainId = 420110024
+gameType = 8
+prestate = "0x0335abee576086a6d8628e809ed166af671c643e98d678d66dee27b8bb307a28"
+
+[stateOverrides]
+# Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# Tasks 086/087/088/089 each bumped this Safe's nonce by 1 (starting from 3), so the
+# expected value here is 7. This is a standalone (non-stacked) task → one Safe tx.
+# MUST re-verify against `cast call 0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 "nonce()" --rpc-url sepolia`
+# before signing and update this value if it has advanced.
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+]

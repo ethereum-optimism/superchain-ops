@@ -1,0 +1,22 @@
+# Example task for the SetDisputeGameArgs template.
+#
+# Re-points the CANNON_KONA (game type 8) slot of karst-u19-beta-0's
+# DisputeGameFactory at the SAME on-chain impl with new gameArgs whose only delta
+# is the 32-byte absolute prestate (a prestate update). Demonstrates the
+# distinguishing capability vs SetDisputeGameImpl: an arbitrary game type (8),
+# supplied as a config field, with a single row.
+
+templateName = "SetDisputeGameArgs"
+fallbackAddressesJsonPath = "test/tasks/example/sep/038-set-dispute-game-args/addresses.json"
+
+l2chains = [
+    {name = "karst-u19-beta-0", chainId = 420110023}
+]
+
+# Only chainId + gameType are required; every other field is read from the chain's current
+# gameArgs(8) and kept. Here only `prestate` is overridden — a prestate bump. (To change other
+# parts, add e.g. `vm = "0x…"`, `delayedWETH = "0x…"`, or `impl = "0x0…0"` to disable the slot.)
+[[gameConfig]]
+chainId = 420110023
+gameType = 8
+prestate = "0x0335abee576086a6d8628e809ed166af671c643e98d678d66dee27b8bb307a28"
