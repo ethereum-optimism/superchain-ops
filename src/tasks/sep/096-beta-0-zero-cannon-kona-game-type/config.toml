@@ -1,0 +1,50 @@
+# Correct karst-u19-beta-0: remove the CANNON_KONA (game type 8) implementation so the chain has
+# no permissionless game, per the U19 clarification (permissioned chains MUST NOT set a game type
+# 8 implementation). Companion to task 095, which first reverts respectedGameType 8 -> 1.
+#
+# Mechanism: SetDisputeGameImpl with a [[konaGameImplConfig]] whose impl == 0x0 (disable path):
+# the template calls factory.setImplementation(CANNON_KONA, 0x0, "") to zero the slot. FDG (0)
+# and PDG (1) are passthroughs (unchanged).
+#
+# On-chain state before this task (after 095; respectedGameType already reverted to 1):
+#   gameImpls(0) = 0x0                                -> stays 0x0 (passthrough)
+#   gameImpls(1) = 0xe1dF...b87e, prestate 0xdead     -> unchanged (passthrough)
+#   gameImpls(8) = 0x2DDA...4AeC                       -> zeroed to 0x0
+
+l2chains = [
+    {name = "karst-u19-beta-0", chainId = 420110023}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/096-beta-0-zero-cannon-kona-game-type/addresses.json"
+templateName = "SetDisputeGameImpl"
+
+[[gameImplConfig]]
+chainId = 420110023
+# --- FDG (game type 0) — stays 0x0 (passthrough) --- #
+fdgImpl = "0x0000000000000000000000000000000000000000"
+prevFdgImpl = "0x0000000000000000000000000000000000000000"
+fdgGameArgs = "0x"
+fdgBond = 0
+
+# --- PDG (PERMISSIONED_CANNON, game type 1) — unchanged (passthrough) --- #
+# Current on-chain impl + gameArgs (prestate already 0xdead from task 086's V700 upgrade), so the
+# template early-returns for the PDG slot.
+pdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+prevPdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+pdgGameArgs = "0xdead000000000000000000000000000000000000000000000000000000000000acc005dcd857b401e4732e6f7837135a22825cfa824ae66becdaf219b61880becdc5a920de35bd334117d91df3a6bbddb10ce93f5a610448db1c3b8400000000000000000000000000000000000000000000000000000000190a5ec77cf021c675aac18931021d36afc809191e05c416c330a5e2dcacbd3588ff33d5ba3cf532a626b6c3"
+pdgBond = 0
+
+# --- CANNON_KONA (game type 8) — DISABLE (zero the slot) --- #
+[[konaGameImplConfig]]
+chainId = 420110023
+impl = "0x0000000000000000000000000000000000000000"  # impl == 0 triggers the disable path
+gameArgs = "0x"                                       # must be empty for disable
+bond = 0
+
+[stateOverrides]
+# Shared PAO Safe (0x8E851...). beta-0 correction is a separate signing batch (grouping B); in the
+# combined repo stack this is task 5 of 5 -> nonce 12. Re-pin to the live nonce if beta-0 is
+# executed in its own batch (cast call $SAFE "nonce()").
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 12}
+]

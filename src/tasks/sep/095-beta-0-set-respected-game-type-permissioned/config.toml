@@ -1,0 +1,41 @@
+# Correct karst-u19-beta-0 back to a PERMISSIONED chain under the U19 clarification.
+#
+# beta-0 is intended to be permissioned, but the earlier U19 work (task 086, before the
+# clarification) ran OPCMUpgradeV700 with startingRespectedGameType = 8 and wired CANNON_KONA.
+# Per Adrian/Paul: a permissioned chain MUST keep respectedGameType = 1 and MUST NOT have a
+# game type 8 implementation. This task reverts the respected game type 8 -> 1; the companion
+# task 096 zeroes the CANNON_KONA (game type 8) implementation.
+#
+# Sequencing: this runs BEFORE 096 so respectedGameType is pointed back at the (still-wired)
+# PERMISSIONED_CANNON game before game type 8 is removed.
+#
+# On-chain state before this task (Sepolia):
+#   gameImpls(1) = 0xe1dF...b87e, prestate 0xdead   (permissioned game; stays)
+#   gameImpls(8) = 0x2DDA...4AeC (CANNON_KONA)        -> zeroed in task 096
+#   respectedGameType = 8                             -> set to 1 here
+
+l2chains = [
+    {name = "karst-u19-beta-0", chainId = 420110023}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/095-beta-0-set-respected-game-type-permissioned/addresses.json"
+templateName = "SetRespectedGameTypeTemplate"
+
+# beta-0's AnchorStateRegistry guards setRespectedGameType with SystemConfig.guardian(), which is
+# the PAO Safe (0x8E851...), not a separate GuardianSafe — same as betanet task 088. Run as the
+# ProxyAdminOwner Safe rather than the template's default GuardianSafe.
+safeAddressString = "ProxyAdminOwner"
+
+[gameTypes]
+# Revert to PERMISSIONED_CANNON (game type 1).
+configs = [
+    {chainId = 420110023, gameType = 1}
+]
+
+[stateOverrides]
+# Shared PAO Safe (0x8E851...). beta-0 correction is a separate signing batch (grouping B); in the
+# combined repo stack this is task 4 of 5 -> nonce 11 (after alpha 092/093/094 consume 8/9/10).
+# If beta-0 is executed before the alpha rollout, re-pin to the live nonce (cast call $SAFE "nonce()").
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+]
