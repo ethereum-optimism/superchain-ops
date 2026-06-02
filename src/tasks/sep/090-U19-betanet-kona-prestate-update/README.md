@@ -1,6 +1,6 @@
 # 090-U19-betanet-kona-prestate-update
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf9802046e8738ace528fe264ef37fe1334db5dac3e759acd9c28d1cf69305b95)
 
 ## Objective
 
