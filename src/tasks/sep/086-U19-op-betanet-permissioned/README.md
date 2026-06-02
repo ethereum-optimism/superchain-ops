@@ -1,6 +1,6 @@
 # 086-U19-op-betanet-permissioned
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x664ab4ee62a678d68fd500eab95f1431c3125c2299c47a083fd3ca6b6533de09)
 
 ## Objective
 

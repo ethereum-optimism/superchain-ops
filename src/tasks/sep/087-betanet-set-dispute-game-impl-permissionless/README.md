@@ -1,6 +1,6 @@
 # 087-betanet-set-dispute-game-impl-permissionless
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xdd56a3bbf5d6f4bbd3f8ffbbcfaedf8b18209b3282a1bf73886d0da7e0c49e35)
 
 ## Objective
 

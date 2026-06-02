@@ -1,6 +1,6 @@
 # 088-betanet-set-respected-game-type-permissionless
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x67ac6d34b3c7e9fd0d0f54ab3ced11b100b97aa3c79becd88af51fecffb7b61c)
 
 ## Objective
 
