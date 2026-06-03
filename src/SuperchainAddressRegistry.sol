@@ -38,6 +38,7 @@ interface IFetcher {
     function unsafeBlockSigner() external view returns (address);
     function weth() external view returns (address);
     function gameArgs(GameType _gameType) external view returns (bytes memory);
+    function ethLockbox() external view returns (address);
 }
 
 /// @notice This contract provides a single source of truth for storing and retrieving addresses
@@ -341,6 +342,13 @@ contract SuperchainAddressRegistry is StdChains {
 
         optimismPortalProxy = getOptimismPortalProxy(l1CrossDomainMessengerProxy);
         saveAddress("OptimismPortalProxy", chain, optimismPortalProxy);
+
+        // EthLockboxProxy is exposed by OptimismPortal via the `ethLockbox()` getter
+        // starting at Portal v5.2.0 (op-contracts v7.x). Older Portals revert; chains
+        // that haven't wired a lockbox return address(0). Both cases skip registration.
+        try IFetcher(optimismPortalProxy).ethLockbox() returns (address ethLockbox) {
+            if (ethLockbox != address(0)) saveAddress("EthLockboxProxy", chain, ethLockbox);
+        } catch {}
     }
 
     function _saveProxyAdminEntries(ChainInfo memory chain, address systemConfigProxy) internal {

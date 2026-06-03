@@ -73,9 +73,17 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///      is not a "start from zero" value, it is a SET. Whatever the chain's current
     ///      respected game type is (could be 0, 1, anything), the OPCM uses this value
     ///      via the `overrides.cfg.startingRespectedGameType` extraInstruction and
-    ///      writes it directly into the registry. For U19 this is always 8 (CANNON_KONA).
-    ///      Must correspond to an `enabled=true` slot in `disputeGameConfigs` or the
-    ///      OPCM reverts with `OPContractsManagerV2_InvalidGameConfigs`.
+    ///      writes it directly into the registry. Must be one of:
+    ///        - `PERMISSIONED_CANNON` (1) — for chains that stay permissioned through U19
+    ///          (no `CANNON_KONA` impl is installed; the slot is zeroed instead). Their
+    ///          `cannonKonaPrestate` is unused and MUST be the zero address (not a `0xdead`
+    ///          placeholder) — enforced in `_templateSetup`.
+    ///        - `CANNON_KONA` (8) — for chains that move to a kona-client permissionless
+    ///          FPVM post-upgrade. `PERMISSIONED_CANNON` (1) remains wired as a fallback;
+    ///          its `cannonPrestate` can be a `0xdead...` placeholder.
+    ///      Must correspond to an `enabled=true` slot in `disputeGameConfigs` (asserted
+    ///      below in `_extraInstructions`) or the OPCM reverts with
+    ///      `OPContractsManagerV2_InvalidGameConfigs`.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
         Claim cannonPrestate;
@@ -83,6 +91,18 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         string expectedValidationErrors;
         uint256 initBond;
         uint32 startingRespectedGameType;
+    }
+
+    /// @notice Whether the chain stays permissioned through this upgrade.
+    /// @dev Derived from `startingRespectedGameType`: a chain that keeps
+    ///      `PERMISSIONED_CANNON` as its respected game type IS permissioned and must
+    ///      NOT receive a `CANNON_KONA` implementation (per U19 spec — Adrian, Sepolia
+    ///      U19 thread). A chain rotating to `CANNON_KONA` is permissionless and gets
+    ///      the standard wiring (CANNON_KONA installed, PERMISSIONED_CANNON kept as
+    ///      Guardian fallback). Inferred (rather than configured as a separate TOML
+    ///      field) so the two values cannot drift apart.
+    function _isPermissionedChain(uint256 chainId) internal view returns (bool) {
+        return upgrades[chainId].startingRespectedGameType == PERMISSIONED_CANNON;
     }
 
     /// @notice chainId => parsed config.
@@ -180,9 +200,20 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             require(parsed[i].chainId != 0, "OPCMUpgradeV700: chainId zero");
             require(upgrades[parsed[i].chainId].chainId == 0, "OPCMUpgradeV700: duplicate chain config");
             require(Claim.unwrap(parsed[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV700: cannonPrestate zero");
-            require(
-                Claim.unwrap(parsed[i].cannonKonaPrestate) != bytes32(0), "OPCMUpgradeV700: cannonKonaPrestate zero"
-            );
+            // CANNON_KONA (game type 8) is only wired on permissionless chains. Permissioned chains
+            // (startingRespectedGameType == PERMISSIONED_CANNON) skip game type 8 entirely, so their
+            // kona prestate is unused and MUST be left at the zero address — not a 0xdead placeholder.
+            // Permissionless chains MUST supply a real (non-zero) kona prestate.
+            if (parsed[i].startingRespectedGameType == PERMISSIONED_CANNON) {
+                require(
+                    Claim.unwrap(parsed[i].cannonKonaPrestate) == bytes32(0),
+                    "OPCMUpgradeV700: cannonKonaPrestate must be zero for permissioned chains"
+                );
+            } else {
+                require(
+                    Claim.unwrap(parsed[i].cannonKonaPrestate) != bytes32(0), "OPCMUpgradeV700: cannonKonaPrestate zero"
+                );
+            }
             upgrades[parsed[i].chainId] = parsed[i];
         }
 
@@ -216,16 +247,24 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice U19-specific enabled-flag policy for each of the 7 OPCMv2 game-type slots.
     /// @dev
-    ///   - `CANNON_KONA`: always enabled. This is what U19 introduces — `kona-client`
-    ///     becomes the primary FPVM and the new respected game type.
+    ///   - `CANNON_KONA`: enabled iff the chain is **permissionless** post-upgrade. On
+    ///     permissionless chains this is what U19 introduces — `kona-client` becomes the
+    ///     primary FPVM and the new respected game type. On permissioned chains we must
+    ///     NOT wire a `CANNON_KONA` implementation (per U19 spec — Adrian, Sepolia U19
+    ///     thread): `enabled=false` makes OPCMv2 emit `setImplementation(8, 0, "")` on
+    ///     the DGF, leaving `gameImpls[8] = address(0)`. For chains where the slot is
+    ///     already zero on-chain (e.g. Sepolia Metal/Mode/Zora) this is a no-op write;
+    ///     for any chain that did have an impl wired pre-task it gets cleared.
     ///   - `PERMISSIONED_CANNON`: always enabled. Every U19 chain wants a permissioned
-    ///     fallback game live — both for emergency rollback (if Kona has issues, the
-    ///     Guardian can flip respected back to PERMISSIONED_CANNON) and as the canonical
-    ///     game on permissioned-only betanets. The OPCM rewires `gameImpls[1]` to the
-    ///     v7.1.17 `PermissionedDisputeGame` impl with the supplied `cannonPrestate` and
-    ///     `(proposer, challenger)`. Pre-upgrade game instances continue to resolve
-    ///     against their old bytecode-bound impl. This requires `Proposer` and
-    ///     `Challenger` to be registered for the chain (they are for every real chain).
+    ///     game live — both as the canonical game on permissioned chains and as the
+    ///     emergency Guardian fallback on permissionless chains (if Kona has issues the
+    ///     Guardian can flip respected back to PERMISSIONED_CANNON). The OPCM rewires
+    ///     `gameImpls[1]` to the v7.1.17 `PermissionedDisputeGame` impl with the supplied
+    ///     `cannonPrestate` and `(proposer, challenger)`. Pre-upgrade game instances
+    ///     continue to resolve against their old bytecode-bound impl. Requires
+    ///     `Proposer` and `Challenger` to be registered for the chain (they are for
+    ///     every real chain). For permissionless chains `cannonPrestate` is a fallback
+    ///     value and may be a `0xdead...` placeholder.
     ///   - `CANNON`: always **disabled**. U19 retires `op-program` as a fault-proof
     ///     program; new CANNON games must not be creatable. Because OPCMv2 turns a
     ///     `disabled` slot into `setImplementation(gameType, 0, "")` on the
@@ -237,8 +276,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///   - `SUPER_CANNON`, `SUPER_PERMISSIONED_CANNON`, `SUPER_CANNON_KONA`,
     ///     `ZK_DISPUTE_GAME`: always disabled. The v7.1.17 OPCM container ships
     ///     `address(0)` for these impls; they belong to a later release, not U19.
-    function _isEnabled(IDisputeGameFactory, uint32 gt) internal pure returns (bool) {
-        if (gt == CANNON_KONA) return true;
+    function _isEnabled(uint32 gt, bool permissioned) internal pure returns (bool) {
+        if (gt == CANNON_KONA) return !permissioned;
         if (gt == PERMISSIONED_CANNON) return true;
         // CANNON: explicitly disabled (Paul / U19 thread). SUPER_*, ZK: not in U19.
         return false;
@@ -257,14 +296,15 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         uint32 gt,
         bytes32 cannonPre,
         bytes32 cannonKonaPre,
-        uint256 bond
+        uint256 bond,
+        bool permissioned
     ) internal pure returns (IOPContractsManagerV700.DisputeGameConfig memory) {
-        bool enabled = _isEnabled(IDisputeGameFactory(address(0)), gt);
+        bool enabled = _isEnabled(gt, permissioned);
         bytes memory args;
         if (enabled) {
             bytes32 prestate = (gt == CANNON_KONA) ? cannonKonaPre : cannonPre;
-            bool permissioned = (gt == PERMISSIONED_CANNON);
-            args = permissioned ? abi.encode(prestate, proposer, challenger) : abi.encode(prestate);
+            bool isPermGameType = (gt == PERMISSIONED_CANNON);
+            args = isPermGameType ? abi.encode(prestate, proposer, challenger) : abi.encode(prestate);
         }
         return IOPContractsManagerV700.DisputeGameConfig({
             enabled: enabled,
@@ -286,6 +326,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         bytes32 cannonPre = Claim.unwrap(upgrades[chainId].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
+        bool permissioned = _isPermissionedChain(chainId);
 
         // OPCMv2 requires EXACTLY this 7-element insertion order — see the validGameTypes
         // literal in OPContractsManagerV2._assertValidFullConfig. Any deviation reverts
@@ -301,7 +342,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         ];
         configs = new IOPContractsManagerV700.DisputeGameConfig[](7);
         for (uint256 i = 0; i < 7; i++) {
-            configs[i] = _gameConfig(proposer, challenger, gts[i], cannonPre, cannonKonaPre, bond);
+            configs[i] = _gameConfig(proposer, challenger, gts[i], cannonPre, cannonKonaPre, bond, permissioned);
         }
     }
 
@@ -314,24 +355,35 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///     it re-initialises the registry. This is a SET, not a delta — the chain's
     ///     current respected game type can be anything; this override replaces it
     ///     wholesale. Omitting this instruction would make the OPCM carry over the
-    ///     live value (no rotation). For U19 we always send `8` (CANNON_KONA),
-    ///     because rotating to Kona is the whole point of the upgrade.
+    ///     live value (no rotation). For U19 this is either:
+    ///       - `CANNON_KONA` (8) for chains that move to a permissionless kona FPVM, or
+    ///       - `PERMISSIONED_CANNON` (1) for chains that stay permissioned through U19
+    ///         (these chains keep their current game type 1; the rotation is a no-op SET
+    ///         to the same value).
     /// @dev The OPCM additionally enforces that the value here corresponds to an
     ///      `enabled=true` slot in `disputeGameConfigs` (asserted in
-    ///      `_assertValidFullConfig`). Slot 2 (CANNON_KONA) is always enabled by
-    ///      this template, so the value 8 always validates.
+    ///      `_assertValidFullConfig`). PERMISSIONED_CANNON is always enabled and
+    ///      CANNON_KONA is enabled iff `!permissioned`, so the
+    ///      `startingRespectedGameType ∈ {1, 8}` invariant we assert here lines up
+    ///      with the enabled-slot constraint when `permissioned` is inferred from
+    ///      `startingRespectedGameType` (`_isPermissionedChain`).
     function _extraInstructions(uint256 chainId)
         internal
         view
         returns (IOPContractsManagerV700.ExtraInstruction[] memory ix)
     {
-        // Defense-in-depth: U19 retires CANNON as a respected game type. The OPCM would
-        // already revert because CANNON is `enabled=false` in `_isEnabled` (so the value
-        // doesn't correspond to an enabled slot), but rotating the respected game type to
-        // CANNON is an irreversible footgun on the AnchorStateRegistry — refuse it at the
-        // override construction site so a config typo can never reach the OPCM.
+        // Defense-in-depth: U19 retires CANNON as a respected game type, and the only
+        // two values that line up with this template's enabled slots are
+        // PERMISSIONED_CANNON (1) and CANNON_KONA (8). The OPCM would already revert on
+        // any other value (the slot would be disabled), but rotating the respected game
+        // type to anything else is an irreversible footgun on the AnchorStateRegistry —
+        // refuse it at the override construction site so a config typo can never reach
+        // the OPCM.
         uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
-        require(startingRespectedGameType != CANNON, "OPCMUpgradeV700: startingRespectedGameType cannot be CANNON");
+        require(
+            startingRespectedGameType == PERMISSIONED_CANNON || startingRespectedGameType == CANNON_KONA,
+            "OPCMUpgradeV700: startingRespectedGameType must be PERMISSIONED_CANNON or CANNON_KONA"
+        );
 
         ix = new IOPContractsManagerV700.ExtraInstruction[](2);
         ix[0] = IOPContractsManagerV700.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("DelayedWETH")});
