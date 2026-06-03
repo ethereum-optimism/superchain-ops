@@ -98,8 +98,7 @@ contract SetDisputeGameArgs is L2TaskBase {
         // else so we never write gameArgs for a type whose layout/semantics this template does not
         // model (e.g. SUPER_CANNON_KONA), which would silently set bad args.
         require(
-            gameType == 0 || gameType == 1 || gameType == 8,
-            "SetDisputeGameArgs: unsupported gameType (only 0, 1, 8)"
+            gameType == 0 || gameType == 1 || gameType == 8, "SetDisputeGameArgs: unsupported gameType (only 0, 1, 8)"
         );
 
         // No two rows may target the same (chainId, gameType): the later one would silently win.
@@ -285,10 +284,7 @@ contract SetDisputeGameArgs is L2TaskBase {
     function _decodeArgs(bytes memory args, uint32 gameType) internal pure returns (GameArgsFields memory f) {
         f.permissioned = _isPermissioned(gameType);
         if (args.length == 0) return f; // new or disabled slot — nothing to keep.
-        require(
-            args.length == (f.permissioned ? 164 : 124),
-            "SetDisputeGameArgs: unexpected on-chain gameArgs length"
-        );
+        require(args.length == (f.permissioned ? 164 : 124), "SetDisputeGameArgs: unexpected on-chain gameArgs length");
         bytes32 prestate;
         address vm_;
         address asr;
