@@ -9,7 +9,7 @@
 # non-zero ASR that doesn't match). Synthetic values — this is a test, not a real upgrade.
 
 templateName = "SetDisputeGameArgs"
-fallbackAddressesJsonPath = "test/tasks/example/sep/038-set-dispute-game-args/addresses.json"
+fallbackAddressesJsonPath = "test/tasks/example/sep/039-set-dispute-game-args/addresses.json"
 
 l2chains = [
     {name = "karst-u19-beta-0", chainId = 420110023}
