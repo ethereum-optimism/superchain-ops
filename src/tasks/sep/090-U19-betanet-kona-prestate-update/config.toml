@@ -5,8 +5,11 @@
 # re-run the U19 upgrade. It only re-points the CANNON_KONA (game type 8) slot in
 # each chain's DisputeGameFactory at a new absolute prestate.
 #
-# Mechanism: the CANNON_KONA game uses the blueprint pattern — the absolute
-# prestate lives in the factory's `gameArgs` (layout: prestate(32) | vm(20) |
+# Mechanism: the CANNON_KONA game uses the creator (factory) pattern. The game-type
+# implementation is fully deployed once; when a game is created the factory clones the
+# impl and suffixes the clone with the game-type-specific `gameArgs`. (The blueprint
+# pattern was used only up until U16 and is no longer in play.) So the absolute prestate
+# lives in the factory's `gameArgs` (layout: prestate(32) | vm(20) |
 # anchorStateRegistry(20) | delayedWETH(20) | chainId(32)), NOT as an immutable on
 # the game impl. So the prestate is updated by calling
 # `DisputeGameFactory.setImplementation(8, impl, newGameArgs)` with:

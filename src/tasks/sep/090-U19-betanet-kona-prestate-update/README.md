@@ -19,8 +19,10 @@ chains are embedded in the single build.
 ## Mechanism
 
 Both chains are **already on U19** (`op-contracts/v7.1.17`); this task does NOT
-re-run the upgrade. The `CANNON_KONA` game is a blueprint-style FaultDisputeGame
-(v2.4.2) whose absolute prestate is carried in the factory's `gameArgs`
+re-run the upgrade. The `CANNON_KONA` game uses the creator (factory) pattern — a
+fully-deployed FaultDisputeGame (v2.4.2) impl that the factory clones and suffixes
+with game-type-specific `gameArgs` on creation (the blueprint pattern was used only
+up until U16). So its absolute prestate is carried in the factory's `gameArgs`
 (`prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) |
 chainId(32)`), not as an immutable on the impl. So the update is a single call
 per chain:
