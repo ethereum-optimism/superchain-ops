@@ -79,8 +79,10 @@ cannonPrestate = "0xdead00000000000000000000000000000000000000000000000000000000
 # CANNON_KONA is `enabled=false` and never wired. The kona prestate MUST be the zero address
 # (not a 0xdead placeholder) — enforced by OPCMUpgradeV700._templateSetup.
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
-# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
-expectedValidationErrors = "PLDG-10"
+# PLDG-10: CANNON slot zeroed by V700. CKDG-NOSHAPE + CKDG-10: CANNON_KONA (game type 8) is not
+# wired on this permissioned chain (kona prestate = 0), so the standard validator reports it has
+# no shape / zero impl. Captured live from the v7.1.17 OPCM validator.
+expectedValidationErrors = "CKDG-NOSHAPE,PLDG-10,CKDG-10"
 initBond = 0
 startingRespectedGameType = 1
 
@@ -90,8 +92,8 @@ chainId = 919
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 # Permissioned chain — kona prestate MUST be the zero address (CANNON_KONA not wired).
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
-# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
-expectedValidationErrors = "PLDG-10"
+# PLDG-10: CANNON slot zeroed by V700. CKDG-NOSHAPE + CKDG-10: CANNON_KONA not wired (kona=0).
+expectedValidationErrors = "CKDG-NOSHAPE,PLDG-10,CKDG-10"
 initBond = 0
 startingRespectedGameType = 1
 
@@ -102,8 +104,8 @@ cannonPrestate = "0xdead00000000000000000000000000000000000000000000000000000000
 # Permissioned chain — kona prestate MUST be the zero address (CANNON_KONA not wired).
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 # OVERRIDES-CHALLENGER: Zora uses a non-standard challenger address on Sepolia.
-# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
-expectedValidationErrors = "OVERRIDES-CHALLENGER,PLDG-10"
+# PLDG-10: CANNON slot zeroed by V700. CKDG-NOSHAPE + CKDG-10: CANNON_KONA not wired (kona=0).
+expectedValidationErrors = "OVERRIDES-CHALLENGER,CKDG-NOSHAPE,PLDG-10,CKDG-10"
 initBond = 0
 startingRespectedGameType = 1
 
