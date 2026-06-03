@@ -1336,8 +1336,7 @@ contract RegressionTest is Test {
     ///   SIMULATE_WITHOUT_LEDGER=1 OVERRIDE_RPC_URL="https://sepolia.drpc.org" FORK_BLOCK_NUMBER=10808500 \
     ///     just --justfile ../../../../../src/justfile simulate
     function testRegressionCallDataMatches_OPCMUpgradeV700_U19_Permissioned() public {
-        string memory taskConfigFilePath =
-            "test/tasks/example/sep/038-opcm-upgrade-v700-permissioned/config.toml";
+        string memory taskConfigFilePath = "test/tasks/example/sep/038-opcm-upgrade-v700-permissioned/config.toml";
 
         // OPCM upgrade calldata for u19-beta-0 captured live at block 10808500 on sepolia in the
         // permissioned configuration. Slot 1 (PERMISSIONED_CANNON) is enabled; slots 0 and 2
