@@ -96,8 +96,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     /// @notice Whether the chain stays permissioned through this upgrade.
     /// @dev Derived from `startingRespectedGameType`: a chain that keeps
     ///      `PERMISSIONED_CANNON` as its respected game type IS permissioned and must
-    ///      NOT receive a `CANNON_KONA` implementation (per U19 spec — Adrian, Sepolia
-    ///      U19 thread). A chain rotating to `CANNON_KONA` is permissionless and gets
+    ///      NOT receive a `CANNON_KONA` implementation (per U19 spec). A chain
+    ///      rotating to `CANNON_KONA` is permissionless and gets
     ///      the standard wiring (CANNON_KONA installed, PERMISSIONED_CANNON kept as
     ///      Guardian fallback). Inferred (rather than configured as a separate TOML
     ///      field) so the two values cannot drift apart.
@@ -250,8 +250,8 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///   - `CANNON_KONA`: enabled iff the chain is **permissionless** post-upgrade. On
     ///     permissionless chains this is what U19 introduces — `kona-client` becomes the
     ///     primary FPVM and the new respected game type. On permissioned chains we must
-    ///     NOT wire a `CANNON_KONA` implementation (per U19 spec — Adrian, Sepolia U19
-    ///     thread): `enabled=false` makes OPCMv2 emit `setImplementation(8, 0, "")` on
+    ///     NOT wire a `CANNON_KONA` implementation (per U19 spec):
+    ///     `enabled=false` makes OPCMv2 emit `setImplementation(8, 0, "")` on
     ///     the DGF, leaving `gameImpls[8] = address(0)`. For chains where the slot is
     ///     already zero on-chain (e.g. Sepolia Metal/Mode/Zora) this is a no-op write;
     ///     for any chain that did have an impl wired pre-task it gets cleared.
@@ -269,7 +269,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///     program; new CANNON games must not be creatable. Because OPCMv2 turns a
     ///     `disabled` slot into `setImplementation(gameType, 0, "")` on the
     ///     `DisputeGameFactory`, the on-chain `gameImpls[CANNON]` ends up at `address(0)`
-    ///     post-upgrade — this is the explicit ask from Paul on the U19 thread. Existing
+    ///     post-upgrade — this is the explicit ask per the U19 spec. Existing
     ///     CANNON game instances are unaffected (their impl is bytecode-bound at game
     ///     creation time) so they can still resolve to completion; only new CANNON games
     ///     are blocked from being created.
@@ -279,7 +279,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     function _isEnabled(uint32 gt, bool permissioned) internal pure returns (bool) {
         if (gt == CANNON_KONA) return !permissioned;
         if (gt == PERMISSIONED_CANNON) return true;
-        // CANNON: explicitly disabled (Paul / U19 thread). SUPER_*, ZK: not in U19.
+        // CANNON: explicitly disabled (per U19 spec). SUPER_*, ZK: not in U19.
         return false;
     }
 
