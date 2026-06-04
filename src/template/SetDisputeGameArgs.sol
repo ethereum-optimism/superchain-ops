@@ -19,21 +19,28 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///         FIELD-LEVEL DIFFING: only `chainId` and `gameType` are required per row. Any other field
 ///         left out of the TOML is read from the chain's current `gameArgs(gameType)` (and current
 ///         impl/bond) and kept unchanged — so a prestate bump is just `prestate = 0x…`. A field that
-///         IS present overrides that part (zero is a valid override, e.g. to clear a role); an
-///         `impl` of address(0) disables the game type entirely (empty gameArgs).
+///         IS present overrides that part; an `impl` of address(0) disables the game type entirely
+///         (empty gameArgs). A live game (impl != 0) must end up fully hydrated — its core fields
+///         (prestate, vm, anchorStateRegistry, delayedWETH, plus proposer/challenger when permissioned)
+///         must all be non-zero, so introducing a game type for the first time (empty on-chain args)
+///         requires the TOML to supply every field.
+///
+///         SUPPORTED GAME TYPES: only CANNON (0), PERMISSIONED_CANNON (1), and CANNON_KONA (8). Any
+///         other game type reverts, so this template can't accidentally write args for a type whose
+///         layout/semantics it does not model (e.g. SUPER_CANNON_KONA).
 ///
 ///         gameArgs packing (mirrors OPContractsManagerUtils._makeGameArgs) — big-endian, tightly
 ///         packed, addresses are 20 bytes, prestate/chainId are 32 bytes:
 ///
-///           permissioned = false  → 124 bytes (CANNON=0, CANNON_KONA=8, SUPER_CANNON=4, SUPER_CANNON_KONA=9):
+///           permissionless (CANNON=0, CANNON_KONA=8)  → 124 bytes:
 ///               prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
 ///
-///           permissioned = true   → 164 bytes (PERMISSIONED_CANNON=1, SUPER_PERMISSIONED_CANNON=5):
+///           permissioned (PERMISSIONED_CANNON=1)      → 164 bytes:
 ///               prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
 ///                                                              ... | proposer(20) | challenger(20)
 ///
-///         `permissioned`, when omitted, is inferred from the current on-chain args length
-///         (164 ⇒ true, 124 ⇒ false).
+///         Whether a slot is permissioned is fixed by the game type (only PERMISSIONED_CANNON=1 is) —
+///         it is never inferred from the on-chain args length.
 contract SetDisputeGameArgs is L2TaskBase {
     using stdToml for string;
     using LibString for uint256;
@@ -87,6 +94,12 @@ contract SetDisputeGameArgs is L2TaskBase {
         require(chainId != 0, "SetDisputeGameArgs: chainId zero");
         require(gtRaw <= type(uint32).max, "SetDisputeGameArgs: gameType out of range");
         uint32 gameType = uint32(gtRaw);
+        // Only support CANNON (0), PERMISSIONED_CANNON (1), and CANNON_KONA (8). Revert on anything
+        // else so we never write gameArgs for a type whose layout/semantics this template does not
+        // model (e.g. SUPER_CANNON_KONA), which would silently set bad args.
+        require(
+            gameType == 0 || gameType == 1 || gameType == 8, "SetDisputeGameArgs: unsupported gameType (only 0, 1, 8)"
+        );
 
         // No two rows may target the same (chainId, gameType): the later one would silently win.
         for (uint256 j = 0; j < resolvedGames.length; j++) {
@@ -100,12 +113,10 @@ contract SetDisputeGameArgs is L2TaskBase {
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
         require(address(factory).code.length > 0, "SetDisputeGameArgs: DisputeGameFactory has no code");
 
-        // Start from the live gameArgs, then override only the fields present in the TOML.
-        GameArgsFields memory m = _decodeArgs(factory.gameArgs(gameType));
+        // Start from the live gameArgs, then override only the fields present in the TOML. Whether the
+        // slot is permissioned is fixed by the game type (see _isPermissioned), never taken from the TOML.
+        GameArgsFields memory m = _decodeArgs(factory.gameArgs(gameType), gameType);
         address impl = _optAddress(toml, base, "impl", factory.gameImpls(gameType));
-        if (toml.keyExists(string.concat(base, ".permissioned"))) {
-            m.permissioned = toml.readBool(string.concat(base, ".permissioned"));
-        }
         if (toml.keyExists(string.concat(base, ".prestate"))) {
             m.prestate = toml.readBytes32(string.concat(base, ".prestate"));
         }
@@ -136,25 +147,39 @@ contract SetDisputeGameArgs is L2TaskBase {
     function _checkRow(address impl, uint32 gameType, uint256 chainId, GameArgsFields memory m) internal view {
         if (impl == address(0)) return;
         require(impl.code.length > 0, "SetDisputeGameArgs: impl has no code");
-        // The impl must be a dispute game whose declared game type and chain are consistent with this
-        // slot (blueprint impls return 0 for both — the binding lives in gameArgs).
+        // The impl must be a dispute game whose declared game type and chain are consistent with this slot.
         _validateImpl(impl, gameType, chainId);
-        // Permissionless game types carry no proposer/challenger; a non-zero value almost certainly
-        // means the operator meant `permissioned = true`.
-        if (!m.permissioned) {
+
+        // A live game's gameArgs must be fully hydrated. When a game type is introduced for the first
+        // time the on-chain gameArgs is empty, so every field is sourced from the TOML; assert the merged
+        // result has no zero core field, otherwise we'd write an all-zero (invalid) gameArgs that the
+        // _validate function would still happily accept.
+        require(m.prestate != bytes32(0), "SetDisputeGameArgs: zero prestate on live game");
+        require(m.vm != address(0), "SetDisputeGameArgs: zero vm on live game");
+        require(m.anchorStateRegistry != address(0), "SetDisputeGameArgs: zero anchorStateRegistry on live game");
+        require(m.delayedWETH != address(0), "SetDisputeGameArgs: zero delayedWETH on live game");
+
+        if (m.permissioned) {
+            // Permissioned games carry a proposer and challenger; both must be set.
+            require(
+                m.proposer != address(0) && m.challenger != address(0),
+                "SetDisputeGameArgs: proposer/challenger unset on permissioned game"
+            );
+        } else {
+            // Permissionless game types carry no proposer/challenger; a non-zero value almost certainly
+            // means the operator targeted the wrong game type.
             require(
                 m.proposer == address(0) && m.challenger == address(0),
                 "SetDisputeGameArgs: proposer/challenger set on permissionless game"
             );
         }
-        // A non-zero ASR must match the chain's registered AnchorStateRegistryProxy — a wrong ASR
-        // silently anchors the game to the wrong output root. A zero ASR (reset) is left to the operator.
-        if (m.anchorStateRegistry != address(0)) {
-            try superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId) returns (address registeredAsr) {
-                require(m.anchorStateRegistry == registeredAsr, "SetDisputeGameArgs: anchorStateRegistry mismatch");
-            } catch {
-                // Chain does not register an AnchorStateRegistryProxy; cannot cross-check.
-            }
+
+        // The ASR must match the chain's registered AnchorStateRegistryProxy — a wrong ASR silently
+        // anchors the game to the wrong output root.
+        try superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId) returns (address registeredAsr) {
+            require(m.anchorStateRegistry == registeredAsr, "SetDisputeGameArgs: anchorStateRegistry mismatch");
+        } catch {
+            // Chain does not register an AnchorStateRegistryProxy; cannot cross-check.
         }
     }
 
@@ -195,9 +220,15 @@ contract SetDisputeGameArgs is L2TaskBase {
             );
 
             if (r.impl != address(0)) {
-                // A live game must carry a non-zero init bond, otherwise games are free to create and
-                // the dispute economics break.
-                require(factory.initBonds(r.gameType) != 0, "SetDisputeGameArgs: zero init bond on live game");
+                // A live permissionless game must carry a non-zero init bond, otherwise games are free
+                // to create and the dispute economics break. Permissioned games may have a zero init
+                // bond (only the authorized proposer can create them), so don't require one there.
+                if (!_isPermissioned(r.gameType)) {
+                    require(
+                        factory.initBonds(r.gameType) != 0,
+                        "SetDisputeGameArgs: zero init bond on live permissionless game"
+                    );
+                }
                 if (r.setBond) {
                     require(factory.initBonds(r.gameType) == r.bond, "SetDisputeGameArgs: bond mismatch");
                 }
@@ -212,8 +243,8 @@ contract SetDisputeGameArgs is L2TaskBase {
     // Internal helpers
     // ----------------------------------------------------------------------------------------------
 
-    /// @notice Decoded view of an on-chain gameArgs blob. `permissioned` is inferred from the length;
-    ///         an empty blob (new/disabled slot) decodes to all-zero / permissioned=false.
+    /// @notice Decoded view of an on-chain gameArgs blob. `permissioned` is derived from the game type
+    ///         (not the blob length); an empty blob (new/disabled slot) decodes to all-zero fields.
     struct GameArgsFields {
         bool permissioned;
         bytes32 prestate;
@@ -241,11 +272,19 @@ contract SetDisputeGameArgs is L2TaskBase {
         return toml.keyExists(key) ? toml.readAddress(key) : dflt;
     }
 
-    /// @notice Decode an on-chain gameArgs blob into its fields. Reverts on an unexpected length.
-    function _decodeArgs(bytes memory args) internal pure returns (GameArgsFields memory f) {
+    /// @notice Whether a (supported) game type is permissioned. Among the types this template supports
+    ///         (0, 1, 8) only PERMISSIONED_CANNON (1) is permissioned.
+    function _isPermissioned(uint32 gameType) internal pure returns (bool) {
+        return gameType == 1;
+    }
+
+    /// @notice Decode an on-chain gameArgs blob into its fields. `permissioned` is taken from the game
+    ///         type, and the blob length is checked against the layout that game type requires. Reverts
+    ///         on an unexpected length.
+    function _decodeArgs(bytes memory args, uint32 gameType) internal pure returns (GameArgsFields memory f) {
+        f.permissioned = _isPermissioned(gameType);
         if (args.length == 0) return f; // new or disabled slot — nothing to keep.
-        require(args.length == 124 || args.length == 164, "SetDisputeGameArgs: unexpected on-chain gameArgs length");
-        f.permissioned = args.length == 164;
+        require(args.length == (f.permissioned ? 164 : 124), "SetDisputeGameArgs: unexpected on-chain gameArgs length");
         bytes32 prestate;
         address vm_;
         address asr;
@@ -289,8 +328,9 @@ contract SetDisputeGameArgs is L2TaskBase {
     }
 
     /// @notice Assert `impl` is a real dispute game whose declared game type and chain are consistent
-    ///         with the target slot (blueprint impls return 0 for both; a contract that doesn't
-    ///         expose these accessors is not a dispute game).
+    ///         with the target slot. A shared creator-pattern impl may report 0 for either (the binding
+    ///         to a specific game type and chain lives in gameArgs), which we accept; a contract that
+    ///         doesn't expose these accessors at all is not a dispute game.
     function _validateImpl(address impl, uint32 gameType, uint256 chainId) internal view {
         try IDisputeGameImpl(impl).gameType() returns (uint32 implGameType) {
             require(implGameType == 0 || implGameType == gameType, "SetDisputeGameArgs: impl gameType mismatch");

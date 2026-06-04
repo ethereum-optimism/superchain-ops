@@ -1,15 +1,17 @@
 # Example task for the SetDisputeGameArgs template — FULL field-coverage across BOTH gameArgs structs.
 #
 # Unlike the real task (src/tasks/sep/090-…, which bumps only `prestate`), this example overrides
-# EVERY field of TWO game-type slots on karst-u19-beta-0 at once, exercising both packing layouts:
-#   - game type 8  (CANNON_KONA)        permissioned=false → 124-byte permissionless struct
-#   - game type 1  (PERMISSIONED_CANNON) permissioned=true  → 164-byte struct (adds proposer/challenger)
+# EVERY field of TWO game-type slots on karst-u19-beta-0 at once, exercising both packing layouts.
+# Whether a slot is permissioned is fixed by the game type (only PERMISSIONED_CANNON=1 is), so it's
+# not a config field:
+#   - game type 8  (CANNON_KONA)         permissionless → 124-byte struct
+#   - game type 1  (PERMISSIONED_CANNON) permissioned   → 164-byte struct (adds proposer/challenger)
 # Each row changes impl, prestate, vm, delayedWETH, and bond (exercising setInitBond), and sets the
 # anchorStateRegistry explicitly (must equal the chain's registered ASR — the template rejects a
 # non-zero ASR that doesn't match). Synthetic values — this is a test, not a real upgrade.
 
 templateName = "SetDisputeGameArgs"
-fallbackAddressesJsonPath = "test/tasks/example/sep/039-set-dispute-game-args/addresses.json"
+fallbackAddressesJsonPath = "test/tasks/example/sep/038-set-dispute-game-args/addresses.json"
 
 l2chains = [
     {name = "karst-u19-beta-0", chainId = 420110023}
@@ -21,7 +23,6 @@ l2chains = [
 chainId = 420110023
 gameType = 8                                                                   # CANNON_KONA (permissionless)
 impl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"                            # changed (real FDG v2.2.0 impl)
-permissioned = false
 prestate = "0x03000000000000000000000000000000000000000000000000000000deadbeef" # changed (synthetic)
 vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908"                              # changed (op-program MIPS)
 anchorStateRegistry = "0x824AE66becDAf219B61880BEcdC5A920dE35Bd33"            # explicit (must equal registered ASR)
@@ -34,7 +35,6 @@ bond = 100000000000000000                                                      #
 chainId = 420110023
 gameType = 1                                                                   # PERMISSIONED_CANNON (permissioned)
 impl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"                            # changed (real PDG v2.2.0 impl)
-permissioned = true
 prestate = "0x0300000000000000000000000000000000000000000000000000000000c0ffee" # changed (synthetic)
 vm = "0x6463dEE3828677F6270d83d45408044fc5eDB908"                              # changed (op-program MIPS)
 anchorStateRegistry = "0x824AE66becDAf219B61880BEcdC5A920dE35Bd33"            # explicit (must equal registered ASR)
