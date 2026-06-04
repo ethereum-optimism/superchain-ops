@@ -15,7 +15,7 @@ l2chains = [
     {name = "u19-beta-0", chainId = 420120035}
 ]
 
-fallbackAddressesJsonPath = "test/tasks/example/sep/038-opcm-upgrade-v700-permissioned/addresses.json"
+fallbackAddressesJsonPath = "test/tasks/example/sep/039-opcm-upgrade-v700-permissioned/addresses.json"
 
 templateName = "OPCMUpgradeV700"
 
