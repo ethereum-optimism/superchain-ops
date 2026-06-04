@@ -24,7 +24,16 @@ OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
 
 [stateOverrides]
 # Unichain Sepolia ProxyAdminOwner (3/3 Safe) — independent of the bundled
-# OP-governed upgrade in 086-U19-op-ink-mmz-soneium.
+# OP-governed upgrade in 098-U19-op-ink-mmz-soneium.
 0xd363339eE47775888Df411A163c586a8BdEA9dbf = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43}
 ]
+
+[storageCodeExceptions]
+# SystemConfig slot 0x6c packs superchainConfig (an address with code, low 160 bits)
+# with minBaseFee (upper bits). Once minBaseFee is non-zero the slot value exceeds
+# type(uint160).max, so isLikelyAddressThatShouldHaveCode reinterprets the low 160 bits
+# as an address that must have NO code and reverts on the real SuperchainConfig. Exempt
+# this one slot from the check; every other slot on the account is still validated.
+# Unichain Sepolia SystemConfigProxy (superchain-registry: configs/sepolia/unichain.toml).
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
