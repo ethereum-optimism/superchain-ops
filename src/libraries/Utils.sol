@@ -32,23 +32,20 @@ library Utils {
     }
 
     /// @notice Checks that values have code on this chain.
-    /// This method is not storage-layout-aware and therefore is not perfect. It only inspects the
-    /// last 20 bytes (low 160 bits) of the slot value, ignoring any higher-order bytes that may be
-    /// packed into the same storage slot, so it may return erroneous results for packed slots.
+    /// This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    /// results for cases like packed slots, and silently show that things are okay when they are not.
     function isLikelyAddressThatShouldHaveCode(uint256 value, address[] memory codeExceptions)
         internal
         pure
         returns (bool)
     {
-        // Only consider the last 20 bytes of the slot value, ignoring any higher-order bytes packed
-        // into the same storage slot.
-        uint160 addr = uint160(value);
         // If out of range (fairly arbitrary lower bound), return false.
-        if (addr < uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff)) return false;
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
         // If the value is a L2 predeploy address it won't have code on this chain, so return false.
         if (
-            addr >= uint160(0x4200000000000000000000000000000000000000)
-                && addr <= uint160(0x420000000000000000000000000000000000FffF)
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
+                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
         ) return false;
         // Allow known EOAs.
         for (uint256 i; i < codeExceptions.length; i++) {
@@ -56,7 +53,7 @@ library Utils {
                 codeExceptions[i] != address(0),
                 "getCodeExceptions includes the zero address, please make sure all entries are populated."
             );
-            if (address(addr) == codeExceptions[i]) return false;
+            if (address(uint160(value)) == codeExceptions[i]) return false;
         }
         // Otherwise, this value looks like an address that we'd expect to have code.
         return true;
