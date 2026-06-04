@@ -268,6 +268,91 @@ contract NestedMultisigTaskTest is Test {
         multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
     }
 
+    /// @notice OptimismPortalProxy address on OP Mainnet at block 23149345 (used by the
+    /// storage-code-exception tests below).
+    address constant OPTIMISM_PORTAL_PROXY = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed;
+
+    /// @notice Base config for the SetEIP1967Implementation task used by the storage-code-exception
+    /// tests. It writes a no-code, address-shaped value to the EIP-1967 implementation slot, which
+    /// without a `[storageCodeExceptions]` entry trips the `isLikelyAddressThatShouldHaveCode` check
+    /// (see `testSimulateCodeExceptionsCheckReverts`).
+    string constant CODE_EXCEPTION_BASE_TOML = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+        "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
+
+    /// @notice The exact revert message produced by the code check for the task above at block 23149345.
+    function _codeExceptionRevertMessage() internal pure returns (string memory) {
+        return string.concat(
+            "Likely address in storage has no code\n",
+            "  account: ",
+            vm.toString(OPTIMISM_PORTAL_PROXY),
+            "\n  slot:    ",
+            vm.toString(bytes32(Constants.PROXY_IMPLEMENTATION_ADDRESS)),
+            "\n  value:   ",
+            vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
+        );
+    }
+
+    /// @notice A `[storageCodeExceptions]` entry for the (account, slot) being written exempts that
+    /// slot from the code check, so the otherwise-reverting task simulates cleanly. The slot is listed
+    /// alongside an unrelated slot to also exercise multi-slot array parsing.
+    function testStorageCodeExceptionWhitelistsSlot() public {
+        vm.createSelectFork("mainnet", 23149345);
+        multisigTask = new SetEIP1967Implementation();
+        string memory toml = string.concat(
+            CODE_EXCEPTION_BASE_TOML,
+            "[storageCodeExceptions]\n",
+            vm.toString(OPTIMISM_PORTAL_PROXY),
+            " = [\"",
+            vm.toString(bytes32(Constants.PROXY_IMPLEMENTATION_ADDRESS)),
+            "\", \"0x0000000000000000000000000000000000000000000000000000000000000000\"]\n"
+        );
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(toml, TESTING_DIRECTORY, "007");
+
+        // Should NOT revert: the code check is skipped for the whitelisted slot.
+        (,,, address rootSafe) =
+            multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
+        assertTrue(rootSafe != address(0), "Expected task to simulate without reverting");
+        MultisigTaskTestHelper.removeFile(configFilePath);
+    }
+
+    /// @notice A `[storageCodeExceptions]` entry for the correct account but a different slot does NOT
+    /// suppress the check on the slot actually being written: the exception is slot-specific.
+    function testStorageCodeExceptionWrongSlotStillReverts() public {
+        vm.createSelectFork("mainnet", 23149345);
+        multisigTask = new SetEIP1967Implementation();
+        string memory toml = string.concat(
+            CODE_EXCEPTION_BASE_TOML,
+            "[storageCodeExceptions]\n",
+            vm.toString(OPTIMISM_PORTAL_PROXY),
+            " = [\"0x0000000000000000000000000000000000000000000000000000000000000001\"]\n"
+        );
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(toml, TESTING_DIRECTORY, "008");
+
+        vm.expectRevert(bytes(_codeExceptionRevertMessage()));
+        multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
+        MultisigTaskTestHelper.removeFile(configFilePath);
+    }
+
+    /// @notice A `[storageCodeExceptions]` entry for the correct slot but a different account does NOT
+    /// suppress the check: the exception is account-specific.
+    function testStorageCodeExceptionWrongAccountStillReverts() public {
+        vm.createSelectFork("mainnet", 23149345);
+        multisigTask = new SetEIP1967Implementation();
+        string memory toml = string.concat(
+            CODE_EXCEPTION_BASE_TOML,
+            "[storageCodeExceptions]\n",
+            // Some unrelated account, with the correct slot.
+            "0x000000000000000000000000000000000000dEaD = [\"",
+            vm.toString(bytes32(Constants.PROXY_IMPLEMENTATION_ADDRESS)),
+            "\"]\n"
+        );
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(toml, TESTING_DIRECTORY, "009");
+
+        vm.expectRevert(bytes(_codeExceptionRevertMessage()));
+        multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
+        MultisigTaskTestHelper.removeFile(configFilePath);
+    }
+
     /// @notice Validate the data to sign for the child multisig.
     function _validateNestedDataToSign(
         address _childMultisig,
