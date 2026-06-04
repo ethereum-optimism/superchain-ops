@@ -247,7 +247,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice U19-specific enabled-flag policy for each of the 7 OPCMv2 game-type slots.
     /// @dev
-    ///   - `CANNON_KONA`: enabled iff the chain is **permissionless** post-upgrade. On
+    ///   - `CANNON_KONA`: enabled if the chain is **permissionless** post-upgrade. On
     ///     permissionless chains this is what U19 introduces — `kona-client` becomes the
     ///     primary FPVM and the new respected game type. On permissioned chains we must
     ///     NOT wire a `CANNON_KONA` implementation (per U19 spec):
