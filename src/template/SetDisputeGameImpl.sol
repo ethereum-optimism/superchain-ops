@@ -212,7 +212,12 @@ contract SetDisputeGameImpl is L2TaskBase {
             return;
         }
         require(keccak256(factory.gameArgs(CANNON_KONA)) == keccak256(k.gameArgs), "KONA game args mismatch");
-        if (k.bond != 0) require(factory.initBonds(CANNON_KONA) == k.bond, "KONA init bond mismatch");
+        // CANNON_KONA (game type 8) is permissionless: anyone can create a game, so a zero init bond
+        // would make games free to open — catastrophic on L1 the moment the slot goes live. A live
+        // kona game MUST carry a non-zero bond, and it must match the configured value. A zero bond
+        // almost certainly means the operator forgot to set it, so revert rather than silently skip.
+        require(k.bond != 0, "SetDisputeGameImpl: zero init bond on live CANNON_KONA game");
+        require(factory.initBonds(CANNON_KONA) == k.bond, "KONA init bond mismatch");
     }
 
     function _validateFactoryTargets(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId)

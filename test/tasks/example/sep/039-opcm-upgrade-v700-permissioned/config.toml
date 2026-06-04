@@ -29,7 +29,8 @@ cannonKonaPrestate = "0x00000000000000000000000000000000000000000000000000000000
 # CKDG-10 (CANNON_KONA game type 8 has no shape / zero impl) on top of the betanet overrides.
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,CKDG-NOSHAPE,PLDG-10,CKDG-10"
 initBond = 0
-# Permissioned: respected game type stays at PERMISSIONED_CANNON (1).
+# `startingRespectedGameType` is the value we update TO (the post-upgrade respected game type),
+# not a "starting" value — here PERMISSIONED_CANNON (1), so the chain stays permissioned.
 startingRespectedGameType = 1
 
 [addresses]

@@ -379,6 +379,9 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         // type to anything else is an irreversible footgun on the AnchorStateRegistry —
         // refuse it at the override construction site so a config typo can never reach
         // the OPCM.
+        // NB: despite the "starting" prefix (a name leak from the OPCM's deploy struct), this is the
+        // ENDING respected game type — the value the OPCM writes into AnchorStateRegistry.respectedGameType
+        // post-upgrade. See the struct doc above. {1 = stay permissioned, 8 = rotate to kona permissionless}.
         uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
         require(
             startingRespectedGameType == PERMISSIONED_CANNON || startingRespectedGameType == CANNON_KONA,
