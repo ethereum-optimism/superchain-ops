@@ -1,0 +1,23 @@
+l2chains = [ {name = "OP Mainnet", chainId = 10} ]
+
+templateName = "SystemConfigGasParams"
+
+[gasParams]
+gasLimit = 80000000
+eip1559Elasticity = 2
+eip1559Denominator = 250
+
+[stateOverrides]
+# This is the P0 contingency task: it is only executed AFTER 053-gas-params-op-p0 has
+# raised gasLimit to 80M and elasticity to 4. The SystemConfig overrides below reproduce
+# that post-053 state so the simulated diff shows the only real change (elasticity 4 -> 2,
+# which doubles the gas target from 10Mgas/s to 20Mgas/s). Refresh the nonce at signing time.
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe: 58 (after 053)
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58 }
+]
+0x229047FeD2591dbec1eF1118d64F7aF3dB9EB290 = [ # SystemConfig: post-053 state
+    # slot 0x68: gasLimit 80M (basefeeScalar 0xf79c5, blobbasefeeScalar 0x146b unchanged)
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000068", value = "0x00000000000000000000000000000000000f79c50000146b0000000004c4b400" },
+    # slot 0x6a: eip1559Elasticity 4, eip1559Denominator 250 (0xfa)
+    { key = "0x000000000000000000000000000000000000000000000000000000000000006a", value = "0x00000000000000000000000000000000000000000000000000000004000000fa" }
+]

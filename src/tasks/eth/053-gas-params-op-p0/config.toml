@@ -4,7 +4,7 @@ templateName = "SystemConfigGasParams"
 
 [gasParams]
 gasLimit = 80000000
-eip1559Elasticity = 2
+eip1559Elasticity = 4
 eip1559Denominator = 250
 
 [stateOverrides]
