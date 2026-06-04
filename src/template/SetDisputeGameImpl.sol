@@ -37,6 +37,26 @@ contract SetDisputeGameImpl is L2TaskBase {
     /// @notice Mapping of chain ID to configuration for the task.
     mapping(uint256 => GameImplConfig) public cfg;
 
+    /// @notice Optional CANNON_KONA (game type 8) configuration. Parsed only when the TOML
+    ///         contains a `[[konaGameImplConfig]]` section, so existing FDG/PDG-only tasks
+    ///         (e.g. the op-program CANNON flip tasks) parse and behave exactly as before.
+    ///         Wires the permissionless kona game via `setImplementation`, reusing an
+    ///         already-deployed FaultDisputeGame blueprint impl — the kona prestate is
+    ///         supplied in `gameArgs` (the blueprint impl carries no prestate of its own).
+    /// @dev Fields MUST stay in alphabetical order (forge-std TOML decoder constraint).
+    struct KonaGameImplConfig {
+        uint256 bond;
+        uint256 chainId;
+        bytes gameArgs;
+        address impl;
+    }
+
+    /// @notice chainId => CANNON_KONA config (only populated when the section is present).
+    mapping(uint256 => KonaGameImplConfig) public konaCfg;
+
+    /// @notice chainId => whether a CANNON_KONA config was supplied for that chain.
+    mapping(uint256 => bool) public konaConfigured;
+
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
@@ -57,6 +77,17 @@ contract SetDisputeGameImpl is L2TaskBase {
         GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImplConfig"), (GameImplConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
+        }
+
+        // Optional CANNON_KONA (game type 8) section. Backward-compatible: tasks without a
+        // `[[konaGameImplConfig]]` block skip this entirely and are unaffected.
+        if (toml.keyExists(".konaGameImplConfig")) {
+            KonaGameImplConfig[] memory konaConfigs =
+                abi.decode(toml.parseRaw(".konaGameImplConfig"), (KonaGameImplConfig[]));
+            for (uint256 i = 0; i < konaConfigs.length; i++) {
+                konaCfg[konaConfigs[i].chainId] = konaConfigs[i];
+                konaConfigured[konaConfigs[i].chainId] = true;
+            }
         }
     }
 
@@ -94,6 +125,40 @@ contract SetDisputeGameImpl is L2TaskBase {
         _setFDGImplementation(factory, c, chainId);
         _setPDGImplementation(factory, c, chainId);
         _setInitBonds(factory, c);
+        _setKonaImplementation(factory, chainId);
+    }
+
+    /// @notice Wire CANNON_KONA (game type 8) when a kona config was supplied. Reuses an
+    ///         already-deployed permissionless FaultDisputeGame blueprint impl; the kona
+    ///         prestate + vm + asr + delayedWETH + chainId are packed in `gameArgs` (124
+    ///         bytes, same permissionless layout as CANNON). Idempotent: early-returns the
+    ///         `setImplementation` call if the slot already matches impl + gameArgs.
+    /// @dev No blueprint l2ChainId() invariant is checked here — the shared U19 FDG impl
+    ///      returns 0 for l2ChainId/prestate, with chain data living in gameArgs (mirrors
+    ///      the prevFdgImpl == fdgImpl workaround used for the CANNON slot).
+    function _setKonaImplementation(IDisputeGameFactory factory, uint256 chainId) internal {
+        if (!konaConfigured[chainId]) return;
+        KonaGameImplConfig storage k = konaCfg[chainId];
+
+        // Disable path: impl == 0 means "zero the CANNON_KONA slot" (e.g. correcting a
+        // permissioned chain that must NOT expose game type 8). gameArgs must be empty.
+        if (k.impl == address(0)) {
+            require(k.gameArgs.length == 0, "KONA disable: gameArgs must be empty");
+            if (address(factory.gameImpls(CANNON_KONA)) != address(0) || factory.gameArgs(CANNON_KONA).length != 0) {
+                factory.setImplementation(CANNON_KONA, address(0), "");
+            }
+            return;
+        }
+
+        bool slotMatches = address(factory.gameImpls(CANNON_KONA)) == k.impl
+            && keccak256(factory.gameArgs(CANNON_KONA)) == keccak256(k.gameArgs);
+        if (!slotMatches) {
+            _validateGameArgsFormat(k.gameArgs, chainId, false); // permissionless 124-byte layout
+            factory.setImplementation(CANNON_KONA, k.impl, k.gameArgs);
+        }
+        if (k.bond != 0 && factory.initBonds(CANNON_KONA) != k.bond) {
+            factory.setInitBond(CANNON_KONA, k.bond);
+        }
     }
 
     function _setFDGImplementation(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId) internal {
@@ -134,6 +199,25 @@ contract SetDisputeGameImpl is L2TaskBase {
         _validateBasicInvariants(factory, c, chainId);
         _validateFDGDetailed(c);
         _validatePDGDetailed(c);
+        _validateKona(factory, chainId);
+    }
+
+    /// @notice Assert the CANNON_KONA slot matches the supplied kona config (when present).
+    function _validateKona(IDisputeGameFactory factory, uint256 chainId) internal view {
+        if (!konaConfigured[chainId]) return;
+        KonaGameImplConfig storage k = konaCfg[chainId];
+        require(address(factory.gameImpls(CANNON_KONA)) == k.impl, "KONA implementation mismatch");
+        if (k.impl == address(0)) {
+            require(factory.gameArgs(CANNON_KONA).length == 0, "KONA gameArgs not cleared");
+            return;
+        }
+        require(keccak256(factory.gameArgs(CANNON_KONA)) == keccak256(k.gameArgs), "KONA game args mismatch");
+        // CANNON_KONA (game type 8) is permissionless: anyone can create a game, so a zero init bond
+        // would make games free to open — catastrophic on L1 the moment the slot goes live. A live
+        // kona game MUST carry a non-zero bond, and it must match the configured value. A zero bond
+        // almost certainly means the operator forgot to set it, so revert rather than silently skip.
+        require(k.bond != 0, "SetDisputeGameImpl: zero init bond on live CANNON_KONA game");
+        require(factory.initBonds(CANNON_KONA) == k.bond, "KONA init bond mismatch");
     }
 
     function _validateFactoryTargets(IDisputeGameFactory factory, GameImplConfig storage c, uint256 chainId)
@@ -218,6 +302,7 @@ contract SetDisputeGameImpl is L2TaskBase {
 // ----- GAME TYPE CONSTANTS ----- //
 uint32 constant CANNON = 0;
 uint32 constant PERMISSIONED_CANNON = 1;
+uint32 constant CANNON_KONA = 8;
 
 /// ----- INTERFACES ----- ///
 interface IDisputeGameFactory {
