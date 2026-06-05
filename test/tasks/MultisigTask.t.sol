@@ -9,7 +9,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {Vm} from "forge-std/Vm.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-import {MultisigTask} from "src/tasks/MultisigTask.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
@@ -23,8 +23,8 @@ contract MultisigTaskUnitTest is Test {
     MultisigTask public task;
     string constant TESTING_DIRECTORY = "multisig-task-testing";
 
-    string constant commonToml =
-        "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"MockMultisigTask\"\n" "\n";
+    string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+        "templateName = \"MockMultisigTask\"\n" "\n";
     address root = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
@@ -211,10 +211,7 @@ contract MultisigTaskUnitTest is Test {
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
         for (uint256 i; i < calls.length; i++) {
             calls[i] = IMulticall3.Call3Value({
-                target: targets[i],
-                allowFailure: false,
-                value: values[i],
-                callData: calldatas[i]
+                target: targets[i], allowFailure: false, value: values[i], callData: calldatas[i]
             });
         }
 
@@ -349,6 +346,104 @@ contract MultisigTaskUnitTest is Test {
         assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
+    function testPackedStorageAddressExtractionMatchesKnownSlots() public {
+        MockMultisigTask harness = _packedSlotHarness();
+
+        _assertPackedAddressExtraction(harness, "AnchorStateRegistryProxy", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(53)), 1);
+    }
+
+    function testPackedStorageAddressExtractionIgnoresFilteredSlots() public {
+        MockMultisigTask harness = _packedSlotHarness();
+
+        _assertNotPackedAddressSlot(harness, "OptimismPortalProxy", bytes32(uint256(63)));
+        _assertNotPackedAddressSlot(harness, "SuperchainConfig", bytes32(uint256(0)));
+        _assertNotPackedAddressSlot(harness, "SystemConfigProxy", bytes32(uint256(108)));
+        _assertNotPackedAddressSlot(harness, "L1CrossDomainMessengerProxy", bytes32(uint256(0)));
+    }
+
+    function testCheckStateDiffValidatesPackedAddressAtNonZeroOffset() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(new MockTarget());
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(guardian, 2))
+        );
+    }
+
+    function testCheckStateDiffRevertsWhenPackedAddressHasNoCode() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(uint160(0x1111111111111111111111111111111111111111));
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+
+        bytes32 slot = bytes32(uint256(0));
+        bytes32 packedValue = _packAddress(guardian, 2);
+        string memory err = string.concat(
+            "Likely address in storage has no code\n",
+            "  account: ",
+            vm.toString(address(storageAccount)),
+            "\n  slot:    ",
+            vm.toString(slot),
+            "\n  value:   ",
+            vm.toString(bytes32(uint256(uint160(guardian))))
+        );
+        vm.expectRevert(bytes(err));
+        harness.wrapperCheckStateDiff(_singleStorageWrite(address(storageAccount), slot, packedValue));
+    }
+
+    function testCheckStateDiffAllowsPackedAddressCodeException() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(uint160(0x1111111111111111111111111111111111111111));
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = guardian;
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperSetCodeExceptions(codeExceptions);
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(guardian, 2))
+        );
+    }
+
+    function testCheckStateDiffRevertsWhenPackedAddressCodeExceptionHasCode() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(new MockTarget());
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = guardian;
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperSetCodeExceptions(codeExceptions);
+
+        bytes32 slot = bytes32(uint256(0));
+        string memory err = string.concat(
+            "Likely address in storage has unexpected code\n",
+            "  account: ",
+            vm.toString(address(storageAccount)),
+            "\n  slot:    ",
+            vm.toString(slot),
+            "\n  value:   ",
+            vm.toString(bytes32(uint256(uint160(guardian))))
+        );
+        vm.expectRevert(bytes(err));
+        harness.wrapperCheckStateDiff(_singleStorageWrite(address(storageAccount), slot, _packAddress(guardian, 2)));
+    }
+
+    function testCheckStateDiffDoesNotTreatUnregisteredNewContractAsKnownPackedSlot() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = new MockTarget();
+        address systemConfig = address(uint160(0x1111111111111111111111111111111111111111));
+
+        harness.wrapperAddAllowedStorageAccess(address(0x1234));
+        harness.wrapperCheckStateDiff(
+            _singleNewContractStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(systemConfig, 2))
+        );
+    }
+
     // Helper to create AccountAccess struct
     function createAccess(VmSafe.AccountAccessKind kind, address account, address accessor, uint64 depth)
         internal
@@ -370,6 +465,85 @@ contract MultisigTaskUnitTest is Test {
             storageAccesses: new VmSafe.StorageAccess[](0),
             depth: depth
         });
+    }
+
+    function _packedSlotHarness() internal returns (MockMultisigTask harness) {
+        harness = new MockMultisigTask();
+        harness.wrapperSetAddressRegistry(AddressRegistry.wrap(address(addrRegistry)));
+    }
+
+    function _assertPackedAddressExtraction(
+        MockMultisigTask harness,
+        string memory identifier,
+        bytes32 slot,
+        uint256 offset
+    ) internal {
+        MockTarget storageAccount = _registerStorageAccount(identifier);
+        address expected = address(new MockTarget());
+
+        (bool isPackedAddressSlot, address packedAddress) = harness.wrapperGetPackedStorageAddress(
+            address(storageAccount), slot, uint256(_packAddress(expected, offset))
+        );
+
+        assertTrue(isPackedAddressSlot, identifier);
+        assertEq(packedAddress, expected, identifier);
+    }
+
+    function _assertNotPackedAddressSlot(MockMultisigTask harness, string memory identifier, bytes32 slot) internal {
+        MockTarget storageAccount = _registerStorageAccount(identifier);
+        (bool isPackedAddressSlot, address packedAddress) =
+            harness.wrapperGetPackedStorageAddress(address(storageAccount), slot, uint256(_packAddress(address(1), 0)));
+
+        assertFalse(isPackedAddressSlot, identifier);
+        assertEq(packedAddress, address(0), identifier);
+    }
+
+    function _registerStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
+        storageAccount = new MockTarget();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        string[] memory allowOverwrite = new string[](1);
+        allowOverwrite[0] = identifier;
+        addrRegistry.saveAddress(identifier, chains[0], address(storageAccount), allowOverwrite);
+    }
+
+    function _singleStorageWrite(address account, bytes32 slot, bytes32 newValue)
+        internal
+        pure
+        returns (VmSafe.AccountAccess[] memory accountAccesses)
+    {
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = VmSafe.StorageAccess({
+            account: account, slot: slot, isWrite: true, previousValue: bytes32(0), newValue: newValue, reverted: false
+        });
+        accountAccesses = new VmSafe.AccountAccess[](1);
+        accountAccesses[0] = createAccess(VmSafe.AccountAccessKind.Call, account, address(0x1234), 0, storageAccesses);
+    }
+
+    function _singleNewContractStorageWrite(address account, bytes32 slot, bytes32 newValue)
+        internal
+        pure
+        returns (VmSafe.AccountAccess[] memory accountAccesses)
+    {
+        accountAccesses = _singleStorageWrite(account, slot, newValue);
+        accountAccesses[0].kind = VmSafe.AccountAccessKind.Create;
+        accountAccesses[0].deployedCode = hex"01";
+    }
+
+    function createAccess(
+        VmSafe.AccountAccessKind kind,
+        address account,
+        address accessor,
+        uint64 depth,
+        VmSafe.StorageAccess[] memory storageAccesses
+    ) internal pure returns (VmSafe.AccountAccess memory) {
+        VmSafe.AccountAccess memory accountAccess = createAccess(kind, account, accessor, depth);
+        accountAccess.storageAccesses = storageAccesses;
+        return accountAccess;
+    }
+
+    function _packAddress(address addr, uint256 offset) internal pure returns (bytes32) {
+        uint256 flags = offset == 0 ? uint256(1) << 160 : uint256(0x0101);
+        return bytes32((uint256(uint160(addr)) << (offset * 8)) | flags);
     }
 
     function createActions(
@@ -410,8 +584,8 @@ contract MultisigTaskUnitTest is Test {
 
     /// @notice Tests that MultisigTask reverts when a transaction exceeds the 15M gas limit
     function test_simulate_revertsOnHighGasUsage_fails() public {
-        string memory highGasToml =
-            "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"HighGasMultisigTask\"\n" "\n";
+        string memory highGasToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+            "templateName = \"HighGasMultisigTask\"\n" "\n";
 
         string memory taskConfigFilePath =
             MultisigTaskTestHelper.createTempTomlFile(highGasToml, TESTING_DIRECTORY, "highgas");
@@ -424,10 +598,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     /// @notice Asserts that the root safe calldata is correct.
-    function assertRootCalldata(bytes memory data, address target, uint256 value, bytes memory callData)
-        internal
-        pure
-    {
+    function assertRootCalldata(bytes memory data, address target, uint256 value, bytes memory callData) internal pure {
         bytes4 selector = bytes4(data);
         assertEq(selector, IMulticall3.aggregate3Value.selector, "Incorrect calldata for root safe");
         bytes memory params = getParams(data);
