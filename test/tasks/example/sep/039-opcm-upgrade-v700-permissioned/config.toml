@@ -1,0 +1,42 @@
+# Upgrade 19 example task — PERMISSIONED-chain path (Sepolia L1).
+#
+# Companion to 037-opcm-upgrade-v700 (which exercises the permissionless path,
+# startingRespectedGameType = 8). This task exercises the permissioned path:
+#   - startingRespectedGameType = 1 (PERMISSIONED_CANNON) -> `_isPermissionedChain` is true.
+#   - OPCMUpgradeV700 leaves the chain permissioned: CANNON_KONA (game type 8) is
+#     `enabled=false` (skipped, slot stays zero) and CANNON (0) is zeroed.
+#   - Because game type 8 is skipped, `cannonKonaPrestate` is unused and MUST be the zero
+#     address (enforced by OPCMUpgradeV700._templateSetup) — exercises that require branch.
+#
+# Reuses the resolvable u19-beta-0 contracts (chainId 420120035) as the fixture; the chain
+# is just a vehicle to exercise the permissioned code path.
+
+l2chains = [
+    {name = "u19-beta-0", chainId = 420120035}
+]
+
+fallbackAddressesJsonPath = "test/tasks/example/sep/039-opcm-upgrade-v700-permissioned/addresses.json"
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 420120035
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Permissioned chain: CANNON_KONA is not wired, so the kona prestate MUST be the zero address.
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+# Live validator output captured during simulation against the dev v7.1.17 OPCM at block
+# 10808500. A permissioned chain with kona prestate = 0 additionally reports CKDG-NOSHAPE and
+# CKDG-10 (CANNON_KONA game type 8 has no shape / zero impl) on top of the betanet overrides.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,CKDG-NOSHAPE,PLDG-10,CKDG-10"
+initBond = 0
+# `startingRespectedGameType` is the value we update TO (the post-upgrade respected game type),
+# not a "starting" value — here PERMISSIONED_CANNON (1), so the chain stays permissioned.
+startingRespectedGameType = 1
+
+[addresses]
+OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 74}
+]
