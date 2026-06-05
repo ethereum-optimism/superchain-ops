@@ -49,7 +49,9 @@ fdgBond = 0
 pdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
 prevPdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
 pdgGameArgs = "0xdead000000000000000000000000000000000000000000000000000000000000acc005dcd857b401e4732e6f7837135a22825cfaaa940fd59ffd6f78bb2df4dc2954946ea8d655e224f5fc46b809b70656f86d8f8cfe0cb1cb9cb6bc00000000000000000000000000000000000000000000000000000000190a37ab40c9ec121587cd54fd4a84c0c178be617d7b63c97c96654edfed3cf6a201c20a6855befadfc05021"
-pdgBond = 0  # bond unchanged; SetDisputeGameImpl skips setInitBond when value is 0
+pdgBond = 0  # SENTINEL = "skip" (not "set 0"): SetDisputeGameImpl only calls setInitBond when the
+             # value is non-zero, so this LEAVES the live permissioned (game 1) bond at its current
+             # 0.08 ETH. game 1 bonds are not changed by this PR on any chain.
 
 # --- CANNON_KONA (game type 8) — wired for the first time (the permissionless flip) --- #
 [[konaGameImplConfig]]

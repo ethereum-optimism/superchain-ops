@@ -35,12 +35,18 @@ l2chains = [
     {name = "karst-u19-beta-1", chainId = 420110024}
 ]
 
-# karst-u19-beta-1 — CANNON_KONA (8): bump prestate only. Every other gameArgs field (impl, vm,
-# anchorStateRegistry, delayedWETH, chainId, bond) is read from the live slot and kept unchanged.
+# karst-u19-beta-1 — CANNON_KONA (8): bump prestate; pin the permissionless init bond at 0.08 ETH.
+# Every other gameArgs field (impl, vm, anchorStateRegistry, delayedWETH, chainId) is read from the
+# live slot and kept unchanged. The live bond is already 0.08 ETH so `setInitBond` is a no-op here
+# (SetDisputeGameArgs only emits it when the value differs); pinning it makes the 0.08 ETH explicit
+# and lets `_validate` assert it. Permissionless games MUST carry a non-zero bond (anyone can open
+# one); the permissioned game type 1 keeps its own 0.08 ETH bond, set at deploy/V700 time and left
+# untouched by this PR.
 [[gameConfig]]
 chainId = 420110024
 gameType = 8
 prestate = "0x03550cad406d92b986a67047befd635b6dc90b14eae2b7733e8b60c05f429ec2"
+bond = 80000000000000000  # 0.08 ETH (kona / permissionless)
 
 [stateOverrides]
 # Pin the Sepolia ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5). Last task in the single
