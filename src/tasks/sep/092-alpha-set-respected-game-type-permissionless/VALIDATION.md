@@ -1,6 +1,6 @@
 # Validation
 
-Task 093 — karst-u19-alpha-1: set `respectedGameType` to 8 (CANNON_KONA). Runs after 092.
+Task 092 — karst-u19-alpha-1: set `respectedGameType` to 8 (CANNON_KONA). Runs after 091.
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
 2. [Transaction Inputs](config.toml): `{chainId = 420100011, gameType = 8}`.
@@ -10,10 +10,13 @@ Task 093 — karst-u19-alpha-1: set `respectedGameType` to 8 (CANNON_KONA). Runs
 
 > [!CAUTION]
 >
-> Captured at the assumed stack nonce **9** (second task in the alpha rollout, after 092). The PAO
-> Safe `0x8E851…` is shared — re-verify against your ledger and the terminal at signing.
+> Pinned at stack nonce **10** (second task in the single sequential alpha/beta batch, after 091
+> at nonce 9). The PAO Safe `0x8E851…` is shared — re-verify against your ledger and the terminal
+> at signing.
+>
+> Regenerated for the pinned nonce **10** (after 091 at nonce 9).
 >
 > ### Alphanet 1/N Safe (`0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9`)
 >
 > - Domain Hash:  `0x85cc686e8cbc7571a70994af7e216c5525d22203d359558d46a795125c38de14`
-> - Message Hash: `0xedeaa40480692d2ef87469fba6ff82662595d81fc979d995e0bdcae606c5dd86`
+> - Message Hash: `0xc5d7a647963155134cad200f32eaad7b65622808a7dbc5203844987fc52efadd`

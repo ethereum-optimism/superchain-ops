@@ -1,12 +1,12 @@
 # Correct karst-u19-beta-0: remove the CANNON_KONA (game type 8) implementation so the chain has
 # no permissionless game, per the U19 clarification (permissioned chains MUST NOT set a game type
-# 8 implementation). Companion to task 095, which first reverts respectedGameType 8 -> 1.
+# 8 implementation). Companion to task 094, which first reverts respectedGameType 8 -> 1.
 #
 # Mechanism: SetDisputeGameImpl with a [[konaGameImplConfig]] whose impl == 0x0 (disable path):
 # the template calls factory.setImplementation(CANNON_KONA, 0x0, "") to zero the slot. FDG (0)
 # and PDG (1) are passthroughs (unchanged).
 #
-# On-chain state before this task (after 095; respectedGameType already reverted to 1):
+# On-chain state before this task (after 094; respectedGameType already reverted to 1):
 #   gameImpls(0) = 0x0                                -> stays 0x0 (passthrough)
 #   gameImpls(1) = 0xe1dF...b87e, prestate 0xdead     -> unchanged (passthrough)
 #   gameImpls(8) = 0x2DDA...4AeC                       -> zeroed to 0x0
@@ -15,7 +15,7 @@ l2chains = [
     {name = "karst-u19-beta-0", chainId = 420110023}
 ]
 
-fallbackAddressesJsonPath = "src/tasks/sep/096-beta-0-zero-cannon-kona-game-type/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/095-beta-0-zero-cannon-kona-game-type/addresses.json"
 templateName = "SetDisputeGameImpl"
 
 [[gameImplConfig]]
@@ -42,9 +42,9 @@ gameArgs = "0x"                                       # must be empty for disabl
 bond = 0
 
 [stateOverrides]
-# Shared PAO Safe (0x8E851...). beta-0 correction is a separate signing batch (grouping B); in the
-# combined repo stack this is task 5 of 5 -> nonce 12. Re-pin to the live nonce if beta-0 is
-# executed in its own batch (cast call $SAFE "nonce()").
+# Shared PAO Safe (0x8E851...). In the single sequential alpha/beta batch this is task 5 of 6
+# -> nonce 13 (after 091/092/093/094 consume live nonce 9/10/11/12). Re-verify with
+# `cast call $SAFE "nonce()"`.
 0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 12}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 13}
 ]

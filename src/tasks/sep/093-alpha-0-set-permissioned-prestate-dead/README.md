@@ -1,4 +1,4 @@
-# 094-alpha-0-set-permissioned-prestate-dead
+# 093-alpha-0-set-permissioned-prestate-dead
 
 Status: DRAFT, NOT READY TO SIGN
 
@@ -21,5 +21,5 @@ zero passthrough).
 ## Simulation
 
 ```bash
-cd src && just simulate-stack sep 094-alpha-0-set-permissioned-prestate-dead
+cd src && just simulate-stack sep 093-alpha-0-set-permissioned-prestate-dead
 ```

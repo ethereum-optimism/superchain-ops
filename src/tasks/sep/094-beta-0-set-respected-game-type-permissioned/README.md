@@ -1,4 +1,4 @@
-# 095-beta-0-set-respected-game-type-permissioned
+# 094-beta-0-set-respected-game-type-permissioned
 
 Status: DRAFT, NOT READY TO SIGN
 
@@ -14,7 +14,7 @@ clarification — set `startingRespectedGameType = 8` and wired CANNON_KONA via 
 On-chain today beta-0 has `respectedGameType = 8` and `gameImpls(8) = 0x2DDA…`.
 
 This task reverts `respectedGameType` **8 → 1**. Companion task
-[096-beta-0-zero-cannon-kona-game-type](../096-beta-0-zero-cannon-kona-game-type) then zeroes the
+[095-beta-0-zero-cannon-kona-game-type](../095-beta-0-zero-cannon-kona-game-type) then zeroes the
 game type 8 implementation. Running respected→1 first keeps the respected pointer on the
 (still-wired) permissioned game before game type 8 is removed.
 
@@ -24,5 +24,5 @@ Safe, same as betanet task 088).
 ## Simulation
 
 ```bash
-cd src && just simulate-stack sep 095-beta-0-set-respected-game-type-permissioned
+cd src && just simulate-stack sep 094-beta-0-set-respected-game-type-permissioned
 ```

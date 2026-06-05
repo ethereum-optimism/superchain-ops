@@ -3,16 +3,16 @@
 #
 # Alpha analogue of betanet beta-1's permissionless end-state (respectedGameType == 8).
 #
-# Pre-condition: task 092-alpha-set-dispute-game-impl-permissionless has already wired the
+# Pre-condition: task 091-alpha-set-dispute-game-impl-permissionless has already wired the
 # CANNON_KONA (game type 8) impl + kona prestate into karst-u19-alpha-1's DisputeGameFactory.
-# Together, 092 + this task make karst-u19-alpha-1 permissionless. Game type 1 stays wired as
+# Together, 091 + this task make karst-u19-alpha-1 permissionless. Game type 1 stays wired as
 # the Guardian fallback (with a 0xdead placeholder prestate); game type 0 stays 0x0.
 
 l2chains = [
     {name = "karst-u19-alpha-1", chainId = 420100011}
 ]
 
-fallbackAddressesJsonPath = "src/tasks/sep/093-alpha-set-respected-game-type-permissionless/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/092-alpha-set-respected-game-type-permissionless/addresses.json"
 templateName = "SetRespectedGameTypeTemplate"
 
 # On the alphanet, the AnchorStateRegistry's setRespectedGameType is guarded by
@@ -24,15 +24,15 @@ templateName = "SetRespectedGameTypeTemplate"
 safeAddressString = "ProxyAdminOwner"
 
 [gameTypes]
-# U19 permissionless: respected game type = 8 (CANNON_KONA). Task 092 wired game type 8 first.
+# U19 permissionless: respected game type = 8 (CANNON_KONA). Task 091 wired game type 8 first.
 configs = [
     {chainId = 420100011, gameType = 8}
 ]
 
 [stateOverrides]
 # Pin the Sepolia ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
-# On-chain nonce was 8; this task runs after 092 in the stack (which bumps the Safe's
-# nonce by 1) -> nonce 9. Re-verify against `cast call $SAFE "nonce()"` before signing.
+# Live nonce is 9; this task runs after 091 in the stack (which bumps the Safe's
+# nonce by 1) -> nonce 10. Re-verify against `cast call $SAFE "nonce()"` before signing.
 0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
 ]

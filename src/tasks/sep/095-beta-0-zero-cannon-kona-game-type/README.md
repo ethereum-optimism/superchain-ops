@@ -1,4 +1,4 @@
-# 096-beta-0-zero-cannon-kona-game-type
+# 095-beta-0-zero-cannon-kona-game-type
 
 Status: DRAFT, NOT READY TO SIGN
 
@@ -7,7 +7,7 @@ Status: DRAFT, NOT READY TO SIGN
 Corrective task (part 2 of 2) for `karst-u19-beta-0` (chainId `420110023`): remove the
 CANNON_KONA (game type 8) implementation, so a permissioned chain has no permissionless game
 (per the U19 clarification). Must run after
-[095-beta-0-set-respected-game-type-permissioned](../095-beta-0-set-respected-game-type-permissioned),
+[094-beta-0-set-respected-game-type-permissioned](../094-beta-0-set-respected-game-type-permissioned),
 which reverts `respectedGameType` to 1 first.
 
 Uses [SetDisputeGameImpl](../../../template/SetDisputeGameImpl.sol) with a `[[konaGameImplConfig]]`
@@ -21,5 +21,5 @@ End state for beta-0: `gameImpls(0)=0x0`, `gameImpls(1)=0xe1dF…/0xdead`, `game
 ## Simulation
 
 ```bash
-cd src && just simulate-stack sep 096-beta-0-zero-cannon-kona-game-type
+cd src && just simulate-stack sep 095-beta-0-zero-cannon-kona-game-type
 ```
