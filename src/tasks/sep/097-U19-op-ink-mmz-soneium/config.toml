@@ -4,7 +4,7 @@
 # These six chains share the standard Sepolia L1PAO / Security Council /
 # Foundation Upgrade Safe, so they are bundled into a single OPCM upgrade
 # transaction (one nonce consumed per safe). Unichain uses a separate
-# ProxyAdminOwner and is handled in its own task (099-U19-unichain).
+# ProxyAdminOwner and is handled in its own task (098-U19-unichain).
 #
 # Post-upgrade respected game type split (per Adrian, Sepolia U19 thread):
 #   - Permissionless (rotate to CANNON_KONA = 8): OP, Ink, Soneium Minato.

@@ -24,7 +24,7 @@ OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
 
 [stateOverrides]
 # Unichain Sepolia ProxyAdminOwner (3/3 Safe) — independent of the bundled
-# OP-governed upgrade in 098-U19-op-ink-mmz-soneium.
+# OP-governed upgrade in 097-U19-op-ink-mmz-soneium.
 0xd363339eE47775888Df411A163c586a8BdEA9dbf = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43}
 ]
