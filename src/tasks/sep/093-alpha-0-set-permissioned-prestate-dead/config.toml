@@ -1,0 +1,47 @@
+# karst-u19-alpha-0 stays PERMISSIONED under U19. This task only normalizes the permissioned
+# (PERMISSIONED_CANNON, game type 1) prestate to the 0xdead placeholder, matching the betanet
+# permissioned chain (beta-0) and the U19 clarification:
+#   - permissioned chain: respectedGameType stays 1 (NOT changed here), game type 8 MUST NOT be
+#     wired (left untouched at 0x0), op-program game type 0 stays 0x0.
+#   - the permissioned game prestate may be the 0xdead placeholder (op-program deprecated).
+#
+# On-chain state before this task (Sepolia):
+#   gameImpls(0) = 0x0                                   -> stays 0x0 (passthrough)
+#   gameImpls(1) = 0xe1dF...b87e, prestate 0x0385...     -> prestate rewritten to 0xdead
+#   gameImpls(8) = 0x0                                   -> stays 0x0 (no kona; NOT configured)
+#   respectedGameType = 1                                -> unchanged (no SetRespectedGameType task)
+
+l2chains = [
+    {name = "karst-u19-alpha-0", chainId = 420100010}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/093-alpha-0-set-permissioned-prestate-dead/addresses.json"
+templateName = "SetDisputeGameImpl"
+
+[[gameImplConfig]]
+chainId = 420100010
+# --- FDG (op-program CANNON, game type 0) — stays 0x0 (passthrough) --- #
+fdgImpl = "0x0000000000000000000000000000000000000000"
+prevFdgImpl = "0x0000000000000000000000000000000000000000"
+fdgGameArgs = "0x"
+fdgBond = 0
+
+# --- PDG (PERMISSIONED_CANNON, game type 1) — rewrite prestate to 0xdead --- #
+# Impl unchanged (0xe1dF...), prevPdgImpl == pdgImpl skips the blueprint l2ChainId() invariant.
+# gameArgs (164 bytes) = current on-chain gameArgs(1) with prestate replaced by 0xdead:
+#   prestate(32)=0xdead... | vm(20)=0xacc005...(MIPS) | asr(20)=0x149a64...(ASR) |
+#   delayedWETH(20)=0xd75028...(shared) | chainId(32)=0x190a37aa (=420100010) |
+#   proposer(20)=0x922f27... | challenger(20)=0xa8126240...
+pdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+prevPdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+pdgGameArgs = "0xdead000000000000000000000000000000000000000000000000000000000000acc005dcd857b401e4732e6f7837135a22825cfa149a64f6a8f94c031199ef100e4ab547832db05bd75028eb6768b969f9176d9abb8ac6d88105961200000000000000000000000000000000000000000000000000000000190a37aa922f27bc04d1cbc00f93068c68ae41db3f4e6cf5a81262408ab614f7a650562e486f82cab023fabc"
+pdgBond = 0  # bond unchanged
+
+# NOTE: no [[konaGameImplConfig]] section — alpha-0 is permissioned and MUST NOT wire game type 8.
+
+[stateOverrides]
+# Shared PAO Safe (0x8E851...). In the single sequential alpha/beta batch this task is third
+# (after 091, 092), so nonce 11 (live nonce 9 + 2). Re-verify with `cast call $SAFE "nonce()"`.
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+]
