@@ -53,7 +53,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     bytes32 private constant PACKED_SLOT_ZERO = bytes32(uint256(0));
     bytes32 private constant OPTIMISM_PORTAL_SUPERCHAIN_CONFIG_SLOT = bytes32(uint256(53));
 
-    /// @notice Byte offsets for address lanes within known packed storage slots.
+    /// @notice Byte offsets where the address starts within known packed storage slots.
     uint256 private constant PACKED_ADDRESS_OFFSET_ONE = 1;
     uint256 private constant PACKED_ADDRESS_OFFSET_TWO = 2;
 
@@ -157,19 +157,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             safeMulticallTarget = MULTICALL3_ADDRESS; // For any non-root safe, we use the multicall3 address.
         }
 
-        bytes32 recomputedHash = IGnosisSafe(safeData.safe)
-            .getTransactionHash(
-                safeMulticallTarget,
-                0,
-                safeData.callData,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                safeData.nonce
-            );
+        bytes32 recomputedHash = IGnosisSafe(safeData.safe).getTransactionHash(
+            safeMulticallTarget,
+            0,
+            safeData.callData,
+            Enum.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            safeData.nonce
+        );
 
         require(recomputedHash == txHash_, "MultisigTask: hash mismatch");
 
@@ -258,10 +257,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory allSafes
     ) public view returns (bytes32) {
         address multicallAddress = _getMulticallAddress(safe, allSafes);
-        return
-            keccak256(
-                GnosisSafeHashes.getEncodedTransactionData(safe, callData, value, originalNonce, multicallAddress)
-            );
+        return keccak256(
+            GnosisSafeHashes.getEncodedTransactionData(safe, callData, value, originalNonce, multicallAddress)
+        );
     }
 
     /// @notice Get the safe address string from the config file. If the string is not found, use the value from the template.
@@ -363,7 +361,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         for (uint256 i; i < calls.length; i++) {
             require(targets[i] != address(0), "Invalid target for multisig");
             calls[i] = IMulticall3.Call3Value({
-                target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]
+                target: targets[i],
+                allowFailure: false,
+                value: values[i],
+                callData: arguments[i]
             });
         }
 
@@ -443,9 +444,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             if (!isPrecompile) {
                 // HACK: Allow OPCM Migrate usage of loadOrDeployProxy(address(0), bytes4(0), ...)
                 // Where loadOrDeployProxy makes a staticcall to the zero address
-                if (!(accountAccess.account == address(0) && accountAccess.data.length == 4
+                if (
+                    !(
+                        accountAccess.account == address(0) && accountAccess.data.length == 4
                             && bytes4(accountAccess.data) == bytes4(0)
-                            && accountAccess.kind == VmSafe.AccountAccessKind.StaticCall)) {
+                            && accountAccess.kind == VmSafe.AccountAccessKind.StaticCall
+                    )
+                ) {
                     require(
                         accountAccess.account.code.length != 0,
                         string.concat("Account has no code: ", vm.toString(accountAccess.account))
@@ -474,19 +479,22 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
                 bool isNewContract = Utils.contains(newContracts, account);
+
+                // Most storage writes are checked as full 32-byte values. Some Bedrock L1 contracts
+                // pack an address with small fields in the same slot, which makes the full value too
+                // large for the address heuristic. For known registry-identified slots, extract the
+                // address bytes and run the same code/EOA validation below.
                 (bool isPackedAddressSlot, address packedAddress) =
                     _getPackedStorageAddress(account, storageAccess.slot, value);
                 uint256 valueToCheck = isPackedAddressSlot ? uint256(uint160(packedAddress)) : value;
 
                 if (Utils.isLikelyAddressThatShouldHaveCode(valueToCheck, codeExceptions)) {
-
                     // Log account, slot, and value if there is no code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(valueToCheck)));
                     // forgefmt: disable-end
                     require(address(uint160(valueToCheck)).code.length != 0, err);
                 } else {
-
                     // Log account, slot, and value if there is code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(valueToCheck)));
@@ -504,21 +512,26 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
-    /// @notice Returns the address lane for known fixed packed storage slots in L1 upgradeable contracts.
+    /// @notice Returns the address stored in a known fixed packed storage slot.
+    /// @dev Entries are hard-coded from contracts-bedrock storage layout snapshots. Matching requires
+    /// the account to resolve to the expected registry identifier so unrelated contracts cannot opt
+    /// into partial-slot address checking by writing the same slot number.
     function _getPackedStorageAddress(address account, bytes32 slot, uint256 value)
         internal
         view
         returns (bool isPackedAddressSlot_, address packedAddress_)
     {
-        if (taskType() == TaskType.SimpleTaskBase || AddressRegistry.unwrap(addrRegistry) == address(0)) {
+        if (AddressRegistry.unwrap(addrRegistry) == address(0)) {
             return (false, address(0));
         }
 
         if (slot == PACKED_SLOT_ZERO) {
+            // AnchorStateRegistry.superchainConfig shares slot 0 with Initializable flags.
             if (_hasRegistryIdentifier(account, "AnchorStateRegistryProxy")) {
                 return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_TWO));
             }
         } else if (slot == OPTIMISM_PORTAL_SUPERCHAIN_CONFIG_SLOT) {
+            // OptimismPortal2/Interop.superchainConfig shares slot 53 with a one-byte spacer.
             if (_hasRegistryIdentifier(account, "OptimismPortalProxy")) {
                 return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_ONE));
             }
@@ -536,6 +549,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
+    /// @notice Extracts a 20-byte address that begins at `offset` bytes from the low end of the slot.
     function _extractPackedAddress(uint256 value, uint256 offset) internal pure returns (address) {
         return address(uint160(value >> (offset * 8)));
     }
@@ -1062,7 +1076,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// the root safe address, and setting the multicall target address.
     /// This method may also set any allowed and expected storage accesses that are expected in all
     /// use cases of the template.
-    function _configureTask(string memory configPath) internal virtual returns (AddressRegistry, IGnosisSafe, address);
+    function _configureTask(string memory configPath)
+        internal
+        virtual
+        returns (AddressRegistry, IGnosisSafe, address);
 
     /// @notice This is a solidity script of the calls you want to make, and its
     /// contents are extracted into calldata for the task. WARNING: Any state written to in this function will be reverted
