@@ -1,6 +1,6 @@
 # 053-swell-proposer-rotation
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

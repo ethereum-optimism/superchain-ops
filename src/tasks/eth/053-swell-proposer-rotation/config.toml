@@ -4,6 +4,11 @@ l2chains = [
 
 templateName = "SetDisputeGameImpl"
 
+# Swell (and Arena-Z) were removed from the superchain-registry as sunsetting chains
+# (superchain-registry #1247 "Remove Arena-Z and Swell"). The pinned registry no longer
+# contains chain 1923, so addresses are supplied via this fallback file.
+fallbackAddressesJsonPath = "src/tasks/eth/053-swell-proposer-rotation/addresses.json"
+
 [[gameImplConfig]]
 chainId = 1923
 fdgBond = 0
