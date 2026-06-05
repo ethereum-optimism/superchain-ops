@@ -447,6 +447,16 @@ contract MultisigTaskUnitTest is Test {
         );
     }
 
+    function testCheckStateDiffDoesNotTreatOtherRegisteredSlotZeroWritesAsKnownPackedSlot() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("TargetContract");
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), bytes32(type(uint256).max))
+        );
+    }
+
     // Helper to create AccountAccess struct
     function createAccess(VmSafe.AccountAccessKind kind, address account, address accessor, uint64 depth)
         internal

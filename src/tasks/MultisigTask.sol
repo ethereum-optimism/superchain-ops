@@ -527,12 +527,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         if (slot == PACKED_SLOT_ZERO) {
             // AnchorStateRegistry.superchainConfig shares slot 0 with Initializable flags.
-            if (_hasRegistryIdentifier(account, "AnchorStateRegistryProxy")) {
+            if (_isRegistryAddress(account, "AnchorStateRegistryProxy")) {
                 return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_TWO));
             }
         } else if (slot == OPTIMISM_PORTAL_SUPERCHAIN_CONFIG_SLOT) {
             // OptimismPortal2/Interop.superchainConfig shares slot 53 with a one-byte spacer.
-            if (_hasRegistryIdentifier(account, "OptimismPortalProxy")) {
+            if (_isRegistryAddress(account, "OptimismPortalProxy")) {
                 return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_ONE));
             }
         }
@@ -540,13 +540,21 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return (false, address(0));
     }
 
-    function _hasRegistryIdentifier(address account, string memory identifier) internal view returns (bool) {
+    function _isRegistryAddress(address account, string memory identifier) internal view returns (bool) {
         SuperchainAddressRegistry registry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
-        try registry.get(account) returns (SuperchainAddressRegistry.AddressInfo memory info) {
-            return keccak256(bytes(info.identifier)) == keccak256(bytes(identifier));
+        // Slot 0 is common, so do not reverse-lookup every slot-zero writer. Match only the
+        // configured L2-chain registry addresses that are known to pack address fields.
+        try registry.getChains() returns (SuperchainAddressRegistry.ChainInfo[] memory chains) {
+            for (uint256 i; i < chains.length; i++) {
+                try registry.getAddress(identifier, chains[i].chainId) returns (address expected) {
+                    if (account == expected) return true;
+                } catch {}
+            }
         } catch {
             return false;
         }
+
+        return false;
     }
 
     /// @notice Extracts a 20-byte address that begins at `offset` bytes from the low end of the slot.
