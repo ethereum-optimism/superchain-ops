@@ -1,6 +1,6 @@
 # 091-alpha-set-dispute-game-impl-permissionless
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x27cd6816f28f3bfe224b9d5ddb818012d4282ff767859fb1d0b5d179388aca95)
 
 ## Objective
 
@@ -45,5 +45,6 @@ to early-return for the FDG path (see
 ```bash
 cd src/tasks/sep/091-alpha-set-dispute-game-impl-permissionless
 just simulate-stack sep 091-alpha-set-dispute-game-impl-permissionless
-SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
 ```

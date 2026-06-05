@@ -1,6 +1,6 @@
 # 094-beta-0-set-respected-game-type-permissioned
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x4d3d1909727f8a15c741929e5a3afacd11259d8f2e4d3e828e815cbd9040d5d6)
 
 ## Objective
 
@@ -25,4 +25,6 @@ Safe, same as betanet task 088).
 
 ```bash
 cd src && just simulate-stack sep 094-beta-0-set-respected-game-type-permissioned
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
 ```

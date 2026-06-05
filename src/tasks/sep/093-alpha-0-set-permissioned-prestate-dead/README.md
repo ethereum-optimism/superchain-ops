@@ -1,6 +1,6 @@
 # 093-alpha-0-set-permissioned-prestate-dead
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x86e939fbc1d8c9207f18a189d13143b5f482030732d90fd2030f82b473151a3a)
 
 ## Objective
 
@@ -22,4 +22,6 @@ zero passthrough).
 
 ```bash
 cd src && just simulate-stack sep 093-alpha-0-set-permissioned-prestate-dead
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
 ```

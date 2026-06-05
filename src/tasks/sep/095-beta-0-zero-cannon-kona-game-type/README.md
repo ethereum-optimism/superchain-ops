@@ -1,6 +1,6 @@
 # 095-beta-0-zero-cannon-kona-game-type
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa82c218674e134bc8323a55a549c65e47f4c3eea2d99afd630bd58da4b6ecdc6)
 
 ## Objective
 
@@ -22,4 +22,6 @@ End state for beta-0: `gameImpls(0)=0x0`, `gameImpls(1)=0xe1dF…/0xdead`, `game
 
 ```bash
 cd src && just simulate-stack sep 095-beta-0-zero-cannon-kona-game-type
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
 ```

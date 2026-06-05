@@ -1,6 +1,6 @@
 # 092-alpha-set-respected-game-type-permissionless
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa6a4af43128d7ba6bf99a7181090d7ec9c27ef78f1b85bd5a8c5779896abe99b)
 
 ## Objective
 
@@ -27,5 +27,6 @@ This was verified on-chain: `SystemConfig.guardian() == SuperchainConfig.guardia
 ```bash
 cd src/tasks/sep/092-alpha-set-respected-game-type-permissionless
 just simulate-stack sep 092-alpha-set-respected-game-type-permissionless
-SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
 ```

@@ -1,6 +1,6 @@
 # 096-beta-1-kona-prestate-update
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xfb446a9dc8bfcc6c72138edf91615679318d2ede9d2b6d2285463bfd76d5dc32)
 
 ## Objective
 
@@ -33,5 +33,6 @@ its final prestate `0x03aabfc1…dac94` is set at wire time in task
 ```bash
 cd src/tasks/sep/096-beta-1-kona-prestate-update
 just simulate-stack sep 096-beta-1-kona-prestate-update
-SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
 ```
