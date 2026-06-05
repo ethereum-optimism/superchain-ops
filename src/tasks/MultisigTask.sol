@@ -7,7 +7,6 @@ import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
-import {stdToml} from "forge-std/StdToml.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
@@ -30,7 +29,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using AccountAccessParser for VmSafe.AccountAccess[];
     using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
-    using stdToml for string;
 
     /// @notice Maximum gas limit for transactions, 15M gas is ~90% of the limit
     uint256 internal constant MAX_GAS_LIMIT = 15_000_000;
@@ -49,13 +47,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice struct to store the addresses that are expected to have balance changes
     EnumerableSet.AddressSet internal _allowedBalanceChanges;
-
-    /// @notice (account => slot => allowed) storage slots exempted from the
-    /// `isLikelyAddressThatShouldHaveCode` check. Used for packed slots where the
-    /// low 160 bits are not an independent address (e.g. SystemConfig slot 0x6c
-    /// packs `superchainConfig` with `minBaseFee`). Populated from the task's
-    /// `[storageCodeExceptions]` config section.
-    mapping(address => mapping(bytes32 => bool)) internal _storageCodeExceptions;
 
     /// @notice Snapshot of the chain state before the tasks transaction is executed.
     uint256 private _preExecutionSnapshot;
@@ -478,23 +469,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
-                // Skip the code check for slots explicitly whitelisted via the task's
-                // `[storageCodeExceptions]` config (e.g. packed slots whose low 160 bits
-                // are not an independent address).
-                if (!_storageCodeExceptions[account][storageAccess.slot]) {
-                    if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
-                        // Log account, slot, and value if there is no code.
-                        // forgefmt: disable-start
-                        string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
-                        // forgefmt: disable-end
-                        require(address(uint160(value)).code.length != 0, err);
-                    } else {
-                        // Log account, slot, and value if there is code.
-                        // forgefmt: disable-start
-                        string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
-                        // forgefmt: disable-end
-                        require(address(uint160(value)).code.length == 0, err);
-                    }
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
+                    // Log account, slot, and value if there is no code.
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
+                    require(address(uint160(value)).code.length != 0, err);
+                } else {
+                    // Log account, slot, and value if there is code.
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
+                    require(address(uint160(value)).code.length == 0, err);
                 }
                 require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
@@ -805,7 +791,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (uint256[] memory allOriginalNonces_)
     {
         _setStateOverridesFromConfig(_taskConfigFilePath); // Sets global '_stateOverrides' variable.
-        _setStorageCodeExceptionsFromConfig(_taskConfigFilePath); // Sets '_storageCodeExceptions' mapping.
         allOriginalNonces_ = new uint256[](_allSafes.length);
         for (uint256 i = 0; i < _allSafes.length; i++) {
             allOriginalNonces_[i] = _getNonceOrOverride(_allSafes[i], _taskConfigFilePath);
@@ -817,25 +802,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
         _applyStateOverrides(); // Applies '_stateOverrides' to the current state.
-    }
-
-    /// @notice Read storage code exceptions from a TOML config file.
-    /// Format (slots are exempted from the `isLikelyAddressThatShouldHaveCode` check):
-    ///   [storageCodeExceptions]
-    ///   "0xSystemConfigAddr" = ["0x...006c"]
-    function _setStorageCodeExceptionsFromConfig(string memory _taskConfigFilePath) private {
-        string memory toml = vm.readFile(_taskConfigFilePath);
-        string memory exceptionsKey = ".storageCodeExceptions";
-        if (!toml.keyExists(exceptionsKey)) return;
-
-        string[] memory accountStrings = vm.parseTomlKeys(toml, exceptionsKey);
-        for (uint256 i = 0; i < accountStrings.length; i++) {
-            address account = vm.parseAddress(accountStrings[i]);
-            bytes32[] memory slots = toml.readBytes32Array(string.concat(exceptionsKey, ".", accountStrings[i]));
-            for (uint256 j = 0; j < slots.length; j++) {
-                _storageCodeExceptions[account][slots[j]] = true;
-            }
-        }
     }
 
     /// ==================================================
