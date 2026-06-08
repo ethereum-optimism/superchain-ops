@@ -1,0 +1,62 @@
+# U19 upgrade for Unichain Mainnet.
+
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 130
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# TBD: Replace with standard kona absolute prestate from standard-prestates.toml.
+cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# OVERRIDES-L1PAOMULTISIG: Unichain uses a non-standard L1PAO.
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,PLDG-10"
+# Matches the current on-chain CANNON_KONA (type 8) initBonds on Unichain DGF.
+initBond = 80000000000000000
+# Unichain is permissionless today (on-chain respectedGameType = 0); U19
+# rotates AnchorStateRegistry's respectedGameType to CANNON_KONA (8).
+startingRespectedGameType = 8
+
+[addresses]
+# v7.1.17 OPCM on Mainnet.
+OPCM = "0x9ce712ff84e02659846dc6450bb9b7642fe8be5d"
+
+[stateOverrides]
+# Unichain 3/3 ProxyAdminOwner — independent of the bundled OP-governed
+# upgrade in 053-U19-op-ink-mmz-soneium.
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9}
+]
+# Unichain Operations Safe.
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 17}
+]
+# Foundation Upgrade Safe — base nonce 57 + 1 (the bundled task 053 consumes
+# one FUS nonce). Verify before signing.
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+]
+# Security Council — base nonce 58 + 1.
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
+]
+# Mock SuperchainConfig as already upgraded to v7.1.17. In real execution,
+# task 053-U19-op-ink-mmz-soneium runs first and upgrades the shared
+# SuperchainConfig (Unichain's L1PAO cannot call upgradeSuperchain itself
+# because the shared SuperchainConfig is owned by the Mainnet L1PAO).
+0x95703e0982140D16f8ebA6d158FccEde42f04a4C = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x000000000000000000000000E4F9779ab53070a55db24dFAeFf9AF147c6ED550"}
+]
+
+[storageCodeExceptions]
+# SystemConfig slot 0x6c packs superchainConfig (an address with code, low 160 bits)
+# with minBaseFee (upper bits). Once minBaseFee is non-zero the slot value exceeds
+# type(uint160).max, so isLikelyAddressThatShouldHaveCode reinterprets the low 160 bits
+# as an address that must have NO code and reverts on the real SuperchainConfig. Exempt
+# this one slot from the check; every other slot on the account is still validated.
+# Unichain Mainnet SystemConfigProxy has minBaseFee = 500000 on chain (slot 0x6c value
+# = 0x00000000000000000007a12095703e0982140d16f8eba6d158fccede42f04a4c).
+"0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
