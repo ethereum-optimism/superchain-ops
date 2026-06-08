@@ -353,15 +353,16 @@ contract MultisigTaskUnitTest is Test {
         MockMultisigTask harness = _packedSlotHarness();
 
         _assertPackedAddressExtraction(harness, "AnchorStateRegistryProxy", bytes32(uint256(0)), 2);
-        _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(53)), 1);
+        _assertPackedAddressExtraction(harness, "EthLockboxProxy", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(63)), 0);
+        _assertPackedAddressExtraction(harness, "SuperchainConfig", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "SystemConfigProxy", bytes32(uint256(108)), 0);
     }
 
     function testPackedStorageAddressExtractionIgnoresFilteredSlots() public {
         MockMultisigTask harness = _packedSlotHarness();
 
-        _assertNotPackedAddressSlot(harness, "OptimismPortalProxy", bytes32(uint256(63)));
-        _assertNotPackedAddressSlot(harness, "SuperchainConfig", bytes32(uint256(0)));
-        _assertNotPackedAddressSlot(harness, "SystemConfigProxy", bytes32(uint256(108)));
+        _assertNotPackedAddressSlot(harness, "OptimismPortalProxy", bytes32(uint256(53)));
         _assertNotPackedAddressSlot(harness, "L1CrossDomainMessengerProxy", bytes32(uint256(0)));
     }
 
@@ -373,6 +374,17 @@ contract MultisigTaskUnitTest is Test {
         harness.wrapperAddAllowedStorageAccess(address(storageAccount));
         harness.wrapperCheckStateDiff(
             _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(guardian, 2))
+        );
+    }
+
+    function testCheckStateDiffValidatesPackedAddressAtOffsetZero() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("SystemConfigProxy");
+        address superchainConfig = address(new MockTarget());
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(108)), _packAddress(superchainConfig, 0))
         );
     }
 
