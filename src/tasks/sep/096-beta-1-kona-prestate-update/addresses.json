@@ -1,0 +1,26 @@
+{
+  "_comment": "karst-u19-beta-1 (chainId 420110024) addresses copied from https://github.com/ethereum-optimism/devnets/blob/main/dev/karst-u19-beta/karst-u19-beta-1/chain.yaml (added in PR ethereum-optimism/devnets#350) — used as fallback because the betanet is not in the public superchain-registry. Roles (ProxyAdminOwner, Guardian, Challenger, Proposer, SystemConfigOwner, UnsafeBlockSigner, BatchSubmitter) come from dev/karst-u19-beta/op-deployer/intent.toml.",
+  "420110024": {
+    "ProxyAdmin": "0x0Bd59d90Fca10b7E76b26C4100436C8EBBaEa62a",
+    "ProxyAdminOwner": "0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9",
+    "SuperchainConfig": "0xFb09A25aA40043a484f736AA1E000890132BAEA1",
+    "ProtocolVersions": "0xFC625c788258BEF34Ba1D803eB60d6488B0E90Db",
+    "SystemConfigProxy": "0xD57047Fa548855501f1a2154F0e39a0eef71eC8A",
+    "OptimismPortalProxy": "0x0Ce1e848E8F8eAac68b082c278ef79775a244A3e",
+    "L1ERC721BridgeProxy": "0xDcF903cC94E3942CFc40e4cd3f06dc6139106AE9",
+    "OptimismMintableERC20FactoryProxy": "0xc688a69F3975d3a1dA3E2a047C524EEF3E91243E",
+    "L1StandardBridgeProxy": "0x5843b90Cb2FFB6Dd738be385724BdBA783009631",
+    "L1CrossDomainMessengerProxy": "0x9aC22F918981a27e1cdEd7306daf129E56a6c4cC",
+    "EthLockboxProxy": "0x754409324Edcaef297bca2F136bEA835943AEB6c",
+    "DisputeGameFactoryProxy": "0x86E719dB26f3684C529D18B773939BC0Fc0fC94d",
+    "AnchorStateRegistryProxy": "0x07f087e742134009E6241e19b1ee7FC339D4634D",
+    "PermissionedWETH": "0xA6A258Ff9290b22C11007F9A9c2dD417e83cd0d3",
+    "AddressManager": "0x8976c25B0bfAa3d46CF26690a3cA3194b4598820",
+    "Challenger": "0x3394222cbec6b5eac1b9db7733798f766754ce9e",
+    "Proposer": "0x8e95f607121c6422d32a6d35aef0adc8d0813a21",
+    "Guardian": "0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9",
+    "SystemConfigOwner": "0x3e869af81b01b8ea651e6a0b4b5fb45428146069",
+    "UnsafeBlockSigner": "0x4e35b680ecfe735b5e6ff8ee0f2c9fdd42f17e74",
+    "BatchSubmitter": "0xd4e37348d29a4b1011253b26ee35e83d458691ac"
+  }
+}

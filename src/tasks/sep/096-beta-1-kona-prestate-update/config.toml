@@ -1,0 +1,58 @@
+# Kona absolute-prestate update for karst-u19-beta-1 (chainId 420110024) — the final step of this
+# PR. karst-u19-beta-1 is already live on U19 (op-contracts/v7.1.17): permissionless, with
+# respectedGameType = 8 (CANNON_KONA) and gameImpls(8) = 0x2DDA…4AeC wired by the executed betanet
+# tasks 086-090. This task does NOT re-run any upgrade or flip; it only re-points the CANNON_KONA
+# (game type 8) slot at the new absolute prestate.
+#
+# Mechanism (mirrors the executed task 090): the CANNON_KONA game uses the creator (factory)
+# pattern — the impl is deployed once and the absolute prestate lives in the factory's gameArgs
+# (layout: prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)), NOT
+# as an immutable on the impl. SetDisputeGameArgs reads the live gameArgs(8), keeps every field
+# (impl, vm, anchorStateRegistry, delayedWETH, chainId, bond) and swaps only the 32-byte prestate,
+# then calls DisputeGameFactory.setImplementation(8, sameImpl, newGameArgs). Reusing the live impl
+# (0x2DDA…, FaultDisputeGame v2.4.2) preserves the game's contract version exactly.
+#
+# New kona prestate: 0x03550cad406d92b986a67047befd635b6dc90b14eae2b7733e8b60c05f429ec2
+#   Tag:        kona-client/v1.6.0-rc.1
+#   Source SHA: 1e4fe99977885a6efd517251e08afe1ef13c8334
+#   Variant:    cannon64-kona (game type 8 CANNON_KONA)
+#   Embedded:   karst-u19-beta chains, same build pipeline as task 090.
+# Supersedes the 0x0335abee576086a6d8628e809ed166af671c643e98d678d66dee27b8bb307a28 prestate
+# installed by the executed task 090; same pipeline, only the embedded karst activation time
+# differs. Confirm the exact karst_time and re-run the per-chain embedded-config check before
+# signing. The companion alphanet permissionless chain (karst-u19-alpha-1) gets its final prestate
+# 0x03aabfc1…dac94 at wire time in task 091 (it is introduced fresh in this PR, so no separate
+# bump is needed). After this PR fully executes: alpha-1 = 0x03aabfc1…, beta-1 = 0x03550cad….
+#
+# Source addresses:
+#   https://github.com/ethereum-optimism/devnets/tree/main/dev/karst-u19-beta
+#   (added in PR ethereum-optimism/devnets#350)
+
+templateName = "SetDisputeGameArgs"
+fallbackAddressesJsonPath = "src/tasks/sep/096-beta-1-kona-prestate-update/addresses.json"
+
+l2chains = [
+    {name = "karst-u19-beta-1", chainId = 420110024}
+]
+
+# karst-u19-beta-1 — CANNON_KONA (8): bump prestate; pin the permissionless init bond at 0.08 ETH.
+# Every other gameArgs field (impl, vm, anchorStateRegistry, delayedWETH, chainId) is read from the
+# live slot and kept unchanged. The live bond is already 0.08 ETH so `setInitBond` is a no-op here
+# (SetDisputeGameArgs only emits it when the value differs); pinning it makes the 0.08 ETH explicit
+# and lets `_validate` assert it. Permissionless games MUST carry a non-zero bond (anyone can open
+# one); the permissioned game type 1 keeps its own 0.08 ETH bond, set at deploy/V700 time and left
+# untouched by this PR.
+[[gameConfig]]
+chainId = 420110024
+gameType = 8
+prestate = "0x03550cad406d92b986a67047befd635b6dc90b14eae2b7733e8b60c05f429ec2"
+bond = 80000000000000000  # 0.08 ETH (kona / permissionless)
+
+[stateOverrides]
+# Pin the Sepolia ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5). Last task in the single
+# sequential alpha/beta batch -> nonce 14 (live nonce 9 + the five preceding tasks 091-095 consume
+# 9/10/11/12/13). The PAO Safe is shared across alpha-0/alpha-1/beta-0/beta-1 — re-verify against
+# `cast call 0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 "nonce()" --rpc-url sepolia` before signing.
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 14}
+]
