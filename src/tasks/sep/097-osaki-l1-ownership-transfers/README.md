@@ -40,6 +40,4 @@ Signing commands for each safe:
 ```bash
 cd src/tasks/sep/097-osaki-l1-ownership-transfers
 just --dotenv-path $(pwd)/.env sign <foundation|council>
-USE_KEYSTORE=1 SIGNATURES=0x just approve <foundation|council>
-USE_KEYSTORE=1 just execute
 ```
