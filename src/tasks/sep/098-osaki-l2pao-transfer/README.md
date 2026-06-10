@@ -1,6 +1,6 @@
 # 098-osaki-l2pao-transfer: Transfer L2 ProxyAdmin Owner for Osaki Sepolia
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 

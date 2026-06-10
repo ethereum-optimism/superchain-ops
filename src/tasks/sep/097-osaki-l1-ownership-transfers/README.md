@@ -1,6 +1,6 @@
 # 097-osaki-l1-ownership-transfers: Transfer L1 owners for Osaki Sepolia (ProxyAdmin + DisputeGameFactory)
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
