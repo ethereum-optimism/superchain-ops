@@ -1,6 +1,6 @@
 # 098-osaki-l2pao-transfer: Transfer L2 ProxyAdmin Owner for Osaki Sepolia
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x871edc6bf21c381ba84b848d82c539ccdb7760852cc68b73c53b68b1801169f7)
 
 ## Objective
 
