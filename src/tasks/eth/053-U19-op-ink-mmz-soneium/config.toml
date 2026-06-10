@@ -11,10 +11,9 @@
 # chains that are permissioned today stay permissioned):
 #   - Permissionless (rotate to CANNON_KONA = 8): OP, Ink.
 #     These chains currently have `respectedGameType == CANNON (0)` on chain
-#     and `gameImpls[8]` already populated. `cannonKonaPrestate` will carry
-#     the standard kona-client cannon64-kona prestate (currently a
-#     `0xdead...` placeholder; replace once standard-prestates.toml is
-#     published). `cannonPrestate` is a `0xdead...` placeholder
+#     and `gameImpls[8]` already populated. `cannonKonaPrestate` carries the
+#     reproducibly-built kona-client v1.6.0-rc.2 cannon64-kona absolute
+#     prestate. `cannonPrestate` is a `0xdead...` placeholder
 #     (PERMISSIONED_CANNON acts only as a Guardian fallback, and its games
 #     are not expected to run).
 #   - Permissioned (keep respectedGameType = PERMISSIONED_CANNON = 1):
@@ -47,9 +46,12 @@ chainId = 10
 # CANNON (game type 0) is deprecated and disabled in U19.
 # Use an obviously-invalid prestate so it cannot be used.
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# TBD: Replace with the standard kona absolute prestate from
-# superchain-registry/validation/standard/standard-prestates.toml once published.
-cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# Standard kona-client v1.6.0-rc.2 cannon64-kona absolute prestate. Built
+# reproducibly from kona-client/v1.6.0-rc.2 (commit
+# d7cea91bc2f555a76b7720bf9c32f46c0b856119) via
+# `just build-kona-reproducible-prestate-variant kona-client prestate-artifacts-cannon`.
+# Pending PR to superchain-registry/validation/standard/standard-prestates.toml.
+cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
 # PLDG-10: V700 OPCM zeroes the CANNON slot during upgrade — the standard
 # validator's assertValidPermissionlessDisputeGame still checks CANNON, so
 # PLDG-10 is the unavoidable side-effect of U19's deprecation of CANNON.
@@ -65,8 +67,7 @@ startingRespectedGameType = 8
 [[opcmUpgrades]]
 chainId = 57073
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# TBD: Replace with the standard kona absolute prestate from standard-prestates.toml.
-cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "PLDG-10"
 initBond = 80000000000000000

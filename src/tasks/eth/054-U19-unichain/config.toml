@@ -9,8 +9,12 @@ templateName = "OPCMUpgradeV700"
 [[opcmUpgrades]]
 chainId = 130
 cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
-# TBD: Replace with standard kona absolute prestate from standard-prestates.toml.
-cannonKonaPrestate = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"
+# Standard kona-client v1.6.0-rc.2 cannon64-kona absolute prestate. Built
+# reproducibly from kona-client/v1.6.0-rc.2 (commit
+# d7cea91bc2f555a76b7720bf9c32f46c0b856119) via
+# `just build-kona-reproducible-prestate-variant kona-client prestate-artifacts-cannon`.
+# Pending PR to superchain-registry/validation/standard/standard-prestates.toml.
+cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
 # OVERRIDES-L1PAOMULTISIG: Unichain uses a non-standard L1PAO.
 # PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,PLDG-10"
