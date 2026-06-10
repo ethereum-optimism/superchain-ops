@@ -1,0 +1,26 @@
+{
+  "_comment": "karst-u19-alpha-1 (chainId 420100011) addresses copied from https://github.com/ethereum-optimism/devnets/blob/main/dev/karst-u19-alpha/karst-u19-alpha-1/chain.yaml — used as fallback because the alphanet is not in the public superchain-registry. Roles (ProxyAdminOwner, Guardian, Challenger, Proposer, SystemConfigOwner, UnsafeBlockSigner, BatchSubmitter) come from dev/karst-u19-alpha/op-deployer/intent.toml (chain id 0x190a37ab) and were cross-checked on-chain (ProxyAdmin.owner / SystemConfig.guardian == 0x8E85...dafd9). PermissionedWETH == DelayedWethPermissionlessGameProxy (alpha uses a single shared DelayedWETH for both game types).",
+  "420100011": {
+    "ProxyAdmin": "0x970829660CeC88b7a418C720a85009Da645546e7",
+    "ProxyAdminOwner": "0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9",
+    "SuperchainConfig": "0xCE4324d70C743798C187fEdDdF48dF73168f1A78",
+    "ProtocolVersions": "0x731A22B0167FEB59f7f7797399e17C7c0Adc65DF",
+    "SystemConfigProxy": "0xDd5224b4499fc2c18B06e4e25bEF16e293D2f6B3",
+    "OptimismPortalProxy": "0x4Fb7EA70772b0dF4e5e976dC25AeDEeF7f268752",
+    "L1ERC721BridgeProxy": "0xdA95ae82a44C72928906884C035e1f3f6c49091B",
+    "OptimismMintableERC20FactoryProxy": "0xbB7627d4a777fD95e1E36250E958a153Ab6489a3",
+    "L1StandardBridgeProxy": "0x208213d1ceF73839491C7bA8E8492265cafa12eD",
+    "L1CrossDomainMessengerProxy": "0xf7cad92c6806E0b6a3C8EaBB756cFe75B389268a",
+    "EthLockboxProxy": "0x9FDC32cA1F994393e627FC4B9cBc4C027c2AF25D",
+    "DisputeGameFactoryProxy": "0x41e6a89FB02B3c01e5D78dF935B2f4CFc1C010Ed",
+    "AnchorStateRegistryProxy": "0xAA940Fd59fFD6f78bB2Df4Dc2954946ea8d655E2",
+    "PermissionedWETH": "0x24F5Fc46B809b70656F86D8F8CfE0Cb1cB9cb6Bc",
+    "AddressManager": "0x1a2FA01e81355cf54346CcaB3743231a006D8fDd",
+    "Challenger": "0x7c96654edfed3cf6a201c20a6855befadfc05021",
+    "Proposer": "0x40c9ec121587cd54fd4a84c0c178be617d7b63c9",
+    "Guardian": "0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9",
+    "SystemConfigOwner": "0x2408c81b0afcffed05ffb12f01c0d32edc9d9ba2",
+    "UnsafeBlockSigner": "0x0229d7b3fd680c5b9b0a9ceb1176fdf3a15c69dd",
+    "BatchSubmitter": "0x9374cee1d658133345a9ee666678ddd766d76719"
+  }
+}

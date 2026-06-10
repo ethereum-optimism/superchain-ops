@@ -141,11 +141,17 @@ contract SetDisputeGameImpl is L2TaskBase {
         KonaGameImplConfig storage k = konaCfg[chainId];
 
         // Disable path: impl == 0 means "zero the CANNON_KONA slot" (e.g. correcting a
-        // permissioned chain that must NOT expose game type 8). gameArgs must be empty.
+        // permissioned chain that must NOT expose game type 8). gameArgs and bond must
+        // both be zero — the bond is meaningless once the slot is disabled, and leaving
+        // a stale non-zero initBonds(8) is dead state that diverges from expected.
         if (k.impl == address(0)) {
             require(k.gameArgs.length == 0, "KONA disable: gameArgs must be empty");
+            require(k.bond == 0, "KONA disable: bond must be zero");
             if (address(factory.gameImpls(CANNON_KONA)) != address(0) || factory.gameArgs(CANNON_KONA).length != 0) {
                 factory.setImplementation(CANNON_KONA, address(0), "");
+            }
+            if (factory.initBonds(CANNON_KONA) != 0) {
+                factory.setInitBond(CANNON_KONA, 0);
             }
             return;
         }
@@ -209,6 +215,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         require(address(factory.gameImpls(CANNON_KONA)) == k.impl, "KONA implementation mismatch");
         if (k.impl == address(0)) {
             require(factory.gameArgs(CANNON_KONA).length == 0, "KONA gameArgs not cleared");
+            require(factory.initBonds(CANNON_KONA) == 0, "KONA initBond not cleared");
             return;
         }
         require(keccak256(factory.gameArgs(CANNON_KONA)) == keccak256(k.gameArgs), "KONA game args mismatch");

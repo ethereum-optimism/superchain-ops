@@ -1,0 +1,80 @@
+# Make karst-u19-alpha-1 permissionless under U19 by wiring CANNON_KONA (game type 8) into its
+# DisputeGameFactory, reusing the already-deployed FaultDisputeGame blueprint impl
+# (0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC). The kona prestate lives in gameArgs (the impl
+# carries no prestate). This is the alpha analogue of betanet beta-1's permissionless end-state
+# (gameImpls(8) == 0x2DDA + kona gameArgs).
+#
+# Per the U19 clarification:
+#   - permissionless chain: respectedGameType = 8 (set in task 092), CANNON_KONA wired here.
+#   - game type 0 (op-program CANNON) MUST stay 0x0 (op-program retired) — left untouched.
+#   - game type 1 (PERMISSIONED_CANNON) kept as the emergency Guardian fallback, with its
+#     prestate set to the 0xdead placeholder (op-program deprecated; matches beta-1).
+#
+# On-chain state before this task (Sepolia):
+#   gameImpls(0) = 0x0                                   -> stays 0x0 (passthrough)
+#   gameImpls(1) = 0xe1dF...b87e, prestate 0x0385...     -> prestate rewritten to 0xdead
+#   gameImpls(8) = 0x0                                   -> wired to 0x2DDA + kona prestate
+#   respectedGameType = 1                                -> set to 8 in task 092
+#
+# kona prestate 0x03aabfc194f3a1181bf58e5a59ce4287c3153ea283728297e2f253ee423dac94:
+#   reproducible kona-client/v1.6.0-rc.1 build (monorepo @ 1e4fe99977885a6efd517251e08afe1ef13c8334,
+#   the same SHA betanet 089 used) with KONA_CUSTOM_CONFIGS embedding karst-u19-alpha-0 + -1 rollup
+#   configs; uploaded to gs://oplabs-network-data/proofs/kona/cannon/. Embedded-config check passed
+#   for both chains. Supersedes the earlier 0x03ff5c52...3b8d alpha prestate; same build pipeline,
+#   only the embedded karst activation time differs (mirrors the betanet 089 -> 090 bump). Confirm
+#   the exact karst_time and re-run the per-chain embedded-config check before signing.
+
+l2chains = [
+    {name = "karst-u19-alpha-1", chainId = 420100011}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/091-alpha-set-dispute-game-impl-permissionless/addresses.json"
+templateName = "SetDisputeGameImpl"
+
+[[gameImplConfig]]
+chainId = 420100011
+# --- FDG (op-program CANNON, game type 0) — MUST stay 0x0 (U19 retires op-program) --- #
+# Passthrough: fdgImpl = 0x0 and empty gameArgs match the current on-chain slot (also 0x0 /
+# empty), so SetDisputeGameImpl early-returns and never calls setImplementation for CANNON.
+fdgImpl = "0x0000000000000000000000000000000000000000"
+prevFdgImpl = "0x0000000000000000000000000000000000000000"
+fdgGameArgs = "0x"
+fdgBond = 0
+
+# --- PDG (PERMISSIONED_CANNON, game type 1) — fallback; rewrite prestate to 0xdead --- #
+# Impl unchanged (0xe1dF...), prevPdgImpl == pdgImpl so the blueprint l2ChainId() invariant is
+# skipped. Only the prestate changes (0x0385... -> 0xdead...), so setImplementation fires.
+# gameArgs (164 bytes): prestate(32) | vm(20) | asr(20) | delayedWETH(20) | chainId(32) |
+#                       proposer(20) | challenger(20) — same as current on-chain except prestate.
+pdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+prevPdgImpl = "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e"
+pdgGameArgs = "0xdead000000000000000000000000000000000000000000000000000000000000acc005dcd857b401e4732e6f7837135a22825cfaaa940fd59ffd6f78bb2df4dc2954946ea8d655e224f5fc46b809b70656f86d8f8cfe0cb1cb9cb6bc00000000000000000000000000000000000000000000000000000000190a37ab40c9ec121587cd54fd4a84c0c178be617d7b63c97c96654edfed3cf6a201c20a6855befadfc05021"
+pdgBond = 0  # SENTINEL = "skip" (not "set 0"): SetDisputeGameImpl only calls setInitBond when the
+             # value is non-zero, so this LEAVES the live permissioned (game 1) bond at its current
+             # 0.08 ETH. game 1 bonds are not changed by this PR on any chain.
+
+# --- CANNON_KONA (game type 8) — wired for the first time (the permissionless flip) --- #
+[[konaGameImplConfig]]
+chainId = 420100011
+# Reuse the already-deployed permissionless FaultDisputeGame blueprint impl (= chain.yaml
+# FaultDisputeGameImpl, == betanet on-chain gameImpls(8)). gameType is assigned by the DGF slot
+# at clone time, so the same impl serves CANNON_KONA.
+impl = "0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC"
+# gameArgs (124 bytes): prestate(32) | vm(20) | asr(20) | delayedWETH(20) | chainId(32)
+#   prestate    = 0x03aabfc1...dac94 (alpha kona prestate, custom build embedding both alpha chains)
+#   vm          = 0xacc005dc...25cfa (MIPS64 — same VM as op-program; kona compiles to cannon64)
+#   asr         = 0xaa940fd5...655e2 (AnchorStateRegistryProxy)
+#   delayedWETH = 0x24f5fc46...cb6bc (DelayedWethPermissionlessGameProxy — shared with permissioned)
+#   chainId     = 0x190a37ab         (= 420100011)
+gameArgs = "0x03aabfc194f3a1181bf58e5a59ce4287c3153ea283728297e2f253ee423dac94acc005dcd857b401e4732e6f7837135a22825cfaaa940fd59ffd6f78bb2df4dc2954946ea8d655e224f5fc46b809b70656f86d8f8cfe0cb1cb9cb6bc00000000000000000000000000000000000000000000000000000000190a37ab"
+bond = 80000000000000000  # 0.08 ETH (matches the permissioned initBond / betanet kona initBond)
+
+[stateOverrides]
+# Pin the Sepolia ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# Live on-chain nonce is 9 (verified via `cast call $SAFE "nonce()"`); this task is first in the
+# single sequential alpha/beta batch -> nonce 9.
+# Re-verify against `cast call $SAFE "nonce()"` before signing (this Safe is shared across
+# alpha-0/alpha-1/beta-0/beta-1, so the stack order sets the effective nonce).
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9}
+]
