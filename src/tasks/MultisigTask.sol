@@ -51,11 +51,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice Known fixed storage slots in upgradeable L1 contracts that pack an address with other fields.
     bytes32 private constant PACKED_SLOT_ZERO = bytes32(uint256(0));
+    bytes32 private constant OPTIMISM_PORTAL_SUPERCHAIN_CONFIG_SLOT = bytes32(uint256(53));
     bytes32 private constant OPTIMISM_PORTAL_ETH_LOCKBOX_SLOT = bytes32(uint256(63));
     bytes32 private constant SYSTEM_CONFIG_SUPERCHAIN_CONFIG_SLOT = bytes32(uint256(108));
 
     /// @notice Byte offsets where the address starts within known packed storage slots.
     uint256 private constant PACKED_ADDRESS_OFFSET_ZERO = 0;
+    uint256 private constant PACKED_ADDRESS_OFFSET_ONE = 1;
     uint256 private constant PACKED_ADDRESS_OFFSET_TWO = 2;
 
     /// @notice Snapshot of the chain state before the tasks transaction is executed.
@@ -538,6 +540,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             if (_isRegistryAddress(account, "SuperchainConfig")) {
                 return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_TWO));
             }
+        } else if (slot == OPTIMISM_PORTAL_SUPERCHAIN_CONFIG_SLOT) {
+            // OptimismPortal2.superchainConfig shares slot 53 with a spacer byte.
+            if (_isRegistryAddress(account, "OptimismPortalProxy")) {
+                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_ONE));
+            }
         } else if (slot == OPTIMISM_PORTAL_ETH_LOCKBOX_SLOT) {
             // OptimismPortal2.ethLockbox shares slot 63 with a spacer byte.
             if (_isRegistryAddress(account, "OptimismPortalProxy")) {
@@ -555,6 +562,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     function _isRegistryAddress(address account, string memory identifier) internal view returns (bool) {
         SuperchainAddressRegistry registry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
+        // Config-defined and hardcoded addresses use the registry sentinel chain and take precedence
+        // over per-chain discovery in L2TaskBase.
+        try registry.get(identifier) returns (address expected) {
+            if (account == expected) return true;
+        } catch {
+            // The identifier may only exist as a per-chain address below.
+        }
+
         // Slot 0 is common, so do not reverse-lookup every slot-zero writer. Match only the
         // configured L2-chain registry addresses that are known to pack address fields.
         try registry.getChains() returns (SuperchainAddressRegistry.ChainInfo[] memory chains) {

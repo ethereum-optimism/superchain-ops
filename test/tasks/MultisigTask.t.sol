@@ -20,6 +20,7 @@ contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
 
     uint256 internal constant INITIALIZABLE_FLAGS = 0x0101;
+    uint256 internal constant SPACER_BYTE = 0x01;
     uint256 internal constant ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG = uint256(1) << 160;
 
     SuperchainAddressRegistry public addrRegistry;
@@ -357,6 +358,7 @@ contract MultisigTaskUnitTest is Test {
 
         _assertPackedAddressExtraction(harness, "AnchorStateRegistryProxy", bytes32(uint256(0)), 2);
         _assertPackedAddressExtraction(harness, "EthLockboxProxy", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(53)), 1);
         _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(63)), 0);
         _assertPackedAddressExtraction(harness, "SuperchainConfig", bytes32(uint256(0)), 2);
         _assertPackedAddressExtraction(harness, "SystemConfigProxy", bytes32(uint256(108)), 0);
@@ -365,8 +367,21 @@ contract MultisigTaskUnitTest is Test {
     function testPackedStorageAddressExtractionIgnoresFilteredSlots() public {
         MockMultisigTask harness = _packedSlotHarness();
 
-        _assertNotPackedAddressSlot(harness, "OptimismPortalProxy", bytes32(uint256(53)));
+        _assertNotPackedAddressSlot(harness, "OptimismPortalProxy", bytes32(uint256(52)));
         _assertNotPackedAddressSlot(harness, "L1CrossDomainMessengerProxy", bytes32(uint256(0)));
+    }
+
+    function testPackedStorageAddressExtractionMatchesConfigAddressOverride() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerGlobalStorageAccount("SuperchainConfig");
+        address expected = address(uint160(0x1111111111111111111111111111111111111110));
+
+        (bool isPackedAddressSlot, address packedAddress) = harness.wrapperGetPackedStorageAddress(
+            address(storageAccount), bytes32(uint256(0)), uint256(_packAddress(expected, 2))
+        );
+
+        assertTrue(isPackedAddressSlot, "SuperchainConfig");
+        assertEq(packedAddress, expected, "SuperchainConfig");
     }
 
     function testPackedStorageAddressExtractionRevertsForOutOfBoundsOffset() public {
@@ -514,7 +529,7 @@ contract MultisigTaskUnitTest is Test {
         uint256 offset
     ) internal {
         MockTarget storageAccount = _registerStorageAccount(identifier);
-        address expected = address(new MockTarget());
+        address expected = address(uint160(0x1111111111111111111111111111111111111110));
 
         (bool isPackedAddressSlot, address packedAddress) = harness.wrapperGetPackedStorageAddress(
             address(storageAccount), slot, uint256(_packAddress(expected, offset))
@@ -539,6 +554,17 @@ contract MultisigTaskUnitTest is Test {
         string[] memory allowOverwrite = new string[](1);
         allowOverwrite[0] = identifier;
         addrRegistry.saveAddress(identifier, chains[0], address(storageAccount), allowOverwrite);
+    }
+
+    function _registerGlobalStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
+        storageAccount = new MockTarget();
+        string[] memory allowOverwrite = new string[](1);
+        allowOverwrite[0] = identifier;
+        SuperchainAddressRegistry.ChainInfo memory sentinelChain = SuperchainAddressRegistry.ChainInfo({
+            chainId: uint256(keccak256("SuperchainAddressRegistry")),
+            name: "SuperchainAddressRegistry"
+        });
+        addrRegistry.saveAddress(identifier, sentinelChain, address(storageAccount), allowOverwrite);
     }
 
     function _singleStorageWrite(address account, bytes32 slot, bytes32 newValue)
@@ -582,7 +608,8 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function _packAddress(address addr, uint256 offset) internal pure returns (bytes32) {
-        uint256 flags = offset == 0 ? ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG : INITIALIZABLE_FLAGS;
+        uint256 flags =
+            offset == 0 ? ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG : offset == 1 ? SPACER_BYTE : INITIALIZABLE_FLAGS;
         return bytes32((uint256(uint160(addr)) << (offset * 8)) | flags);
     }
 
