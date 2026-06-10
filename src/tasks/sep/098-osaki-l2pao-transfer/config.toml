@@ -1,0 +1,53 @@
+# Transfer L2 ProxyAdmin ownership of Osaki Sepolia (chainId 9111973) to the
+# L1-to-L2 alias of the new L1 owner Safe 0xFB0F8937A0d6999C67E8a01310eBf7fe1859205F.
+#
+# This is a deposit transaction sent through the L1 OptimismPortal, calling
+# `transferOwnership(alias(newOwner))` on the L2 ProxyAdmin predeploy
+# (0x4200000000000000000000000000000000000018). The current L2 ProxyAdmin owner
+# is 0x2FC3ffc903729a0f03966b917003800B145F67F3 — the alias of the *current*
+# standard Sepolia L1PAO Safe — so the deposit must be sent from that L1 Safe
+# for the L2 OwnershipTransferred event to be authorized.
+#
+# Stacked after task 097 (L1 ownership transfer). The `TransferL2PAOFromL1`
+# template asserts `ProxyAdmin.owner() == newOwnerToAlias` at build time, so
+# task 097 must run first; the stateOverride below makes that hold during local
+# simulation. The standalone Safe nonce override accounts for the +1 from 097.
+
+l2chains = [{name = "Osaki Sepolia", chainId = 9111973}]
+
+fallbackAddressesJsonPath = "src/tasks/sep/098-osaki-l2pao-transfer/addresses.json"
+
+templateName = "TransferL2PAOFromL1"
+
+# Unaliased new owner. The template applies AddressAliasHelper.applyL1ToL2Alias
+# and sends the aliased value to the L2 ProxyAdmin. Computed alias:
+# 0x0C208937a0D6999c67E8A01310ebF7fE18593170
+newOwnerToAlias = "0xFB0F8937A0d6999C67E8a01310eBf7fe1859205F"
+
+[stateOverrides]
+# The standard Sepolia L1PAO is a 2-of-2 nested Safe (FoundationUpgradeSafe +
+# SecurityCouncil). All three Safe nonces are pinned (slot 5) at one step
+# ahead of the on-chain values, accounting for the bump from task 097. Before
+# signing, re-verify the live nonces with `cast call <safe> "nonce()" --rpc-url sepolia`
+# and bump these + re-simulate if task 097 has not yet been signed.
+#
+# Standard Sepolia L1PAO Safe — 50 (today) + 1 (task 097) = 51.
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 51}
+]
+# FoundationUpgradeSafe — 70 (today) + 1 (task 097) = 71.
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 71}
+]
+# SecurityCouncil — 64 (today) + 1 (task 097) = 65.
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]
+
+# Pre-apply the L1 ownership transfer from task 097 so the template's
+# `proxyAdmin.owner() == newOwnerToAlias` check passes when simulating this
+# task in isolation. Slot 0 holds the ProxyAdmin owner (verified with
+# `cast storage 0x2f3369b81c2b6e1e80a98f7de44be8cfff314db0 0 --rpc-url sepolia`).
+0x2f3369b81c2b6e1e80a98f7de44be8cfff314db0 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x000000000000000000000000FB0F8937A0d6999C67E8a01310eBf7fe1859205F"}
+]

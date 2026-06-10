@@ -1,0 +1,19 @@
+{
+  "_comment": "Osaki Sepolia (chainId 9111973) addresses from op-deployer state. Same fallback set as task 097 — Osaki is not in the public superchain-registry. The new L1 ProxyAdmin owner used by TransferL2PAOFromL1 is 0xFB0F8937A0d6999C67E8a01310eBf7fe1859205F (the aliased version is applied on L2 by the template).",
+  "9111973": {
+    "ProxyAdmin": "0x2f3369b81c2b6e1e80a98f7de44be8cfff314db0",
+    "ProxyAdminOwner": "0x1eb2ffc903729a0f03966b917003800b145f56e2",
+    "SuperchainConfig": "0xc2be75506d5724086deb7245bd260cc9753911be",
+    "SystemConfigProxy": "0x5035147af2f452d4aada0f5e3e30a2de8118d43b",
+    "OptimismPortalProxy": "0x7218b76ad6c329e731aa3213c65fb05634691238",
+    "L1ERC721BridgeProxy": "0x1ed9c3e3cb33e33a4383aa692a85d91fe588c671",
+    "OptimismMintableERC20FactoryProxy": "0x79ed8807b3ee9f6d4b8c9a543eb513d41c8ac9f6",
+    "L1StandardBridgeProxy": "0xb10e0d936f957b0741bf5c4367e120c89644fbc9",
+    "L1CrossDomainMessengerProxy": "0xc52cba254f64378a7e05c66554b561ff712eaf47",
+    "DisputeGameFactoryProxy": "0xfa695fc017d374cfa2b1dcbd3e4617a9c3891dda",
+    "AnchorStateRegistryProxy": "0x04ac00bf7aed595bd56543a1b4c77439328e9e91",
+    "AddressManager": "0xa92aa0669fb19fa2e699564b8810d73ef7502fbe",
+    "Challenger": "0x2c78Dcf72886749c39545ebC3031c71331F26DB2",
+    "Proposer": "0x27B18309eF6582f8E8c41c414c938e2B4dF8efED"
+  }
+}
