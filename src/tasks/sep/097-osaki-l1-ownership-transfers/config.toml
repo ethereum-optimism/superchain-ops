@@ -1,0 +1,49 @@
+# Transfer L1 ownership of Osaki Sepolia (chainId 9111973) from the standard
+# Sepolia L1PAO Safe to the new owner Safe 0xFB0F8937A0d6999C67E8a01310eBf7fe1859205F.
+#
+# Osaki is a new devnet that is not in the public superchain-registry, so its
+# addresses are loaded via `fallbackAddressesJsonPath`. The chain shares OP
+# Sepolia's standard SuperchainConfig (0xC2Be75506d5724086DEB7245bd260Cc9753911Be),
+# which is what `TransferOwners._validateSuperchainConfig` enforces.
+#
+# This task moves ownership of:
+#   - ProxyAdmin           (transferOwnership)
+#   - DisputeGameFactory   (transferOwnership)
+# The chain's DelayedWETH is v1.5.0 (post-U16) and not ownable, so the template
+# skips it at build time.
+#
+# The L2 ProxyAdmin transfer is the follow-up task 098 — its `TransferL2PAOFromL1`
+# template requires this L1 transfer to be completed first.
+
+l2chains = [{name = "Osaki Sepolia", chainId = 9111973}]
+
+fallbackAddressesJsonPath = "src/tasks/sep/097-osaki-l1-ownership-transfers/addresses.json"
+
+templateName = "TransferOwners"
+
+# New L1 owner: 1-of-12 Gnosis Safe v1.4.1 on Sepolia (verified with
+# `cast call 0xFB0F...205F "getOwners()(address[])" --rpc-url sepolia`).
+newOwner = "0xFB0F8937A0d6999C67E8a01310eBf7fe1859205F"
+
+[stateOverrides]
+# The standard Sepolia L1PAO is a 2-of-2 nested Safe whose child signers are
+# the FoundationUpgradeSafe and the SecurityCouncil. All three Safe nonces are
+# pinned (slot 5) so the domain/message hashes below are reproducible.
+#
+# All three Safes are shared across many Sepolia chains, so before signing,
+# re-verify the live nonces with `cast call <safe> "nonce()" --rpc-url sepolia`
+# and bump the corresponding override + re-run the simulation if any have
+# advanced.
+#
+# Standard Sepolia L1PAO Safe — on-chain nonce 50 at task creation.
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
+# FoundationUpgradeSafe — on-chain nonce 70 at task creation.
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
+# SecurityCouncil — on-chain nonce 64 at task creation.
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
