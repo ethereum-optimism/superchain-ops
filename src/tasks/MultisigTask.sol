@@ -484,7 +484,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 // Most storage writes are checked as full 32-byte values. Some Bedrock L1 contracts
                 // pack an address with small fields in the same slot, which makes the full value too
                 // large for the address heuristic. For known registry-identified slots, extract the
-                // address bytes and run the same code/EOA validation below.
+                // address bytes and run the same code/EOA validation below. Adjacent bytes in these
+                // slots are known non-address fields like Initializable flags, spacers, or minBaseFee.
                 (bool isPackedAddressSlot, address packedAddress) =
                     _getPackedStorageAddress(account, storageAccess.slot, value);
                 uint256 valueToCheck = isPackedAddressSlot ? uint256(uint160(packedAddress)) : value;
@@ -560,7 +561,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             for (uint256 i; i < chains.length; i++) {
                 try registry.getAddress(identifier, chains[i].chainId) returns (address expected) {
                     if (account == expected) return true;
-                } catch {}
+                } catch {
+                    // Some identifiers are absent on older chains; absence means this account is not that identifier.
+                }
             }
         } catch {
             return false;
@@ -571,6 +574,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice Extracts a 20-byte address that begins at `offset` bytes from the low end of the slot.
     function _extractPackedAddress(uint256 value, uint256 offset) internal pure returns (address) {
+        require(offset <= 12, "MultisigTask: packed address offset out of bounds");
         return address(uint160(value >> (offset * 8)));
     }
 

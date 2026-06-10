@@ -19,6 +19,9 @@ import {HighGasMultisigTask} from "test/tasks/mock/HighGasMultisigTask.sol";
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
 
+    uint256 internal constant INITIALIZABLE_FLAGS = 0x0101;
+    uint256 internal constant ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG = uint256(1) << 160;
+
     SuperchainAddressRegistry public addrRegistry;
     MultisigTask public task;
     string constant TESTING_DIRECTORY = "multisig-task-testing";
@@ -366,6 +369,13 @@ contract MultisigTaskUnitTest is Test {
         _assertNotPackedAddressSlot(harness, "L1CrossDomainMessengerProxy", bytes32(uint256(0)));
     }
 
+    function testPackedStorageAddressExtractionRevertsForOutOfBoundsOffset() public {
+        MockMultisigTask harness = _packedSlotHarness();
+
+        vm.expectRevert("MultisigTask: packed address offset out of bounds");
+        harness.wrapperExtractPackedAddress(0, 13);
+    }
+
     function testCheckStateDiffValidatesPackedAddressAtNonZeroOffset() public {
         MockMultisigTask harness = _packedSlotHarness();
         MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
@@ -572,7 +582,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function _packAddress(address addr, uint256 offset) internal pure returns (bytes32) {
-        uint256 flags = offset == 0 ? uint256(1) << 160 : uint256(0x0101);
+        uint256 flags = offset == 0 ? ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG : INITIALIZABLE_FLAGS;
         return bytes32((uint256(uint160(addr)) << (offset * 8)) | flags);
     }
 

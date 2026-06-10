@@ -112,4 +112,8 @@ contract MockMultisigTask is L2TaskBase {
     {
         return _getPackedStorageAddress(account, slot, value);
     }
+
+    function wrapperExtractPackedAddress(uint256 value, uint256 offset) public pure returns (address) {
+        return _extractPackedAddress(value, offset);
+    }
 }
