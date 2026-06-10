@@ -13,12 +13,12 @@ First, validate the domain and message hashes. These values should match both th
 > ### Security Council (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x976dec273898092d1e486cf150c6fce76416eb73c582c82dc00126b423e89b42`
+> - Message Hash: `0x5a565aec4cc2b2e0c4b9ff24defb4ed1abdd50ead1dadfd155a2189d13c8afd1`
 >
 > ### Foundation Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x362fb58dc9035091c28d0761a3a67bd8cd616eda22d4b44b9e5907af3e382397`
+> - Message Hash: `0xcf86e4021f0281f866063e4257e1afb8df16a1359772fc6d61ef341e36996b04`
 
 ## Task Calldata
 

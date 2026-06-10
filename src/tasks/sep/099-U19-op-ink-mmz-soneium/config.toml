@@ -4,7 +4,7 @@
 # These six chains share the standard Sepolia L1PAO / Security Council /
 # Foundation Upgrade Safe, so they are bundled into a single OPCM upgrade
 # transaction (one nonce consumed per safe). Unichain uses a separate
-# ProxyAdminOwner and is handled in its own task (098-U19-unichain).
+# ProxyAdminOwner and is handled in its own task (100-U19-unichain).
 #
 # Post-upgrade respected game type split (per Adrian, Sepolia U19 thread):
 #   - Permissionless (rotate to CANNON_KONA = 8): OP, Ink, Soneium Minato.
@@ -129,16 +129,20 @@ OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
 [stateOverrides]
 # Single bundled transaction consumes one nonce per safe (the base nonces),
 # unlike the previous per-chain stack which incremented them sequentially.
-# Sepolia L1PAO (0x1Eb2fFc903729a0F03966B917003800b145F56E2)
+# Each value is bumped +2 vs the live on-chain nonces to make space for the
+# two Osaki Sepolia L1/L2 PAO transfer tasks (097-osaki-l1-ownership-transfers
+# and 098-osaki-l2pao-transfer in PR #1455) that land ahead of this one and
+# each consume one nonce on all three shared Safes.
+# Sepolia L1PAO (0x1Eb2fFc903729a0F03966B917003800b145F56E2): live 50 + 2 = 52.
 # Verify nonce before signing: cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" --rpc-url sepolia
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 52}
 ]
-# Sepolia Security Council (0xf64bc17485f0B4Ea5F06A96514182FC4cB561977)
+# Sepolia Security Council (0xf64bc17485f0B4Ea5F06A96514182FC4cB561977): live 64 + 2 = 66.
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
 ]
-# Sepolia Foundation Upgrade Safe (0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B)
+# Sepolia Foundation Upgrade Safe (0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B): live 70 + 2 = 72.
 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 72}
 ]
