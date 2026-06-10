@@ -136,6 +136,23 @@ the description:
    from first principles.
 4. Confirm `VALIDATION.md` is complete and the task status is set appropriately.
 
+## Agent tooling
+
+Several of the steps above are automated by skills from the **`op-eng-skills`**
+plugin — prefer them over doing the work by hand:
+
+- **`superchain-ops-task-review`** — review a task PR with Security-team rigor:
+  verifies inputs against authoritative sources, runs simulations, and drafts
+  review comments. Run it from within this repository.
+- **`superchain-ops-template-review`** — the equivalent review for new or changed
+  templates.
+- **`safe-tx-verify`** — verify a Safe multisig transaction before signing: parses
+  the Safe{Wallet} URL, decodes the calldata, computes the EIP-712 hashes, and
+  returns a Go/No-Go decision.
+- **`superchain-config`** — query Superchain chain configurations and contract
+  addresses from the canonical Superchain Registry (use it for the
+  address-verification step).
+
 ## Canonical workflow docs
 
 The `docs/` directory is the source of truth for detailed workflows:
