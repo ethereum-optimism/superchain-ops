@@ -45,7 +45,8 @@ cannonPrestate = "0xdead00000000000000000000000000000000000000000000000000000000
 # reproducibly from kona-client/v1.6.0-rc.2 (commit
 # d7cea91bc2f555a76b7720bf9c32f46c0b856119) via
 # `just build-kona-reproducible-prestate-variant kona-client prestate-artifacts-cannon`.
-# Pending PR to superchain-registry/validation/standard/standard-prestates.toml.
+# Published in superchain-registry/validation/standard/standard-prestates.toml
+# (prestates."1.6.0-rc.2", type "cannon64-kona").
 cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
 # PLDG-10: V700 OPCM zeroes the CANNON slot during upgrade — the standard
 # validator's assertValidPermissionlessDisputeGame still checks CANNON, so
@@ -132,20 +133,19 @@ OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
 [stateOverrides]
 # Single bundled transaction consumes one nonce per safe (the base nonces),
 # unlike the previous per-chain stack which incremented them sequentially.
-# Each value is bumped +2 vs the live on-chain nonces to make space for the
-# two Osaki Sepolia L1/L2 PAO transfer tasks (097-osaki-l1-ownership-transfers
-# and 098-osaki-l2pao-transfer in PR #1455) that land ahead of this one and
-# each consume one nonce on all three shared Safes.
-# Sepolia L1PAO (0x1Eb2fFc903729a0F03966B917003800b145F56E2): live 50 + 2 = 52.
+# The two Osaki Sepolia L1/L2 PAO transfer tasks (097-osaki-l1-ownership-transfers
+# and 098-osaki-l2pao-transfer, PR #1455) have already executed, each consuming one
+# nonce on all three shared Safes, so these overrides equal the current live nonces.
+# Sepolia L1PAO (0x1Eb2fFc903729a0F03966B917003800b145F56E2): live 52.
 # Verify nonce before signing: cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" --rpc-url sepolia
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 52}
 ]
-# Sepolia Security Council (0xf64bc17485f0B4Ea5F06A96514182FC4cB561977): live 64 + 2 = 66.
+# Sepolia Security Council (0xf64bc17485f0B4Ea5F06A96514182FC4cB561977): live 66.
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
 ]
-# Sepolia Foundation Upgrade Safe (0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B): live 70 + 2 = 72.
+# Sepolia Foundation Upgrade Safe (0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B): live 72.
 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 72}
 ]
