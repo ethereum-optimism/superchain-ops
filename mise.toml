@@ -11,15 +11,15 @@ fzf = "0.65.0"
 # Foundry dependencies
 # Foundry is a special case because it supplies multiple binaries at the same
 # GitHub release, so we need to use the aliasing trick to get mise to not error
-# The git ref here should be on the `stable` branch.
+# The release tag is prefixed with `v` by the tool alias below.
 # WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
 # The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
-forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
-cast = "v1.1.0"
-anvil = "v1.1.0"
+forge = "1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
+cast = "1.1.0"
+anvil = "1.1.0"
 
-[alias]
-forge = "ubi:foundry-rs/foundry[exe=forge]"
-cast = "ubi:foundry-rs/foundry[exe=cast]"
-anvil = "ubi:foundry-rs/foundry[exe=anvil]"
+[tool_alias]
+forge = "github:foundry-rs/foundry[bin=forge,version_prefix=v]"
+cast = "github:foundry-rs/foundry[bin=cast,version_prefix=v]"
+anvil = "github:foundry-rs/foundry[bin=anvil,version_prefix=v]"
 fzf = "ubi:junegunn/fzf"
