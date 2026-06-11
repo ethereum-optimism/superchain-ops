@@ -13,6 +13,8 @@ simulate-all-templates:
     root_dir=$(git rev-parse --show-toplevel)
     forge build
     simulation_count=0
+    node_total="${CIRCLE_NODE_TOTAL:-1}"
+    node_index="${CIRCLE_NODE_INDEX:-0}"
     # When we spawn too many concurrent processes, the simulation fails with 'solc exited with signal: 9 (SIGKILL)'.
     # The batch size should be low enough to not cause issues, but high enough to not make the simulation too slow.
     batch_size=7
@@ -21,7 +23,10 @@ simulate-all-templates:
     # Collect PIDs of each background simulation.
     declare -a pids=()
 
-    for task in "${root_dir}/test/tasks/example/"*/*; do
+    selected_tasks=$("${root_dir}/src/script/list-template-example-tasks.sh" "$root_dir")
+    echo "Template simulation shard $((node_index + 1))/$node_total"
+
+    while IFS= read -r task; do
         if [ -d "$task" ]; then
             echo "Task: $task"
             nested_safe_name_depth_1=""
@@ -53,24 +58,6 @@ simulate-all-templates:
             task_name=$(basename "$task")
             task_path="$root_dir/test/tasks/example/$network/$task_name"
 
-            # Skip tasks that exceed the 15M gas limit
-            # 023-u13-to-u16a: OPCMUpgradeV220toV410 performs 4 sequential upgrades (U13 through U16a)
-            # consuming ~21.7M gas, which exceeds the 15M safety limit for Fusaka EIP-7825 compatibility.
-            # This template is not actively used and can be skipped in CI.
-            if [ "$task_name" = "023-u13-to-u16a" ]; then
-                echo "Skipping $task_name (exceeds 15M gas limit)"
-                continue
-            fi
-
-            # OPCMMigrateV800 requires the target chain to already be upgraded to V800/Super Root.
-            # The raw example task simulation forks current chain state and cannot perform that
-            # prerequisite upgrade before invoking migrate. Coverage lives in SuperRootMigrateTest,
-            # which forks Sepolia, upgrades the chain, then runs migrate in the same forked state.
-            if [ "$task_name" = "036-opcm-migrate-v800" ]; then
-                echo "Skipping $task_name (requires pre-upgraded V800/Super Root chain state)"
-                continue
-            fi
-
             # Launch each simulation in background.
             "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))
@@ -90,7 +77,7 @@ simulate-all-templates:
                 echo "Batch completed. Starting next batch..."
             fi
         fi
-    done
+    done <<< "$selected_tasks"
 
     # Wait for any remaining simulations in the final batch
     if [ ${#pids[@]} -gt 0 ]; then
