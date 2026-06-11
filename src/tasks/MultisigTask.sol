@@ -560,6 +560,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return (false, address(0));
     }
 
+    /// @notice Returns whether `account` is the registry address for `identifier`.
+    /// @dev Checks the sentinel chain first via `registry.get(identifier)` (the config `[addresses]` and
+    /// hardcoded entries, which take precedence), then each L2 chain via `getChains()` + `getAddress()`.
+    /// Returns false when `addrRegistry` is a `SimpleAddressRegistry` (it has no `getChains()`), since those
+    /// tasks never write the packed slots this guards.
     function _isRegistryAddress(address account, string memory identifier) internal view returns (bool) {
         SuperchainAddressRegistry registry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
         // Config-defined and hardcoded addresses use the registry sentinel chain and take precedence

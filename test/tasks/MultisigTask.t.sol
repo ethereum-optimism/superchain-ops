@@ -19,6 +19,10 @@ import {HighGasMultisigTask} from "test/tasks/mock/HighGasMultisigTask.sol";
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
 
+    // Non-address bytes that the real Bedrock contracts pack next to the address in these slots, which
+    // `_packAddress` reproduces so extraction is tested against realistic junk. `0x0101` is OpenZeppelin
+    // `Initializable`'s `_initialized` (low byte) and `_initializing` (next byte); `0x01` is a one-byte
+    // spacer; `1 << 160` is the `_initialized` flag sitting just above an address held in the low 20 bytes.
     uint256 internal constant INITIALIZABLE_FLAGS = 0x0101;
     uint256 internal constant SPACER_BYTE = 0x01;
     uint256 internal constant ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG = uint256(1) << 160;
@@ -484,6 +488,11 @@ contract MultisigTaskUnitTest is Test {
         );
     }
 
+    /// @notice A registered contract that isn't one of the known packed-slot contracts must use the
+    /// full-word check, even when it writes slot 0. `type(uint256).max` proves which path was taken: on the
+    /// full-word path it exceeds `type(uint160).max`, so it isn't address-shaped and passes; if the slot were
+    /// wrongly treated as packed, the extracted low 160 bits would be `uint160.max` — address-shaped with no
+    /// code — and the check would revert. No revert therefore means the packed path was not taken.
     function testCheckStateDiffDoesNotTreatOtherRegisteredSlotZeroWritesAsKnownPackedSlot() public {
         MockMultisigTask harness = _packedSlotHarness();
         MockTarget storageAccount = _registerStorageAccount("TargetContract");
