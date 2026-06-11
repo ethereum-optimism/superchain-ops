@@ -481,35 +481,33 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
-                bool isNewContract = Utils.contains(newContracts, account);
 
                 // Most storage writes are checked as full 32-byte values. Some Bedrock L1 contracts
                 // pack an address with small fields in the same slot, which makes the full value too
                 // large for the address heuristic. For known registry-identified slots, extract the
                 // address bytes and run the same code/EOA validation below. Adjacent bytes in these
                 // slots are known non-address fields like Initializable flags, spacers, or minBaseFee.
-                (bool isPackedAddressSlot, address packedAddress) =
-                    _getPackedStorageAddress(account, storageAccess.slot, value);
-                uint256 valueToCheck = isPackedAddressSlot ? uint256(uint160(packedAddress)) : value;
+                (bool isPackedAddrSlot, address packedAddr) = _getPackedStorageAddr(account, storageAccess.slot, value);
+                value = isPackedAddrSlot ? uint256(uint160(packedAddr)) : value;
 
-                if (Utils.isLikelyAddressThatShouldHaveCode(valueToCheck, codeExceptions)) {
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
                     // Log account, slot, and value if there is no code.
                     // forgefmt: disable-start
-                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(valueToCheck)));
+                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
-                    require(address(uint160(valueToCheck)).code.length != 0, err);
+                    require(address(uint160(value)).code.length != 0, err);
                 } else {
                     // Log account, slot, and value if there is code.
                     // forgefmt: disable-start
-                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(valueToCheck)));
+                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
-                    require(address(uint160(valueToCheck)).code.length == 0, err);
+                    require(address(uint160(value)).code.length == 0, err);
                 }
                 require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
                 bool allowed;
                 for (uint256 k; k < allowedAccesses.length; k++) {
-                    allowed = allowed || (account == allowedAccesses[k]) || isNewContract;
+                    allowed = allowed || (account == allowedAccesses[k]) || Utils.contains(newContracts, account);
                 }
                 require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
@@ -517,13 +515,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Returns the address stored in a known fixed packed storage slot.
-    /// @dev Entries are hard-coded from contracts-bedrock storage layout snapshots. Matching requires
-    /// the account to resolve to the expected registry identifier so unrelated contracts cannot opt
-    /// into partial-slot address checking by writing the same slot number.
-    function _getPackedStorageAddress(address account, bytes32 slot, uint256 value)
+    /// @dev The slot numbers and byte offsets are hard-coded from the contracts-bedrock storage layout.
+    /// A slot number alone isn't enough to identify a packed-address slot, since many contracts write the
+    /// same slots (e.g. slot 0). We therefore also require `account` to match one of the contracts listed
+    /// below, looked up by name in the `SuperchainAddressRegistry`. Without this, any contract that wrote
+    /// one of these slots would have its lower bytes incorrectly checked as an address.
+    function _getPackedStorageAddr(address account, bytes32 slot, uint256 value)
         internal
         view
-        returns (bool isPackedAddressSlot_, address packedAddress_)
+        returns (bool isPackedAddrSlot_, address packedAddr_)
     {
         if (AddressRegistry.unwrap(addrRegistry) == address(0)) {
             return (false, address(0));
@@ -532,28 +532,28 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         if (slot == PACKED_SLOT_ZERO) {
             // These contracts pack their first address field after Initializable flags in slot 0.
             if (_isRegistryAddress(account, "AnchorStateRegistryProxy")) {
-                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_TWO));
+                return (true, _extractPackedAddr(value, PACKED_ADDRESS_OFFSET_TWO));
             }
             if (_isRegistryAddress(account, "EthLockboxProxy")) {
-                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_TWO));
+                return (true, _extractPackedAddr(value, PACKED_ADDRESS_OFFSET_TWO));
             }
             if (_isRegistryAddress(account, "SuperchainConfig")) {
-                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_TWO));
+                return (true, _extractPackedAddr(value, PACKED_ADDRESS_OFFSET_TWO));
             }
         } else if (slot == OPTIMISM_PORTAL_SUPERCHAIN_CONFIG_SLOT) {
             // OptimismPortal2.superchainConfig shares slot 53 with a spacer byte.
             if (_isRegistryAddress(account, "OptimismPortalProxy")) {
-                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_ONE));
+                return (true, _extractPackedAddr(value, PACKED_ADDRESS_OFFSET_ONE));
             }
         } else if (slot == OPTIMISM_PORTAL_ETH_LOCKBOX_SLOT) {
             // OptimismPortal2.ethLockbox shares slot 63 with a spacer byte.
             if (_isRegistryAddress(account, "OptimismPortalProxy")) {
-                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_ZERO));
+                return (true, _extractPackedAddr(value, PACKED_ADDRESS_OFFSET_ZERO));
             }
         } else if (slot == SYSTEM_CONFIG_SUPERCHAIN_CONFIG_SLOT) {
             // SystemConfig.superchainConfig shares slot 108 with minBaseFee.
             if (_isRegistryAddress(account, "SystemConfigProxy")) {
-                return (true, _extractPackedAddress(value, PACKED_ADDRESS_OFFSET_ZERO));
+                return (true, _extractPackedAddr(value, PACKED_ADDRESS_OFFSET_ZERO));
             }
         }
 
@@ -581,6 +581,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 }
             }
         } catch {
+            // `addrRegistry` isn't always a `SuperchainAddressRegistry`, e.g. `SimpleTaskBase` tasks
+            // wrap a `SimpleAddressRegistry`, which has no `getChains()`, so the call reverts.
+            // Those tasks never write these packed slots, so we treat the account as not-a-match.
             return false;
         }
 
@@ -588,7 +591,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Extracts a 20-byte address that begins at `offset` bytes from the low end of the slot.
-    function _extractPackedAddress(uint256 value, uint256 offset) internal pure returns (address) {
+    function _extractPackedAddr(uint256 value, uint256 offset) internal pure returns (address) {
         require(offset <= 12, "MultisigTask: packed address offset out of bounds");
         return address(uint160(value >> (offset * 8)));
     }
