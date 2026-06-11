@@ -5,8 +5,10 @@ import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmi
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {AddressRegistry} from "src/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
@@ -14,10 +16,14 @@ import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 /// Mock task that upgrades the L1ERC721BridgeProxy implementation
 /// to an example implementation address
 contract MockMultisigTask is L2TaskBase {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     address public constant newImplementation = address(1000);
 
     /// @notice reference to the mock target contract
     MockTarget public mockTarget;
+
+    address[] private _mockCodeExceptions;
 
     /// @notice Returns the safe address string identifier
     /// @return The string "SystemConfigOwner"
@@ -70,7 +76,9 @@ contract MockMultisigTask is L2TaskBase {
     }
 
     /// @notice No code exceptions for this template.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
+        return _mockCodeExceptions;
+    }
 
     /// @notice Wrapper function to call the internal _isValidAction function. This is used to test the internal function.
     function wrapperIsValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth, address rootSafe)
@@ -79,5 +87,33 @@ contract MockMultisigTask is L2TaskBase {
         returns (bool isValid)
     {
         return super._isValidAction(access, topLevelDepth, rootSafe);
+    }
+
+    function wrapperSetAddressRegistry(AddressRegistry _addrRegistry) public {
+        addrRegistry = _addrRegistry;
+    }
+
+    function wrapperAddAllowedStorageAccess(address account) public {
+        _allowedStorageAccesses.add(account);
+    }
+
+    function wrapperSetCodeExceptions(address[] memory codeExceptions) public {
+        _mockCodeExceptions = codeExceptions;
+    }
+
+    function wrapperCheckStateDiff(VmSafe.AccountAccess[] memory accountAccesses) public view {
+        _checkStateDiff(accountAccesses);
+    }
+
+    function wrapperGetPackedStorageAddress(address account, bytes32 slot, uint256 value)
+        public
+        view
+        returns (bool isPackedAddressSlot, address packedAddress)
+    {
+        return _getPackedStorageAddr(account, slot, value);
+    }
+
+    function wrapperExtractPackedAddress(uint256 value, uint256 offset) public pure returns (address) {
+        return _extractPackedAddr(value, offset);
     }
 }
