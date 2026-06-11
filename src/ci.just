@@ -109,6 +109,13 @@ simulate-all-templates:
             OPCMUpgradeSuperchainConfigV410) return 0 ;;
             RevShareSetup) return 0 ;;
             OPCMUpgradeV500) return 0 ;;
+            UpdateRetirementTimestampV200) return 0 ;;
+            UpdateRetirementTimestampV400) return 0 ;;
+            UnpauseSuperchainConfigV400) return 0 ;;
+            UniFix) return 0 ;;
+            BlacklistGamesV140) return 0 ;;
+            BlacklistGamesV400) return 0 ;;
+            L1PortalExecuteL2Call) return 0 ;;
             *) return 1 ;;
         esac
     }
