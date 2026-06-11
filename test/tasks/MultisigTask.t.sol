@@ -373,7 +373,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testPackedStorageAddressExtractionMatchesConfigAddressOverride() public {
         MockMultisigTask harness = _packedSlotHarness();
-        MockTarget storageAccount = _registerGlobalStorageAccount("SuperchainConfig");
+        MockTarget storageAccount = _registerSentinelStorageAccount("SuperchainConfig");
         address expected = address(uint160(0x1111111111111111111111111111111111111110));
 
         (bool isPackedAddressSlot, address packedAddress) = harness.wrapperGetPackedStorageAddress(
@@ -548,25 +548,36 @@ contract MultisigTaskUnitTest is Test {
         assertEq(packedAddress, address(0), identifier);
     }
 
+    /// @notice Deploys a `MockTarget` and registers it under `identifier` on `chain`, so that
+    /// `_isRegistryAddress` resolves the mock when validating a packed storage slot.
+    function _registerStorageAccountOnChain(string memory identifier, SuperchainAddressRegistry.ChainInfo memory chain)
+        internal
+        returns (MockTarget storageAccount)
+    {
+        storageAccount = new MockTarget();
+        string[] memory allowOverwrite = new string[](1);
+        allowOverwrite[0] = identifier;
+        addrRegistry.saveAddress(identifier, chain, address(storageAccount), allowOverwrite);
+    }
+
+    /// @notice Registers the mock as a per-L2-chain address. This is the path `_isRegistryAddress` finds by
+    /// iterating `getChains()` and calling `getAddress(identifier, chainId)`.
     function _registerStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
-        storageAccount = new MockTarget();
-        SuperchainAddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-        string[] memory allowOverwrite = new string[](1);
-        allowOverwrite[0] = identifier;
-        addrRegistry.saveAddress(identifier, chains[0], address(storageAccount), allowOverwrite);
+        return _registerStorageAccountOnChain(identifier, addrRegistry.getChains()[0]);
     }
 
-    function _registerGlobalStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
-        storageAccount = new MockTarget();
-        string[] memory allowOverwrite = new string[](1);
-        allowOverwrite[0] = identifier;
-        SuperchainAddressRegistry.ChainInfo memory sentinelChain = SuperchainAddressRegistry.ChainInfo({
-            chainId: uint256(keccak256("SuperchainAddressRegistry")),
-            name: "SuperchainAddressRegistry"
-        });
-        addrRegistry.saveAddress(identifier, sentinelChain, address(storageAccount), allowOverwrite);
+    /// @notice Registers the mock on the sentinel chain, i.e. the config `[addresses]` section. This is the
+    /// path `_isRegistryAddress` finds via `registry.get(identifier)`, which takes precedence over per-chain
+    /// discovery.
+    function _registerSentinelStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
+        (uint256 chainId, string memory name) = addrRegistry.sentinelChain();
+        return _registerStorageAccountOnChain(
+            identifier, SuperchainAddressRegistry.ChainInfo({chainId: chainId, name: name})
+        );
     }
 
+    /// @notice Builds an `AccountAccess[]` with a single storage write to `slot`, in the shape
+    /// `_checkStateDiff` consumes.
     function _singleStorageWrite(address account, bytes32 slot, bytes32 newValue)
         internal
         pure
@@ -582,9 +593,12 @@ contract MultisigTaskUnitTest is Test {
             reverted: false
         });
         accountAccesses = new VmSafe.AccountAccess[](1);
-        accountAccesses[0] = createAccess(VmSafe.AccountAccessKind.Call, account, address(0x1234), 0, storageAccesses);
+        accountAccesses[0] = createAccess(VmSafe.AccountAccessKind.Call, account, address(0x1234), 0);
+        accountAccesses[0].storageAccesses = storageAccesses;
     }
 
+    /// @notice Same as `_singleStorageWrite`, but marks the account as freshly deployed (a `Create` access
+    /// with code), so it exercises the new-contract allowance path in `_checkStateDiff`.
     function _singleNewContractStorageWrite(address account, bytes32 slot, bytes32 newValue)
         internal
         pure
@@ -595,18 +609,10 @@ contract MultisigTaskUnitTest is Test {
         accountAccesses[0].deployedCode = hex"01";
     }
 
-    function createAccess(
-        VmSafe.AccountAccessKind kind,
-        address account,
-        address accessor,
-        uint64 depth,
-        VmSafe.StorageAccess[] memory storageAccesses
-    ) internal pure returns (VmSafe.AccountAccess memory) {
-        VmSafe.AccountAccess memory accountAccess = createAccess(kind, account, accessor, depth);
-        accountAccess.storageAccesses = storageAccesses;
-        return accountAccess;
-    }
-
+    /// @notice Builds a packed slot value: `addr` placed `offset` bytes from the low end, with the remaining
+    /// bytes filled with realistic non-address junk (Initializable flags or a spacer byte). This mirrors how
+    /// the real Bedrock contracts pack these slots, so tests confirm extraction reads the address and ignores
+    /// the adjacent fields.
     function _packAddress(address addr, uint256 offset) internal pure returns (bytes32) {
         uint256 flags =
             offset == 0 ? ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG : offset == 1 ? SPACER_BYTE : INITIALIZABLE_FLAGS;
