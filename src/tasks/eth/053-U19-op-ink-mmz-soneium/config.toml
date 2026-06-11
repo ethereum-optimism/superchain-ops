@@ -50,7 +50,8 @@ cannonPrestate = "0xdead00000000000000000000000000000000000000000000000000000000
 # reproducibly from kona-client/v1.6.0-rc.2 (commit
 # d7cea91bc2f555a76b7720bf9c32f46c0b856119) via
 # `just build-kona-reproducible-prestate-variant kona-client prestate-artifacts-cannon`.
-# Pending PR to superchain-registry/validation/standard/standard-prestates.toml.
+# Published in superchain-registry/validation/standard/standard-prestates.toml
+# (prestates."1.6.0-rc.2", type "cannon64-kona").
 cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
 # PLDG-10: V700 OPCM zeroes the CANNON slot during upgrade — the standard
 # validator's assertValidPermissionlessDisputeGame still checks CANNON, so
