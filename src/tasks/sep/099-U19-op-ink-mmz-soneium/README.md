@@ -1,6 +1,6 @@
 # 099-U19-op-ink-mmz-soneium
 
-Status: [DRAFT, NOT READY TO SIGN]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
