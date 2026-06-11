@@ -1,3 +1,0 @@
-l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] 
-
-templateName = "UpdateRetirementTimestampV400"

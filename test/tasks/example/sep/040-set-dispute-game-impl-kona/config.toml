@@ -1,12 +1,13 @@
 # Example task for the SetDisputeGameImpl template — CANNON_KONA (game type 8) path.
 #
-# Companion to 014-set-dispute-game-impl (FDG/PDG only). This task additionally supplies the
-# optional `[[konaGameImplConfig]]` section, which wires the permissionless CANNON_KONA (game
-# type 8) slot via `setImplementation`, reusing an already-deployed FaultDisputeGame blueprint
-# impl — the kona prestate lives in `gameArgs` (124-byte permissionless layout). At the pinned
-# Ink Sepolia block the kona slot is empty, so the batch contains a setImplementation(8, …)
-# followed by a setInitBond(8, …); the FDG/PDG impls already match on-chain (prev == new) so
-# only their bonds update, exactly as in 014.
+# Exercises the FDG/PDG bond update path and additionally supplies the optional
+# `[[konaGameImplConfig]]` section, which wires the permissionless CANNON_KONA
+# (game type 8) slot via `setImplementation`, reusing an already-deployed
+# FaultDisputeGame blueprint impl — the kona prestate lives in `gameArgs`
+# (124-byte permissionless layout). At the pinned Ink Sepolia block the kona
+# slot is empty, so the batch contains a setImplementation(8, …) followed by a
+# setInitBond(8, …); the FDG/PDG impls already match on-chain (prev == new) so
+# only their bonds update.
 
 l2chains = [
   { name = "Ink Sepolia", chainId = 763373 }

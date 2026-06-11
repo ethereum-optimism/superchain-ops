@@ -15,7 +15,7 @@ import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 
 import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
-import {OPCMUpgradeV200} from "src/template/OPCMUpgradeV200.sol";
+import {OPCMUpgradeV600} from "src/template/OPCMUpgradeV600.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockSetEIP1967ImplTask} from "test/tasks/mock/MockSetEIP1967ImplTask.sol";
 import {SetEIP1967Implementation} from "src/template/SetEIP1967Implementation.sol";
@@ -183,15 +183,13 @@ contract NestedMultisigTaskTest is Test {
     }
 
     /// @notice Test that the 'data to sign' generated in simulate for the child multisigs
-    /// is correct for OPCMTaskBase. This test uses the OPCMUpgradeV200 template as a way to test OPCMTaskBase.
+    /// is correct for OPCMTaskBase. This test uses the OPCMUpgradeV600 template as a way to test OPCMTaskBase.
     function testNestedExecuteWithSignaturesOPCM() public {
         address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
-        // In block 7972617, an upgrade occurred at: https://sepolia.etherscan.io/tx/0x12b76ef5c31145a3bf6bb71b9c3c7ddd3cd7f182011187353e3ceb1830891fb7
-        // Which meant this test failed. We're forking at the block before to continue to test this.
-        vm.createSelectFork("sepolia", 7972616);
+        vm.createSelectFork("sepolia", 9874342);
         uint256 snapshotId = vm.snapshotState();
-        multisigTask = new OPCMUpgradeV200();
-        string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
+        multisigTask = new OPCMUpgradeV600();
+        string memory opcmTaskConfigFilePath = "test/tasks/example/sep/033-opcm-upgrade-v600/config.toml";
 
         address[] memory childSafes = Solarray.addresses(foundationChildMultisig);
 
@@ -216,12 +214,12 @@ contract NestedMultisigTaskTest is Test {
                 _packSignaturesForChildMultisig(leafSafeSigningData[i].leafSafe, leafSafeSigningData[i].dataToSign);
 
             // execute the approve hash call with the signatures
-            multisigTask = new OPCMUpgradeV200();
+            multisigTask = new OPCMUpgradeV600();
             multisigTask.approve(opcmTaskConfigFilePath, tmpChildSafes, packedSignaturesChild);
         }
 
         // Execute the task
-        multisigTask = new OPCMUpgradeV200();
+        multisigTask = new OPCMUpgradeV600();
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
