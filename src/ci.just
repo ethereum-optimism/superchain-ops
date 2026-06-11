@@ -99,6 +99,7 @@ simulate-all-templates:
     # downstream references continue to compile.
     is_deprecated_template_without_example() {
         case "$1" in
+            DelayedWETHOwnershipTemplate) return 0 ;;
             OPCMUpgradeV220toV410) return 0 ;;
             OPCMUpgradeV200) return 0 ;;
             OPCMUpgradeV300) return 0 ;;
@@ -111,11 +112,13 @@ simulate-all-templates:
             OPCMUpgradeV500) return 0 ;;
             UpdateRetirementTimestampV200) return 0 ;;
             UpdateRetirementTimestampV400) return 0 ;;
+            UnpauseSuperchainConfig) return 0 ;;
             UnpauseSuperchainConfigV400) return 0 ;;
             UniFix) return 0 ;;
             BlacklistGamesV140) return 0 ;;
             BlacklistGamesV400) return 0 ;;
             L1PortalExecuteL2Call) return 0 ;;
+            MigrateToLiveness2) return 0 ;;
             *) return 1 ;;
         esac
     }
