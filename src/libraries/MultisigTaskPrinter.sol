@@ -113,15 +113,24 @@ library MultisigTaskPrinter {
         // embed. Print a draft that pre-fills everything except the raw input, then print the calldata
         // separately so it can be pasted into the Simulator's "Raw input data" field.
         string memory linkNoInput = getTenderlySimulationLink(targetAddress, finalExec, sender, overrides, false);
+        if (bytes(linkNoInput).length > TENDERLY_MAX_URL_LENGTH) {
+            console.log(
+                "[Warning] Tenderly draft link exceeds %s characters even without calldata - the Simulator may not open it correctly.",
+                TENDERLY_MAX_URL_LENGTH
+            );
+        }
         console.log(linkNoInput);
         console.log("\nInsert the following hex into the 'Raw input data' field:");
         console.log(vm.toString(finalExec));
     }
 
-    /// @notice Builds a Tenderly Simulator "draft" link. The simulation parameters are encoded as a
-    /// single JSON payload, base64url-encoded (no padding), in the `?draft=` query parameter — matching
-    /// Tenderly's current Simulator URL format. Opening the link pre-fills the form without running
-    /// anything until the user clicks "Simulate".
+    /// @notice Builds a Tenderly simulation draft link. A Tenderly simulation draft is a shareable URL
+    /// that pre-populates the Tenderly Simulator form (network, contract, sender, gas, state overrides,
+    /// and optionally calldata) without executing the simulation — the recipient reviews the pre-filled
+    /// parameters and clicks "Simulate" to run it. The full simulation state is encoded as a JSON
+    /// payload, base64url-encoded (no padding), in the `?draft=` query parameter.
+    /// Tenderly simulation draft links spec:
+    /// https://tenderlydev.notion.site/Simulator-draft-links-draft-37b84be6a2e680bb9874f18a833c1997
     /// @param to The target contract address (the "to" address).
     /// @param data The raw calldata for the simulation.
     /// @param from The sender address.
