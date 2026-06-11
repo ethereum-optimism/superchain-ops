@@ -53,15 +53,6 @@ simulate-all-templates:
             task_name=$(basename "$task")
             task_path="$root_dir/test/tasks/example/$network/$task_name"
 
-            # Skip tasks that exceed the 15M gas limit
-            # 023-u13-to-u16a: OPCMUpgradeV220toV410 performs 4 sequential upgrades (U13 through U16a)
-            # consuming ~21.7M gas, which exceeds the 15M safety limit for Fusaka EIP-7825 compatibility.
-            # This template is not actively used and can be skipped in CI.
-            if [ "$task_name" = "023-u13-to-u16a" ]; then
-                echo "Skipping $task_name (exceeds 15M gas limit)"
-                continue
-            fi
-
             # OPCMMigrateV800 requires the target chain to already be upgraded to V800/Super Root.
             # The raw example task simulation forks current chain state and cannot perform that
             # prerequisite upgrade before invoking migrate. Coverage lives in SuperRootMigrateTest,
@@ -103,27 +94,57 @@ simulate-all-templates:
 
     echo "$simulation_count simulations run."
 
-    # Count template files (excluding *.template.sol and boilerplate dir).
-    template_count=$(find "${root_dir}/src/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
+    # These templates intentionally no longer require example-task regression
+    # fixtures. The templates stay in src/template so historical tasks and
+    # downstream references continue to compile.
+    is_deprecated_template_without_example() {
+        case "$1" in
+            OPCMUpgradeV220toV410) return 0 ;;
+            OPCMUpgradeV200) return 0 ;;
+            OPCMUpgradeV300) return 0 ;;
+            OPCMUpdatePrestateV300) return 0 ;;
+            OPCMUpgradeV400) return 0 ;;
+            OPCMUpgradeV410) return 0 ;;
+            OPCMUpdatePrestateV410) return 0 ;;
+            OPCMUpgradeSuperchainConfigV410) return 0 ;;
+            RevShareSetup) return 0 ;;
+            OPCMUpgradeV500) return 0 ;;
+            *) return 1 ;;
+        esac
+    }
 
     # Verify that every template file is referenced by at least one example task config.
     missing_templates=()
+    deprecated_templates_without_examples=()
     while IFS= read -r template_file; do
         tmpl_name=$(basename "$template_file" .sol)
         if ! grep -R --quiet "templateName = \"${tmpl_name}\"" "${root_dir}/test/tasks/example"/*/*/config.toml 2>/dev/null; then
-            missing_templates+=("$tmpl_name")
+            if is_deprecated_template_without_example "$tmpl_name"; then
+                deprecated_templates_without_examples+=("$tmpl_name")
+            else
+                missing_templates+=("$tmpl_name")
+            fi
         fi
     done < <(find "${root_dir}/src/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*")
 
     echo ""
+    if [ ${#deprecated_templates_without_examples[@]} -ne 0 ]; then
+        echo "Deprecated template(s) without example tasks (allowed; templates still compile):"
+        for t in "${deprecated_templates_without_examples[@]}"; do
+            echo "  - $t"
+        done
+        echo ""
+    fi
+
     if [ ${#missing_templates[@]} -ne 0 ]; then
         echo -e "\033[31mError: The following template(s) do not have an example task referencing them:\033[0m" >&2
         for t in "${missing_templates[@]}"; do
             echo -e "\033[31m  • $t\033[0m" >&2
         done
-        echo -e "\033[32mSuccess: All templates have a corresponding task.\033[0m"
         exit 1
     fi
+
+    echo -e "\033[32mSuccess: All non-deprecated templates have a corresponding task.\033[0m"
 
 
 test:
