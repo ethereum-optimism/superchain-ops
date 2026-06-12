@@ -10,7 +10,7 @@ from the current Ink-controlled owner Safe to the `FoundationOperationsSafe`.
 - **Target**: `SystemConfigProxy` [`0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364`](https://etherscan.io/address/0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364)
   ([superchain-registry](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml))
 - **Current owner** (signer): [`0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb`](https://etherscan.io/address/0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb)
-  — a 3-of-5 Safe controlled by the Ink team
+  — a 3-of-5 Safe controlled by the Gelato team
 - **New owner**: [`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A)
   — `FoundationOperationsSafe` (see [`src/addresses.toml`](../../../addresses.toml))
 
