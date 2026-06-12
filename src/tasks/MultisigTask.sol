@@ -720,7 +720,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// If the owner is a contract, we need to increment the nonce manually.
     /// This is in lieu of executing approveHash from the owner contract.
     function _incrementOwnerNonce(address owner) private {
-        if (address(owner).code.length > 0) {
+        // EIP-7702 delegated EOAs have code (the delegation designator) but are still EOAs:
+        // their nonce is the account nonce, not a Safe storage slot.
+        if (address(owner).code.length > 0 && !Utils.isEip7702DelegatedEOA(owner)) {
             uint256 currentOwnerNonce = IGnosisSafe(owner).nonce();
             vm.store(owner, bytes32(uint256(0x5)), bytes32(uint256(currentOwnerNonce + 1)));
         } else {
@@ -812,7 +814,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
             address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
             for (uint256 j = 0; j < owners.length; j++) {
-                if (owners[j].code.length > 0) _getNonceOrOverride(owners[j], _taskConfigFilePath); // Nonce safety checks performed for each owner that is a safe.
+                // Nonce safety checks performed for each owner that is a safe. EIP-7702 delegated
+                // EOAs have code but are not safes, so they are excluded.
+                if (owners[j].code.length > 0 && !Utils.isEip7702DelegatedEOA(owners[j])) {
+                    _getNonceOrOverride(owners[j], _taskConfigFilePath);
+                }
             }
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.

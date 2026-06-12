@@ -31,6 +31,16 @@ library Utils {
         return false;
     }
 
+    /// @notice Returns true if the account's code is an EIP-7702 delegation designator
+    /// (0xef0100 ++ 20-byte address, exactly 23 bytes). Such an account is an EOA with
+    /// delegated execution code and must not be treated as a contract (e.g. Safe) owner:
+    /// it signs with its own key and its delegation target is not guaranteed to expose
+    /// any Safe interface (such as nonce()).
+    function isEip7702DelegatedEOA(address _account) internal view returns (bool) {
+        bytes memory code = _account.code;
+        return code.length == 23 && code[0] == 0xef && code[1] == 0x01 && code[2] == 0x00;
+    }
+
     /// @notice Checks that values have code on this chain.
     /// This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
     /// results for cases like packed slots, and silently show that things are okay when they are not.
