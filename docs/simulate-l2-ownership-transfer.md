@@ -19,7 +19,7 @@ This template executes an L1 transaction, which is later forwarded to the L2 by 
         }
       ```
 
-4. Using the data in the `TransactionDeposited` event, create a new Tenderly simulation via this [link](https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new?block=&blockIndex=0&from=0x0000000000000000000000000000000000000000&gas=8000000&gasPrice=0&value=0&contractAddress=&headerBlockNumber=&headerTimestamp=).
+4. Using the data in the `TransactionDeposited` event, create a new Tenderly simulation by opening the [Simulator](https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new) and filling in the form using the fields below. Set `gas price` and `value` to `0`. The `from` address and `gas` will be derived from the event data and filled in step 9.
 5. Insert the `to` address (`0x4200000000000000000000000000000000000018`) as the destination address and select the correct L2 network.
 6. Next, we need to create the calldata from the `opaqueData` field in the `TransactionDeposited` event. This is going to go into the `Enter raw input data` field. We know this particular transaction is a `transferOwnership` call to the `ProxyAdmin` contract. We can identify the start of the relevant calldata by extracting the function selector:
     ```bash
