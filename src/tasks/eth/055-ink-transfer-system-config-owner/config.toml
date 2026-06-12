@@ -1,0 +1,24 @@
+# Transfer ownership of the Ink (mainnet, chainId 57073) SystemConfigProxy
+# (0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364) from the current Ink-controlled
+# owner Safe to the FoundationOperationsSafe.
+
+templateName = "TransferSystemConfigOwnership"
+
+# Current SystemConfig owner: 0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb, a
+# 3-of-5 Safe controlled by the Ink team. The identifier is auto-discovered by
+# the SuperchainAddressRegistry via SystemConfig.owner() at simulation time.
+safeAddressString = "SystemConfigOwner"
+
+# New owner: FoundationOperationsSafe (see src/addresses.toml [eth]).
+newOwner = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
+
+l2chains = [{name = "Ink", chainId = 57073}]
+
+[stateOverrides]
+# Current owner Safe nonce pinned (slot 5) so the domain/message hashes in
+# VALIDATION.md are reproducible. On-chain nonce 50 at task creation; before
+# signing, re-verify with `cast call 0xBeA2...9Bbb "nonce()" --rpc-url mainnet`
+# and bump this override + re-simulate if it has advanced.
+0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 50}
+]
