@@ -1,0 +1,147 @@
+# U19 upgrade for the OP-governed Mainnet networks
+# (OP, Ink, Metal, Mode, Zora, Soneium).
+#
+# These six chains share the standard Mainnet L1PAO / Security Council /
+# Foundation Upgrade Safe, so they are bundled into a single OPCM upgrade
+# transaction (one nonce consumed per safe). Unichain uses a separate
+# ProxyAdminOwner and is handled in its own task (054-U19-unichain).
+#
+# Post-upgrade respected game type split (on-chain pre-task state determines
+# the policy: chains that are permissionless today rotate to CANNON_KONA;
+# chains that are permissioned today stay permissioned):
+#   - Permissionless (rotate to CANNON_KONA = 8): OP, Ink.
+#     These chains currently have `respectedGameType == CANNON (0)` on chain
+#     and `gameImpls[8]` already populated. `cannonKonaPrestate` carries the
+#     reproducibly-built kona-client v1.6.0-rc.2 cannon64-kona absolute
+#     prestate. `cannonPrestate` is a `0xdead...` placeholder
+#     (PERMISSIONED_CANNON acts only as a Guardian fallback, and its games
+#     are not expected to run).
+#   - Permissioned (keep respectedGameType = PERMISSIONED_CANNON = 1):
+#     Metal, Mode, Zora, Soneium. These chains currently have
+#     `respectedGameType == 1` on chain and `gameImpls[8] == address(0)` —
+#     they MUST NOT receive a CANNON_KONA implementation. The template's
+#     `_isPermissionedChain` infers this from `startingRespectedGameType == 1`;
+#     in that mode `_isEnabled` returns false for CANNON_KONA and the OPCM
+#     emits `setImplementation(8, 0, "")` on the DGF (no-op write — the slot
+#     is already zero). `cannonKonaPrestate` is unused and is set to the
+#     zero address (enforced by OPCMUpgradeV700._templateSetup).
+#
+# Once simulated, confirm the Tenderly gas output stays under the
+# 16,777,216 per-transaction gas cap for the bundled upgrade.
+
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Ink", chainId = 57073},
+    {name = "Metal L2", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777},
+    {name = "Soneium", chainId = 1868}
+]
+
+templateName = "OPCMUpgradeV700"
+
+# OP Mainnet
+[[opcmUpgrades]]
+chainId = 10
+# CANNON (game type 0) is deprecated and disabled in U19.
+# Use an obviously-invalid prestate so it cannot be used.
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Standard kona-client v1.6.0-rc.2 cannon64-kona absolute prestate. Built
+# reproducibly from kona-client/v1.6.0-rc.2 (commit
+# d7cea91bc2f555a76b7720bf9c32f46c0b856119) via
+# `just build-kona-reproducible-prestate-variant kona-client prestate-artifacts-cannon`.
+# Published in superchain-registry/validation/standard/standard-prestates.toml
+# (prestates."1.6.0-rc.2", type "cannon64-kona").
+cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
+# PLDG-10: V700 OPCM zeroes the CANNON slot during upgrade — the standard
+# validator's assertValidPermissionlessDisputeGame still checks CANNON, so
+# PLDG-10 is the unavoidable side-effect of U19's deprecation of CANNON.
+expectedValidationErrors = "PLDG-10"
+# Matches the current on-chain CANNON_KONA (type 8) initBonds on OP Mainnet DGF.
+initBond = 80000000000000000
+# Post-upgrade respected game type. OP Mainnet is permissionless today
+# (on-chain respectedGameType = 0); U19 rotates AnchorStateRegistry's
+# respectedGameType to CANNON_KONA (8) — kona-client becomes the primary FPVM.
+startingRespectedGameType = 8
+
+# Ink
+[[opcmUpgrades]]
+chainId = 57073
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0x0337ecb3604c0b40c352e0c7711beb17a212d583f4fe956fd8d66e29ad5f9025"
+# PLDG-10: CANNON slot zeroed by V700 OPCM during upgrade.
+expectedValidationErrors = "PLDG-10"
+initBond = 80000000000000000
+startingRespectedGameType = 8
+
+# Metal L2 — PERMISSIONED CHAIN
+# On-chain pre-task: respectedGameType=1 (PERMISSIONED_CANNON), gameImpls[8]=0.
+# U19 keeps this chain permissioned: no CANNON_KONA implementation is wired,
+# and respectedGameType stays at 1.
+[[opcmUpgrades]]
+chainId = 1750
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+# Permissioned chain: `_isPermissionedChain` is true (startingRespectedGameType == 1), so
+# CANNON_KONA is `enabled=false` and never wired. The kona prestate MUST be the zero address
+# (not a 0xdead placeholder) — enforced by OPCMUpgradeV700._templateSetup.
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+# PLDG-10: CANNON slot zeroed by V700. CKDG-NOSHAPE + CKDG-10: CANNON_KONA (game type 8) is not
+# wired on this permissioned chain (kona prestate = 0), so the standard validator reports it has
+# no shape / zero impl.
+expectedValidationErrors = "CKDG-NOSHAPE,PLDG-10,CKDG-10"
+initBond = 0
+startingRespectedGameType = 1
+
+# Mode — PERMISSIONED CHAIN (see Metal note above)
+[[opcmUpgrades]]
+chainId = 34443
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+expectedValidationErrors = "CKDG-NOSHAPE,PLDG-10,CKDG-10"
+initBond = 0
+startingRespectedGameType = 1
+
+# Zora — PERMISSIONED CHAIN (see Metal note above)
+[[opcmUpgrades]]
+chainId = 7777777
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+expectedValidationErrors = "CKDG-NOSHAPE,PLDG-10,CKDG-10"
+initBond = 0
+startingRespectedGameType = 1
+
+# Soneium — PERMISSIONED CHAIN (see Metal note above)
+# Soneium Mainnet is currently permissioned on chain (respectedGameType=1,
+# gameImpls[8]=0). U19 preserves that posture. Soneium Testnet Minato is
+# permissionless on chain (and is handled as permissionless in the Sepolia
+# bundle 097); the two networks differ deliberately.
+[[opcmUpgrades]]
+chainId = 1868
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+expectedValidationErrors = "CKDG-NOSHAPE,PLDG-10,CKDG-10"
+initBond = 0
+startingRespectedGameType = 1
+
+[addresses]
+# v7.1.17 OPCM on Mainnet.
+# Source: superchain-registry/validation/standard/standard-versions-mainnet.toml
+# under ["op-contracts/v7.1.17"].op_contracts_manager
+OPCM = "0x9ce712ff84e02659846dc6450bb9b7642fe8be5d"
+
+[stateOverrides]
+# Single bundled transaction consumes one nonce per safe (the base nonces),
+# unlike a per-chain stack which would increment them sequentially.
+# Mainnet L1PAO (0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
+# Verify nonce before signing: cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" --rpc-url mainnet
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 35}
+]
+# Foundation Upgrade Safe (0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 57}
+]
+# Security Council (0xc2819DC788505Aac350142A7A707BF9D03E3Bd03)
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+]
