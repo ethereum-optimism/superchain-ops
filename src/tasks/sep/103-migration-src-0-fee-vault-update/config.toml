@@ -44,6 +44,12 @@ recipients = [
 networks             = [0]   # 0 = WithdrawalNetwork.L1 — fees are withdrawn to L1
 minWithdrawalAmounts = [0]   # no minimum threshold
 
+# L2 RPC per chain — enables the pre-flight check that the L2 ProxyAdmin
+# (0x4200…0018) is owned by the aliased L1 rootSafe (aliased ProxyAdminOwner)
+# before signing. The upgradeAndCall portal deposits only succeed on L2 if the
+# depositing aliased L1 PAO is the L2 ProxyAdmin owner.
+l2RpcUrls = ["https://migration-src-0.optimism.io"]
+
 # PAO Safe nonce override. Current on-chain value is 111. In this exercise stack, 101 is
 # signed by Safe B and 102 (proposer-rotation) is the first PAO-signed task, so when 103
 # runs after 102 the PAO nonce is 111 + 1 = 112. If executed before 102, set this to 111.

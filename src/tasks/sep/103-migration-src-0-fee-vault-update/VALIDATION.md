@@ -12,6 +12,13 @@ The steps are:
 
 First, validate the domain and message hashes. These values should match both the values on your ledger and the values printed to the terminal when you run the task.
 
+> [!WARNING]
+> **This task is currently BLOCKED and must not be signed.** The `l2RpcUrls` pre-flight check reverts:
+> the L2 ProxyAdmin is owned by `0x1c784CC0…` (netchef deployer, aliased), not the aliased L1 PAO
+> `0xfA45dc97…5210`, so the `upgradeAndCall` deposits would revert on L2. The L2 ProxyAdmin ownership
+> must first be transferred to the aliased L1 PAO (out-of-ops; see [README.md](./README.md)). After that,
+> re-run `just simulate` and replace the hashes below.
+
 > [!CAUTION]
 >
 > Before signing, ensure the below hashes match what is on your ledger.
@@ -19,10 +26,10 @@ First, validate the domain and message hashes. These values should match both th
 > ### ProxyAdminOwner Safe (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0x5a442cc9643cbebe6262307d5b4636da5e06b4de42010e1a75880760bd3f9389`
-> - Safe Hash:    `0x0bd45f677139f6c89c4ee904c5f9c4c852d970affc7f81b3d7f7b0c5da70ec62`
+> - Message Hash: `0x5a442cc9643cbebe6262307d5b4636da5e06b4de42010e1a75880760bd3f9389` _(provisional — captured before enabling the pre-flight; regenerate after the L2 PAO transfer)_
+> - Safe Hash:    `0x0bd45f677139f6c89c4ee904c5f9c4c852d970affc7f81b3d7f7b0c5da70ec62` _(provisional)_
 >
-> _Hashes generated via `just simulate` at the latest block with the PAO nonce override in [config.toml](./config.toml) (= 112, i.e. live nonce 111 + 1 for task 102 executing first). If that ordering/override changes, or the recipients change, re-run `just simulate` and replace the Message/Safe hashes before signing._
+> _The Domain Hash is deterministic for the PAO Safe on Sepolia. The provisional Message/Safe hashes were generated via `just simulate` with the PAO nonce override in [config.toml](./config.toml) (= 112, i.e. live nonce 111 + 1 for task 102 executing first) BEFORE the `l2RpcUrls` pre-flight was enabled — enabling `l2RpcUrls` does not change the Safe calldata, only adds the L2 ownership check. They remain unverifiable end-to-end until the L2 ProxyAdmin transfer unblocks the simulation; regenerate then._
 
 ## Understanding Task Calldata
 

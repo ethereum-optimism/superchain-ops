@@ -1,6 +1,19 @@
 # 103-migration-src-0-fee-vault-update
 
-Status: [READY TO SIGN]()
+Status: BLOCKED — see prerequisite below. (Do not sign yet.)
+
+> [!WARNING]
+> **The L2 ProxyAdmin owner pre-flight check (enabled via `l2RpcUrls`) currently fails.**
+> migration-src-0's L2 ProxyAdmin (`0x4200000000000000000000000000000000000018`) is owned by
+> `0x1c784CC0B5DFb4f6ad3FD9E430069bcBD2bC8D5c` (the netchef deployer admin, the L1->L2 alias of
+> L1 EOA `0x0b674cc0…7c4b`), **not** the aliased L1 ProxyAdminOwner (`0xfA45dc97E347C6acEF74364B50125BB8689c5210`).
+> The `ProxyAdmin.upgradeAndCall` portal deposits in this task would **revert on L2**.
+>
+> **Prerequisite (out-of-ops, like the SystemConfig owner transfer):** transfer the L2 ProxyAdmin
+> ownership to the aliased L1 PAO `0xfA45dc97…5210`. This must be driven by the current controller
+> (L1 EOA `0x0b674cc0…7c4b` via netchef/op-deployer), since the L1 PAO's alias is not yet the owner —
+> so it cannot be done by a PAO-signed ops task here. Once transferred, re-run `just simulate` to
+> confirm the pre-flight passes and regenerate the hashes in [VALIDATION.md](./VALIDATION.md) before signing.
 
 ## Objective
 
