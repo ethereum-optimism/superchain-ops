@@ -1,6 +1,6 @@
 # 101-migration-src-0-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN]()
+Status: DRAFT, NOT READY TO SIGN
 
 > [!NOTE]
 > Requires the EOA → Safe B `SystemConfig.transferOwnership` (Migration Log step 1) to be executed **outside this repo** before on-chain execution. The hashes in [VALIDATION.md](./VALIDATION.md) were generated with a `SystemConfig.owner → Safe B` simulation override; once the transfer is on-chain the override is a no-op and the hashes hold (re-run `just simulate` to confirm if Safe B's nonce has moved).

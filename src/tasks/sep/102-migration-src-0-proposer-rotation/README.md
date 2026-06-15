@@ -1,6 +1,6 @@
 # 102-migration-src-0-proposer-rotation
 
-Status: [READY TO SIGN]()
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

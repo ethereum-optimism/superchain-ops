@@ -1,6 +1,6 @@
 # 103-migration-src-0-fee-vault-update
 
-Status: BLOCKED — see prerequisite below. (Do not sign yet.)
+Status: DRAFT, NOT READY TO SIGN
 
 > [!WARNING]
 > **The L2 ProxyAdmin owner pre-flight check (enabled via `l2RpcUrls`) currently fails.**
