@@ -1,0 +1,78 @@
+# Ink Sepolia migration (Gelato → OP Enterprise) — cutover step 15 (post-cutover).
+#
+# Upgrades the four fee-vault predeploys on Ink Sepolia (chainId 763373) to new v1.6.0
+# implementations and re-initializes each with the new (Kraken) recipient, via
+# OptimismPortal2.depositTransaction → L2 ProxyAdmin.upgradeAndCall. Source of truth:
+# Ink Sepolia Testnet Migration — Engineering Plan, step 15 ("Update FeeVaults — to
+# Kraken FeeRecipient address").
+#
+# ┌─────────────────────────────────────────────────────────────────────────────────┐
+# │ ⚠⚠ TWO BLOCKERS — DO NOT SIGN until both are resolved (see README "Blockers"):     │
+# │                                                                                   │
+# │ 1. RECIPIENTS BELOW ARE PLACEHOLDERS. The Kraken fee recipient(s) for Ink Sepolia │
+# │    are an OPEN ITEM in the migration plan (§1 open items, §3.3 placeholder). The   │
+# │    0xdead… values exist only to make the simulated state diff visually obvious.    │
+# │                                                                                   │
+# │ 2. L2 ProxyAdmin owner = address(0). The Ink Sepolia L2 ProxyAdmin                 │
+# │    (0x4200…0018) has NO owner (verified on-chain), so the aliased L1PAO cannot     │
+# │    authorize upgradeAndCall — the deposits will RELAY but REVERT on L2, leaving    │
+# │    the L1 tx successful and L2 state unchanged. The L2 ProxyAdmin must first be    │
+# │    owned by the aliased L1PAO (0x2fc3ffc903729a0f03966b917003800b145f67f3).        │
+# └─────────────────────────────────────────────────────────────────────────────────┘
+
+templateName = "FeeVaultUpgradeTemplate"
+
+l2chains = [
+    {name = "Ink Sepolia", chainId = 763373}
+]
+
+# Fee-vault predeploys to upgrade (same addresses on every OP Stack chain). Ink Sepolia
+# has all four live (Sequencer/Base/L1 at v1.5.0-beta.2, Operator at v1.0.0).
+vaultProxies = [
+    "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
+    "0x4200000000000000000000000000000000000019",  # BaseFeeVault
+    "0x420000000000000000000000000000000000001a",  # L1FeeVault
+    "0x420000000000000000000000000000000000001b",  # OperatorFeeVault (U18+)
+]
+
+# Recipients per (chain, vault), flat chain-major. Length = l2chains * vaultProxies = 4.
+# ⚠ PLACEHOLDERS — low nibble matches the predeploy for an obvious state diff. Replace
+# with the real Kraken fee recipient(s) (plan §1 open item / §3.3) before signing.
+# Current on-chain recipient (all four → Gelato Safe 0xBeA2Bc…) is on L2.
+recipients = [
+    "0xdead000000000000000000000000000000000011",  # SequencerFeeVault — PLACEHOLDER
+    "0xdead000000000000000000000000000000000019",  # BaseFeeVault — PLACEHOLDER
+    "0xdead00000000000000000000000000000000001a",  # L1FeeVault — PLACEHOLDER
+    "0xdead00000000000000000000000000000000001b",  # OperatorFeeVault — PLACEHOLDER
+]
+
+# Per-chain settings (one entry per l2chains entry).
+# ⚠ CONFIRM with Kraken: current Ink Sepolia vaults use WithdrawalNetwork.L2 (1) with a
+# 2 ETH minimum. This task assumes the OPE/migration standard (L1, no minimum); change
+# if Kraken wants fees withdrawn on L2.
+networks             = [0]   # 0 = WithdrawalNetwork.L1
+minWithdrawalAmounts = [0]   # no minimum threshold
+
+[addresses]
+# Pinned for robustness (also resolvable from the superchain-registry).
+ProxyAdminOwner     = "0x1Eb2fFc903729a0F03966B917003800b145F56E2" # L1PAO Sepolia (2-of-2: Foundation + Security Council)
+OptimismPortalProxy = "0x5c1d29C6c9C8b0800692acC95D700bcb4966A1d7"
+
+# NOTE: `l2RpcUrls` is intentionally omitted. Adding it would trip the template's L2
+# ProxyAdmin-owner pre-flight check (owner is address(0)) and abort setup. The check is
+# correct — it is exactly Blocker #2 above. Re-enable it once the L2 ProxyAdmin is owned
+# by the aliased L1PAO.
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces (slot 5), assuming this runs AFTER task 105 (each +1
+# from the authoring-time live values L1PAO=52, Foundation=72, Security Council=66).
+# Re-verify each before signing.
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 73}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
+]
