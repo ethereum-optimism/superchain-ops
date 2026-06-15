@@ -1,0 +1,46 @@
+l2chains = [
+    {name = "migration-src-0", chainId = 420120140}
+]
+
+templateName = "SetDisputeGameImpl"
+fallbackAddressesJsonPath = "src/tasks/sep/102-migration-src-0-proposer-rotation/addresses.json"
+
+[[gameImplConfig]]
+# Rotate the PermissionedDisputeGame (PDG, game type 1) proposer and challenger to the
+# migrated-sop-1 receiving infrastructure (the FROM side of this exercise). The absolute
+# prestate is intentionally LEFT UNCHANGED (fault proofs are out of scope for this
+# exercise) — only the proposer (bytes 124..144) and challenger (bytes 144..164) change.
+#
+# FaultDisputeGame (FDG, game type 0) is NOT registered on migration-src-0
+# (gameImpls(0) == 0x0) and is out of scope here, so the FDG slot is zeroed: with
+# fdgImpl = 0x0 and empty fdgGameArgs matching the empty on-chain gameArgs(0), the
+# template's skip-if-unchanged guard (SetDisputeGameImpl._setFDGImplementation) emits
+# no FDG call. Only the PDG setImplementation call is emitted.
+chainId = 420120140
+fdgBond = 0
+pdgBond = 0
+fdgImpl = "0x0000000000000000000000000000000000000000"
+fdgGameArgs = "0x"
+pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # PermissionedDisputeGameImpl (unchanged)
+prevFdgImpl = "0x0000000000000000000000000000000000000000"
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A" # Same impl — only gameArgs change (new proposer/challenger)
+# 164-byte encoded constructor args for PermissionedDisputeGame.
+# Layout (per SetDisputeGameImpl._validateGameArgsFormat, permissioned = 164 bytes):
+#   prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32) | proposer(20) | challenger(20)
+# Values:
+#   prestate            = 0x038512e0…d54c  (UNCHANGED — netchef-default permissioned prestate; fault proofs out of scope)
+#   vm                  = 0x6463dee3…b908  (MIPS 1.9.0)
+#   anchorStateRegistry = 0x25189fec…a216  (migration-src-0 ASR)
+#   delayedWETH         = 0x3895dcd2…ea8e  (DelayedWethPermissionedGameProxy)
+#   chainId             = 420120140 (= 0x190a864c), 32-byte left-padded
+#   proposer            = 0x5e9eE0Aa…eB71  (migrated-sop-1 receiving infra — UPDATED from on-chain 0x0fd61abe…c9fc)
+#   challenger          = 0x9805e797…80D0  (migrated-sop-1 receiving infra — UPDATED from on-chain 0x5d5f9c4b…1546e)
+pdgGameArgs = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c6463dee3828677f6270d83d45408044fc5edb90825189fec7e5794e6cbb53afcfe624c517537a2163895dcd2f5ddd092c31aa8744ceb4c6006b7ea8e00000000000000000000000000000000000000000000000000000000190a864c5e9ee0aa455425aad2b55742077f95113fbaeb719805e7976880e6e48ce765118846078b877d80d0"
+
+[stateOverrides]
+# PAO Safe nonce override = current on-chain (111). This is the first PAO-signed task in
+# this exercise (101 is signed by Safe B; the SystemConfig transfer is out-of-ops), so 102
+# signs at the live PAO nonce. If 103 (fee-vault) is executed before this task, bump accordingly.
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 111}
+]

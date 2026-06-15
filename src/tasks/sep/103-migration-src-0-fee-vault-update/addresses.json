@@ -1,0 +1,8 @@
+{
+  "420120140": {
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "SystemConfigProxy": "0xeb776E1d4cda95D4155e73c5ceE34b9f7C2EE818",
+    "L1StandardBridgeProxy": "0xF6e21D927C2F112F759B658af94B2c8E1fD3D9B9",
+    "OptimismPortalProxy": "0x7b123dD7466dAB1fe60703Cd11fCE9c77d413a05"
+  }
+}
