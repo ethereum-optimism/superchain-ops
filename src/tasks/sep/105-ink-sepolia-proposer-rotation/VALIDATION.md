@@ -19,14 +19,14 @@ First, validate the domain and message hashes. These values should match both th
 > ### Security Council (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `<REGENERATE: run just simulate>`
+> - Message Hash: `0xae806acb180adb11d7ce6c5c328691792dd100cacdc5dc7d433fd5e9192eba4e`
 >
 > ### Foundation Upgrade Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `<REGENERATE: run just simulate>`
+> - Message Hash: `0x1cf251b69f75f413647639cc61bcfeb83fced74f2d30f4b76e63e343a79306a0`
 >
-> _The Domain Hashes are deterministic for these safes on Sepolia (chainId 11155111) and were computed independently: `keccak256(abi.encode(0x47e7…9218, 11155111, <safe>))`. The Message hashes depend on the calldata + the nonce overrides in [config.toml](./config.toml). Run `just simulate` and fill them in before signing; re-run and replace after U19 (the live prestate, and therefore the gameArgs blob, may change)._
+> _The Domain Hashes are deterministic for these safes on Sepolia (chainId 11155111) and were computed independently: `keccak256(abi.encode(0x47e7…9218, 11155111, <safe>))`. The Message hashes were generated against live Sepolia state on 2026-06-16 (signer-safe nonces L1PAO=53 / Foundation=73 / Security Council=67, pre-U19 prestate). They are **provisional** — re-run `just simulate` and replace them before signing: they change after U19 (2026-06-17 bumps the live prestate and therefore the gameArgs blob) and whenever the signer-safe nonces advance._
 
 ## Understanding Task Calldata
 

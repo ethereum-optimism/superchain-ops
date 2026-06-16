@@ -22,14 +22,14 @@ First, validate the domain and message hashes. These values should match both th
 > ### Security Council (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `<REGENERATE: run just simulate>`
+> - Message Hash: `0x05e665dc92c0c129ab42f22c3f3047ea85b37114dc74d557656700a4e890e0c3`
 >
 > ### Foundation Upgrade Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `<REGENERATE: run just simulate>`
+> - Message Hash: `0xdb657084541966763ac3506de3a97f09884fbd4bedfbe134a07df39ef36bcd4d`
 >
-> _The Domain Hashes are deterministic for these safes on Sepolia (chainId 11155111): `keccak256(abi.encode(0x47e7…9218, 11155111, <safe>))`. The Message hashes depend on the deterministic CREATE2 deploy addresses, the recipients, and the nonce overrides in [config.toml](./config.toml). They will change when the placeholder recipients are replaced — regenerate via `just simulate` before signing._
+> _The Domain Hashes are deterministic for these safes on Sepolia (chainId 11155111): `keccak256(abi.encode(0x47e7…9218, 11155111, <safe>))`. The Message hashes were generated against live Sepolia state on 2026-06-16 with the **placeholder** `0xdead…` recipients and signer-safe nonces L1PAO=54 / Foundation=74 / Security Council=68. They are **provisional** — they change when the real recipients are set and whenever the signer-safe nonces advance; regenerate via `just simulate` before signing._
 
 ## Understanding Task Calldata
 
