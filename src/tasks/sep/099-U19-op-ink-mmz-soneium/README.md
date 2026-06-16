@@ -1,6 +1,6 @@
 # 099-U19-op-ink-mmz-soneium
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x49ba187d252c23cc3961a871fa6bfdb9cd0da70220cdeda643a219a3905bbf7c)
 
 ## Objective
 
