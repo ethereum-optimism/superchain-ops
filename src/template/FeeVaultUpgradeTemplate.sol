@@ -21,6 +21,12 @@ import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 ///         configurable fee recipient and withdrawal network. Calls are made via
 ///         OptimismPortal2.depositTransaction(), so no separate on-chain upgrader contract is needed.
 ///
+///         Configuration (recipient / minWithdrawalAmount / withdrawalNetwork) is applied via the
+///         vault's post-init setters, NOT `initialize`: the predeploy proxies are already
+///         initialized in L2 genesis, so `initialize` reverts with `InvalidInitialization()` and the
+///         upgrade silently no-ops on L2. The setters are gated by the L2 ProxyAdmin owner — the
+///         aliased rootSafe that these portal deposits execute as.
+///
 ///         The vault list is config-driven (modular): each run can target any subset of the four
 ///         known fee-vault predeploys:
 ///           - SequencerFeeVault  0x4200000000000000000000000000000000000011
@@ -189,7 +195,9 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
     }
 
     /// @notice Builds portal deposit calls: for each chain × vault, deploy the implementation
-    ///         (if not already queued) and call ProxyAdmin.upgradeAndCall to re-initialize.
+    ///         (if not already queued), `ProxyAdmin.upgrade` the proxy, then set
+    ///         recipient / minWithdrawalAmount / withdrawalNetwork via the vault's post-init
+    ///         setters (the proxies are already initialized, so `initialize` would revert).
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
@@ -220,13 +228,39 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
                 address recipient =
                     recipients.length == chains.length ? recipients[c] : recipients[c * vaultProxies.length + v];
 
-                // Upgrade the vault proxy and initialize with the new config.
-                // Pre-encode to avoid stack-too-deep in the nested abi.encodeCall.
-                bytes memory initData = abi.encodeCall(IFeeVault.initialize, (recipient, minWithdrawal, network));
-                bytes memory upgradeData =
-                    abi.encodeCall(IProxyAdmin.upgradeAndCall, (payable(vaultProxies[v]), impl, initData));
+                // Upgrade the proxy implementation WITHOUT an initializer call, then configure
+                // via post-init setters.
+                //
+                // These fee-vault proxies are already initialized in L2 genesis (OpenZeppelin v5
+                // `_initialized == 1`). `initialize(...)` carries the `initializer` modifier
+                // (version 1, not a bumped `reinitializer`), so calling it again — as
+                // `upgradeAndCall` would — always reverts with `InvalidInitialization()`. The OP
+                // `Proxy` masks that as "delegatecall to new implementation contract failed", so
+                // the L1 task tx still succeeds while the L2 upgrade silently rolls back (recipient
+                // unchanged). See `RevShareCommon.configureVaultsForRevShare` for the same pattern.
+                //
+                // The v1.6.0 impls store recipient/min/network in storage with setters, each gated
+                // by the L2 ProxyAdmin owner — the aliased rootSafe that these portal deposits
+                // execute as — so configuring via setters works whether or not the proxy was
+                // previously initialized.
+                bytes memory upgradeData = abi.encodeCall(IProxyAdmin.upgrade, (payable(vaultProxies[v]), impl));
                 RevShareCommon.depositCall(
                     portal, address(RevShareCommon.PROXY_ADMIN), RevShareCommon.UPGRADE_GAS_LIMIT, upgradeData
+                );
+                RevShareCommon.depositCall(
+                    portal, vaultProxies[v], RevShareCommon.SETTERS_GAS_LIMIT, abi.encodeCall(IFeeVault.setRecipient, (recipient))
+                );
+                RevShareCommon.depositCall(
+                    portal,
+                    vaultProxies[v],
+                    RevShareCommon.SETTERS_GAS_LIMIT,
+                    abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (minWithdrawal))
+                );
+                RevShareCommon.depositCall(
+                    portal,
+                    vaultProxies[v],
+                    RevShareCommon.SETTERS_GAS_LIMIT,
+                    abi.encodeCall(IFeeVault.setWithdrawalNetwork, (network))
                 );
             }
         }
@@ -236,8 +270,9 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
+        // Per vault: 1 `upgrade` + 3 setters (setRecipient, setMinWithdrawalAmount, setWithdrawalNetwork).
         uint256 uniqueDeployments = _countUniqueDeployments();
-        uint256 actionsPerChain = uniqueDeployments + vaultProxies.length;
+        uint256 actionsPerChain = uniqueDeployments + vaultProxies.length * 4;
         uint256 expectedTotal = chains.length * actionsPerChain;
 
         require(
