@@ -1,6 +1,6 @@
 # 100-U19-unichain
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x2afa1663f8e615b3951902cb3228c7c3e8a3cd967b804f5b4693cc4e1556e3cc)
 
 ## Objective
 
