@@ -248,7 +248,10 @@ contract FeeVaultUpgradeTemplate is L2TaskBase {
                     portal, address(RevShareCommon.PROXY_ADMIN), RevShareCommon.UPGRADE_GAS_LIMIT, upgradeData
                 );
                 RevShareCommon.depositCall(
-                    portal, vaultProxies[v], RevShareCommon.SETTERS_GAS_LIMIT, abi.encodeCall(IFeeVault.setRecipient, (recipient))
+                    portal,
+                    vaultProxies[v],
+                    RevShareCommon.SETTERS_GAS_LIMIT,
+                    abi.encodeCall(IFeeVault.setRecipient, (recipient))
                 );
                 RevShareCommon.depositCall(
                     portal,
