@@ -1,6 +1,8 @@
 # 102-ink-sepolia-proposer-rotation
 
-Status: DRAFT, NOT READY TO SIGN — re-simulated against live **post-U19** state (U19 executed 2026-06-15). The proposer-only `gameArgs(1)` diff is confirmed (old Gelato proposer fully replaced, challenger preserved); the nested signer domain/message hashes in [VALIDATION.md](./VALIDATION.md) match a fresh `just simulate council` / `just simulate foundation` run and only move if a signer-safe nonce advances.
+Status: [READY TO SIGN] 
+
+Re-simulated against live **post-U19** state (U19 executed 2026-06-15). The proposer-only `gameArgs(1)` diff is confirmed (old Gelato proposer fully replaced, challenger preserved); the nested signer domain/message hashes in [VALIDATION.md](./VALIDATION.md) match a fresh `just simulate council` / `just simulate foundation` run and only move if a signer-safe nonce advances.
 
 > [!NOTE]
 > U19 (executed 2026-06-15) bumped the Ink Sepolia permissioned (game type 1) implementation to v2.4.0 and set its absolute prestate to a `0xdead…` placeholder value. This does **not** disable the game — game type 1 stays a configured Guardian fallback (the active respected game is permissionless CANNON_KONA, type 8). Rotating its proposer to OPE remains the intended migration step. `SetDisputeGameArgs` reads the live `gameArgs(1)` and swaps only the proposer, so it carries U19's new impl/prestate/vm/delayedWETH forward unchanged.

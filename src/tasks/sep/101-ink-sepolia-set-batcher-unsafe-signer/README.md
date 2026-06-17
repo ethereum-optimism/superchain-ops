@@ -1,6 +1,8 @@
 # 101-ink-sepolia-set-batcher-unsafe-signer
 
-Status: DRAFT, NOT READY TO SIGN — simulates successfully (OPE Safe nonce 12; domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md)). Re-run `just simulate` to regenerate the hashes if the OPE Safe nonce advances or the `SystemConfig.owner` override is removed (after Gelato's W26 transfer) before signing.
+Status: [READY TO SIGN] 
+
+Simulates successfully (OPE Safe nonce 12; domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md)). Re-run `just simulate` to regenerate the hashes if the OPE Safe nonce advances or the `SystemConfig.owner` override is removed (after Gelato's W26 transfer) before signing.
 
 ## Objective
 
