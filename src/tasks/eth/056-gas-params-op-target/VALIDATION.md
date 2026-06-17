@@ -9,9 +9,9 @@ The steps are:
 3. [Verifying the state changes](#task-state-changes)
 
 > [!IMPORTANT]
-> This is the **P0 contingency** task. It assumes `053-gas-params-op-p0` has already
+> This is the **P0 contingency** task. It assumes `055-gas-params-op-p0` has already
 > executed (onchain gasLimit 80M, eip1559_elasticity 4). The `config.toml` reproduces
-> that post-053 state via `SystemConfig` storage overrides so the simulated diff shows
+> that post-055 state via `SystemConfig` storage overrides so the simulated diff shows
 > the only real change (elasticity 4 → 2, doubling the gas target). The Safe nonce
 > override (`58`) and hashes reflect that assumption and should be refreshed at signing
 > time.
@@ -43,7 +43,7 @@ This function is called with the following inputs:
 
 - `_gasLimit`: 80_000_000
 
-The onchain gasLimit is already 80M (set by `053-gas-params-op-p0`), so this call is a no-op and produces no state diff on slot `0x68`. We must still provide it because the `SystemConfigGasParams` template always issues both calls.
+The onchain gasLimit is already 80M (set by `055-gas-params-op-p0`), so this call is a no-op and produces no state diff on slot `0x68`. We must still provide it because the `SystemConfigGasParams` template always issues both calls.
 
 Command to encode:
 
@@ -116,16 +116,16 @@ for the expected state overrides and changes.
 
 Additionally, Safe-related nonces [will increment by one](../../../../../docs/SINGLE-VALIDATION.md#nonce-increments).
 
-### Pre-state overrides (modelling post-053 execution)
+### Pre-state overrides (modelling post-055 execution)
 
 In addition to the standard single-Safe overrides, this task's `config.toml` applies the
 following `SystemConfig` (`0x229047fed2591dbec1ef1118d64f7af3db9eb290`) overrides so that
-simulation reflects the on-chain state after `053-gas-params-op-p0` has executed. At
-signing time, if 053 has already executed on-chain these overrides are no-ops; if it has
+simulation reflects the on-chain state after `055-gas-params-op-p0` has executed. At
+signing time, if 055 has already executed on-chain these overrides are no-ops; if it has
 not, do not sign this task.
 
-- **Key:** `0x...0068` → `0x00000000000000000000000000000000000f79c50000146b0000000004c4b400` (gasLimit 80M, post-053)
-- **Key:** `0x...006a` → `0x00000000000000000000000000000000000000000000000000000004000000fa` (eip1559Elasticity 4, denominator 250, post-053)
+- **Key:** `0x...0068` → `0x00000000000000000000000000000000000f79c50000146b0000000004c4b400` (gasLimit 80M, post-055)
+- **Key:** `0x...006a` → `0x00000000000000000000000000000000000000000000000000000004000000fa` (eip1559Elasticity 4, denominator 250, post-055)
 
 ### Task State Changes
 
@@ -149,7 +149,7 @@ For each contract listed in the state diff, please verify that no contracts or s
       * Changes eip1559Elasticity from `4` (`0x00000004`) to `2` (`0x00000002`)
       * eip1559Denominator (`0xfa` = 250) is unchanged
 
-Note: slot `0x68` (gasLimit / basefeeScalar / blobbasefeeScalar) is **not** changed by this task. `setGasLimit(80000000)` writes the value already present onchain after 053 (80M), so it produces no state diff on slot `0x68`.
+Note: slot `0x68` (gasLimit / basefeeScalar / blobbasefeeScalar) is **not** changed by this task. `setGasLimit(80000000)` writes the value already present onchain after 055 (80M), so it produces no state diff on slot `0x68`.
 
   ---
 

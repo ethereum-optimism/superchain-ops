@@ -1,4 +1,4 @@
-# 053-gas-params-op-p0: (Ethereum) Increase gas *limit* (P0) : OP Mainnet
+# 055-gas-params-op-p0: (Ethereum) Increase gas *limit* (P0) : OP Mainnet
 
 Status: [DRAFT, NOT READY TO SIGN]()
 
@@ -28,9 +28,9 @@ lack of congestion.
 
 > [!NOTE]
 > If the target is subsequently reached, the gas target is doubled to 20Mgas/s by the
-> follow-up contingency task `054-gas-params-op-target` (which lowers elasticity back to
+> follow-up contingency task `056-gas-params-op-target` (which lowers elasticity back to
 > 2, keeping the 80M limit). The further P1 step (limit 2.5x → 100Mgas/s) is documented
-> in `054-gas-params-op-target/README.md` and is not yet scaffolded.
+> in `056-gas-params-op-target/README.md` and is not yet scaffolded.
 
 ### Timing
 
@@ -42,12 +42,12 @@ sustain a 40Mgas/s gas limit.
 ### Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (FoundationUpgradeSafe)
 Simulation commands:
 ```bash
-cd src/tasks/eth/053-gas-params-op-p0
+cd src/tasks/eth/055-gas-params-op-p0
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 ```
 
 Signing commands:
 ```bash
-cd src/tasks/eth/053-gas-params-op-p0
+cd src/tasks/eth/055-gas-params-op-p0
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
 ```

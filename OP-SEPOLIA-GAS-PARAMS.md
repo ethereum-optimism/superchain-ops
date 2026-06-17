@@ -5,12 +5,12 @@
 > by an **EOA** (`0xfd1D2e729aE8eEe2E146c033bf4400fE75284301` — the
 > `SystemConfigOwner` per the superchain-registry), not the `FoundationUpgradeSafe`.
 > The change is therefore made by sending transactions directly from that EOA.
-> The OP Mainnet equivalent is the Safe task at `src/tasks/eth/053-gas-params-op-p0`.
+> The OP Mainnet equivalent is the Safe task at `src/tasks/eth/055-gas-params-op-p0`.
 
 ## Objective
 
 This is the **P0** step of an incremental gas roll-out, mirroring OP Mainnet
-`053-gas-params-op-p0`. Double the block `gasLimit` on OP Sepolia from `40_000_000` to
+`055-gas-params-op-p0`. Double the block `gasLimit` on OP Sepolia from `40_000_000` to
 `80_000_000` **and** double `eip1559_elasticity` from `2` to `4`, keeping
 `eip1559_denominator = 250`. This doubles the gas **limit** while holding the gas
 **target** constant:
@@ -27,7 +27,7 @@ With 2s blocks:
 > [!NOTE]
 > **P0 contingency** (only if the target is reached): double the gas target to 20Mgas/s
 > by lowering elasticity back to 2 (keeping the 80M limit) — `setEIP1559Params(250, 2)`.
-> This mirrors OP Mainnet `054-gas-params-op-target`.
+> This mirrors OP Mainnet `056-gas-params-op-target`.
 > **P1 (future):** raise the gas limit a further 2.5x to 100Mgas/s (`setGasLimit(200000000)`).
 
 ## Parameters
