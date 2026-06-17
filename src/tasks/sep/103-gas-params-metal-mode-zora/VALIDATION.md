@@ -7,13 +7,14 @@ Mode, and Zora Sepolia.
 
 > [!CAUTION]
 > Before signing, ensure the hashes below match what is shown on your Ledger and in the
-> `op-txverify` output. Re-verify the SystemConfigOwner Safe live nonce first.
+> `op-txverify` output. Re-verify the SystemConfigOwner Safe live nonce first (these hashes
+> are computed at nonce 833).
 >
 > ### SystemConfigOwner (Metal + Mode + Zora): `0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2`
 >
-> - Safe Transaction Hash: `0x2b4e1f3a9d68c49b673ede3d22abf8a198b2f77c5a1f87362b31d5323f45122d`
+> - Safe Transaction Hash: `0xb1b3122293df7a0721e760a7e849004949d09562b8684505c6b05fd48c0b6773`
 > - Domain Hash: `0x5fa5f23e8066a0bc420f5a558f370b5d437030fdca8f52a91c13ca535e25a639`
-> - Message Hash: `0xdd39c2f01962dde4a179ca983e283f39d4ebb86b7772e0725f20b06f955cc74c`
+> - Message Hash: `0x906a66ef53bb004f63f5bef44e40aa526aa00a53756ff014075100670f8a9dc6`
 
 ## Task Calldata
 

@@ -32,8 +32,8 @@ eip1559Elasticity = 6
 eip1559Denominator = 250
 
 [stateOverrides]
-# Metal/Mode/Zora shared SystemConfigOwner Safe live nonce (832 as of 2026-06-16) — VERIFY before signing:
+# Metal/Mode/Zora shared SystemConfigOwner Safe live nonce (833 as of 2026-06-17) — VERIFY before signing:
 # cast call 0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2 "nonce()(uint256)" --rpc-url sepolia
 0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2 = [
-    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 832 }
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 833 }
 ]
