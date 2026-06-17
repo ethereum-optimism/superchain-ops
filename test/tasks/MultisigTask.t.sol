@@ -201,11 +201,14 @@ contract MultisigTaskUnitTest is Test {
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
-    /// @notice Regression test for the broadcast nonce-gap fix.
+    /// @notice Regression test for the broadcast nonce-gap fix (guard short-circuits the bump).
     /// The empty-signatures self-approve branch bumps each owner's nonce during SIMULATION to
-    /// mirror approveHash. In a broadcast (`just execute`) context that bump must be SKIPPED:
-    /// otherwise, for a safe whose owner is the executing sender, forge broadcasts the
-    /// execTransaction at nonce+1, leaving a gap that strands the tx as "pending forever".
+    /// mirror approveHash; in a broadcast (`just execute`) context that bump must be SKIPPED.
+    /// Here the root safe's owners are themselves Safe contracts, so this asserts the guard over
+    /// _incrementOwnerNonce's contract-owner (vm.store) branch. The EOA-owner branch (vm.setNonce)
+    /// — the one that actually desyncs forge's broadcast nonce and strands the tx "pending forever"
+    /// when owner == executor — is covered by test_selfApproveSkipsEoaOwnerNonceBumpWhenBroadcasting
+    /// (and end-to-end by the Sepolia fork reproduction in the PR).
     function test_selfApproveOwnerNonceBumpSkippedWhenBroadcasting() public {
         address[] memory owners = IGnosisSafe(root).getOwners();
 
@@ -233,6 +236,51 @@ contract MultisigTaskUnitTest is Test {
         for (uint256 i; i < owners.length; i++) {
             assertEq(IGnosisSafe(owners[i]).nonce(), before2[i], "broadcast must NOT bump owner nonce (nonce-gap fix)");
         }
+    }
+
+    /// @notice Regression test for the broadcast nonce-gap fix, exercising the EOA-owner branch.
+    /// The hang is caused specifically by _incrementOwnerNonce's EOA branch (vm.setNonce): when an
+    /// owner is an EOA equal to the broadcasting sender, bumping its nonce desyncs forge's broadcast
+    /// nonce, so the execTransaction is sent at nonce+1 and stranded as "pending forever". We append
+    /// a real EOA owner to the root safe (so its pranked approveHash passes the GS030 owner check),
+    /// keeping it LAST and leaving the threshold untouched — so getApprovers still selects only the
+    /// real owners and execTransaction is unaffected, while the EOA still reaches the
+    /// _incrementOwnerNonce loop. We then assert the EOA's forge nonce is bumped in simulation but
+    /// NOT in a broadcast context.
+    function test_selfApproveSkipsEoaOwnerNonceBumpWhenBroadcasting() public {
+        // Gnosis Safe v1.3.0 storage layout: owners mapping at slot 2, ownerCount at slot 3.
+        // (Same layout the StateOverrideManager relies on.) SENTINEL_OWNERS == address(1).
+        address sentinel = address(1);
+        address[] memory realOwners = IGnosisSafe(root).getOwners();
+        address lastOwner = realOwners[realOwners.length - 1];
+        address eoaOwner = makeAddr("eoaOwner");
+        assertEq(eoaOwner.code.length, 0, "precondition: eoaOwner must be an EOA (vm.setNonce branch)");
+
+        // Append eoaOwner after the current last owner: owners[lastOwner] = eoaOwner,
+        // owners[eoaOwner] = SENTINEL, ownerCount += 1. Threshold (slot 4) is left as-is.
+        vm.store(root, keccak256(abi.encode(lastOwner, uint256(2))), bytes32(uint256(uint160(eoaOwner))));
+        vm.store(root, keccak256(abi.encode(eoaOwner, uint256(2))), bytes32(uint256(uint160(sentinel))));
+        vm.store(root, bytes32(uint256(3)), bytes32(uint256(realOwners.length + 1)));
+        address[] memory ownersAfter = IGnosisSafe(root).getOwners();
+        assertEq(ownersAfter.length, realOwners.length + 1, "eoaOwner should be appended as a real owner");
+        assertEq(ownersAfter[ownersAfter.length - 1], eoaOwner, "eoaOwner must be the LAST owner");
+
+        // (1) Simulation: the EOA owner's forge nonce IS bumped (vm.setNonce branch).
+        string memory f1 = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "gapEoa1");
+        uint256 beforeSim = vm.getNonce(eoaOwner);
+        task.simulate(f1);
+        MultisigTaskTestHelper.removeFile(f1);
+        assertEq(vm.getNonce(eoaOwner), beforeSim + 1, "simulate should bump EOA owner forge nonce");
+
+        // (2) Broadcast context: the EOA owner's forge nonce is NOT bumped -> no broadcast nonce gap.
+        MultisigTask broadcastTask = MultisigTask(new MockBroadcastMultisigTask());
+        string memory f2 = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "gapEoa2");
+        uint256 beforeBroadcast = vm.getNonce(eoaOwner);
+        broadcastTask.simulate(f2);
+        MultisigTaskTestHelper.removeFile(f2);
+        assertEq(
+            vm.getNonce(eoaOwner), beforeBroadcast, "broadcast must NOT bump EOA owner forge nonce (nonce-gap fix)"
+        );
     }
 
     function testRootSafeGetCalldata() public {
