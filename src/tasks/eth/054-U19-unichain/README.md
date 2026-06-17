@@ -12,7 +12,46 @@ independent of the bundled OP-governed upgrade in `053-U19-op-ink-mmz-soneium`.
 
 ## Simulation & Signing
 
+This task is signed by Unichain's ProxyAdminOwner, a nested 3-of-3 of the
+Foundation Upgrade Safe, the Security Council, and the Unichain Chain Governor
+Safe. Run the commands once for the safe you sign for, replacing
+`<foundation|council|chain-governor>` with `foundation`, `council`, or
+`chain-governor`.
+
+`SKIP_DECODE_AND_PRINT=1` skips the slow human-readable state-diff printout
+without changing the domain/message hashes you verify or the Tenderly link. It
+is set on the sign command below; you can also prefix `simulate-stack` with it
+for a faster run (review state changes via the Tenderly link instead).
+
+### For Signers
+
 ```bash
-just simulate-stack eth 054-U19-unichain
-USE_KEYSTORE=1 just sign-stack eth 054-U19-unichain
+# Change directory to the task
+cd src/tasks/eth/054-U19-unichain
+
+# Simulate
+just simulate-stack eth 054-U19-unichain <foundation|council|chain-governor>
+
+# Sign
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 054-U19-unichain <foundation|council|chain-governor>
+
+# Add USE_KEYSTORE=1 before the command if you are signing with a local keystore
+# instead of a connected Ledger, e.g.
+#   USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack eth 054-U19-unichain <foundation|council|chain-governor>
+```
+
+### For Facilitators, after signatures have been collected
+
+```bash
+# Change directory to the task
+cd src/tasks/eth/054-U19-unichain
+
+# Approve once per safe, passing that safe's collected signatures
+SIGNATURES=0x... just approve <foundation|council|chain-governor>
+
+# Execute once all three safes have approved
+just execute
+
+# Add USE_KEYSTORE=1 before the command if you are using a local keystore
+# instead of a connected Ledger.
 ```
