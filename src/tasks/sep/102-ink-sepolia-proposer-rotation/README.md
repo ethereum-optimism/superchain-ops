@@ -1,4 +1,4 @@
-# 105-ink-sepolia-proposer-rotation
+# 102-ink-sepolia-proposer-rotation
 
 Status: DRAFT, NOT READY TO SIGN — re-simulated against live **post-U19** state (U19 executed 2026-06-15). The proposer-only `gameArgs(1)` diff is confirmed (old Gelato proposer fully replaced, challenger preserved); the nested signer domain/message hashes in [VALIDATION.md](./VALIDATION.md) match a fresh `just simulate council` / `just simulate foundation` run and only move if a signer-safe nonce advances.
 
@@ -54,7 +54,7 @@ Cutover step 4. Signatures collected in warm phase (plan W21/W22). Independent o
 ## Simulation & Signing
 
 ```bash
-cd src/tasks/sep/105-ink-sepolia-proposer-rotation
+cd src/tasks/sep/102-ink-sepolia-proposer-rotation
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 # nested signing flow — see docs/NESTED.md:
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign

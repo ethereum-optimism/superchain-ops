@@ -1,4 +1,4 @@
-# 104-ink-sepolia-set-batcher-unsafe-signer
+# 101-ink-sepolia-set-batcher-unsafe-signer
 
 Status: DRAFT, NOT READY TO SIGN — simulates successfully (OPE Safe nonce 12; domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md)). Re-run `just simulate` to regenerate the hashes if the OPE Safe nonce advances or the `SystemConfig.owner` override is removed (after Gelato's W26 transfer) before signing.
 
@@ -39,7 +39,7 @@ Plus the OPE Safe nonce increments by 1. (The `SystemConfig.owner()` slot-`0x33`
 ## Simulation & Signing
 
 ```bash
-cd src/tasks/sep/104-ink-sepolia-set-batcher-unsafe-signer
+cd src/tasks/sep/101-ink-sepolia-set-batcher-unsafe-signer
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 # then, to sign:
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
