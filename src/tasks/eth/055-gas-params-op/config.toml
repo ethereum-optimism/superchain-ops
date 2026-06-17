@@ -1,0 +1,32 @@
+# Karst (U19) gas-limit reset reference — OP Mainnet.
+#
+# Karst leaves the effective L2 block gas limit ~55 MGas above the value stored in
+# the SystemConfig (op-node/kona bug; see Notion "P/PS: Karst Gas Limit Bug").
+# Re-affirming the SystemConfig gas params re-emits the gas ConfigUpdate, which resets
+# the effective gas limit back to the on-chain value.
+#
+# OP Mainnet's SystemConfig is owned by the Foundation Upgrade Safe, so this task is
+# rooted there (SystemConfigOwner == FoundationUpgradeSafe). It runs after Karst
+# activates on Mainnet (July 8, 2026), i.e. after the U19 tasks 053/054.
+
+l2chains = [ {name = "OP Mainnet", chainId = 10} ]
+
+templateName = "SystemConfigGasParams"
+
+# Root at the chain's SystemConfig owner (auto-discovered via SystemConfig.owner()).
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+# Current on-chain values (re-set to the same values to trigger the ConfigUpdate).
+gasLimit = 40000000
+eip1559Elasticity = 2
+eip1559Denominator = 250
+
+[stateOverrides]
+# Foundation Upgrade Safe nonce. Live value is 57 (2026-06-16); the U19 tasks 053 and 054
+# each consume one FUS nonce, so after U19 the nonce is 59 (used here for the stacked
+# simulation). VERIFY the live nonce before signing:
+# cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" --rpc-url mainnet
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59 }
+]

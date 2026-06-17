@@ -1,0 +1,38 @@
+# Karst (U19) gas-limit reset reference — Metal L2 + Mode Mainnet (bundled).
+#
+# Karst leaves the effective L2 block gas limit ~55 MGas above the value stored in
+# the SystemConfig (op-node/kona bug; see Notion "P/PS: Karst Gas Limit Bug").
+# Re-affirming the SystemConfig gas params re-emits the gas ConfigUpdate, which resets
+# the effective gas limit back to the on-chain value. Executed by the chain's
+# SystemConfig owner (an operator Safe), NOT the Foundation Upgrade Safe.
+#
+# Metal and Mode share the SAME SystemConfig owner Safe (Conduit) and have identical gas
+# params, so they are bundled into one task (one signature, one nonce). The template
+# applies the same [gasParams] to every chain in l2chains.
+
+l2chains = [
+    {name = "Metal L2", chainId = 1750},
+    {name = "Mode", chainId = 34443}
+]
+
+templateName = "SystemConfigGasParams"
+
+# Root at the chains' shared SystemConfig owner (auto-discovered via SystemConfig.owner()).
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+# Current on-chain gasLimit (identical for both chains; re-set to the same value).
+gasLimit = 30000000
+# Metal and Mode predate on-chain EIP-1559 config: SystemConfig getters return 0, and the
+# chains run on their genesis/Canyon defaults (superchain-registry: eip1559_elasticity = 6,
+# eip1559_denominator_canyon = 250; confirmed via L2 block-header extraData). Setting them
+# explicitly is a behavioral no-op.
+eip1559Elasticity = 6
+eip1559Denominator = 250
+
+[stateOverrides]
+# Metal/Mode shared SystemConfigOwner Safe live nonce (277 as of 2026-06-16) — VERIFY before signing:
+# cast call 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746 "nonce()(uint256)" --rpc-url mainnet
+0x4a4962275DF8C60a80d3a25faEc5AA7De116A746 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 277 }
+]

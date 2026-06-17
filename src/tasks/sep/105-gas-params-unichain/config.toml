@@ -1,0 +1,28 @@
+# Karst (U19) gas-limit reset reference — Unichain Sepolia Testnet.
+#
+# Karst leaves the effective L2 block gas limit ~55 MGas above the value stored in
+# the SystemConfig (op-node/kona bug; see Notion "P/PS: Karst Gas Limit Bug").
+# Re-affirming the SystemConfig gas params re-emits the gas ConfigUpdate, which resets
+# the effective gas limit back to the on-chain value. Executed by the chain's
+# SystemConfig owner (an operator Safe), NOT the Foundation Upgrade Safe.
+
+l2chains = [ {name = "Unichain Sepolia Testnet", chainId = 1301} ]
+
+templateName = "SystemConfigGasParams"
+
+# Root at the chain's actual SystemConfig owner (auto-discovered via SystemConfig.owner()).
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+# Current on-chain values (re-set to the same values to trigger the ConfigUpdate).
+# Note: Unichain Sepolia uses eip1559Denominator = 50 on chain (not 250).
+gasLimit = 60000000
+eip1559Elasticity = 12
+eip1559Denominator = 50
+
+[stateOverrides]
+# Unichain Sepolia SystemConfigOwner Safe live nonce (6 as of 2026-06-16) — VERIFY before signing:
+# cast call 0x325B777f8F0bC71fb6b617Bc41A8703CA7077891 "nonce()(uint256)" --rpc-url sepolia
+0x325B777f8F0bC71fb6b617Bc41A8703CA7077891 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 6 }
+]
