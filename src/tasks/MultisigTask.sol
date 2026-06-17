@@ -140,7 +140,17 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 IGnosisSafe(safeData.safe).approveHash(txHash_);
                 // Manually increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
                 // the nonce would be incremented by 1 and we wouldn't have to do this manually.
-                _incrementOwnerNonce(owners[i]);
+                //
+                // Only do this when NOT broadcasting. This branch is reached on a real `just execute`
+                // whenever SIGNATURES is empty (its default), and the approveHash above is pranked, not
+                // broadcast. Bumping an owner's EOA nonce here desyncs forge's broadcast nonce for any
+                // owner that is also the executing sender (e.g. a 1/1 safe where owner == executor): forge
+                // then sends the execTransaction at nonce+1, leaving a gap that strands the tx as "pending"
+                // until the missing nonce is filled. The execTransaction still succeeds on-chain via the
+                // prevalidated signature (owner == msg.sender), so the increment is unnecessary here.
+                if (!_isBroadcastContext()) {
+                    _incrementOwnerNonce(owners[i]);
+                }
             }
             signatures = _prepareSignatures(safeData.safe, txHash_);
         } else {
