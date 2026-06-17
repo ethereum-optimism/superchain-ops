@@ -32,14 +32,45 @@ proceeding.
 
 ## Simulation & Signing
 
+This task is signed by the Mainnet ProxyAdminOwner, a nested 2-of-2 of the
+Security Council and the Foundation Upgrade Safe. Run the commands once for the
+safe you sign for, replacing `<council|foundation>` with `council` or
+`foundation`.
+
+`SKIP_DECODE_AND_PRINT=1` skips the slow human-readable state-diff printout
+without changing the domain/message hashes you verify or the Tenderly link. It
+is set on the sign command below; you can also prefix `simulate-stack` with it
+for a faster run (review state changes via the Tenderly link instead).
+
+### For Signers
+
 ```bash
+# Change directory to the task
+cd src/tasks/eth/053-U19-op-ink-mmz-soneium
+
 # Simulate
-just simulate-stack eth 053-U19-op-ink-mmz-soneium
+just simulate-stack eth 053-U19-op-ink-mmz-soneium <council|foundation>
 
 # Sign
-USE_KEYSTORE=1 just sign-stack eth 053-U19-op-ink-mmz-soneium
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 053-U19-op-ink-mmz-soneium <council|foundation>
 
-# Execute
+# Add USE_KEYSTORE=1 before the command if you are signing with a local keystore
+# instead of a connected Ledger, e.g.
+#   USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack eth 053-U19-op-ink-mmz-soneium <council|foundation>
+```
+
+### For Facilitators, after signatures have been collected
+
+```bash
+# Change directory to the task
 cd src/tasks/eth/053-U19-op-ink-mmz-soneium
-SIGNATURES=0x just execute
+
+# Approve once per safe, passing that safe's collected signatures
+SIGNATURES=0x... just approve <council|foundation>
+
+# Execute once both safes have approved
+just execute
+
+# Add USE_KEYSTORE=1 before the command if you are using a local keystore
+# instead of a connected Ledger.
 ```
