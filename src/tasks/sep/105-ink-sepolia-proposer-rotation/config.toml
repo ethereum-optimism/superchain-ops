@@ -1,0 +1,57 @@
+# Ink Sepolia migration (Gelato → OP Enterprise) — cutover step 4.
+#
+# Rotates the PermissionedDisputeGame (PDG, game type 1) proposer on Ink Sepolia
+# (chainId 763373) to the OPE proposer. The PDG is a dormant safety fallback; per the
+# Ink Sepolia Migration Plan §1 / §2.3 its proposer is updated "for correctness". The
+# active permissionless game (CANNON_KONA, type 8 post-Karst) has no on-chain proposer.
+#
+# Ink Sepolia's DisputeGameFactory (v1.6.1, post-U19) uses the gameArgs blob pattern: per-chain
+# data (prestate, vm, ASR, delayedWETH, proposer, challenger) lives in
+# DisputeGameFactory.gameArgs(gameType), NOT as impl immutables. SetDisputeGameArgs
+# reads the live gameArgs(1), overrides ONLY the proposer, and re-emits
+# setImplementation(1, sameImpl, newGameArgs).
+#
+# FIELD-DIFFING — only `proposer` changes:
+#   - prestate           : LEFT UNCHANGED — U19 (executed 2026-06-15) set it to a 0xdead…
+#                          placeholder (does NOT disable type 1); read live and preserved
+#   - challenger         : LEFT UNCHANGED — already 0xfd1D2e…4301 (OP Sepolia challenger,
+#                          OP governance per plan §3.1 "no action"); read live
+#   - vm / ASR / weth / chainId / impl / bond : LEFT UNCHANGED; read live (U19 bumped impl
+#                          to 0xe1dFFCBE…87e v2.4.0 and vm/weth — all preserved by this task)
+#
+# Because every field except proposer is read live at sign time, this task already absorbs
+# U19's changes. RE-SIMULATE immediately before signing to confirm the live gameArgs(1) values.
+
+templateName = "SetDisputeGameArgs"
+
+l2chains = [
+    {name = "Ink Sepolia", chainId = 763373}
+]
+
+# Single row: PDG (game type 1), proposer only. Every omitted field is read from the live
+# gameArgs(1) and preserved.
+[[gameConfig]]
+chainId  = 763373
+gameType = 1                                                  # PERMISSIONED_CANNON
+proposer = "0x2282d49d805333D8cd6ddda52B32aC07d6e4e51B"       # OPE proposer (was Gelato 0xB15d792E30C5b7f67CBe5fe9Ba76685b537B4543)
+bond     = 80000000000000000                                  # 0.08 ETH — pins the current PDG init bond (no-op; lets _validate assert it)
+
+[addresses]
+# Pinned for robustness (also resolvable from the superchain-registry).
+ProxyAdminOwner         = "0x1Eb2fFc903729a0F03966B917003800b145F56E2" # L1PAO Sepolia (2-of-2: Foundation + Security Council)
+DisputeGameFactoryProxy = "0x860e626c700AF381133D9f4aF31412A2d1DB3D5d"
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces (slot 5). Live values (re-verified 2026-06-16): L1PAO=53,
+# Foundation=73, Security Council=67. 105 is the first PAO-signed task in the stack and runs
+# against live state, so each override = its live nonce. Re-verify before signing — these
+# advance whenever the safes transact (StateOverrideManager rejects an override below live).
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 73}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
+]
