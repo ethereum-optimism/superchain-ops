@@ -1,0 +1,37 @@
+# Example task for the SetDisputeGameImpl template — CANNON_KONA (game type 8) path.
+#
+# Exercises the FDG/PDG bond update path and additionally supplies the optional
+# `[[konaGameImplConfig]]` section, which wires the permissionless CANNON_KONA
+# (game type 8) slot via `setImplementation`, reusing an already-deployed
+# FaultDisputeGame blueprint impl — the kona prestate lives in `gameArgs`
+# (124-byte permissionless layout). At the pinned Ink Sepolia block the kona
+# slot is empty, so the batch contains a setImplementation(8, …) followed by a
+# setInitBond(8, …); the FDG/PDG impls already match on-chain (prev == new) so
+# only their bonds update.
+
+l2chains = [
+  { name = "Ink Sepolia", chainId = 763373 }
+]
+
+templateName = "SetDisputeGameImpl"
+
+[[gameImplConfig]]
+chainId = 763373
+fdgBond = 100000000000000000
+fdgGameArgs = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e6463dee3828677f6270d83d45408044fc5edb908299d7ea9f0b584cfaf2a5341d151b44967594ca9eea9acd46a304b35ca459741745bffcaf2c6865900000000000000000000000000000000000000000000000000000000000ba5ed"
+fdgImpl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"
+pdgBond = 100000000000000000
+pdgGameArgs = "0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e6463dee3828677f6270d83d45408044fc5edb908299d7ea9f0b584cfaf2a5341d151b44967594ca952d5bdc07f4ac131c21f09ffda1440f0152a8ac600000000000000000000000000000000000000000000000000000000000ba5edb15d792e30c5b7f67cbe5fe9ba76685b537b4543fd1d2e729ae8eee2e146c033bf4400fe75284301"
+pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"
+prevFdgImpl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"
+
+# CANNON_KONA (game type 8). Permissionless 124-byte gameArgs: prestate(32) | vm(20) |
+# anchorStateRegistry(20) | delayedWETH(20) | chainId(32). Reuses the FDG vm/asr/delayedWETH and
+# the chainId (0xba5ed = 763373); the prestate is the standard kona-client v1.6.0-rc.1 absolute
+# prestate. The impl reuses the deployed FaultDisputeGame blueprint (kona binding lives in gameArgs).
+[[konaGameImplConfig]]
+bond = 100000000000000000
+chainId = 763373
+gameArgs = "0x03cdb57a890f7e129d5abbe074f19425f94cf2b84f614aab008a96f91debae656463dee3828677f6270d83d45408044fc5edb908299d7ea9f0b584cfaf2a5341d151b44967594ca9eea9acd46a304b35ca459741745bffcaf2c6865900000000000000000000000000000000000000000000000000000000000ba5ed"
+impl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"

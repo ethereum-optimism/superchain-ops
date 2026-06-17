@@ -1,0 +1,27 @@
+# 095-beta-0-zero-cannon-kona-game-type
+
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa82c218674e134bc8323a55a549c65e47f4c3eea2d99afd630bd58da4b6ecdc6)
+
+## Objective
+
+Corrective task (part 2 of 2) for `karst-u19-beta-0` (chainId `420110023`): remove the
+CANNON_KONA (game type 8) implementation, so a permissioned chain has no permissionless game
+(per the U19 clarification). Must run after
+[094-beta-0-set-respected-game-type-permissioned](../094-beta-0-set-respected-game-type-permissioned),
+which reverts `respectedGameType` to 1 first.
+
+Uses [SetDisputeGameImpl](../../../template/SetDisputeGameImpl.sol) with a `[[konaGameImplConfig]]`
+whose `impl = 0x0` — the template's disable path calls
+`factory.setImplementation(CANNON_KONA, 0x0, "")` to zero the slot. FDG (game type 0) and PDG
+(game type 1) are passthroughs (unchanged; beta-0's permissioned prestate is already `0xdead`).
+
+End state for beta-0: `gameImpls(0)=0x0`, `gameImpls(1)=0xe1dF…/0xdead`, `gameImpls(8)=0x0`,
+`respectedGameType=1` — a compliant permissioned chain.
+
+## Simulation
+
+```bash
+cd src && just simulate-stack sep 095-beta-0-zero-cannon-kona-game-type
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
+USE_KEYSTORE=1 SIGNATURES=0x just execute
+```

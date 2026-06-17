@@ -1,0 +1,68 @@
+# Wire the permissionless `CANNON` (game type 0) impl into karst-u19-beta-1's DisputeGameFactory.
+#
+# Redo of task 077 against the fresh `karst-u19-beta` replacement network.
+#
+# This is the missing piece between U18-era task 050 (AddGameType, which deploys a
+# fresh game contract) and the U19 flow: the betanet deployment already shipped a
+# shared `FaultDisputeGame` impl at `0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499`
+# (same impl OP Sepolia uses for its CANNON slot), so we don't need to deploy a new
+# game — we only need to call `factory.setImplementation(CANNON, impl, gameArgs)`.
+# `SetDisputeGameImpl` does exactly that, leaving the existing `PERMISSIONED_CANNON`
+# slot untouched.
+#
+# Sequencing: this runs BEFORE 088 (set-respected-game-type) so that by the time
+# 088 flips ASR.respectedGameType to 0, karst-u19-beta-1's DGF actually has a CANNON
+# impl wired in. The follow-up 089 task then runs U19 (V700) against a chain that is
+# "officially permissionless" (CANNON wired + respected = CANNON).
+
+l2chains = [
+    {name = "karst-u19-beta-1", chainId = 420110024}
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/087-betanet-set-dispute-game-impl-permissionless/addresses.json"
+templateName = "SetDisputeGameImpl"
+
+[[gameImplConfig]]
+chainId = 420110024
+# --- FDG (permissionless CANNON, game type 0) — being wired for the first time --- #
+# fdgImpl: shared FaultDisputeGame impl deployed during karst-u19-beta op-deployer run
+# (see dev/karst-u19-beta/karst-u19-beta-1/chain.yaml -> opChainDeployment.FaultDisputeGameImpl).
+fdgImpl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"
+# prevFdgImpl is set to the same address as fdgImpl as a workaround.
+# SetDisputeGameImpl._validateBasicInvariants calls `newFdg.l2ChainId()` on the impl,
+# which returns 0 for the shared (blueprint-style) FaultDisputeGame impl used in U19+
+# — chain-specific data lives in `gameArgs`, not in the impl's immutables. Setting
+# prevFdgImpl == fdgImpl makes the template skip that branch (the `setImplementation`
+# call still fires because `currentFDG (0) != fdgImpl`).
+prevFdgImpl = "0x6dDBa09bc4cCB0D6Ca9Fc5350580f74165707499"
+# fdgGameArgs (124 bytes, big-endian concatenation):
+#   prestate(32)   = 0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c
+#                    (the chain's current PERMISSIONED_CANNON prestate, read from
+#                    DisputeGameFactory.gameArgs(1) on Sepolia — op-program prestate,
+#                    chain-agnostic and identical to the original u19-beta value).
+#   vm(20)         = 0x6463dee3828677f6270d83d45408044fc5edb908  (MIPS impl)
+#   asr(20)        = 0x07f087e742134009e6241e19b1ee7fc339d4634d  (AnchorStateRegistryProxy)
+#   delayedWETH(20)= 0xa6a258ff9290b22c11007f9a9c2dd417e83cd0d3  (reused permissioned DelayedWETH,
+#                                                                mirroring sepolia task 050 / U18 pattern)
+#   chainId(32)    = 0x190a5ec8  (= 420110024)
+fdgGameArgs = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c6463dee3828677f6270d83d45408044fc5edb90807f087e742134009e6241e19b1ee7fc339d4634da6a258ff9290b22c11007f9a9c2dd417e83cd0d300000000000000000000000000000000000000000000000000000000190a5ec8"
+fdgBond = 80000000000000000  # 0.08 ETH (matches the U18 betanet initialBond)
+
+# --- PDG (PERMISSIONED_CANNON, game type 1) — unchanged, passthrough --- #
+# Passing the current on-chain impl + gameArgs causes SetDisputeGameImpl to early-return for PDG
+# (see _setPDGImplementation: skip if currentPDG == c.pdgImpl AND gameArgs match).
+# pdgGameArgs below is the exact value read from DisputeGameFactory.gameArgs(1) on Sepolia,
+# so the passthrough early-return triggers (prestate + vm + asr + delayedWETH + chainId +
+# proposer + challenger).
+pdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"
+prevPdgImpl = "0x58bf355C5d4EdFc723eF89d99582ECCfd143266A"
+pdgGameArgs = "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c6463dee3828677f6270d83d45408044fc5edb90807f087e742134009e6241e19b1ee7fc339d4634da6a258ff9290b22c11007f9a9c2dd417e83cd0d300000000000000000000000000000000000000000000000000000000190a5ec88e95f607121c6422d32a6d35aef0adc8d0813a213394222cbec6b5eac1b9db7733798f766754ce9e"
+pdgBond = 0  # bond unchanged; SetDisputeGameImpl skips setInitBond when value is 0
+
+[stateOverrides]
+# Pin the Sepolia betanet ProxyAdminOwner Safe nonce (Gnosis Safe storage slot 5).
+# On-chain nonce was 3; this task runs after 086 in the stack (which bumps the Safe's
+# nonce by 1) → nonce 4. Re-verify against `cast call $SAFE "nonce()"` before signing.
+0x8E851F7d8bAeaD95F592847a020cAC7A062dafd9 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
+]

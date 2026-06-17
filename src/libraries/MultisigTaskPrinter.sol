@@ -88,6 +88,10 @@ library MultisigTaskPrinter {
         }
     }
 
+    /// @notice Tenderly's Simulator refuses to copy/open draft links longer than ~2000 characters.
+    /// We leave headroom below that so the printed link is reliably usable.
+    uint256 internal constant TENDERLY_MAX_URL_LENGTH = 2000;
+
     /// @notice Prints the Tenderly simulation payload with the state overrides.
     function printTenderlySimulationData(
         address targetAddress,
@@ -97,7 +101,106 @@ library MultisigTaskPrinter {
     ) internal view {
         printTitle("TENDERLY SIMULATION DATA");
         console.log("\nSimulation link:");
-        Simulation.logSimulationLink({_to: targetAddress, _data: finalExec, _from: sender, _overrides: overrides});
+
+        // First attempt: a single draft link with the full calldata embedded.
+        string memory link = getTenderlySimulationLink(targetAddress, finalExec, sender, overrides, true);
+        if (bytes(link).length <= TENDERLY_MAX_URL_LENGTH) {
+            console.log(link);
+            return;
+        }
+
+        // The draft format caps usable links at ~2000 characters and the calldata is too large to
+        // embed. Print a draft that pre-fills everything except the raw input, then print the calldata
+        // separately so it can be pasted into the Simulator's "Raw input data" field.
+        string memory linkNoInput = getTenderlySimulationLink(targetAddress, finalExec, sender, overrides, false);
+        if (bytes(linkNoInput).length > TENDERLY_MAX_URL_LENGTH) {
+            console.log(
+                "[Warning] Tenderly draft link exceeds %s characters even without calldata - the Simulator may not open it correctly.",
+                TENDERLY_MAX_URL_LENGTH
+            );
+        }
+        console.log(linkNoInput);
+        console.log("\nInsert the following hex into the 'Raw input data' field:");
+        console.log(vm.toString(finalExec));
+    }
+
+    /// @notice Builds a Tenderly simulation draft link. A Tenderly simulation draft is a shareable URL
+    /// that pre-populates the Tenderly Simulator form (network, contract, sender, gas, state overrides,
+    /// and optionally calldata) without executing the simulation — the recipient reviews the pre-filled
+    /// parameters and clicks "Simulate" to run it. The full simulation state is encoded as a JSON
+    /// payload, base64url-encoded (no padding), in the `?draft=` query parameter.
+    /// Tenderly simulation draft links spec:
+    /// https://tenderlydev.notion.site/Simulator-draft-links-draft-37b84be6a2e680bb9874f18a833c1997
+    /// @param to The target contract address (the "to" address).
+    /// @param data The raw calldata for the simulation.
+    /// @param from The sender address.
+    /// @param overrides The state overrides to pre-fill.
+    /// @param includeRawInput When false, the `rawFunctionInput` field is omitted (used as a fallback
+    /// when embedding the calldata would push the URL past Tenderly's length limit).
+    function getTenderlySimulationLink(
+        address to,
+        bytes memory data,
+        address from,
+        Simulation.StateOverride[] memory overrides,
+        bool includeRawInput
+    ) internal view returns (string memory) {
+        string memory proj = vm.envOr("TENDERLY_PROJECT", string("TENDERLY_PROJECT"));
+        string memory username = vm.envOr("TENDERLY_USERNAME", string("TENDERLY_USERNAME"));
+
+        // Build the JSON `row` object (the Simulator form fields).
+        string memory row = string.concat(
+            "{\"contractAddress\":\"",
+            vm.toString(to),
+            "\",\"from\":\"",
+            vm.toString(from),
+            "\",\"inputDataType\":\"raw\""
+        );
+        if (includeRawInput) {
+            row = string.concat(row, ",\"rawFunctionInput\":\"", vm.toString(data), "\"");
+        }
+        // Use the TENDERLY_GAS environment variable to set a specific gas limit, if provided.
+        if (vm.envOr("TENDERLY_GAS", uint256(0)) > 0) {
+            row = string.concat(row, ",\"gas\":\"", vm.envString("TENDERLY_GAS"), "\"");
+        }
+        row = string.concat(row, ",\"stateOverrides\":", _buildStateOverridesJson(overrides), "}");
+
+        // Wrap the row in the top-level draft payload and base64url-encode it (file-safe, no padding).
+        string memory payload =
+            string.concat("{\"v\":1,\"network\":{\"id\":\"", vm.toString(block.chainid), "\"},\"row\":", row, "}");
+        string memory draft = Base64.encode(bytes(payload), true, true);
+
+        return string.concat("https://dashboard.tenderly.co/", username, "/", proj, "/simulator/new?draft=", draft);
+    }
+
+    /// @notice Encodes state overrides as the `stateOverrides` JSON array expected by a Tenderly draft.
+    function _buildStateOverridesJson(Simulation.StateOverride[] memory overrides)
+        private
+        pure
+        returns (string memory)
+    {
+        string memory json = "[";
+        for (uint256 i; i < overrides.length; i++) {
+            if (i > 0) json = string.concat(json, ",");
+            json = string.concat(
+                json,
+                "{\"contractAddress\":\"",
+                vm.toString(overrides[i].contractAddress),
+                "\",\"balance\":\"\",\"storage\":["
+            );
+            for (uint256 j; j < overrides[i].overrides.length; j++) {
+                if (j > 0) json = string.concat(json, ",");
+                json = string.concat(
+                    json,
+                    "{\"key\":\"",
+                    vm.toString(overrides[i].overrides[j].key),
+                    "\",\"value\":\"",
+                    vm.toString(overrides[i].overrides[j].value),
+                    "\"}"
+                );
+            }
+            json = string.concat(json, "]}");
+        }
+        return string.concat(json, "]");
     }
 
     // ==========================================
