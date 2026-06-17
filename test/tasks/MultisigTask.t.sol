@@ -13,6 +13,7 @@ import {MultisigTask} from "src/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
+import {MockBroadcastMultisigTask} from "test/tasks/mock/MockBroadcastMultisigTask.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {HighGasMultisigTask} from "test/tasks/mock/HighGasMultisigTask.sol";
 
@@ -198,6 +199,40 @@ contract MultisigTaskUnitTest is Test {
         // Validations should pass after a successful run.
         task.validate(accountAccesses, actions, payload);
         MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    /// @notice Regression test for the broadcast nonce-gap fix.
+    /// The empty-signatures self-approve branch bumps each owner's nonce during SIMULATION to
+    /// mirror approveHash. In a broadcast (`just execute`) context that bump must be SKIPPED:
+    /// otherwise, for a safe whose owner is the executing sender, forge broadcasts the
+    /// execTransaction at nonce+1, leaving a gap that strands the tx as "pending forever".
+    function test_selfApproveOwnerNonceBumpSkippedWhenBroadcasting() public {
+        address[] memory owners = IGnosisSafe(root).getOwners();
+
+        // (1) Non-broadcast (simulate): owner nonces ARE incremented.
+        string memory f1 = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "gap1");
+        uint256[] memory before1 = new uint256[](owners.length);
+        for (uint256 i; i < owners.length; i++) {
+            before1[i] = IGnosisSafe(owners[i]).nonce();
+        }
+        task.simulate(f1);
+        MultisigTaskTestHelper.removeFile(f1);
+        for (uint256 i; i < owners.length; i++) {
+            assertEq(IGnosisSafe(owners[i]).nonce(), before1[i] + 1, "simulate should bump owner nonce");
+        }
+
+        // (2) Broadcast context: owner nonces are NOT incremented -> no nonce gap.
+        MultisigTask broadcastTask = MultisigTask(new MockBroadcastMultisigTask());
+        string memory f2 = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "gap2");
+        uint256[] memory before2 = new uint256[](owners.length);
+        for (uint256 i; i < owners.length; i++) {
+            before2[i] = IGnosisSafe(owners[i]).nonce();
+        }
+        broadcastTask.simulate(f2);
+        MultisigTaskTestHelper.removeFile(f2);
+        for (uint256 i; i < owners.length; i++) {
+            assertEq(IGnosisSafe(owners[i]).nonce(), before2[i], "broadcast must NOT bump owner nonce (nonce-gap fix)");
+        }
     }
 
     function testRootSafeGetCalldata() public {

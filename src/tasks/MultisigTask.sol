@@ -518,7 +518,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Helper function that returns whether or not the current context is a broadcast context.
-    function _isBroadcastContext() internal view returns (bool) {
+    function _isBroadcastContext() internal view virtual returns (bool) {
         return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume);
     }
 
