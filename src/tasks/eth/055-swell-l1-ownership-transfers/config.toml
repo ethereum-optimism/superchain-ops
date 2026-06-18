@@ -42,15 +42,20 @@ newOwner = "0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa"
 # and bump the corresponding override + re-run the simulation if any have
 # advanced.
 #
-# Standard OP Mainnet L1PAO Safe — on-chain nonce 35 at task creation (2026-06-15).
+# These overrides are stack-adjusted: CI simulates the stack 053 -> 054 -> 055,
+# and the preceding U19 tasks consume Safe nonces before this task runs. Live
+# nonces at task creation (2026-06-15) were L1PAO 35, FUS 57, SC 58.
+#
+# Standard OP Mainnet L1PAO Safe — live 35 + 1 (task 053 executes via this Safe;
+# 054/Unichain uses its own L1PAO) = 36.
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 35}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
 ]
-# FoundationUpgradeSafe — on-chain nonce 57 at task creation.
+# FoundationUpgradeSafe — live 57 + 2 (tasks 053 and 054 both nest this Safe) = 59.
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 57}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
 ]
-# SecurityCouncil — on-chain nonce 58 at task creation.
+# SecurityCouncil — live 58 + 2 (tasks 053 and 054 both nest this Safe) = 60.
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
 ]

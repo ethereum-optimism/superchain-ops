@@ -22,26 +22,28 @@ when you run the task.
 > [!CAUTION]
 >
 > This task is `DRAFT, NOT READY TO SIGN` — it requires Optimism Governance
-> approval before signing. The hashes below were generated at task creation
-> (2026-06-15) with the nonces pinned in `config.toml` `stateOverrides`:
-> - Standard OP Mainnet L1PAO Safe: **35**
-> - FoundationUpgradeSafe:          **57**
-> - SecurityCouncil:                **58**
+> approval before signing. The hashes below were generated against the stacked
+> simulation (CI simulates the stack 053 → 054 → 055), with the stack-adjusted
+> nonces pinned in `config.toml` `stateOverrides`:
+> - Standard OP Mainnet L1PAO Safe: **36**  (live 35 + 1: task 053 executes via this Safe)
+> - FoundationUpgradeSafe:          **59**  (live 57 + 2: tasks 053 and 054 both nest this Safe)
+> - SecurityCouncil:                **60**  (live 58 + 2: tasks 053 and 054 both nest this Safe)
 >
 > All three Safes are shared across many Mainnet chains. Before signing,
 > re-verify the live nonces with `cast call <safe> "nonce()" --rpc-url mainnet`
-> and your ledger. If any has advanced, bump the corresponding override and
-> re-simulate so the hashes below are regenerated.
+> and your ledger. If any has advanced — or the set of preceding non-executed
+> tasks in the stack changes — bump the corresponding override and re-simulate
+> so the hashes below are regenerated.
 >
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x963cfcc825c205bee5eb921f3252400f6b6b5ea36880b0b14ee1b33a53796e11`
+> - Message Hash: `0xf41572e9d18df7837e019c1ee7c4ddded7c1040df0976923d204756e637a87f2`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0xa9138558cac264272cad0eceb6798dba15db50360453bb2389a474d204697f4c`
+> - Message Hash: `0x17de8262e31d4cc660ae443a1b0b7297cce9727c754bf8e9a8dbca605e1288c4`
 
 ## State Changes
 
@@ -69,10 +71,12 @@ The simulation produces three state changes on L1 Mainnet:
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `35`
-  - **After:**  `36`
+  - **Before:** `36`
+  - **After:**  `37`
   - **Summary:** nonce
-  - **Detail:** Standard Gnosis Safe nonce bump for executing this task.
+  - **Detail:** Standard Gnosis Safe nonce bump for executing this task. The
+    pre-state is 36 (not the live 35) because CI simulates the stack
+    053 → 054 → 055, and task 053 consumes one L1PAO nonce ahead of this task.
 
 ---
 
