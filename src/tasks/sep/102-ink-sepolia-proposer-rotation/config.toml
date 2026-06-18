@@ -43,7 +43,7 @@ DisputeGameFactoryProxy = "0x860e626c700AF381133D9f4aF31412A2d1DB3D5d"
 
 [stateOverrides]
 # Nested L1PAO signer-safe nonces (slot 5). Live values (re-verified 2026-06-16): L1PAO=53,
-# Foundation=73, Security Council=67. 105 is the first PAO-signed task in the stack and runs
+# Foundation=73, Security Council=67. 102 is the first PAO-signed task in the stack and runs
 # against live state, so each override = its live nonce. Re-verify before signing — these
 # advance whenever the safes transact (StateOverrideManager rejects an override below live).
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
