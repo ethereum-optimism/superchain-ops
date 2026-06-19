@@ -400,6 +400,17 @@ execute:
   unset ETHERSCAN_API_KEY # Avoid Etherscan API rate limiting during simulation
   root_dir=$(git rev-parse --show-toplevel)
   root_just_file="${root_dir}/src/justfile"
+  if [ -z "${SIGNATURES+x}" ]; then
+    echo "Error: SIGNATURES is required for just execute."
+    echo "Run SIGNATURES=<hex signatures> just execute for signed execution."
+    echo "Run SIGNATURES=0x just execute only after onchain approvals already exist, e.g. nested-safe execution after just approve."
+    exit 1
+  fi
+  if [ -z "$SIGNATURES" ]; then
+    echo "Error: SIGNATURES is set but empty."
+    echo "Use SIGNATURES=0x only after onchain approvals already exist."
+    exit 1
+  fi
   config_path=${TASK_PATH}/config.toml
   script_name=$(yq '.templateName' $config_path)
 
@@ -411,7 +422,6 @@ execute:
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
   ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
-  SIGNATURES=${SIGNATURES:-"0x"}
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
   sender=$(echo "$signer_info" | sed -n '1p')
   signer_args=$(echo "$signer_info" | sed -n '2p')
