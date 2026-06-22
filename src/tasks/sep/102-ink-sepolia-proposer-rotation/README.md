@@ -1,6 +1,6 @@
 # 102-ink-sepolia-proposer-rotation
 
-Status: [READY TO SIGN] 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x9a2c279f6affcef318d304e7fec921a71d1d18c4efb4b3ea9230e417201880bb) 
 
 Re-simulated against live **post-U19** state (U19 executed 2026-06-15). The proposer-only `gameArgs(1)` diff is confirmed (old Gelato proposer fully replaced, challenger preserved); the nested signer domain/message hashes in [VALIDATION.md](./VALIDATION.md) match a fresh `just simulate council` / `just simulate foundation` run and only move if a signer-safe nonce advances.
 
