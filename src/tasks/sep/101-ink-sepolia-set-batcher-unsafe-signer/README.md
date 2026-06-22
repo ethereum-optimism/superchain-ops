@@ -1,6 +1,6 @@
 # 101-ink-sepolia-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN] 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x2c64ab97584ea88d7378936b798e001dbc9bb0810cfdde8981d0d61a5c257859) 
 
 Simulates successfully (OPE Safe nonce 12; domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md)). Re-run `just simulate` to regenerate the hashes if the OPE Safe nonce advances or the `SystemConfig.owner` override is removed (after Gelato's W26 transfer) before signing.
 
