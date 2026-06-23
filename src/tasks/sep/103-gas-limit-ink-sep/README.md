@@ -33,7 +33,7 @@ be run **after Karst activates on Sepolia (June 17, 2026)**.
 just simulate-stack sep 103-gas-limit-ink-sep
 
 # Sign
-USE_KEYSTORE=1 just sign-stack sep 103-gas-limit-ink-sep
+just sign-stack sep 103-gas-limit-ink-sep
 
 # Execute
 cd src/tasks/sep/103-gas-limit-ink-sep
