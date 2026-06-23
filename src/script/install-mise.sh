@@ -265,6 +265,19 @@ install_mise() {
   info "mise: installed successfully to $install_path"
 }
 
+cleanup_stale_foundry_mise_backends() {
+  data_dir="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}"
+
+  for tool in forge cast anvil; do
+    backend_file="$data_dir/installs/$tool/.mise.backend.toml"
+
+    if [ -f "$backend_file" ] && grep -q 'full = "ubi:foundry-rs/foundry"' "$backend_file"; then
+      info "mise: removing stale $tool install from the old Foundry UBI alias"
+      rm -rf "$data_dir/installs/$tool"
+    fi
+  done
+}
+
 after_finish_help() {
   case "${SHELL:-}" in
   */zsh)
@@ -292,6 +305,7 @@ after_finish_help() {
 }
 
 install_mise
+cleanup_stale_foundry_mise_backends
 if [ "${MISE_INSTALL_HELP-}" != 0 ]; then
   after_finish_help
 fi
