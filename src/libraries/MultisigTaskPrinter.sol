@@ -5,6 +5,7 @@ import {console} from "forge-std/console.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {Base64} from "solady/utils/Base64.sol";
+import {LibZip} from "solady/utils/LibZip.sol";
 import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
@@ -317,10 +318,10 @@ library MultisigTaskPrinter {
             "\n}"
         );
 
-        string memory base64Json = Base64.encode(bytes(json));
+        string memory base64Json = Base64.encode(LibZip.flzCompress(bytes(json)), true, true);
         printTitle("OP-TXVERIFY LINK");
         console.log(
-            "To verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?tx=%s",
+            "To verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?txz=%s",
             base64Json
         );
     }
