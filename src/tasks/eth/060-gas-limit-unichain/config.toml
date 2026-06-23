@@ -1,0 +1,28 @@
+# Karst (U19) gas-limit reset — Unichain Mainnet.
+#
+# Karst leaves the effective L2 block gas limit ~55 MGas above the value stored in
+# the SystemConfig (op-node/kona bug; see Notion "P/PS: Karst Gas Limit Bug").
+# Re-issuing setGasLimit re-emits the gas ConfigUpdate, which resets the effective
+# gas limit back to the on-chain value. Runs after Karst activates on Mainnet
+# (July 8, 2026).
+#
+# Unichain's SystemConfig is owned by the operator Safe, NOT the Foundation Upgrade
+# Safe. This is a reference task for the operator to execute.
+
+l2chains = [ {name = "Unichain", chainId = 130} ]
+
+templateName = "SystemConfigGasLimit"
+
+# Root at the chain's SystemConfig owner (auto-discovered via SystemConfig.owner()).
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+# Current on-chain gas limit (re-set to the same value to trigger the ConfigUpdate).
+gasLimit = 60000000
+
+[stateOverrides]
+# Unichain SystemConfigOwner Safe live nonce (9 as of 2026-06-16) — VERIFY before signing:
+# cast call 0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1 "nonce()(uint256)" --rpc-url mainnet
+0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 9 }
+]
