@@ -33,7 +33,7 @@ FUS rotation tasks 055/056.
 just simulate-stack eth 059-gas-limit-op
 
 # Sign
-USE_KEYSTORE=1 just sign-stack eth 059-gas-limit-op
+just sign-stack eth 059-gas-limit-op
 
 # Execute
 cd src/tasks/eth/059-gas-limit-op
