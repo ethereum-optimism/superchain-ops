@@ -32,7 +32,7 @@ operator. It should be run **after Karst activates on Mainnet (July 8, 2026)**.
 just simulate-stack eth 060-gas-limit-unichain
 
 # Sign
-USE_KEYSTORE=1 just sign-stack eth 060-gas-limit-unichain
+just sign-stack eth 060-gas-limit-unichain
 
 # Execute
 cd src/tasks/eth/060-gas-limit-unichain
