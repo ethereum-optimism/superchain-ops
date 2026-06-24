@@ -1,4 +1,4 @@
-# Validation — 059-gas-limit-op (OP Mainnet)
+# Validation — 055-gas-limit-op (OP Mainnet)
 
 Validate the inputs and resulting state of the Karst gas-limit reset for OP Mainnet.
 
@@ -6,14 +6,15 @@ Validate the inputs and resulting state of the Karst gas-limit reset for OP Main
 
 > [!CAUTION]
 > Before signing, ensure the hashes below match what is shown on your Ledger and in the
-> `op-txverify` output. The FUS nonce override is set to 61 (post-055/056 rotation);
-> re-verify the live nonce — if it differs, these hashes will differ.
+> `op-txverify` output. The FUS nonce override is set to 59 (first post-U19 FUS task,
+> ahead of the 056/057 rotations); re-verify the live nonce — if it differs, these hashes
+> will differ.
 >
 > ### SystemConfigOwner = FoundationUpgradeSafe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
 >
-> - Safe Transaction Hash: `0x84bc66bb2f7c6c7d87d6c49a957bc74356ac97299aabbad48eebc6ef10e91f2d`
+> - Safe Transaction Hash: `0xb1425ca02779e09c54b5158a317d613a9e7dd61540eebfc9f8fc9168595f46ca`
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x608b874772357d27dd8d7ea67561c723885fcd4fc2c3517825175c93d39a989a`
+> - Message Hash: `0xa17a0f4e1800cc9cf207f43329d43a088af2c4af373084d7523b371646ae1b42`
 
 ## Task Calldata
 

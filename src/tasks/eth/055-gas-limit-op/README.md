@@ -1,4 +1,4 @@
-# 059-gas-limit-op
+# 055-gas-limit-op
 
 Status: [READY TO SIGN]()
 
@@ -17,25 +17,25 @@ This task re-affirms OP Mainnet's current on-chain gas limit:
 
 OP Mainnet's SystemConfig is owned by the **Foundation Upgrade Safe**
 (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`), so this task is rooted there. It runs
-**after Karst activates on Mainnet (July 8, 2026)**, i.e. after the U19 tasks 053/054 and
-FUS rotation tasks 055/056.
+**after Karst activates on Mainnet (July 8, 2026)**, i.e. after the U19 tasks 053/054. It
+is the first of the post-U19 FUS tasks; the FUS signer rotations (056/057) execute after
+it.
 
 > [!IMPORTANT]
-> The FUS nonce override in `config.toml` is set to 61 (live 57 + four pending tasks:
-> 053→57, 054→58, 055-fus-rotation-1→59, 056-fus-rotation-2→60). VERIFY the live nonce
-> before signing:
+> The FUS nonce override in `config.toml` is set to 59 (live 57 + two pending tasks:
+> 053→57, 054→58). VERIFY the live nonce before signing:
 > `cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" --rpc-url mainnet`
 
 ## Simulation & Signing
 
 ```bash
 # Simulate
-just simulate-stack eth 059-gas-limit-op
+just simulate-stack eth 055-gas-limit-op
 
 # Sign
-just sign-stack eth 059-gas-limit-op
+just sign-stack eth 055-gas-limit-op
 
 # Execute
-cd src/tasks/eth/059-gas-limit-op
+cd src/tasks/eth/055-gas-limit-op
 SIGNATURES=0x just execute
 ```

@@ -24,10 +24,10 @@ gasLimit = 40000000
 # Foundation Upgrade Safe nonce. Live value is 57 (2026-06-16); consuming:
 #   053-U19-op-ink-mmz-soneium → nonce 57
 #   054-U19-unichain            → nonce 58
-#   055-fus-rotation-1          → nonce 59
-#   056-fus-rotation-2          → nonce 60
-# So this task uses FUS nonce 61. VERIFY the live nonce before signing:
+# This is the first of the post-U19 FUS tasks, so it uses FUS nonce 59. The FUS
+# signer rotations execute after it (056-fus-rotation-1 → 60, 057-fus-rotation-2
+# → 61). VERIFY the live nonce before signing:
 # cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" --rpc-url mainnet
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
-    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 61 }
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59 }
 ]
