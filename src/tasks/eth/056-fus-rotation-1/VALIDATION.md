@@ -84,8 +84,8 @@ All non-nonce changes below are to the Safe's [owner linked list](https://github
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `59`
-  - **After:** `60`
+  - **Before:** `60`
+  - **After:** `61`
   - **Summary:** Safe nonce increment.
   - **Detail:** The Safe nonce is incremented from 60 to 61 after executing the transaction.
 
