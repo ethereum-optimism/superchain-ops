@@ -1,0 +1,14 @@
+templateName = "GnosisSafeRotateSigner"
+
+safeAddressString = "FoundationUpgradeSafe"
+
+ownerToRemove = "0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8"
+ownerToAdd = "0x7F1D4FE689B73B628285454667B93cfd09409f27"
+
+[stateOverrides]
+# Nonce override for simulation (storage slot 0x5 is the nonce).
+# FUS task 1 of 2. Sequenced after the pending U19 tasks 053 (nonce 57) and
+# 054 (nonce 58), so this task uses FUS nonce 59.
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
+]
