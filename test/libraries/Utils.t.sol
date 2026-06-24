@@ -55,6 +55,27 @@ contract UtilsTest is Test {
         setAndAssert(randomFeature, "01", true);
     }
 
+    function test_isEip7702DelegatedEOA() public {
+        address account = address(0x1111111111111111111111111111111111111111);
+
+        // No code: plain EOA, not a 7702 delegated EOA.
+        assertEq(Utils.isEip7702DelegatedEOA(account), false);
+
+        // Exact EIP-7702 delegation designator: 0xef0100 ++ 20-byte address.
+        // (vm.etch validates 0xef01-prefixed code, so malformed designators
+        // cannot be etched — nor can they exist onchain.)
+        vm.etch(account, abi.encodePacked(hex"ef0100", address(0xdead)));
+        assertEq(Utils.isEip7702DelegatedEOA(account), true);
+
+        // Regular contract code.
+        vm.etch(account, hex"6080604052");
+        assertEq(Utils.isEip7702DelegatedEOA(account), false);
+
+        // Regular contract code of the same length as a delegation designator (23 bytes).
+        vm.etch(account, abi.encodePacked(hex"608060", address(0xdead)));
+        assertEq(Utils.isEip7702DelegatedEOA(account), false);
+    }
+
     function test_contains_EmptyArray() public pure {
         address[] memory emptyArray = new address[](0);
         address testAddr = address(0x1234567890123456789012345678901234567890);
