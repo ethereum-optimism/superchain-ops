@@ -1,0 +1,23 @@
+name: "freya-u16-0"
+chain_id: 420110015
+rpc_url: "https://freya-u16-0.example/"
+contracts:
+  superchainDeployment:
+    SuperchainConfigProxy: "0x1B1ce2a9cEd5A6d4C4b3384D8D8F7EA8031896E2"
+    ProtocolVersionsProxy: "0x2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A"
+  opChainDeployment:
+    OpChainProxyAdminImpl: "0x7d9b0Aa175dc8769a576C2aD1C791AAAcbe873a9"
+    OptimismPortalProxy: "0xA4cB202E86Cc7CDe348C912cd0955022B5f82758"
+    AddressManagerImpl: "0xfC8d28c1856E0622C97141CfbcB38de2e9714076"
+    L1Erc721BridgeProxy: "0xC864e4c7f5B89f08b3BE20C105a3F0487Ad58472"
+    SystemConfigProxy: "0x207BF7d95964Ac655cB60B99c46c5a5AabEA1F8F"
+    OptimismMintableErc20FactoryProxy: "0xe00B432C3Ce39C938A3Af7Aef80A2A4e2a7cb1F7"
+    L1StandardBridgeProxy: "0x721D6E391480Bb38974B409141e9a9C24381e0f0"
+    L1CrossDomainMessengerProxy: "0xB95e0f4f6c73516FBe352c0F2E7320a3829DBAad"
+    EthLockboxProxy: "0xf4A94b374B30E6cB97D6B0e00C409F096E0f0EF0"
+    DisputeGameFactoryProxy: "0x03242a08EC839e24d8282fd11b7505CD682C71f5"
+    AnchorStateRegistryProxy: "0xdCfa047dE7B61c9F8Ba66b0Ae348Db26D0B87D34"
+    DelayedWethPermissionedGameProxy: "0x65843EcB299E22489CE580Bc88F0EDcB9557Ed53"
+    DelayedWethPermissionlessGameProxy: "0x0000000000000000000000000000000000000000"
+  implementationsDeployment:
+    OpcmImpl: "0x365B0Aeb2b72387897AE0ADcD293f75A60555B03"
