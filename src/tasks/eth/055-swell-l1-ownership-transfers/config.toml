@@ -1,0 +1,61 @@
+# Transfer L1 ownership of Swell (chainId 1923) from the standard OP Mainnet
+# L1PAO Safe to AltLayer's new owner Safe 0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa.
+#
+# Swell is winding down and has been removed from the public superchain-registry
+# (ethereum-optimism/superchain-registry#1247), so its addresses are loaded via
+# `fallbackAddressesJsonPath`. The chain shares OP Mainnet's standard
+# SuperchainConfig (0x95703e0982140D16f8ebA6d158FccEde42f04a4C), which is what
+# `TransferOwners._validateSuperchainConfig` enforces.
+#
+# This task moves ownership of:
+#   - ProxyAdmin           (transferOwnership)
+#   - DisputeGameFactory   (transferOwnership)
+# The chain's DelayedWETH is v1.5.0 (post-U16) and not ownable, so the template
+# skips it at build time.
+#
+# This task transfers L1 ownership only; the Swell L2 ProxyAdmin owner is
+# intentionally left unchanged.
+#
+# Execution order across the broader handover effort: Swell -> Dust -> Unichain.
+
+l2chains = [{name = "Swell", chainId = 1923}]
+
+fallbackAddressesJsonPath = "src/tasks/eth/055-swell-l1-ownership-transfers/addresses.json"
+
+templateName = "TransferOwners"
+
+# New L1 owner: AltLayer's 1-of-1 Gnosis Safe on Ethereum (owner EOA
+# 0x6967D304E9b7E26b5eb3f5A1FD1239DaAD3215E6). Provided by AltLayer in
+# #oplabs-altlayer. Verify with:
+#   cast call 0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa "getOwners()(address[])" --rpc-url mainnet
+newOwner = "0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa"
+
+[stateOverrides]
+# Swell's current L1PAO is the standard OP Mainnet L1PAO — a 2-of-2 nested Safe
+# whose child signers are the FoundationUpgradeSafe and the SecurityCouncil. All
+# three Safe nonces are pinned (slot 5) so the domain/message hashes in
+# VALIDATION.md are reproducible.
+#
+# All three Safes are shared across many Mainnet chains, and this task will be
+# executed only after an Optimism Governance vote (weeks out), so before signing
+# re-verify the live nonces with `cast call <safe> "nonce()" --rpc-url mainnet`
+# and bump the corresponding override + re-run the simulation if any have
+# advanced.
+#
+# These overrides are stack-adjusted: CI simulates the stack 053 -> 054 -> 055,
+# and the preceding U19 tasks consume Safe nonces before this task runs. Live
+# nonces at task creation (2026-06-15) were L1PAO 35, FUS 57, SC 58.
+#
+# Standard OP Mainnet L1PAO Safe — live 35 + 1 (task 053 executes via this Safe;
+# 054/Unichain uses its own L1PAO) = 36.
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+]
+# FoundationUpgradeSafe — live 57 + 2 (tasks 053 and 054 both nest this Safe) = 59.
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
+]
+# SecurityCouncil — live 58 + 2 (tasks 053 and 054 both nest this Safe) = 60.
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
+]
