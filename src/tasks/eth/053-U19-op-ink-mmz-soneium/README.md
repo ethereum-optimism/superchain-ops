@@ -1,6 +1,6 @@
 # 053-U19-op-ink-mmz-soneium
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xbfdac60c9687a2e469159bf2458e73de2915a0a5eb53c4991a7ecde2b1fb3f15)
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # 103-gas-limit-ink-sep
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xc95f8e7cfe6887bae6cb2011fedcc99faa86a483e8930c8038cdf00e02b6f872)
 
 ## Objective
 
