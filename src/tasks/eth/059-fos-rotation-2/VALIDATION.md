@@ -25,11 +25,11 @@ the values printed to the terminal when you run the task.
 
 > [!NOTE]
 >
-> This is task 4 of 4 of the rotation. It executes after `057-fos-rotation-1`, at FOS nonce 119. The message hash above was generated against the full task stack at that nonce. If the ordering or the FOS nonce changes before signing, re-simulate to regenerate the hash.
+> This is task 4 of 4 of the rotation. It executes after `058-fos-rotation-1`, at FOS nonce 119. The message hash above was generated against the full task stack at that nonce. If the ordering or the FOS nonce changes before signing, re-simulate to regenerate the hash.
 
 > [!IMPORTANT]
 >
-> Owner `0xf1EfbdC2C0BDC4554E0f1639D7fe88cD870a4639` (added to the Foundation Operations Safe in `057-fos-rotation-1`) MUST be one of the signers for this task, alongside 4 other current owners to reach the threshold of 5.
+> Owner `0xf1EfbdC2C0BDC4554E0f1639D7fe88cD870a4639` (added to the Foundation Operations Safe in `058-fos-rotation-1`) MUST be one of the signers for this task, alongside 4 other current owners to reach the threshold of 5.
 
 ## Understanding Task Calldata
 

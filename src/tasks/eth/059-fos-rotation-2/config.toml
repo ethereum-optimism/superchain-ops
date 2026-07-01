@@ -7,9 +7,9 @@ ownerToAdd = "0x7F1D4FE689B73B628285454667B93cfd09409f27"
 
 [stateOverrides]
 # Nonce override for simulation (storage slot 0x5 is the nonce).
-# FOS task 2 of 2. Executes after 057-fos-rotation-1 (FOS nonce 118), so this
+# FOS task 2 of 2. Executes after 058-fos-rotation-1 (FOS nonce 118), so this
 # task uses FOS nonce 119. The newly added owner 0xf1EfbdC2C0BDC4554E0f1639D7fe88cD870a4639
-# (added in 057) MUST be one of the signers for this task.
+# (added in 058) MUST be one of the signers for this task.
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 119}
 ]

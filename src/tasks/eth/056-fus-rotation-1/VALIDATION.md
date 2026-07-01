@@ -21,11 +21,11 @@ the values printed to the terminal when you run the task.
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x89d21165713eee1e655c8ac3c93c88b701bba20881abee0aa68b5942bd76fc8b`
+> - Message Hash: `0x63ebacb6b339bb441d97cbdb6ccebd5b2476b7d6f05d2ca84c318e78be155cdd`
 
 > [!NOTE]
 >
-> This is task 1 of 4 of the rotation. It is sequenced after the pending U19 tasks `053-U19-op-ink-mmz-soneium` (FUS nonce 57) and `054-U19-unichain` (FUS nonce 58), so it executes at FUS nonce 59. The message hash above was generated against that nonce. If the U19 ordering or the FUS nonce changes before signing, re-simulate to regenerate the hash.
+> This is task 1 of 4 of the rotation. It is sequenced after the pending U19 tasks `053-U19-op-ink-mmz-soneium` (FUS nonce 57) and `054-U19-unichain` (FUS nonce 58) and the gas-limit reset `055-gas-limit-op` (FUS nonce 59), so it executes at FUS nonce 60. The message hash above was generated against that nonce. If the ordering or the FUS nonce changes before signing, re-simulate to regenerate the hash.
 
 ## Understanding Task Calldata
 
@@ -84,10 +84,10 @@ All non-nonce changes below are to the Safe's [owner linked list](https://github
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `59`
-  - **After:** `60`
+  - **Before:** `60`
+  - **After:** `61`
   - **Summary:** Safe nonce increment.
-  - **Detail:** The Safe nonce is incremented from 59 to 60 after executing the transaction.
+  - **Detail:** The Safe nonce is incremented from 60 to 61 after executing the transaction.
 
 - **Key:**          `0x2531fc88b0a4ead1271cdebf3916583e91ee94a0b7688b07958b2381092dfb86`
   - **Before:** `0x0000000000000000000000004d014f3c5f33aa9cd1dc29ce29618d07ae666d15`
