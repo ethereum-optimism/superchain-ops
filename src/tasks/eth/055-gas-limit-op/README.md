@@ -21,11 +21,6 @@ OP Mainnet's SystemConfig is owned by the **Foundation Upgrade Safe**
 is the first of the post-U19 FUS tasks; the FUS signer rotations (056/057) execute after
 it.
 
-> [!IMPORTANT]
-> The FUS nonce override in `config.toml` is set to 59 (live 57 + two pending tasks:
-> 053→57, 054→58). VERIFY the live nonce before signing:
-> `cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" --rpc-url mainnet`
-
 ## Simulation & Signing
 
 ```bash
