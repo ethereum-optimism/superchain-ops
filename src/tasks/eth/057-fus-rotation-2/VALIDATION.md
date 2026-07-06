@@ -21,15 +21,15 @@ the values printed to the terminal when you run the task.
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x6a96d603024144b2fdc5daf16615399b9b35266b3767040b831363e09255af18`
+> - Message Hash: `0x3176475c18c7f9570d2a9ba1407418e719a09c976609444d6b26f53b165fd986`
 
 > [!NOTE]
 >
-> This is task 2 of 4 of the rotation. It executes after `055-fus-rotation-1`, at FUS nonce 60 (which follows the pending U19 tasks at nonces 57 and 58). The message hash above was generated against the full task stack at that nonce. If the ordering or the FUS nonce changes before signing, re-simulate to regenerate the hash.
+> This is task 2 of 4 of the rotation. It executes after `056-fus-rotation-1`, at FUS nonce 61 (which follows the pending U19 tasks at nonces 57 and 58 and the gas-limit reset `055-gas-limit-op` at nonce 59). The message hash above was generated against the full task stack at that nonce. If the ordering or the FUS nonce changes before signing, re-simulate to regenerate the hash.
 
 > [!IMPORTANT]
 >
-> Owner `0x7F1D4FE689B73B628285454667B93cfd09409f27` (added to the Foundation Upgrade Safe in `055-fus-rotation-1`) MUST be one of the signers for this task, alongside 4 other current owners to reach the threshold of 5.
+> Owner `0x7F1D4FE689B73B628285454667B93cfd09409f27` (added to the Foundation Upgrade Safe in `056-fus-rotation-1`) MUST be one of the signers for this task, alongside 4 other current owners to reach the threshold of 5.
 
 ## Understanding Task Calldata
 
@@ -88,10 +88,10 @@ All non-nonce changes below are to the Safe's [owner linked list](https://github
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `60`
-  - **After:** `61`
+  - **Before:** `61`
+  - **After:** `62`
   - **Summary:** Safe nonce increment.
-  - **Detail:** The Safe nonce is incremented from 60 to 61 after executing the transaction.
+  - **Detail:** The Safe nonce is incremented from 61 to 62 after executing the transaction.
 
 - **Key:**          `0x4da02e22593e67e861d321975341b4e2b27b78ae23b297852caf5e6cc21305cd`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
