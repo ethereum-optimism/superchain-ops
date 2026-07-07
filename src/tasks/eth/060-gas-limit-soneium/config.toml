@@ -1,0 +1,30 @@
+# Karst (U19) gas-limit reset — Soneium (mainnet).
+#
+# Karst leaves the effective L2 block gas limit ~55 MGas above the value stored in
+# the SystemConfig (op-node/kona bug; see Notion "P/PS: Karst Gas Limit Bug").
+# Re-issuing setGasLimit re-emits the gas ConfigUpdate, which resets the effective
+# gas limit back to the on-chain value. Runs after Karst activates on Soneium
+# (karst_time = 1783526401, Wed 8 Jul 2026 16:00:01 UTC).
+#
+# Soneium's SystemConfig is owned by a Soneium-operated 3-of-6 Safe
+# (SystemConfigOwner == 0x509182eC226b3B71D36A3255A80EF0b1A9D43033), NOT by any
+# OP-controlled safe. This task is rooted there and is signed/executed by Soneium.
+
+l2chains = [ {name = "Soneium", chainId = 1868} ]
+
+templateName = "SystemConfigGasLimit"
+
+# Root at the chain's SystemConfig owner (auto-discovered via SystemConfig.owner()).
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+# Current on-chain gas limit (re-set to the same value to trigger the ConfigUpdate).
+gasLimit = 40000000
+
+[stateOverrides]
+# Soneium SystemConfigOwner Safe nonce. Live value is 12 at time of authoring.
+# VERIFY the live nonce before signing:
+# cast call 0x509182eC226b3B71D36A3255A80EF0b1A9D43033 "nonce()(uint256)" --rpc-url mainnet
+0x509182eC226b3B71D36A3255A80EF0b1A9D43033 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 12 }
+]
