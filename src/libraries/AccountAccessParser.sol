@@ -644,8 +644,8 @@ library AccountAccessParser {
                 kind: "address",
                 oldValue: toAddress(_oldValue),
                 newValue: toAddress(_newValue),
-                summary: "Batch inbox address",
-                detail: "Unstructured storage slot for the address of the BatchInbox proxy."
+                summary: "Legacy batch inbox address",
+                detail: "Unstructured storage slot for the legacy SystemConfig batch inbox address."
             });
         }
         if (_slot == START_BLOCK_SLOT) {

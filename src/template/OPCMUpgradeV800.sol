@@ -146,8 +146,8 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         // The V800 upgrade reinitializes SystemConfig, re-writing all its storage.
         // Some stored addresses are legitimately EOAs that get re-written during reinitialization.
         // HACK: The current test uses a custom dev OPCM on Sepolia where the owner is also an
-        // EOA (in production it would be a Safe), and the OPCM changes the batchInbox to a new
-        // EOA during upgrade (in production batchInbox would not change).
+        // EOA (in production it would be a Safe), and the legacy batch inbox slot still needs
+        // to be treated as a code-length exception during reinitialization.
         // TODO: Remove this entire block once a production-like OPCM is deployed for testing.
         for (uint256 i = 0; i < chains.length; i++) {
             ISystemConfigV800 sysCfg =
@@ -155,7 +155,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             address[4] memory candidates = [
                 sysCfg.owner(), // slot 0x33 — Safe in prod, EOA in dev
                 sysCfg.unsafeBlockSigner(), // hashed slot — always EOA
-                sysCfg.batchInbox(), // hashed slot — always EOA
+                _deriveBatchInbox(chains[i].chainId), // legacy batch inbox slot — always EOA
                 address(uint160(uint256(sysCfg.batcherHash()))) // slot 0x67 — always EOA (sequencer batcher)
             ];
             for (uint256 j = 0; j < candidates.length; j++) {
@@ -164,10 +164,6 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
                 }
             }
         }
-        // HACK: The dev OPCM writes a new batchInbox address during upgrade that differs from the
-        // current one. This won't happen with a production OPCM. Etch code at the known output.
-        // TODO: Remove once production OPCM is used.
-        vm.etch(address(0x0002b8639730E2F4dc88Dfd5Bbd0352E5518A758), hex"01");
 
         // OPCM from TOML; must be v7.1.17
         opcm = IOPContractsManagerV800(tomlContent.readAddress(".addresses.OPCM"));
@@ -245,6 +241,13 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             gameType: gt,
             gameArgs: gameArgs
         });
+    }
+
+    function _deriveBatchInbox(uint256 chainId) internal pure returns (address) {
+        bytes1 versionByte = 0x00;
+        bytes32 hashedChainId = keccak256(bytes.concat(bytes32(chainId)));
+        bytes19 first19Bytes = bytes19(hashedChainId);
+        return address(uint160(bytes20(bytes.concat(versionByte, first19Bytes))));
     }
 
     /// @notice Builds DisputeGameConfig[] for a chain from registry addresses and config prestates.
@@ -470,6 +473,5 @@ interface ISystemConfig {
 interface ISystemConfigV800 {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
-    function batchInbox() external view returns (address);
     function batcherHash() external view returns (bytes32);
 }

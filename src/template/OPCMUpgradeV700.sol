@@ -501,7 +501,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
 
     /// @notice Code-length exceptions for storage values written by the upgrade.
     /// @dev v7.1.17 reinitialises SystemConfig and rewrites the slots that hold
-    /// `owner`, `unsafeBlockSigner`, `batchInbox`, and the address derived from
+    /// `owner`, `unsafeBlockSigner`, the legacy batch inbox slot, and the address derived from
     /// `batcherHash`. On betanets these are typically EOAs, not contracts, so the
     /// post-execution `Likely address in storage has no code` check would reject the
     /// writes. We skip the check for these specific values per chain.
@@ -515,8 +515,12 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             // Only include true EOAs (no code). Contract addresses (e.g. multisig owners)
             // must not be in the exceptions list — they are handled by the normal allowed
             // storage accesses check instead.
-            address[4] memory candidates =
-                [sc.owner(), sc.unsafeBlockSigner(), sc.batchInbox(), address(uint160(uint256(sc.batcherHash())))];
+            address[4] memory candidates = [
+                sc.owner(),
+                sc.unsafeBlockSigner(),
+                _deriveBatchInbox(chains[i].chainId),
+                address(uint160(uint256(sc.batcherHash())))
+            ];
             for (uint256 j = 0; j < 4; j++) {
                 if (candidates[j].code.length == 0) exceptions[cursor++] = candidates[j];
             }
@@ -527,13 +531,19 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         }
         return result;
     }
+
+    function _deriveBatchInbox(uint256 chainId) internal pure returns (address) {
+        bytes1 versionByte = 0x00;
+        bytes32 hashedChainId = keccak256(bytes.concat(bytes32(chainId)));
+        bytes19 first19Bytes = bytes19(hashedChainId);
+        return address(uint160(bytes20(bytes.concat(versionByte, first19Bytes))));
+    }
 }
 
 /// @notice Read-only SystemConfig accessors used to populate `_getCodeExceptions`.
 interface ISystemConfigEOAs {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
-    function batchInbox() external view returns (address);
     function batcherHash() external view returns (bytes32);
 }
 

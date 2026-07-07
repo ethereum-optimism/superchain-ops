@@ -260,7 +260,7 @@ contract SuperRootMigrateIntegrationTest is Test, OPCMMigrateV800 {
             address[4] memory candidates = [
                 sysCfg.owner(),
                 sysCfg.unsafeBlockSigner(),
-                sysCfg.batchInbox(),
+                _deriveBatchInbox(chains[i].chainId),
                 address(uint160(uint256(sysCfg.batcherHash())))
             ];
             for (uint256 j = 0; j < candidates.length; j++) {
@@ -269,7 +269,6 @@ contract SuperRootMigrateIntegrationTest is Test, OPCMMigrateV800 {
                 }
             }
         }
-        vm.etch(address(0x0002b8639730E2F4dc88Dfd5Bbd0352E5518A758), hex"01");
 
         uint256 numCalls = 1 + chains.length;
         IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](numCalls);
@@ -414,5 +413,12 @@ contract SuperRootMigrateIntegrationTest is Test, OPCMMigrateV800 {
             data: abi.encode(migrateParams.startingRespectedGameType)
         });
         return extras;
+    }
+
+    function _deriveBatchInbox(uint256 chainId) internal pure returns (address) {
+        bytes1 versionByte = 0x00;
+        bytes32 hashedChainId = keccak256(bytes.concat(bytes32(chainId)));
+        bytes19 first19Bytes = bytes19(hashedChainId);
+        return address(uint160(bytes20(bytes.concat(versionByte, first19Bytes))));
     }
 }
