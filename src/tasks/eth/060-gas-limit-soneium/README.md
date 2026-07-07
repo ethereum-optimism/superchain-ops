@@ -1,6 +1,6 @@
 # 060-gas-limit-soneium
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
