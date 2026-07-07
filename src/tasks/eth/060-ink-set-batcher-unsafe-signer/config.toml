@@ -1,0 +1,53 @@
+# Ink mainnet migration (Gelato → OP Enterprise) — cutover steps 2 & 3.
+#
+# Registers the OPE batcher and unsafe block signer on Ink mainnet's SystemConfig
+# (chainId 57073), batched into a single Multicall3 transaction. Source of truth:
+# "Ink Mainnet Migration — Engineering Plan" (target cutover 2026-07-28).
+#
+# Signed by the NEW SystemConfig owner — the OPE Safe. The Gelato → OPE
+# SystemConfig.transferOwnership is executed by Gelato OUTSIDE this repo (warm-phase
+# step W25/W26); this task assumes that transfer has landed. For standalone simulation the
+# [stateOverrides] below set SystemConfig.owner() (slot 0x33) to the OPE Safe so the
+# setters authorize. Remove that owner override once W26 is executed on-chain.
+#
+# ⚠️ WARM-PHASE PREPARATION (plan W23/W24). The addresses below are MAINNET-NEW OPE keys
+# that are generated during the warm phase (W1–W3) and independently verified by ≥3 OP
+# Labs engineers (W4). They are placeholders until then — DO NOT sign or simulate against
+# real state until every "TODO(Wxx)" value is filled from the mainnet role audit (§3) and
+# key generation (§3.3). Mainnet keys are NEW — do NOT reuse the Ink Sepolia OPE keys.
+
+templateName = "SetBatcherAndOrSigner"
+
+# The new SystemConfig owner (OPE Safe). A custom identifier is used instead of the
+# registry-resolved "SystemConfigOwner", which still reads the live Gelato owner until
+# W26 executes on-chain.
+safeAddressString = "OPESystemConfigOwnerSafe"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# OPE receiving infrastructure (Ink Mainnet Migration Plan §3.3 Addresses).
+# ⚠ Verify both addresses with ≥3 OP Labs engineers (plan step W4) before signing.
+[sequencerConfig]
+batcherAddress    = "0x1111111111111111111111111111111111111111" # TODO(W3): OPE batcher — NEW mainnet key. Current Gelato batcher must be read on-chain (role audit §3.1; registry only carries the genesis batcher 0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac).
+unsafeBlockSigner = "0x2222222222222222222222222222222222222222" # TODO(W2): OPE sequencer / unsafe block signer — NEW mainnet key. Current Gelato unsafeBlockSigner must be read from SystemConfig on-chain (role audit §3.1).
+
+[addresses]
+# OPE Safe — the SystemConfig owner after Gelato's W26 transferOwnership.
+# Plan §3.1 (SystemConfig Owner → OPE Safe) / §3.3.
+OPESystemConfigOwnerSafe = "0x4444444444444444444444444444444444444444" # TODO(§3.3): OPE Safe — NEW mainnet Safe. Verify receiving address with ≥3 OP engineers (W25, IRREVERSIBLE).
+
+[stateOverrides]
+# OPE Safe nonce (slot 5). Set to the live value at sign time:
+#   cast call <OPE_SAFE> "nonce()(uint256)" --rpc-url mainnet
+0x4444444444444444444444444444444444444444 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+# Pretend Gelato's W26 SystemConfig.transferOwnership(OPE Safe) has executed: override
+# SystemConfig.owner() (slot 0x33, currently the Gelato mainnet Safe — CONFIRM in role audit)
+# to the OPE Safe so setBatcherHash / setUnsafeBlockSigner authorize during simulation.
+# Remove this override once W26 is executed on-chain.
+0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000004444444444444444444444444444444444444444"}
+]

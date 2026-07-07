@@ -1,0 +1,61 @@
+# Ink mainnet migration (Gelato → OP Enterprise) — cutover step 4.
+#
+# Rotates the PermissionedDisputeGame (PDG, game type 1) proposer on Ink mainnet
+# (chainId 57073) to the OPE proposer. The PDG is a dormant safety fallback; per the
+# Ink Mainnet Migration Plan §1 / §2.3 its proposer is updated "for correctness". The
+# active respected game post-Karst (CANNON_KONA, type 8) is permissionless and has no
+# on-chain proposer.
+#
+# Ink mainnet's DisputeGameFactory is expected v1.6.1 post-U19 (plan §3.2), using the
+# gameArgs blob pattern: per-chain data (prestate, vm, ASR, delayedWETH, proposer,
+# challenger) lives in DisputeGameFactory.gameArgs(gameType), NOT as impl immutables.
+# SetDisputeGameArgs reads the live gameArgs(1), overrides ONLY the proposer, and
+# re-emits setImplementation(1, sameImpl, newGameArgs).
+#
+# FIELD-DIFFING — only `proposer` changes:
+#   - prestate           : LEFT UNCHANGED — read live and preserved
+#   - challenger         : LEFT UNCHANGED — expected 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
+#                          (OP mainnet Challenger, OP governance per plan §3.1 "no action");
+#                          read live and preserved. CONFIRM in the mainnet role audit.
+#   - vm / ASR / weth / chainId / impl / bond : LEFT UNCHANGED; read live
+#
+# Because every field except proposer is read live at sign time, this task absorbs U19's
+# changes. RE-SIMULATE immediately before signing to confirm the live gameArgs(1) values.
+#
+# ⚠️ WARM-PHASE PREPARATION (plan W21/W22). The OPE proposer below is a MAINNET-NEW key
+# generated during the warm phase (W1) and verified by ≥3 OP Labs engineers (W4). It is a
+# placeholder until then — DO NOT sign until TODO(W1) is filled and the live gameArgs(1)
+# blob is re-read. Mainnet keys are NEW — do NOT reuse the Ink Sepolia OPE proposer.
+
+templateName = "SetDisputeGameArgs"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# Single row: PDG (game type 1), proposer only. Every omitted field is read from the live
+# gameArgs(1) and preserved.
+[[gameConfig]]
+chainId  = 57073
+gameType = 1                                                  # PERMISSIONED_CANNON
+proposer = "0x3333333333333333333333333333333333333333"       # TODO(W1): OPE proposer — NEW mainnet key (gates this task per W21). Current Gelato proposer must be read on-chain (role audit §3.1).
+bond     = 0                                                  # TODO: pin the current PDG init bond — read live `initBonds(1)` on mainnet DGF and set here (no-op that lets _validate assert it). Sepolia rehearsal used 0.08 ETH.
+
+[addresses]
+# Pinned for robustness (also resolvable from the superchain-registry).
+ProxyAdminOwner         = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO mainnet (nested 2-of-2: Foundation Upgrade Safe + Security Council)
+DisputeGameFactoryProxy = "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD"
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces (slot 5). Set each to its live value at sign time — the
+# StateOverrideManager rejects an override below the live nonce. Re-verify before signing:
+#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
