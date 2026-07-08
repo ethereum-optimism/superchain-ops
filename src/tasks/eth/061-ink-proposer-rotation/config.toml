@@ -39,7 +39,7 @@ l2chains = [
 chainId  = 57073
 gameType = 1                                                  # PERMISSIONED_CANNON
 proposer = "0x3333333333333333333333333333333333333333"       # TODO(W1): OPE proposer — NEW mainnet key (gates this task per W21). Current Gelato proposer must be read on-chain (role audit §3.1).
-bond     = 0                                                  # TODO: pin the current PDG init bond — read live `initBonds(1)` on mainnet DGF and set here (no-op that lets _validate assert it). Sepolia rehearsal used 0.08 ETH.
+bond     = 80000000000000000                                  # 0.08 ETH — pins the CURRENT PDG init bond (confirmed live `initBonds(1)` on mainnet DGF, matches the Sepolia rehearsal). No-op that lets _validate assert it. RE-READ live before signing; a value of 0 here would actively RESET the bond to zero.
 
 [addresses]
 # Pinned for robustness (also resolvable from the superchain-registry).
