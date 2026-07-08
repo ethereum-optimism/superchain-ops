@@ -1,0 +1,43 @@
+# ROLLBACK — Ink mainnet migration (OP Enterprise → Gelato) — reverts cutover step 4.
+#
+# Restores the ORIGINAL Gelato proposer on the Ink mainnet PermissionedDisputeGame
+# (PDG, game type 1), chainId 57073. Reverse of eth/061-ink-proposer-rotation.
+#
+# Contingency task: use ONLY if the Gelato → OPE migration must be aborted/rolled back.
+# Signed by the L1 ProxyAdminOwner (mainnet) — unchanged OP governance, same signer as the
+# forward task 061. Independent of the SystemConfig owner reverts (062/063).
+#
+# SetDisputeGameArgs reads the live gameArgs(1) and overrides ONLY the proposer; challenger
+# (0x9BA6e03D…006b3A, OP governance), prestate, vm, ASR, delayedWETH, chainId and impl are
+# read live and preserved. RE-SIMULATE immediately before signing.
+#
+# ⚠️ The restore proposer below MUST be the exact pre-migration Gelato proposer captured
+# on-chain in the role audit (§3.1) / execution log. Fill the TODO before signing.
+
+templateName = "SetDisputeGameArgs"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+[[gameConfig]]
+chainId  = 57073
+gameType = 1                                                  # PERMISSIONED_CANNON
+proposer = "0x3333333333333333333333333333333333333333"       # TODO(role audit §3.1): pre-migration Gelato proposer — the value to restore.
+bond     = 0                                                  # TODO: pin the live initBonds(1) (no-op assertion). Read on mainnet DGF before signing.
+
+[addresses]
+ProxyAdminOwner         = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO mainnet (nested 2-of-2: Foundation Upgrade Safe + Security Council)
+DisputeGameFactoryProxy = "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD"
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces (slot 5). Set each to its live value at sign time.
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]

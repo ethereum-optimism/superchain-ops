@@ -1,0 +1,44 @@
+# ROLLBACK — Ink mainnet migration (OP Enterprise → Gelato) — reverts cutover steps 2 & 3.
+#
+# Restores the ORIGINAL Gelato batcher and unsafe block signer on the Ink mainnet
+# SystemConfig (chainId 57073), batched into a single Multicall3 transaction. This is the
+# reverse of eth/060-ink-set-batcher-unsafe-signer.
+#
+# Contingency task: use ONLY if the Gelato → OPE migration must be aborted/rolled back.
+# Signed by the post-migration SystemConfig owner (FoundationOperationsSafe) — run this
+# BEFORE the ownership revert (062), while the OP side still controls SystemConfig.
+#
+# ⚠️ The restore values below are the PRE-MIGRATION Gelato batcher / unsafe block signer.
+# They MUST be the exact values captured on-chain in the role audit (§3.1) / execution log
+# before the forward migration ran. Fill every TODO before signing.
+
+templateName = "SetBatcherAndOrSigner"
+
+# Signer = the post-migration owner (FoundationOperationsSafe). Custom identifier + owner
+# override are used because the registry auto-discovers the LIVE SystemConfig.owner().
+safeAddressString = "OPESystemConfigOwnerSafe"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# ORIGINAL Gelato receiving infrastructure — the values to restore.
+[sequencerConfig]
+batcherAddress    = "0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac" # TODO(role audit §3.1): pre-migration Gelato batcher. The registry genesis batcher is used as a starting point — CONFIRM the exact current on-chain value captured before migration.
+unsafeBlockSigner = "0x2222222222222222222222222222222222222222" # TODO(role audit §3.1): pre-migration Gelato unsafe block signer — read from SystemConfig on-chain before the forward migration and pin here.
+
+[addresses]
+# FoundationOperationsSafe (mainnet) — the SystemConfig owner after the forward migration.
+OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
+
+[stateOverrides]
+# FoundationOperationsSafe nonce (slot 5). Set to the live value at sign time.
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]
+# Model the post-migration state: override SystemConfig.owner() (slot 0x33) → FOS so the
+# setters authorize during standalone simulation. Remove once the forward migration has
+# executed on-chain (owner() is already the FOS then).
+0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"}
+]
