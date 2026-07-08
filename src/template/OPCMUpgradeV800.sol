@@ -154,9 +154,12 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
                 ISystemConfigV800(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
             // SystemConfig 4.0.0 (op-contracts/v8.0.0) removes the batchInbox() getter and clears
             // the legacy batch inbox slot during reinitialization, so read it with a staticcall
-            // that tolerates both pre- and post-removal SystemConfig versions.
+            // that tolerates both pre- and post-removal SystemConfig versions. A missing selector
+            // reverts with empty return data; any other failure (a revert with data) is unexpected
+            // and must surface loudly rather than being mistaken for the post-removal case.
             // See https://github.com/ethereum-optimism/optimism/issues/21614.
             (bool ok, bytes memory data) = address(sysCfg).staticcall(abi.encodeWithSignature("batchInbox()"));
+            require(ok || data.length == 0, "OPCMUpgradeV800: unexpected batchInbox() failure");
             address batchInbox = (ok && data.length == 32) ? abi.decode(data, (address)) : address(0);
             address[4] memory candidates = [
                 sysCfg.owner(), // slot 0x33 — Safe in prod, EOA in dev

@@ -257,10 +257,15 @@ contract SuperRootMigrateIntegrationTest is Test, OPCMMigrateV800 {
         for (uint256 i = 0; i < chains.length; i++) {
             ISystemConfigV800 sysCfg =
                 ISystemConfigV800(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
+            // Mirrors the tolerant batchInbox() read in OPCMUpgradeV800: the getter is removed as
+            // of SystemConfig 4.0.0, so resolve it to address(0) when the selector is missing.
+            (bool ok, bytes memory data) = address(sysCfg).staticcall(abi.encodeWithSignature("batchInbox()"));
+            require(ok || data.length == 0, "SuperRootMigrate: unexpected batchInbox() failure");
+            address batchInbox = (ok && data.length == 32) ? abi.decode(data, (address)) : address(0);
             address[4] memory candidates = [
                 sysCfg.owner(),
                 sysCfg.unsafeBlockSigner(),
-                sysCfg.batchInbox(),
+                batchInbox,
                 address(uint160(uint256(sysCfg.batcherHash())))
             ];
             for (uint256 j = 0; j < candidates.length; j++) {
