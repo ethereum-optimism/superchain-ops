@@ -1,6 +1,6 @@
 # 055-gas-limit-op
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x8738995c1d3c654b0c919e39456a215db650dd75eae2feb13e463725c8362af7)
 
 ## Objective
 
