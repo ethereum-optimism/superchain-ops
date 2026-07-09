@@ -35,10 +35,12 @@ unsafeBlockSigner = "0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1" # OPE sequencer
 OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]
-# FoundationOperationsSafe nonce (slot 5). Live value 118 (read 2026-07-09). Re-verify
-# before signing: cast call 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A "nonce()" --rpc-url mainnet
+# FoundationOperationsSafe nonce (slot 5). STACKED value 120 = on-chain 118 (read 2026-07-09)
+# + 2 preceding FOS-signed tasks in the eth stack (058-fos-rotation-1, 059-fos-rotation-2).
+# Re-verify before signing: cast call 0x9BA6…006b3A "nonce()" --rpc-url mainnet (and add any
+# further FOS-signed tasks that land ahead of this one).
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 118}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 120}
 ]
 # Model the post-transfer state: override SystemConfig.owner() (slot 0x33, live value is
 # still the Gelato Safe 0xBeA2Bc…9Bbb) to the FOS so setBatcherHash / setUnsafeBlockSigner
