@@ -8,9 +8,9 @@
 # Signed by the post-migration SystemConfig owner (FoundationOperationsSafe) — run this
 # BEFORE the ownership revert (062), while the OP side still controls SystemConfig.
 #
-# ⚠️ The restore values below are the PRE-MIGRATION Gelato batcher / unsafe block signer.
-# They MUST be the exact values captured on-chain in the role audit (§3.1) / execution log
-# before the forward migration ran. Fill every TODO before signing.
+# The restore values below are the PRE-MIGRATION Gelato batcher / unsafe block signer,
+# read live on-chain 2026-07-09 (before the forward migration ran). Re-confirm against the
+# execution log at rollback time.
 
 templateName = "SetBatcherAndOrSigner"
 
@@ -22,23 +22,30 @@ l2chains = [
     {name = "Ink", chainId = 57073}
 ]
 
-# ORIGINAL Gelato receiving infrastructure — the values to restore.
+# ORIGINAL Gelato receiving infrastructure — the values to restore (verified live 2026-07-09).
 [sequencerConfig]
-batcherAddress    = "0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac" # TODO(role audit §3.1): pre-migration Gelato batcher. The registry genesis batcher is used as a starting point — CONFIRM the exact current on-chain value captured before migration.
-unsafeBlockSigner = "0x2222222222222222222222222222222222222222" # TODO(role audit §3.1): pre-migration Gelato unsafe block signer — read from SystemConfig on-chain before the forward migration and pin here.
+batcherAddress    = "0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac" # pre-migration Gelato batcher (== registry genesis batcher; live batcherHash confirmed)
+unsafeBlockSigner = "0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C" # pre-migration Gelato unsafe block signer (live SystemConfig value)
 
 [addresses]
 # FoundationOperationsSafe (mainnet) — the SystemConfig owner after the forward migration.
 OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]
-# FoundationOperationsSafe nonce (slot 5). Set to the live value at sign time.
+# FoundationOperationsSafe nonce (slot 5). Live value 118 (read 2026-07-09). PROVISIONAL —
+# advances once the FOS signs forward task 060; re-read and re-simulate at rollback time.
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 118}
 ]
-# Model the post-migration state: override SystemConfig.owner() (slot 0x33) → FOS so the
-# setters authorize during standalone simulation. Remove once the forward migration has
-# executed on-chain (owner() is already the FOS then).
+# Model the POST-MIGRATION SystemConfig state so this revert shows a genuine OPE → Gelato
+# diff during standalone simulation (the live pre-migration values are already the Gelato
+# ones). Remove ALL three overrides at actual rollback time — the real post-migration state
+# will be live on-chain.
+#   slot 0x33 = owner() → FOS (authorizes the setters)
+#   slot 0x67 = batcherHash → OPE batcher 0x6db6161f…16B98
+#   slot 0x65a7ed54…1c08 = unsafeBlockSigner → OPE sequencer 0x7b322282…F8E1
 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"},
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000067", value = "0x0000000000000000000000006db6161fc5662450e801398bad62dd9921216b98"},
+    {key = "0x65a7ed542fb37fe237fdfbdd70b31598523fe5b32879e307bae27a0bd9581c08", value = "0x0000000000000000000000007b322282df45e537e5de76d60e1432db3cf3f8e1"}
 ]

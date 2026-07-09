@@ -1,6 +1,9 @@
 # 063-ink-revert-batcher-unsafe-signer: ROLLBACK — restore Gelato batcher & unsafe block signer
 
-Status: DRAFT — CONTINGENCY / ROLLBACK. NOT READY TO SIGN. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+Status: READY TO SIGN — CONTINGENCY / ROLLBACK. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+
+> [!IMPORTANT]
+> Hashes in [VALIDATION.md](./VALIDATION.md) were generated against the **modelled post-migration state** (owner → FOS, batcherHash → OPE, unsafeBlockSigner → OPE; FOS nonce 118 as of 2026-07-09) so the diff shows a real OPE → Gelato revert. At an actual rollback that state is live on-chain and the FOS nonce will have advanced — **re-run `just simulate` and refresh the hashes (removing the modelling overrides) before signing.**
 
 ## Objective
 
@@ -8,14 +11,14 @@ Restores the **original Gelato** batcher and unsafe block signer on the **Ink ma
 
 | Field | Post-migration (OPE) | Restore to (Gelato) |
 |-------|----------------------|---------------------|
-| `batcherHash()` | OPE batcher | `TODO` pre-migration Gelato batcher (role audit §3.1) |
-| `unsafeBlockSigner()` | OPE sequencer | `TODO` pre-migration Gelato unsafe signer (role audit §3.1) |
+| `batcherHash()` | `0x6db6161fC5662450E801398Bad62dD9921216B98` | `0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac` |
+| `unsafeBlockSigner()` | `0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1` | `0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C` |
 
 - **Target**: `SystemConfigProxy` [`0x62C0a111…E8364`](https://etherscan.io/address/0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364)
 - **Signer**: `FoundationOperationsSafe` [`0x9BA6e03D…006b3A`](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A) — the post-migration SystemConfig owner.
 
 > [!CAUTION]
-> The restore values are the **pre-migration Gelato** batcher and unsafe block signer. Capture them on-chain **before** the forward migration executes (role audit §3.1 / execution log) and pin them here — do not guess. The registry only carries the genesis batcher (`0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac`), which may differ from the live pre-migration value.
+> The restore values are the **pre-migration Gelato** batcher and unsafe block signer, read live on-chain 2026-07-09 (batcher == registry genesis batcher). Re-confirm against the execution log at rollback time.
 
 > [!IMPORTANT]
 > This task assumes `SystemConfig.owner()` is the `FoundationOperationsSafe` (post-migration). Run it **before** the ownership revert [`062`](../062-ink-revert-system-config-owner), while the OP side still controls SystemConfig. [config.toml](./config.toml) overrides slot `0x33` → FOS for standalone simulation; remove that once the forward migration has executed.
@@ -24,10 +27,10 @@ Restores the **original Gelato** batcher and unsafe block signer on the **Ink ma
 
 Writes to `SystemConfigProxy` ([`0x62C0a111…E8364`](https://etherscan.io/address/0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364#readProxyContract)):
 
-- `batcherHash()` → pre-migration Gelato batcher (left-padded to 32 bytes).
-- `unsafeBlockSigner()` → pre-migration Gelato unsafe block signer.
+- `batcherHash()` reverts `0x00…6db6161f…16B98` (OPE) → `0x00…500d7Ea6…72Ac` (Gelato).
+- `unsafeBlockSigner()` reverts `0x7b32…F8E1` (OPE) → `0x7D05…463C` (Gelato).
 
-Plus the FoundationOperationsSafe nonce increments by 1. (The slot-`0x33` owner value is a simulation-only override — see above.)
+Plus the FoundationOperationsSafe nonce increments `118` → `119`. (The slot-`0x33` owner, slot-`0x67` batcherHash and unsafeBlockSigner **pre-state** values are simulation-only overrides modelling the post-migration state — see above.)
 
 ## Simulation & Signing
 
@@ -41,9 +44,9 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
 
 ```bash
 cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "batcherHash()(bytes32)" --rpc-url mainnet
-# Expected: 0x000000000000000000000000<Gelato batcher>
+# Expected: 0x000000000000000000000000500d7ea63cf2e501dadaa5feec1fc19fe2aa72ac
 cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "unsafeBlockSigner()(address)" --rpc-url mainnet
-# Expected: <Gelato unsafe block signer>
+# Expected: 0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C
 ```
 
 ## Validation

@@ -1,6 +1,9 @@
 # 062-ink-revert-system-config-owner: ROLLBACK — revert Ink SystemConfig ownership to the Gelato Safe
 
-Status: DRAFT — CONTINGENCY / ROLLBACK. NOT READY TO SIGN. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+Status: READY TO SIGN — CONTINGENCY / ROLLBACK. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+
+> [!IMPORTANT]
+> Hashes in [VALIDATION.md](./VALIDATION.md) were generated against the **modelled post-migration state** (owner → FOS; FOS nonce 118 as of 2026-07-09). At an actual rollback the FOS nonce will have advanced and the owner is already the FOS on-chain — **re-run `just simulate` and refresh the hashes (removing the owner override) before signing.**
 
 ## Objective
 

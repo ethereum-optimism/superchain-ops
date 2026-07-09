@@ -32,10 +32,11 @@ l2chains = [{name = "Ink", chainId = 57073}]
 OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]
-# FoundationOperationsSafe nonce (slot 5). Set to the live value at sign time:
-#   cast call 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A "nonce()(uint256)" --rpc-url mainnet
+# FoundationOperationsSafe nonce (slot 5). Live value 118 (read 2026-07-09). PROVISIONAL:
+# at actual rollback time the FOS will have advanced (it signs forward task 060). Re-read
+# and re-simulate before signing: cast call 0x9BA6…006b3A "nonce()(uint256)" --rpc-url mainnet
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 118}
 ]
 # Model the post-migration state: override SystemConfig.owner() (slot 0x33) to the
 # FoundationOperationsSafe so this revert authorizes during standalone simulation. Once the

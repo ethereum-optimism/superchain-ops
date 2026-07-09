@@ -8,9 +8,10 @@ The steps are:
 2. [Transaction Inputs](config.toml): the new owner and the chain ID can be verified directly in `config.toml`.
 3. State Changes: see [Task State Changes](#task-state-changes) below. They can also be reviewed in Tenderly via the link printed during simulation, and the template's `_validate` block asserts `SystemConfig.owner() == newOwner`.
 
-## Expected Domain and Message Hashes
+> [!IMPORTANT]
+> This is a **contingency / rollback** task. The hashes below were generated against the **modelled post-migration state** (SystemConfig owner overridden to the FoundationOperationsSafe; FOS nonce 118 as of 2026-07-09). At an actual rollback the owner is the FOS on-chain (no override needed) and the FOS nonce will have advanced — **you MUST re-run `just simulate` and replace these hashes before signing.**
 
-First, validate the domain and message hashes. These values should match both the values on your ledger and the values printed to the terminal when you run the task.
+## Expected Domain and Message Hashes
 
 > [!CAUTION]
 >
@@ -18,9 +19,9 @@ First, validate the domain and message hashes. These values should match both th
 >
 > ### FoundationOperationsSafe (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`)
 >
-> - Domain Hash:  `TODO — regenerate with just simulate once the FOS nonce is set to its live value`
-> - Message Hash: `TODO`
-> - Safe Tx Hash: `TODO`
+> - Domain Hash:  `0x2e5ad244d335c45fbace4ebd1736b0fad81b01591a2819baedad311ead5bce76`
+> - Message Hash: `0xfc856eab7cfbc9aedad1b92d2d56420380209ac40070c997c037033cb9ae973a`
+> - Safe Tx Hash: `0xf4f2d108b010992ec54ea88e407e16dbd0caf01fcd898c3ea5cca358a404cd98`
 
 The domain hash can be independently reproduced with:
 
@@ -28,13 +29,12 @@ The domain hash can be independently reproduced with:
 cast keccak $(cast abi-encode "x(bytes32,uint256,address)" \
   0x47e79534a245952e8b16893a336b85a3d9ea9fa8c573f3d803afb92a79469218 \
   1 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A)
+# Expected: 0x2e5ad244d335c45fbace4ebd1736b0fad81b01591a2819baedad311ead5bce76
 ```
 
 ## Understanding Task Calldata
 
 The task makes a single call: `SystemConfig.transferOwnership(address)` on the Ink `SystemConfigProxy` (`0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364`) with the Gelato Safe as argument, wrapped in `Multicall3.aggregate3Value`.
-
-Verify the inner calldata fingerprint:
 
 ```bash
 cast calldata "transferOwnership(address)" 0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb
@@ -43,19 +43,16 @@ cast calldata "transferOwnership(address)" 0xBeA2Bc852a160B8547273660E22F4F08C2f
 
 ## Task State Changes
 
-### `0x62c0a111929fa32cec2f76adba54c16afb6e8364` (Ink SystemConfigProxy) — Chain ID: 57073
+### `0x62c0a111929fa32cec2f76adba54c16afb6e8364` (SystemConfigProxy) — Chain ID: 57073
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033`
-  - **Decoded Kind:** `address`
   - **Before:** `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (FoundationOperationsSafe)
   - **After:** `0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb` (Gelato Safe)
   - **Summary:** `_owner` — slot `0x33` is the OZ `OwnableUpgradeable` owner slot. Ownership reverts to the Ink/Gelato Safe.
 
 ### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (FoundationOperationsSafe)
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Summary:** nonce — standard Gnosis Safe nonce bump for executing this task.
+- **Key:** `0x…0005` — nonce `118` → `119`.
 
 ## Post-execution verification
 

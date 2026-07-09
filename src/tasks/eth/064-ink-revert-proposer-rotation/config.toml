@@ -11,8 +11,8 @@
 # (0x9BA6e03D…006b3A, OP governance), prestate, vm, ASR, delayedWETH, chainId and impl are
 # read live and preserved. RE-SIMULATE immediately before signing.
 #
-# ⚠️ The restore proposer below MUST be the exact pre-migration Gelato proposer captured
-# on-chain in the role audit (§3.1) / execution log. Fill the TODO before signing.
+# The restore proposer below is the pre-migration Gelato proposer, read live on-chain
+# 2026-07-09. Re-confirm against the execution log at rollback time.
 
 templateName = "SetDisputeGameArgs"
 
@@ -23,21 +23,32 @@ l2chains = [
 [[gameConfig]]
 chainId  = 57073
 gameType = 1                                                  # PERMISSIONED_CANNON
-proposer = "0x3333333333333333333333333333333333333333"       # TODO(role audit §3.1): pre-migration Gelato proposer — the value to restore.
-bond     = 0                                                  # TODO: pin the live initBonds(1) (no-op assertion). Read on mainnet DGF before signing.
+proposer = "0x65436DDcBc026F34118954f229F7f132b696B3b4"       # pre-migration Gelato proposer — the value to restore (live gameArgs(1) 2026-07-09)
+bond     = 80000000000000000                                  # 0.08 ETH — live initBonds(1) (no-op assertion; a value of 0 would RESET the bond)
 
 [addresses]
 ProxyAdminOwner         = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO mainnet (nested 2-of-2: Foundation Upgrade Safe + Security Council)
 DisputeGameFactoryProxy = "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD"
 
 [stateOverrides]
-# Nested L1PAO signer-safe nonces (slot 5). Set each to its live value at sign time.
+# Nested L1PAO signer-safe nonces (slot 5). Live values 2026-07-09: L1PAO=36, FUS=60, SC=60.
+# PROVISIONAL — advance once these safes sign forward task 061; re-read and re-simulate at
+# rollback time.
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
 ]
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
 ]
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
+]
+# Model the POST-MIGRATION gameArgs(1) so this revert shows a genuine OPE → Gelato proposer
+# diff during standalone simulation (the live pre-migration proposer is already the Gelato
+# one). These two packed slots hold the proposer at the chainId/proposer boundary; the values
+# below are forward task 061's resulting (OPE) state. REMOVE at actual rollback time — the
+# real post-migration gameArgs will be live on-chain.
+0x10d7B35078d3baabB96Dd45a9143B94be65b12CD = [
+    {key = "0x9afb513dc3306e3bc370fea0bac86eaae93221c831ccaae670c9d4101fb0fa7f", value = "0x0000000000000000000000000000000000000000000000000000def13832bfbe"},
+    {key = "0x9afb513dc3306e3bc370fea0bac86eaae93221c831ccaae670c9d4101fb0fa80", value = "0xf03173e4c49a00ec0dd178817a02d1779ba6e03d8b90de867373db8cf1a58d2f"}
 ]
