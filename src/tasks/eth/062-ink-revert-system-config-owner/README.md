@@ -1,9 +1,15 @@
 # 062-ink-revert-system-config-owner: ROLLBACK — revert Ink SystemConfig ownership to the Gelato Safe
 
-Status: READY TO SIGN — CONTINGENCY / ROLLBACK. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+Status: CANCELLED
 
-> [!IMPORTANT]
-> Hashes in [VALIDATION.md](./VALIDATION.md) were generated against the **modelled post-migration state** (owner → FOS; FOS nonce 118 as of 2026-07-09). At an actual rollback the FOS nonce will have advanced and the owner is already the FOS on-chain — **re-run `just simulate` and refresh the hashes (removing the owner override) before signing.**
+> [!WARNING]
+> **ARMED break-glass rollback — NOT abandoned work.** The `CANCELLED` status is deliberate: `fetch-tasks.sh` skips `EXECUTED`/`CANCELLED`/`APPROVED`, so this removes the task from the active `eth` stacked simulation and CI stops enforcing pinned nonces/hashes. A rollback can fire at any migration stage, so its nonce cannot be sequenced ahead of time — instead this task reads the **live** on-chain nonce at activation (no nonce override; `StateOverrideManager._getNonceOrOverride` → `IGnosisSafe.nonce()`).
+>
+> **Activation (only if the Gelato → OPE migration must be aborted):**
+> 1. Change this `Status:` to `READY TO SIGN` (re-arms the task in the stack).
+> 2. If the forward ownership transfer already executed, `owner()` is the FOS live on-chain — **remove the `SystemConfig.owner()` slot-`0x33` override** in [config.toml](./config.toml).
+> 3. Run `just simulate` — the FOS's live nonce is read automatically.
+> 4. Copy the freshly printed Domain/Message/Safe hashes into [VALIDATION.md](./VALIDATION.md), verify, then sign.
 
 ## Objective
 

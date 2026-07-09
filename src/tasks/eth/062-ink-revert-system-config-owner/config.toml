@@ -32,13 +32,11 @@ l2chains = [{name = "Ink", chainId = 57073}]
 OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]
-# FoundationOperationsSafe nonce (slot 5). STACKED value 120 = on-chain 118 (read 2026-07-09)
-# + 2 preceding FOS-signed stack tasks (058-fos-rotation-1, 059-fos-rotation-2). PROVISIONAL:
-# at actual rollback time the FOS will have advanced further (it signs forward task 060) and
-# the stack differs. Re-read and re-simulate before signing.
-0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 120}
-]
+# NO nonce override — this is a break-glass task that may fire at any migration stage, so its
+# nonce cannot be sequenced ahead of time. With no override, the framework reads the FOS's
+# LIVE on-chain nonce at simulation/sign time (StateOverrideManager._getNonceOrOverride →
+# IGnosisSafe.nonce()). Re-simulate at activation to bind the current nonce and hashes.
+#
 # Model the post-migration state: override SystemConfig.owner() (slot 0x33) to the
 # FoundationOperationsSafe so this revert authorizes during standalone simulation. Once the
 # forward migration has actually executed, owner() is already the FOS on-chain and this

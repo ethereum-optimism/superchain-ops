@@ -32,12 +32,10 @@ unsafeBlockSigner = "0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C" # pre-migration
 OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]
-# FoundationOperationsSafe nonce (slot 5). STACKED value 121 = on-chain 118 (read 2026-07-09)
-# + 3 preceding FOS-signed stack tasks (058, 059, and 062 which also signs as the FOS).
-# PROVISIONAL — advances further at actual rollback time; re-read and re-simulate before signing.
-0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 121}
-]
+# NO nonce override — break-glass task; the FOS nonce is read LIVE at simulation/sign time
+# (StateOverrideManager._getNonceOrOverride → IGnosisSafe.nonce()). It cannot be sequenced
+# ahead of time because the rollback may fire at any migration stage. Re-simulate at activation.
+#
 # Model the POST-MIGRATION SystemConfig state so this revert shows a genuine OPE → Gelato
 # diff during standalone simulation (the live pre-migration values are already the Gelato
 # ones). Remove ALL three overrides at actual rollback time — the real post-migration state

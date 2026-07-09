@@ -9,7 +9,7 @@ The steps are:
 3. State Changes: see [Task State Changes](#task-state-changes) below. They can also be reviewed in Tenderly via the link printed during simulation, and the template's `_validate` block asserts `SystemConfig.owner() == newOwner`.
 
 > [!IMPORTANT]
-> This is a **contingency / rollback** task. The hashes below were generated against the **modelled post-migration state** (SystemConfig owner overridden to the FoundationOperationsSafe; FOS **stacked nonce 120** = on-chain 118 + preceding FOS-signed stack tasks 058/059). At an actual rollback the owner is the FOS on-chain (no override needed) and the FOS nonce will have advanced — **you MUST re-run `just simulate` and replace these hashes before signing.**
+> This is an **ARMED break-glass rollback** task (status `CANCELLED` → excluded from the active stack; see [README.md](./README.md)). The nonce is **not** pinned — it is read live at activation — so the **Message and Safe hashes are generated at activation time**, not committed here. Only the Domain Hash is fixed (it depends solely on chainId + safe address, not the nonce). At activation, run `just simulate` and paste the printed Message/Safe hashes below before signing.
 
 ## Expected Domain and Message Hashes
 
@@ -20,8 +20,8 @@ The steps are:
 > ### FoundationOperationsSafe (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`)
 >
 > - Domain Hash:  `0x2e5ad244d335c45fbace4ebd1736b0fad81b01591a2819baedad311ead5bce76`
-> - Message Hash: `0x30eda442668dac0decaadb5d9746f627e9c7863184d34507a9ed7264e4ec32de`
-> - Safe Tx Hash: `0xddda416c3a64a7a7533dbd58e8b2ff9f24ff7b381add844eb61151316a72aac9`
+> - Message Hash: `⟨generate at activation — run just simulate⟩`
+> - Safe Tx Hash: `⟨generate at activation — run just simulate⟩`
 
 The domain hash can be independently reproduced with:
 
@@ -52,7 +52,7 @@ cast calldata "transferOwnership(address)" 0xBeA2Bc852a160B8547273660E22F4F08C2f
 
 ### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (FoundationOperationsSafe)
 
-- **Key:** `0x…0005` — nonce `120` → `121` (stacked value — see above).
+- **Key:** `0x…0005` — nonce increments by 1 (live value read at activation).
 
 ## Post-execution verification
 

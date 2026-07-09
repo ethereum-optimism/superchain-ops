@@ -1,9 +1,15 @@
 # 063-ink-revert-batcher-unsafe-signer: ROLLBACK — restore Gelato batcher & unsafe block signer
 
-Status: READY TO SIGN — CONTINGENCY / ROLLBACK. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+Status: CANCELLED
 
-> [!IMPORTANT]
-> Hashes in [VALIDATION.md](./VALIDATION.md) were generated against the **modelled post-migration state** (owner → FOS, batcherHash → OPE, unsafeBlockSigner → OPE; FOS nonce 118 as of 2026-07-09) so the diff shows a real OPE → Gelato revert. At an actual rollback that state is live on-chain and the FOS nonce will have advanced — **re-run `just simulate` and refresh the hashes (removing the modelling overrides) before signing.**
+> [!WARNING]
+> **ARMED break-glass rollback — NOT abandoned work.** The `CANCELLED` status is deliberate: `fetch-tasks.sh` skips `EXECUTED`/`CANCELLED`/`APPROVED`, so this removes the task from the active `eth` stacked simulation and CI stops enforcing pinned nonces/hashes. A rollback can fire at any migration stage, so its nonce cannot be sequenced ahead of time — instead this task reads the **live** on-chain FOS nonce at activation (no nonce override; `StateOverrideManager._getNonceOrOverride` → `IGnosisSafe.nonce()`).
+>
+> **Activation (only if the Gelato → OPE migration must be aborted):**
+> 1. Change this `Status:` to `READY TO SIGN` (re-arms the task in the stack).
+> 2. If the forward migration already executed, the post-migration state is live on-chain — **remove the three modelling overrides** in [config.toml](./config.toml) (`owner()` slot `0x33` → FOS, `batcherHash` slot `0x67` → OPE, `unsafeBlockSigner` slot → OPE).
+> 3. Run `just simulate` — the FOS's live nonce is read automatically.
+> 4. Copy the freshly printed Domain/Message/Safe hashes into [VALIDATION.md](./VALIDATION.md), verify, then sign.
 
 ## Objective
 

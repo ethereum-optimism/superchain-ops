@@ -1,9 +1,15 @@
 # 064-ink-revert-proposer-rotation: ROLLBACK — restore Gelato proposer on the PDG
 
-Status: READY TO SIGN — CONTINGENCY / ROLLBACK. Use only if the Ink mainnet Gelato → OPE migration must be aborted.
+Status: CANCELLED
 
-> [!IMPORTANT]
-> Hashes in [VALIDATION.md](./VALIDATION.md) were generated against the **modelled post-migration state** (gameArgs(1) proposer → OPE; signer nonces L1PAO=36 / FUS=60 / SC=60 as of 2026-07-09) so the diff shows a real OPE → Gelato revert. At an actual rollback that state is live on-chain and nonces will have advanced — **re-run `just simulate` and refresh the hashes (removing the DGF modelling override) before signing.**
+> [!WARNING]
+> **ARMED break-glass rollback — NOT abandoned work.** The `CANCELLED` status is deliberate: `fetch-tasks.sh` skips `EXECUTED`/`CANCELLED`/`APPROVED`, so this removes the task from the active `eth` stacked simulation and CI stops enforcing pinned nonces/hashes. A rollback can fire at any migration stage, so the L1PAO/FUS/SC nonces cannot be sequenced ahead of time — instead this task reads the **live** on-chain nonces at activation (no nonce overrides; `StateOverrideManager._getNonceOrOverride` → `IGnosisSafe.nonce()`).
+>
+> **Activation (only if the Gelato → OPE migration must be aborted):**
+> 1. Change this `Status:` to `READY TO SIGN` (re-arms the task in the stack).
+> 2. If the forward proposer rotation already executed, the post-migration `gameArgs(1)` is live on-chain — **remove the DGF `gameArgs(1)` modelling override** in [config.toml](./config.toml).
+> 3. Run `just simulate council` / `just simulate foundation` — the live L1PAO/FUS/SC nonces are read automatically.
+> 4. Copy the freshly printed Domain/Message/Safe hashes into [VALIDATION.md](./VALIDATION.md), verify, then sign.
 
 ## Objective
 
