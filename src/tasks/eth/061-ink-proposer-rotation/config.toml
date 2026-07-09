@@ -14,18 +14,13 @@
 #
 # FIELD-DIFFING — only `proposer` changes:
 #   - prestate           : LEFT UNCHANGED — read live and preserved
-#   - challenger         : LEFT UNCHANGED — expected 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
-#                          (OP mainnet Challenger, OP governance per plan §3.1 "no action");
-#                          read live and preserved. CONFIRM in the mainnet role audit.
+#   - challenger         : LEFT UNCHANGED — confirmed live 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
+#                          (FoundationOperationsSafe, OP governance per plan §3.1 "no action");
+#                          read live and preserved. The OPE challenger is NOT written on-chain.
 #   - vm / ASR / weth / chainId / impl / bond : LEFT UNCHANGED; read live
 #
 # Because every field except proposer is read live at sign time, this task absorbs U19's
 # changes. RE-SIMULATE immediately before signing to confirm the live gameArgs(1) values.
-#
-# ⚠️ WARM-PHASE PREPARATION (plan W21/W22). The OPE proposer below is a MAINNET-NEW key
-# generated during the warm phase (W1) and verified by ≥3 OP Labs engineers (W4). It is a
-# placeholder until then — DO NOT sign until TODO(W1) is filled and the live gameArgs(1)
-# blob is re-read. Mainnet keys are NEW — do NOT reuse the Ink Sepolia OPE proposer.
 
 templateName = "SetDisputeGameArgs"
 
@@ -38,7 +33,7 @@ l2chains = [
 [[gameConfig]]
 chainId  = 57073
 gameType = 1                                                  # PERMISSIONED_CANNON
-proposer = "0x3333333333333333333333333333333333333333"       # TODO(W1): OPE proposer — NEW mainnet key (gates this task per W21). Current Gelato proposer must be read on-chain (role audit §3.1).
+proposer = "0x3832bfbeF03173E4C49a00ec0DD178817A02D177"       # OPE proposer (verified W4). Live pre-migration Gelato proposer (for rollback): 0x65436DDcBc026F34118954f229F7f132b696B3b4.
 bond     = 80000000000000000                                  # 0.08 ETH — pins the CURRENT PDG init bond (confirmed live `initBonds(1)` on mainnet DGF, matches the Sepolia rehearsal). No-op that lets _validate assert it. RE-READ live before signing; a value of 0 here would actively RESET the bond to zero.
 
 [addresses]
@@ -47,15 +42,15 @@ ProxyAdminOwner         = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO m
 DisputeGameFactoryProxy = "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD"
 
 [stateOverrides]
-# Nested L1PAO signer-safe nonces (slot 5). Set each to its live value at sign time — the
-# StateOverrideManager rejects an override below the live nonce. Re-verify before signing:
-#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
+# Nested L1PAO signer-safe nonces (slot 5). Live values (read 2026-07-09): L1PAO=36,
+# FUS=60, SC=60. The StateOverrideManager rejects an override below the live nonce.
+# Re-verify before signing: cast call <safe> "nonce()(uint256)" --rpc-url mainnet
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
 ]
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
 ]
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
 ]

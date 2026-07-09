@@ -1,6 +1,8 @@
 # 061-ink-proposer-rotation
 
-Status: DRAFT — warm-phase preparation (plan W21/W22). Not ready to sign: the OPE proposer is a placeholder until warm-phase key generation (W1/W4) lands, and the `gameArgs(1)` blob must be re-read live post-Karst. Fill `TODO(W1)`, pin the live `initBonds(1)`, then `just simulate council` / `just simulate foundation` to generate the nested hashes recorded in [VALIDATION.md](./VALIDATION.md).
+Status: READY TO SIGN
+
+Simulated against live state (signer nonces L1PAO=36 / FUS=60 / SC=60; live `initBonds(1)` = 0.08 ETH confirmed). The proposer-only `gameArgs(1)` diff is confirmed (Gelato proposer fully replaced, challenger preserved); the nested signer domain/message/safe hashes in [VALIDATION.md](./VALIDATION.md) match `just simulate council` / `just simulate foundation` and only move if a signer-safe nonce advances.
 
 > [!NOTE]
 > This task reads the **live** `gameArgs(1)` and swaps **only the proposer**, so it carries whatever impl/prestate/vm/delayedWETH U19 set forward unchanged. Game type 1 is a dormant Guardian fallback; the active respected game post-Karst is permissionless CANNON_KONA (type 8), which has no on-chain proposer. Rotating the type-1 proposer to OPE is done **for correctness** (plan §1 / §2.3).
@@ -12,7 +14,7 @@ For the **Ink mainnet** (chainId 57073) DisputeGameFactory, rotate the **Permiss
 The PDG is a **dormant safety fallback** (the active game post-Karst is the permissionless CANNON_KONA, game type 8, which has no on-chain proposer). Per plan §1 / §2.3 its proposer is still updated **for correctness**.
 
 > [!NOTE]
-> **Proposer only.** The challenger is **left unchanged** — expected `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (OP mainnet Challenger, OP governance per plan §3.1 "Already OP governance — no action"; **CONFIRM in the mainnet role audit**). The absolute **prestate is left unchanged**, read live at sign time. No FaultDisputeGame (CANNON/0) or CANNON_KONA (8) change is made here.
+> **Proposer only.** The challenger is **left unchanged** at `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (FoundationOperationsSafe, OP governance per plan §3.1 "Already OP governance — no action"; confirmed live on-chain). The OPE challenger key is **not** written on-chain by this task. The absolute **prestate is left unchanged**, read live at sign time. No FaultDisputeGame (CANNON/0) or CANNON_KONA (8) change is made here.
 
 ### Mechanism
 
@@ -21,7 +23,7 @@ Ink mainnet's DisputeGameFactory is expected **v1.6.1** post-U19 (plan §3.2 —
 Because the prestate (and all other fields) are read live at sign time, this task is robust to U19/Karst changes — it preserves whatever is live and swaps only the proposer. **Always re-simulate immediately before signing.**
 
 - **DisputeGameFactoryProxy**: `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD`
-- **PDG impl (unchanged by this task)**: read live `gameImpls(1)` on mainnet.
+- **PDG impl (unchanged by this task)**: `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e` (v2.4.0, live `gameImpls(1)`).
 - **Signer**: L1 ProxyAdminOwner Safe `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (nested 2-of-2: Foundation Upgrade Safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` + Security Council `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`). Already OP governance — signatures collected in the warm phase (plan step W22), ≥72h before cutover.
 
 ## State Changes
@@ -37,13 +39,13 @@ Writes to `DisputeGameFactoryProxy` ([`0x10d7B350…12CD`](https://etherscan.io/
 | anchorStateRegistry | 52–72 | read live | unchanged |
 | delayedWETH | 72–92 | read live | unchanged |
 | l2ChainId | 92–124 | `57073` | unchanged |
-| **proposer** | 124–144 | current Gelato proposer (CONFIRM) | **`TODO(W1)` OPE proposer** |
-| challenger | 144–164 | `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` (CONFIRM) | unchanged (OP governance) |
+| **proposer** | 124–144 | `0x65436DDcBc026F34118954f229F7f132b696B3b4` (Gelato) | **`0x3832bfbeF03173E4C49a00ec0DD178817A02D177`** (OPE) |
+| challenger | 144–164 | `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` | unchanged (OP governance) |
 
-`gameImpls(1)` and `initBonds(1)` are unchanged by this task (read live). Game types 0 (CANNON) and 8 (CANNON_KONA) are untouched.
+`gameImpls(1)` (`0xe1dFFCBE…87e`) and `initBonds(1)` (0.08 ETH) are unchanged by this task (read live). Game types 0 (CANNON) and 8 (CANNON_KONA) are untouched.
 
 - **Current values**: full `gameArgs(1)` read on-chain via `cast call 0x10d7B350… "gameArgs(uint32)(bytes)" 1`, decomposed per the permissioned 164-byte layout.
-- **New proposer**: OPE proposer (plan §3.3).
+- **New proposer**: OPE proposer (plan §3.3), verified W4.
 
 Plus the signer-safe nonces increment by 1.
 
@@ -63,8 +65,8 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
 ## Post-execution verification
 
 ```bash
-cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameArgs(uint32)(bytes)" 1 --rpc-url <MAINNET_RPC>
-# Bytes 124..144 (proposer)  must equal <OPE proposer>
+cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameArgs(uint32)(bytes)" 1 --rpc-url mainnet
+# Bytes 124..144 (proposer)  must equal 3832bfbef03173e4c49a00ec0dd178817a02d177
 # Bytes 144..164 (challenger) must equal 9ba6e03d8b90de867373db8cf1a58d2f7f006b3a (unchanged)
 ```
 

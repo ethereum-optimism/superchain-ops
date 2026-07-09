@@ -1,6 +1,8 @@
 # 060-ink-set-batcher-unsafe-signer
 
-Status: DRAFT — warm-phase preparation (plan W23/W24). Not ready to sign: the OPE mainnet keys and the OPE Safe are placeholders until warm-phase key generation (W1–W4) lands. Fill every `TODO(Wxx)` from the mainnet role audit (§3) and key generation (§3.3), then `just simulate` to generate the hashes recorded in [VALIDATION.md](./VALIDATION.md).
+Status: READY TO SIGN
+
+Simulates successfully (FoundationOperationsSafe nonce 118; domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md)). Re-run `just simulate` to regenerate the hashes if the FOS nonce advances or the `SystemConfig.owner` override is removed (after the ownership transfer) before signing.
 
 ## Objective
 
@@ -10,17 +12,17 @@ Source of truth: _Ink Mainnet Migration — Engineering Plan_ (§3.3 Addresses; 
 
 | Field | Current (Gelato) | New (OPE) |
 |-------|------------------|-----------|
-| `batcherHash()` | CONFIRM on-chain (role audit §3.1) | `TODO(W3)` OPE batcher |
-| `unsafeBlockSigner()` | CONFIRM on-chain (role audit §3.1) | `TODO(W2)` OPE sequencer |
+| `batcherHash()` | `0x00…500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac` | `0x00…6db6161fC5662450E801398Bad62dD9921216B98` |
+| `unsafeBlockSigner()` | `0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C` | `0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1` |
 
 - **Target**: `SystemConfigProxy` `0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364` (resolved from the superchain-registry).
-- **Signer**: OPE Safe `TODO(§3.3)` — the SystemConfig owner after Gelato's W26 ownership transfer.
+- **Signer**: `FoundationOperationsSafe` `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` — the SystemConfig owner after the Gelato → FOS ownership transfer.
 
 > [!IMPORTANT]
-> This task assumes the `SystemConfig` owner is the **OPE Safe**. On Ink mainnet the owner is currently the **Gelato Safe** (CONFIRM exact address in the role audit); the Gelato → OPE `transferOwnership` is performed **outside this repo** by Gelato (Migration Plan steps **W25/W26**, irreversible — OPE receiving address verified by ≥3 OP engineers). For simulation, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the OPE Safe. **Remove that override once W26 is executed on-chain.**
+> This task assumes the `SystemConfig` owner is the **FoundationOperationsSafe**. On Ink mainnet the owner is currently the **Gelato Safe** (`0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb`, verified on-chain); the Gelato → FOS `transferOwnership` is performed **outside this repo** (task [`eth/055`](../055-ink-transfer-system-config-owner) / PR #1462, Migration Plan steps **W25/W26**). For simulation, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FOS. **Remove that override once the ownership transfer is executed on-chain.**
 
 > [!CAUTION]
-> Per plan step **W4**, the OPE batcher and unsafe-block-signer addresses must be independently verified by ≥3 OP Labs engineers before any on-chain use. **Mainnet keys are NEW — do not reuse the Ink Sepolia OPE keys.** The superchain-registry only carries the genesis batcher (`0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac`); confirm the *current* batcher and unsafe block signer on-chain before diffing.
+> Per plan step **W4**, the OPE batcher and unsafe-block-signer addresses were independently verified by ≥3 OP Labs engineers. **Mainnet keys are NEW — not reused from the Ink Sepolia rehearsal.**
 
 ## State Changes
 
@@ -28,10 +30,10 @@ Writes to `SystemConfigProxy` ([`0x62C0a111…E8364`](https://etherscan.io/addre
 
 | Field | Current (on-chain) | New |
 |-------|--------------------|-----|
-| `batcherHash()` | `TODO` — `cast call 0x62C0a111… "batcherHash()(bytes32)"` | OPE batcher, left-padded to 32 bytes |
-| `unsafeBlockSigner()` | `TODO` — `cast call 0x62C0a111… "unsafeBlockSigner()(address)"` | OPE sequencer |
+| `batcherHash()` | `0x000000000000000000000000500d7ea63cf2e501dadaa5feec1fc19fe2aa72ac` | `0x0000000000000000000000006db6161fc5662450e801398bad62dd9921216b98` |
+| `unsafeBlockSigner()` | `0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C` | `0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1` |
 
-Plus the OPE Safe nonce increments by 1. (The `SystemConfig.owner()` slot-`0x33` change is a **simulation-only override**, not a state change produced by this task — see the note above.)
+Plus the FoundationOperationsSafe nonce increments `118` → `119`. (The `SystemConfig.owner()` slot-`0x33` change is a **simulation-only override**, not a state change produced by this task — see the note above.)
 
 ## Simulation & Signing
 
@@ -45,10 +47,10 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
 ## Post-execution verification
 
 ```bash
-cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "batcherHash()(bytes32)" --rpc-url <MAINNET_RPC>
-# Expected: 0x000000000000000000000000<OPE batcher>
-cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "unsafeBlockSigner()(address)" --rpc-url <MAINNET_RPC>
-# Expected: <OPE sequencer>
+cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "batcherHash()(bytes32)" --rpc-url mainnet
+# Expected: 0x0000000000000000000000006db6161fc5662450e801398bad62dd9921216b98
+cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "unsafeBlockSigner()(address)" --rpc-url mainnet
+# Expected: 0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1
 ```
 
 Record the executed tx hash in the migration plan execution log (cutover steps 2 & 3).
