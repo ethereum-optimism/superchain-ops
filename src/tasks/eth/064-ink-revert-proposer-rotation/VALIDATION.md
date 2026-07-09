@@ -9,7 +9,7 @@ The steps are:
 3. State Changes: the template's `_validate` block asserts the new `gameArgs(1)` and unchanged `gameImpls(1)`.
 
 > [!IMPORTANT]
-> This is a **contingency / rollback** task. The hashes below were generated against the **modelled post-migration state** (the two packed `gameArgs(1)` proposer slots overridden to the OPE proposer; signer nonces L1PAO=36 / FUS=60 / SC=60 as of 2026-07-09) so the diff shows a genuine OPE → Gelato revert. At an actual rollback that state is live on-chain (remove the DGF override) and the signer nonces will have advanced — **you MUST re-run `just simulate` and replace these hashes before signing.**
+> This is a **contingency / rollback** task. The hashes below were generated against the **modelled post-migration state** (the two packed `gameArgs(1)` proposer slots overridden to the OPE proposer; **stacked** signer nonces L1PAO=36, SC=60 on-chain and FUS=62 = on-chain 60 + preceding FUS-signed stack tasks 056/057) so the diff shows a genuine OPE → Gelato revert. At an actual rollback that state is live on-chain (remove the DGF override) and the signer nonces will have advanced — **you MUST re-run `just simulate` and replace these hashes before signing.**
 
 ## Expected Domain and Message Hashes
 
@@ -28,8 +28,8 @@ This is a **nested** task signed by the L1 ProxyAdminOwner's two owner safes; ve
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xcb1407e5a2425f73c303672be889ce24c62ccf3aba2c4d762c964a7c156f4ddf`
-> - Safe Hash:    `0x9129be5ee57bf11658f3f0c41943f20f54116888c9a6507a4758b395fc8d3524`
+> - Message Hash: `0xff8250bd975d281f7680d7e27afb798d7855e87295fd126679deb2c52e2af328`
+> - Safe Hash:    `0xac995164db7af4a88f2abc419b8b537444d5d1d1eeb143bcabbc75fba819be77`
 
 ## Understanding Task Calldata
 
@@ -69,7 +69,7 @@ The proposer spans two packed slots (challenger bytes preserved in both):
 
 ### Signer safes
 
-`ProxyAdminOwner` nonce `36` → `37`; `Security Council` and `Foundation Upgrade Safe` nonces (60) increment by 1.
+`ProxyAdminOwner` nonce `36` → `37`; `Security Council` (60) and `Foundation Upgrade Safe` (stacked 62) nonces increment by 1.
 
 > [!NOTE]
 > The `gameArgs(1)` **pre-state** (OPE proposer) is a simulation-only override modelling the post-migration state; it is not written by this task. Remove the DGF override at actual rollback time — the real post-migration `gameArgs` will be live on-chain.

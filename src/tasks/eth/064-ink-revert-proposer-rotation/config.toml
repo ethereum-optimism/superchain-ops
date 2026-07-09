@@ -31,14 +31,15 @@ ProxyAdminOwner         = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO m
 DisputeGameFactoryProxy = "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD"
 
 [stateOverrides]
-# Nested L1PAO signer-safe nonces (slot 5). Live values 2026-07-09: L1PAO=36, FUS=60, SC=60.
-# PROVISIONAL — advance once these safes sign forward task 061; re-read and re-simulate at
-# rollback time.
+# Nested L1PAO signer-safe nonces (slot 5). STACKED values: L1PAO=36 and SC=60 (on-chain,
+# untouched by preceding stack tasks); FUS=62 = on-chain 60 (read 2026-07-09) + 2 preceding
+# FUS-signed stack tasks (056-fus-rotation-1, 057-fus-rotation-2). PROVISIONAL — advance at
+# actual rollback time; re-read and re-simulate before signing.
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
 ]
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 62}
 ]
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}

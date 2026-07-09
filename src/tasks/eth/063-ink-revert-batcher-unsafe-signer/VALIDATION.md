@@ -9,7 +9,7 @@ The steps are:
 3. State Changes: the template's `_validate` block asserts `SystemConfig.batcherHash()` and `SystemConfig.unsafeBlockSigner()` equal the configured (Gelato) values.
 
 > [!IMPORTANT]
-> This is a **contingency / rollback** task. The hashes below were generated against the **modelled post-migration state** (SystemConfig owner → FOS; batcherHash → OPE batcher; unsafeBlockSigner → OPE sequencer; FOS nonce 118 as of 2026-07-09) so the diff shows a genuine OPE → Gelato revert. At an actual rollback that state is live on-chain (remove the overrides) and the FOS nonce will have advanced — **you MUST re-run `just simulate` and replace these hashes before signing.**
+> This is a **contingency / rollback** task. The hashes below were generated against the **modelled post-migration state** (SystemConfig owner → FOS; batcherHash → OPE batcher; unsafeBlockSigner → OPE sequencer; FOS **stacked nonce 121** = on-chain 118 + preceding FOS-signed stack tasks 058/059/062) so the diff shows a genuine OPE → Gelato revert. At an actual rollback that state is live on-chain (remove the overrides) and the FOS nonce will have advanced — **you MUST re-run `just simulate` and replace these hashes before signing.**
 
 ## Expected Domain and Message Hashes
 
@@ -20,8 +20,8 @@ The steps are:
 > ### FoundationOperationsSafe (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`)
 >
 > - Domain Hash:  `0x2e5ad244d335c45fbace4ebd1736b0fad81b01591a2819baedad311ead5bce76`
-> - Message Hash: `0xc27e57573bf7803c079ba4bb3500f9de3e60d0b28a5725f7febec3a7852bfb5e`
-> - Safe Hash:    `0xc95ef10fe91e99d155f84514d077f16440e1237e91520335985b874c89b4f090`
+> - Message Hash: `0x7e0a231871d7b7b8ab9774a16f8fd059e81bbf471d6c9be1ef9475255975f76f`
+> - Safe Hash:    `0x4d904f0394d9761060ac4870292daac02fd5c3cc606ed7340e805737fb3903f8`
 
 ## Understanding Task Calldata
 
@@ -46,7 +46,7 @@ cast calldata "setUnsafeBlockSigner(address)" 0x7D056B99AA2021864c42E25B4F8cE3Bd
 
 ### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (FoundationOperationsSafe)
 
-Nonce `118` → `119`.
+Nonce `121` → `122` (stacked value — see above).
 
 > [!NOTE]
 > The `SystemConfig.owner()` (slot `0x33`), `batcherHash()` and `unsafeBlockSigner()` **pre-state** values shown here are simulation-only overrides modelling the post-migration state; they are not written by this task. Remove all three overrides at actual rollback time — the real post-migration values will be live on-chain.
