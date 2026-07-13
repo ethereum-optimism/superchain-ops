@@ -199,6 +199,8 @@ just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-dept
 - `USE_KEYSTORE` - If set, uses keystore instead of ledger. By default, keys are stored under `~/.foundry/keystores`.
 - `SKIP_SIGNER_OWNER_CHECK` - Set to `true` or `1` to skip the preflight check that requires the signing address to be a current Safe owner. This applies to `just sign` and `just sign-stack`; use it only to presign a task that depends on an earlier owner change.
 
+Do NOT store `SKIP_SIGNER_OWNER_CHECK` in a task `.env`; set it directly on the one signing command that needs the bypass.
+
 **Examples:**
 
 To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe:

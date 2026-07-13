@@ -201,13 +201,13 @@ contract TaskManager is Script {
         return containsDomainHash && containsMessageHash;
     }
 
-    /// @notice Requires that a signer is an owner on a safe.
+    /// @notice Requires that a signer is an owner on a Safe unless `SKIP_SIGNER_OWNER_CHECK` is enabled.
     function requireSignerOnSafe(address signer, string memory taskPath) public {
         TaskConfig memory config = parseConfig(taskPath);
         requireSignerOnSafe(signer, config.rootSafe);
     }
 
-    /// @notice Requires that a signer is an owner on a safe.
+    /// @notice Requires that a signer is an owner on a Safe unless `SKIP_SIGNER_OWNER_CHECK` is enabled.
     function requireSignerOnSafe(address signer, address safe) public view {
         if (Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")) {
             console.log(

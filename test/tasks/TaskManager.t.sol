@@ -45,6 +45,21 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
     }
 
+    function testTaskEnvFiles_DoNotContainSkipSignerOwnerCheck() public view {
+        Vm.DirEntry[] memory entries = vm.readDir("src/tasks", type(uint64).max);
+
+        for (uint256 i = 0; i < entries.length; i++) {
+            if (entries[i].isDir || !entries[i].path.endsWith("/.env")) {
+                continue;
+            }
+
+            assertFalse(
+                vm.readFile(entries[i].path).contains("SKIP_SIGNER_OWNER_CHECK"),
+                string.concat("Task .env must not set SKIP_SIGNER_OWNER_CHECK: ", entries[i].path)
+            );
+        }
+    }
+
     function createStateDiff(address who, bytes32 slot, bytes32 oldValue, bytes32 newValue)
         public
         pure
@@ -89,12 +104,13 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     }
 
     function testRequireSignerOnSafe_PassesIfSignerOwnerCheckIsSkipped() public {
+        string memory originalSkipSignerOwnerCheck = vm.envOr("SKIP_SIGNER_OWNER_CHECK", string(""));
         vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "1");
 
         TaskManager tm = new TaskManager();
         tm.requireSignerOnSafe(address(0x1234), address(0x5678));
 
-        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "0");
+        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", originalSkipSignerOwnerCheck);
     }
 
     function testDataToSignCheck_Passes() public {
