@@ -7,7 +7,7 @@
 
 ## Solution
 
-1. Add an opt-in `SKIP_SIGNER_OWNER_CHECK` feature flag to the address overload of `TaskManager.requireSignerOnSafe`. When `Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")` returns true, the function prints a `[WARN]` containing the signer and Safe addresses, then returns without reading the Safe owners. Both signing commands already use this function, so the override applies to both without changing `src/justfile`.
+1. Add an opt-in `SKIP_SIGNER_OWNER_CHECK` feature flag to the address overload of `TaskManager.requireSignerOnSafe`. The function always rejects a zero signer and calls `getOwners()` to validate the target Safe. When `Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")` returns true, it prints a `[WARN]` containing the signer and Safe addresses, then skips only the owner-membership check. Both signing commands already use this function, so the override applies to both without changing `src/justfile`.
 2. Preserve the existing owner check whenever the flag is disabled. The flag follows the repository's existing feature-flag behavior and accepts `true` or `1`. Signers enable it for one command:
 
    ```bash
@@ -19,7 +19,7 @@ The override bypasses only the signer owner preflight. It does not change task s
 ## Work required
 
 1. Update `TaskManager.requireSignerOnSafe(address,address)` with the feature-flag branch and warning.
-2. Add a regression test showing that a non-owner still reverts by default and passes when `SKIP_SIGNER_OWNER_CHECK=1`.
+2. Add a regression test showing that the override permits a non-owner but still rejects a zero signer or invalid Safe.
 3. Document the flag alongside the signing environment variables in `README.md`.
 
 ## Non-goals

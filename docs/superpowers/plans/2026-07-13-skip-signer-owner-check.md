@@ -4,7 +4,7 @@
 
 **Goal:** Let a Safe owner added by an earlier, unexecuted task presign a later task through an explicit environment-variable override.
 
-**Architecture:** Add the override to `TaskManager.requireSignerOnSafe(address,address)`, which is the shared preflight used by both `just sign` and `just sign-stack`. The default path remains unchanged; `SKIP_SIGNER_OWNER_CHECK=true` or `SKIP_SIGNER_OWNER_CHECK=1` prints a warning and returns before reading current Safe owners.
+**Architecture:** Add the override to `TaskManager.requireSignerOnSafe(address,address)`, which is the shared preflight used by both `just sign` and `just sign-stack`. The function always rejects a zero signer and reads the current Safe owners to validate the target. `SKIP_SIGNER_OWNER_CHECK=true` or `SKIP_SIGNER_OWNER_CHECK=1` prints a warning and skips only owner membership.
 
 **Tech stack:** Solidity 0.8.15, Foundry, `forge-std`, Markdown.
 
@@ -13,6 +13,7 @@
 - The default owner check must remain enabled.
 - The override must apply to both `just sign` and `just sign-stack` through their existing shared `TaskManager` call.
 - The override must bypass only the signer owner preflight; simulation, transaction construction, hash validation, signing, and execution-time signature validation must remain unchanged.
+- The override must still reject a zero signer and a target that does not implement the Safe `getOwners()` interface.
 - The bypass must print `[WARN]` with the signer and Safe addresses.
 - `SKIP_SIGNER_OWNER_CHECK` must follow `Utils.isFeatureEnabled` semantics and accept `true` or `1`.
 - Do not modify `src/justfile`.
@@ -32,16 +33,19 @@
 
 - [ ] **Step 1: Write the failing regression test**
 
-Add this test beside the existing `requireSignerOnSafe` tests in `test/tasks/TaskManager.t.sol`. It intentionally uses addresses without deployed code: before the bypass exists, the Safe call fails; after the bypass exists, no onchain state is required.
+Add one test in `test/tasks/TaskManager.t.sol` covering the default and override paths. Use a minimal Safe test contract whose `getOwners()` response excludes the signer. Verify that the default rejects the non-owner, the override permits it, and both paths still reject a zero signer or codeless Safe address. Keep these cases in one test because `vm.setEnv` mutates process-global state.
 
 ```solidity
-function testRequireSignerOnSafe_PassesIfSignerOwnerCheckIsSkipped() public {
-    vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "1");
+function testRequireSignerOnSafe() public {
+    vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "true");
 
+    address[] memory owners = new address[](1);
+    owners[0] = address(0x1111);
+    SignerOwnerCheckSafe safe = new SignerOwnerCheckSafe(owners);
     TaskManager tm = new TaskManager();
-    tm.requireSignerOnSafe(address(0x1234), address(0x5678));
+    tm.requireSignerOnSafe(address(0x1234), address(safe));
 
-    vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "0");
+    vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "");
 }
 ```
 
@@ -52,17 +56,20 @@ Run:
 ```bash
 forge test \
   --match-contract TaskManagerUnitTest \
-  --match-test testRequireSignerOnSafe_PassesIfSignerOwnerCheckIsSkipped \
+  --match-test testRequireSignerOnSafe \
   -vv
 ```
 
-Expected: FAIL because `requireSignerOnSafe` still calls `getOwners()` on `address(0x5678)`.
+Expected: FAIL because the signer is not in the Safe's owner list.
 
 - [ ] **Step 3: Add the minimal bypass**
 
-Insert this branch at the start of `TaskManager.requireSignerOnSafe(address,address)` in `src/tasks/TaskManager.sol`:
+Reject a zero signer and read the owners before the feature-flag branch in `TaskManager.requireSignerOnSafe(address,address)`:
 
 ```solidity
+require(signer != address(0), "TaskManager: signer cannot be the zero address");
+address[] memory owners = IGnosisSafe(safe).getOwners();
+
 if (Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")) {
     console.log(
         string.concat(
@@ -78,7 +85,7 @@ if (Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")) {
 }
 ```
 
-Leave the existing `getOwners()` and `require` logic unchanged after the branch.
+Leave the existing owner-membership `require` after the branch.
 
 - [ ] **Step 4: Run the regression test and verify GREEN**
 
@@ -87,11 +94,11 @@ Run:
 ```bash
 forge test \
   --match-contract TaskManagerUnitTest \
-  --match-test testRequireSignerOnSafe_PassesIfSignerOwnerCheckIsSkipped \
+  --match-test testRequireSignerOnSafe \
   -vv
 ```
 
-Expected: PASS and output containing the skip warning.
+Expected: the test passes, prints the skip warning, and observes the expected zero-signer and invalid-Safe reverts.
 
 - [ ] **Step 5: Document the override**
 
@@ -119,7 +126,7 @@ Run:
 forge fmt --check
 forge test \
   --match-contract TaskManagerUnitTest \
-  --match-test testRequireSignerOnSafe_PassesIfSignerOwnerCheckIsSkipped \
+  --match-test testRequireSignerOnSafe \
   -vv
 git diff --check
 ```
