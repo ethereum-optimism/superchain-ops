@@ -88,6 +88,15 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         tm.requireSignerOnSafe(signer, safe);
     }
 
+    function testRequireSignerOnSafe_PassesIfSignerOwnerCheckIsSkipped() public {
+        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "1");
+
+        TaskManager tm = new TaskManager();
+        tm.requireSignerOnSafe(address(0x1234), address(0x5678));
+
+        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "0");
+    }
+
     function testDataToSignCheck_Passes() public {
         vm.createSelectFork("mainnet"); // Pinning to a block.
         TaskManager tm = new TaskManager();

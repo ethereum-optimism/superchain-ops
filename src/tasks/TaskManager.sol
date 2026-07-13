@@ -209,6 +209,20 @@ contract TaskManager is Script {
 
     /// @notice Requires that a signer is an owner on a safe.
     function requireSignerOnSafe(address signer, address safe) public view {
+        if (Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")) {
+            console.log(
+                string.concat(
+                    string("[WARN]").yellow().bold(),
+                    " Skipping the signer owner check for ",
+                    vm.toString(signer),
+                    " on Safe ",
+                    vm.toString(safe),
+                    " because SKIP_SIGNER_OWNER_CHECK is enabled."
+                )
+            );
+            return;
+        }
+
         address[] memory owners = IGnosisSafe(safe).getOwners();
         require(
             Utils.contains(owners, signer),
