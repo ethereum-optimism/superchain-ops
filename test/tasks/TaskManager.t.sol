@@ -110,6 +110,8 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         vm.expectRevert(bytes(errorMessage));
         tm.requireSignerOnSafe(signer, address(safe));
         tm.requireSignerOnSafe(owner, address(safe));
+        vm.expectRevert("TaskManager: signer cannot be the zero address");
+        tm.requireSignerOnSafe(address(0), address(safe));
 
         vm.mockCall(
             FOUNDATION_OPERATIONS_SAFE, abi.encodeWithSelector(IGnosisSafe.getOwners.selector), abi.encode(owners)
@@ -120,8 +122,9 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         tm.requireSignerOnSafe(signer, address(safe));
         vm.expectRevert("TaskManager: signer cannot be the zero address");
         tm.requireSignerOnSafe(address(0), address(safe));
-        vm.expectRevert();
-        tm.requireSignerOnSafe(signer, address(0x5678));
+        address invalidSafe = address(0x5678);
+        vm.expectRevert(bytes(string.concat("TaskManager: Safe ", vm.toString(invalidSafe), " has no code")));
+        tm.requireSignerOnSafe(signer, invalidSafe);
 
         vm.setEnv("SKIP_SIGNER_OWNER_CHECK", originalSkipSignerOwnerCheck);
     }

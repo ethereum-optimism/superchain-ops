@@ -210,6 +210,7 @@ contract TaskManager is Script {
     /// @notice Requires that a signer is an owner on a Safe unless `SKIP_SIGNER_OWNER_CHECK` is enabled.
     function requireSignerOnSafe(address signer, address safe) public view {
         require(signer != address(0), "TaskManager: signer cannot be the zero address");
+        require(safe.code.length > 0, string.concat("TaskManager: Safe ", vm.toString(safe), " has no code"));
         address[] memory owners = IGnosisSafe(safe).getOwners();
 
         if (Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")) {
