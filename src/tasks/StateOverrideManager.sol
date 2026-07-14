@@ -115,9 +115,9 @@ abstract contract StateOverrideManager is CommonBase {
         defaultOverride.contractAddress = rootSafe;
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
 
-        // We need to override the owner on the root safe to ensure single safes can execute but only if the owner is not already an owner.
-        if (owner != address(0) && !IGnosisSafe(rootSafe).isOwner(owner)) {
-            defaultOverride = Simulation.addOwnerOverride(rootSafe, defaultOverride, owner);
+        // We need to override the owner on the root safe to ensure single safes can execute.
+        if (owner != address(0)) {
+            defaultOverride = _addOwnerOverride(rootSafe, defaultOverride, owner);
         }
     }
 
@@ -129,7 +129,35 @@ abstract contract StateOverrideManager is CommonBase {
     {
         defaultOverride.contractAddress = childSafe;
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
-        defaultOverride = Simulation.addOwnerOverride(childSafe, defaultOverride, MULTICALL3_ADDRESS);
+        defaultOverride = _addOwnerOverride(childSafe, defaultOverride, MULTICALL3_ADDRESS);
+    }
+
+    function _addOwnerOverride(address safe, Simulation.StateOverride memory state, address owner)
+        private
+        view
+        returns (Simulation.StateOverride memory)
+    {
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i; i < owners.length; i++) {
+            if (owners[i] == owner) return state;
+        }
+
+        state = Simulation.addOverride(
+            state, Simulation.StorageOverride({key: bytes32(uint256(0x3)), value: bytes32(owners.length + 1)})
+        );
+
+        // Append the simulation owner so existing prevOwner links remain valid for owner rotations.
+        state = Simulation.addOverride(
+            state,
+            Simulation.StorageOverride({
+                key: keccak256(abi.encode(owners[owners.length - 1], uint256(2))),
+                value: bytes32(uint256(uint160(owner)))
+            })
+        );
+        return Simulation.addOverride(
+            state,
+            Simulation.StorageOverride({key: keccak256(abi.encode(owner, uint256(2))), value: bytes32(uint256(0x1))})
+        );
     }
 
     /// @notice Read state overrides from a TOML config file.

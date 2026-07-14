@@ -459,6 +459,30 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(allOverrides[0].overrides.length, 3, "Expected 3 storage overrides");
     }
 
+    function test_getStateOverrides_appendsSimulationOwnerWithoutReplacingOwnerList() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        address[] memory owners = IGnosisSafe(FOUNDATION_UPGRADE_SAFE).getOwners();
+
+        Simulation.StateOverride[] memory allOverrides =
+            som.wrapperGetStateOverrides(FOUNDATION_UPGRADE_SAFE, new address[](0));
+        Simulation.StorageOverride[] memory overrides = allOverrides[0].overrides;
+
+        assertEq(overrides[1].key, bytes32(uint256(0x3)), "Expected owner count override");
+        assertEq(overrides[1].value, bytes32(owners.length + 1), "Expected incremented owner count");
+        assertEq(
+            overrides[2].key,
+            keccak256(abi.encode(owners[owners.length - 1], uint256(2))),
+            "Expected last owner mapping override"
+        );
+        assertEq(overrides[2].value, bytes32(uint256(uint160(address(this)))), "Expected appended simulation owner");
+        assertEq(
+            overrides[3].key,
+            keccak256(abi.encode(address(this), uint256(2))),
+            "Expected simulation owner mapping override"
+        );
+        assertEq(overrides[3].value, bytes32(uint256(0x1)), "Expected simulation owner to point to sentinel");
+    }
+
     function test_getStateOverrides_oneLevelNesting() public {
         vm.createSelectFork("mainnet");
         MockStateOverrideManager som = new MockStateOverrideManager();
@@ -473,20 +497,7 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(allOverrides[1].contractAddress, childSafes[0], "Child safe address mismatch");
         assertEq(allOverrides[1].overrides.length, 4, "Expected 4 storage overrides");
         assertEq(allOverrides[1].overrides[0].key, bytes32(uint256(0x4)), "Expected threshold override");
-        assertEq(allOverrides[1].overrides[1].key, bytes32(uint256(0x3)), "Expected owner count override");
-        bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
-        assertEq(allOverrides[1].overrides[2].key, ownerMappingSlot, "Expected owner mapping override");
-        assertEq(
-            allOverrides[1].overrides[2].value,
-            bytes32(uint256(uint160(MULTICALL3_ADDRESS))),
-            "Expected owner mapping override value"
-        );
-        assertEq(
-            allOverrides[1].overrides[3].key,
-            keccak256(abi.encode(MULTICALL3_ADDRESS, uint256(2))),
-            "Expected owner mapping override"
-        );
-        assertEq(allOverrides[1].overrides[3].value, bytes32(uint256(0x1)), "Expected owner mapping override value");
+        assertOwnerOverrides(allOverrides[1], childSafes[0], MULTICALL3_ADDRESS);
     }
 
     function test_getStateOverrides_twoLevelNesting() public {
@@ -504,38 +515,12 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(allOverrides[1].contractAddress, childSafes[0], "Child safe address mismatch");
         assertEq(allOverrides[1].overrides.length, 4, "Expected 4 storage overrides");
         assertEq(allOverrides[1].overrides[0].key, bytes32(uint256(0x4)), "Expected threshold override");
-        assertEq(allOverrides[1].overrides[1].key, bytes32(uint256(0x3)), "Expected owner count override");
-        bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
-        assertEq(allOverrides[1].overrides[2].key, ownerMappingSlot, "Expected owner mapping override");
-        assertEq(
-            allOverrides[1].overrides[2].value,
-            bytes32(uint256(uint160(MULTICALL3_ADDRESS))),
-            "Expected owner mapping override value"
-        );
-        assertEq(
-            allOverrides[1].overrides[3].key,
-            keccak256(abi.encode(MULTICALL3_ADDRESS, uint256(2))),
-            "Expected owner mapping override"
-        );
-        assertEq(allOverrides[1].overrides[3].value, bytes32(uint256(0x1)), "Expected owner mapping override value");
+        assertOwnerOverrides(allOverrides[1], childSafes[0], MULTICALL3_ADDRESS);
 
         assertEq(allOverrides[2].contractAddress, childSafes[1], "Child safe address mismatch");
         assertEq(allOverrides[2].overrides.length, 4, "Expected 4 storage overrides");
         assertEq(allOverrides[2].overrides[0].key, bytes32(uint256(0x4)), "Expected threshold override");
-        assertEq(allOverrides[2].overrides[1].key, bytes32(uint256(0x3)), "Expected owner count override");
-        bytes32 ownerMappingSlot2 = keccak256(abi.encode(uint256(1), uint256(2)));
-        assertEq(allOverrides[2].overrides[2].key, ownerMappingSlot2, "Expected owner mapping override");
-        assertEq(
-            allOverrides[2].overrides[2].value,
-            bytes32(uint256(uint160(MULTICALL3_ADDRESS))),
-            "Expected owner mapping override value"
-        );
-        assertEq(
-            allOverrides[2].overrides[3].key,
-            keccak256(abi.encode(MULTICALL3_ADDRESS, uint256(2))),
-            "Expected owner mapping override"
-        );
-        assertEq(allOverrides[2].overrides[3].value, bytes32(uint256(0x1)), "Expected owner mapping override value");
+        assertOwnerOverrides(allOverrides[2], childSafes[1], MULTICALL3_ADDRESS);
     }
 
     /// @notice Helper function to convert strings to bytes32
@@ -599,7 +584,7 @@ contract StateOverrideManagerUnitTest is Test {
         } else {
             assertTrue(parentLen == 4, string.concat("Parent overrides == 4, found: ", LibString.toString(parentLen)));
             // In single execution, the parent owner override should be address(this).
-            assertOwnerOverrides(parent, address(this));
+            assertOwnerOverrides(parent, rootSafe, address(this));
         }
 
         assertEq(parent.overrides[0].key, bytes32(uint256(0x4)), "Parent: threshold key");
@@ -616,7 +601,7 @@ contract StateOverrideManagerUnitTest is Test {
     /// Specifically, it verifies that the child state overrides contain a threshold, nonce, owner count, and owner mapping overrides.
     function assertDefaultChildStateOverrides(Simulation.StateOverride[] memory allOverrides, address childMultisig)
         internal
-        pure
+        view
     {
         assertTrue(
             allOverrides.length >= 2,
@@ -658,13 +643,15 @@ contract StateOverrideManagerUnitTest is Test {
             "ChildDefaultOverride: Threshold override must be 1"
         );
         // MULTICALL3_ADDRESS should be the owner override for the child multisig in a nested execution.
-        assertOwnerOverrides(childDefaultOverride, MULTICALL3_ADDRESS);
+        assertOwnerOverrides(childDefaultOverride, childMultisig, MULTICALL3_ADDRESS);
     }
 
-    function assertOwnerOverrides(Simulation.StateOverride memory defaultOverride, address expectedOwnerOverride)
-        private
-        pure
-    {
+    function assertOwnerOverrides(
+        Simulation.StateOverride memory defaultOverride,
+        address safe,
+        address expectedOwnerOverride
+    ) private view {
+        address[] memory owners = IGnosisSafe(safe).getOwners();
         assertEq(
             defaultOverride.overrides[1].key,
             bytes32(uint256(0x3)),
@@ -672,14 +659,11 @@ contract StateOverrideManagerUnitTest is Test {
         );
         assertEq(
             defaultOverride.overrides[1].value,
-            bytes32(uint256(0x1)),
-            "ChildDefaultOverride: Owner count override must be 1"
+            bytes32(owners.length + 1),
+            "ChildDefaultOverride: Owner count override must increment"
         );
 
-        // Verify owner mapping overrides
-        // Calculate the storage slot for owner mapping: keccak256(abi.encode(1, 2))
-        // where 1 is the owner index and 2 is the mapping slot in the contract
-        bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
+        bytes32 ownerMappingSlot = keccak256(abi.encode(owners[owners.length - 1], uint256(2)));
         assertEq(
             defaultOverride.overrides[2].key,
             ownerMappingSlot,
