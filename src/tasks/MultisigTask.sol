@@ -971,6 +971,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address targetAddress;
         bytes memory finalExec;
         address rootSafe = payload.safes[payload.safes.length - 1];
+
+        uint256 postExecuteSnapshot = vm.snapshotState();
+        // Roll back state changes so the Tenderly payload uses the pre-execution owner list.
+        require(
+            vm.revertToState(_preExecutionSnapshot),
+            "MultisigTask: failed to revert back to _preExecutionSnapshot before printing Tenderly simulation data."
+        );
+
+        address simulationSender = IGnosisSafe(rootSafe).getOwners()[0];
         Simulation.StateOverride[] memory overrides;
         if (payload.safes.length > 1) {
             // Transaction involves multiple safes.
@@ -984,20 +993,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             finalExec = GnosisSafeHashes.encodeExecTransactionCalldata(
                 targetAddress,
                 payload.calldatas[payload.calldatas.length - 1],
-                Signatures.genPrevalidatedSignature(msg.sender),
+                Signatures.genPrevalidatedSignature(simulationSender),
                 _getMulticallAddress(rootSafe, payload.safes)
             );
             overrides = getStateOverrides(rootSafe, new address[](0));
         }
-
-        uint256 postExecuteSnapshot = vm.snapshotState();
-        // Roll back state changes. The Tenderly link generation checks owners for overrides and expects pre-execution state.
-        // We should ensure the original owners are present (e.g. if an owner was removed as part of the task).
-        require(
-            vm.revertToState(_preExecutionSnapshot),
-            "MultisigTask: failed to revert back to _preExecutionSnapshot before printing Tenderly simulation data."
-        );
-        MultisigTaskPrinter.printTenderlySimulationData(targetAddress, finalExec, msg.sender, overrides);
+        MultisigTaskPrinter.printTenderlySimulationData(targetAddress, finalExec, simulationSender, overrides);
 
         // Apply the post execution state changes. Many tests rely on the assumption that the transaction was executed.
         require(
