@@ -27,8 +27,9 @@ abstract contract StateOverrideManager is CommonBase {
         uint256 childCount = childSafes.length;
         Simulation.StateOverride[] memory defaultOverrides = new Simulation.StateOverride[](1 + childCount);
 
-        // Root safe override: set threshold to 1. Add owner only for single-safe.
-        defaultOverrides[0] = _rootSafeTenderlyOverride(rootSafe, childCount > 0 ? address(0) : msg.sender);
+        // Root safe override: set threshold to 1. Use an existing owner for single-safe.
+        defaultOverrides[0] =
+            _rootSafeTenderlyOverride(rootSafe, childCount > 0 ? address(0) : IGnosisSafe(rootSafe).getOwners()[0]);
 
         // For each child: threshold=1 and add MULTICALL3_ADDRESS as owner
         for (uint256 i = 0; i < childCount; i++) {
