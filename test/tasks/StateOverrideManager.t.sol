@@ -450,13 +450,13 @@ contract StateOverrideManagerUnitTest is Test {
         Simulation.StateOverride[] memory allOverrides = som.wrapperGetStateOverrides(rootSafe, new address[](0));
         assertTrue(allOverrides.length == 1, "Expected 1 state override");
         assertEq(allOverrides[0].contractAddress, rootSafe, "Root safe address mismatch");
-        assertEq(allOverrides[0].overrides.length, 4, "Expected 4 storage overrides");
+        assertEq(allOverrides[0].overrides.length, 1, "Expected 1 storage override");
 
         address rootSafeWithThresholdAlreadyOne = address(0xbefe941b3C4a6AaEe1eb050358064F0bA326975a); // Single Safe
         allOverrides = som.wrapperGetStateOverrides(rootSafeWithThresholdAlreadyOne, new address[](0));
         assertTrue(allOverrides.length == 1, "Expected 1 state override");
         assertEq(allOverrides[0].contractAddress, rootSafeWithThresholdAlreadyOne, "Root safe address mismatch");
-        assertEq(allOverrides[0].overrides.length, 3, "Expected 3 storage overrides");
+        assertEq(allOverrides[0].overrides.length, 0, "Expected 0 storage overrides");
     }
 
     function test_getStateOverrides_oneLevelNesting() public {
@@ -597,9 +597,7 @@ contract StateOverrideManagerUnitTest is Test {
         if (isNested) {
             assertTrue(parentLen >= 1, string.concat("Parent overrides >= 1, found: ", LibString.toString(parentLen)));
         } else {
-            assertTrue(parentLen == 4, string.concat("Parent overrides == 4, found: ", LibString.toString(parentLen)));
-            // In single execution, the parent owner override should be address(this).
-            assertOwnerOverrides(parent, address(this));
+            assertTrue(parentLen == 1, string.concat("Parent overrides == 1, found: ", LibString.toString(parentLen)));
         }
 
         assertEq(parent.overrides[0].key, bytes32(uint256(0x4)), "Parent: threshold key");

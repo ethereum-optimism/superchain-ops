@@ -201,15 +201,32 @@ contract TaskManager is Script {
         return containsDomainHash && containsMessageHash;
     }
 
-    /// @notice Requires that a signer is an owner on a safe.
+    /// @notice Requires that a signer is an owner on a Safe unless `SKIP_SIGNER_OWNER_CHECK` is enabled.
     function requireSignerOnSafe(address signer, string memory taskPath) public {
         TaskConfig memory config = parseConfig(taskPath);
         requireSignerOnSafe(signer, config.rootSafe);
     }
 
-    /// @notice Requires that a signer is an owner on a safe.
+    /// @notice Requires that a signer is an owner on a Safe unless `SKIP_SIGNER_OWNER_CHECK` is enabled.
     function requireSignerOnSafe(address signer, address safe) public view {
+        require(signer != address(0), "TaskManager: signer cannot be the zero address");
+        require(safe.code.length > 0, string.concat("TaskManager: Safe ", vm.toString(safe), " has no code"));
         address[] memory owners = IGnosisSafe(safe).getOwners();
+
+        if (Utils.isFeatureEnabled("SKIP_SIGNER_OWNER_CHECK")) {
+            console.log(
+                string.concat(
+                    string("[WARN]").yellow().bold(),
+                    " Skipping the signer owner check for ",
+                    vm.toString(signer),
+                    " on Safe ",
+                    vm.toString(safe),
+                    " because SKIP_SIGNER_OWNER_CHECK is enabled."
+                )
+            );
+            return;
+        }
+
         require(
             Utils.contains(owners, signer),
             string.concat(
