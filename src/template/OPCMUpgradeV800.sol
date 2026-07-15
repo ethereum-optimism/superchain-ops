@@ -230,10 +230,11 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         bool enabled = _isGameTypeEnabled(a.factory, gt, startingRespectedGameType);
         bytes memory gameArgs;
         if (enabled) {
-            bool isPermissioned = gt == PERMISSIONED_CANNON || gt == SUPER_PERMISSIONED_CANNON;
             bool isKona = gt == CANNON_KONA || gt == SUPER_CANNON_KONA;
             bytes32 absolutePrestate = isKona ? cannonKonaPre : cannonPre;
-            if (isPermissioned) {
+            if (gt == SUPER_PERMISSIONED_CANNON) {
+                gameArgs = abi.encode(a.proposer);
+            } else if (gt == PERMISSIONED_CANNON) {
                 gameArgs = abi.encode(absolutePrestate, a.proposer, a.challenger);
             } else {
                 gameArgs = abi.encode(absolutePrestate);
