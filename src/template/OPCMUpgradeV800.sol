@@ -152,10 +152,19 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             ISystemConfigV800 sysCfg =
                 ISystemConfigV800(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId));
+            // SystemConfig 4.0.0 (op-contracts/v8.0.0) removes the batchInbox() getter and clears
+            // the legacy batch inbox slot during reinitialization, so read it with a staticcall
+            // that tolerates both pre- and post-removal SystemConfig versions. A missing selector
+            // reverts with empty return data; any other failure (a revert with data) is unexpected
+            // and must surface loudly rather than being mistaken for the post-removal case.
+            // See https://github.com/ethereum-optimism/optimism/issues/21614.
+            (bool ok, bytes memory data) = address(sysCfg).staticcall(abi.encodeWithSignature("batchInbox()"));
+            require(ok || data.length == 0, "OPCMUpgradeV800: unexpected batchInbox() failure");
+            address batchInbox = (ok && data.length == 32) ? abi.decode(data, (address)) : address(0);
             address[4] memory candidates = [
                 sysCfg.owner(), // slot 0x33 — Safe in prod, EOA in dev
                 sysCfg.unsafeBlockSigner(), // hashed slot — always EOA
-                sysCfg.batchInbox(), // hashed slot — always EOA
+                batchInbox, // hashed slot — EOA before SystemConfig 4.0.0, zero after
                 address(uint160(uint256(sysCfg.batcherHash()))) // slot 0x67 — always EOA (sequencer batcher)
             ];
             for (uint256 j = 0; j < candidates.length; j++) {
@@ -470,6 +479,5 @@ interface ISystemConfig {
 interface ISystemConfigV800 {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
-    function batchInbox() external view returns (address);
     function batcherHash() external view returns (bytes32);
 }
