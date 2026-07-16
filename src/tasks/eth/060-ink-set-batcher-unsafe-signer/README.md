@@ -2,7 +2,7 @@
 
 Status: READY TO SIGN
 
-Simulates successfully (FoundationOperationsSafe nonce 118; domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md)). Re-run `just simulate` to regenerate the hashes if the FOS nonce advances or the `SystemConfig.owner` override is removed (after the ownership transfer) before signing.
+Simulates successfully with the stacked FoundationOperationsSafe nonce recorded in [config.toml](./config.toml); domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md). Re-run `just simulate` to regenerate the hashes if the FOS nonce advances or the `SystemConfig.owner` override is removed (after the ownership transfer) before signing.
 
 ## Objective
 
@@ -19,21 +19,10 @@ Source of truth: _Ink Mainnet Migration — Engineering Plan_ (§3.3 Addresses; 
 - **Signer**: `FoundationOperationsSafe` `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` — the SystemConfig owner after the Gelato → FOS ownership transfer.
 
 > [!IMPORTANT]
-> This task assumes the `SystemConfig` owner is the **FoundationOperationsSafe**. On Ink mainnet the owner is currently the **Gelato Safe** (`0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb`, verified on-chain); the Gelato → FOS `transferOwnership` is performed **outside this repo** (task [`eth/055`](../055-ink-transfer-system-config-owner) / PR #1462, Migration Plan steps **W25/W26**). For simulation, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FOS. **Remove that override once the ownership transfer is executed on-chain.**
+> This task assumes the `SystemConfig` owner is the **FoundationOperationsSafe**. On Ink mainnet the owner is currently the **Gelato Safe** (`0xBeA2Bc852a160B8547273660E22F4F08C2fa9Bbb`, verified on-chain); the Gelato → FOS `transferOwnership` is performed **outside this repo** ([PR #1462](https://github.com/ethereum-optimism/superchain-ops/pull/1462), Migration Plan steps **W25/W26**). For simulation, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FOS. **Remove that override once the ownership transfer is executed on-chain.**
 
 > [!CAUTION]
-> Per plan step **W4**, the OPE batcher and unsafe-block-signer addresses were independently verified by ≥3 OP Labs engineers. **Mainnet keys are NEW — not reused from the Ink Sepolia rehearsal.**
-
-## State Changes
-
-Writes to `SystemConfigProxy` ([`0x62C0a111…E8364`](https://etherscan.io/address/0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364#readProxyContract)):
-
-| Field | Current (on-chain) | New |
-|-------|--------------------|-----|
-| `batcherHash()` | `0x000000000000000000000000500d7ea63cf2e501dadaa5feec1fc19fe2aa72ac` | `0x0000000000000000000000006db6161fc5662450e801398bad62dd9921216b98` |
-| `unsafeBlockSigner()` | `0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C` | `0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1` |
-
-Plus the FoundationOperationsSafe nonce increments `118` → `119`. (The `SystemConfig.owner()` slot-`0x33` change is a **simulation-only override**, not a state change produced by this task — see the note above.)
+> Per plan step **W4**, the OPE batcher and unsafe-block-signer addresses were independently verified by four OP Labs engineers (Zach, Javier, JP, and @sbvegan); the verification is attested in the [Ink Mainnet Migration Plan](https://docs.google.com/document/d/1_U5ZdPZ81MklCnJwZRVgwMOqxgUArja1/edit) (step W4, access-controlled). **Mainnet keys are NEW — not reused from the Ink Sepolia rehearsal.**
 
 ## Simulation & Signing
 

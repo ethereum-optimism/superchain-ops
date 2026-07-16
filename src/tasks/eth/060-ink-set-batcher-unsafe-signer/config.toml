@@ -5,7 +5,7 @@
 # "Ink Mainnet Migration — Engineering Plan" (target cutover 2026-07-28).
 #
 # Signed by the NEW SystemConfig owner — the FoundationOperationsSafe (FOS). The Gelato →
-# FOS SystemConfig.transferOwnership is executed OUTSIDE this repo (see eth/055 / PR #1462,
+# FOS SystemConfig.transferOwnership is executed OUTSIDE this repo (see PR #1462,
 # warm-phase step W25/W26); this task assumes that transfer has landed. For standalone
 # simulation the [stateOverrides] below set SystemConfig.owner() (slot 0x33) to the FOS so
 # the setters authorize. Remove that owner override once the transfer is executed on-chain.
@@ -21,8 +21,12 @@ l2chains = [
     {name = "Ink", chainId = 57073}
 ]
 
-# OPE receiving infrastructure (Ink Mainnet Migration Plan §3.3 Addresses).
-# Independently verified by ≥3 OP Labs engineers (plan step W4).
+# OPE receiving infrastructure. Source files (k8s-netchef-prod @ 7115c120):
+#   batcherAddress    <- op-batcher values.yaml:
+#     https://github.com/ethereum-optimism/k8s-netchef-prod/blob/7115c12018a3cd0e71d08ffa0cc8c3969dc437ec/opc/oplabs-prod-ent-mainnet-eu/mn-ink-mainnet-0-op-batcher/values.yaml
+#   unsafeBlockSigner <- op-signer key mapping configmap.yaml:
+#     https://github.com/ethereum-optimism/k8s-netchef-prod/blob/7115c12018a3cd0e71d08ffa0cc8c3969dc437ec/kustomize/op-signer/oplabs-prod-ent-mainnet-eu/mn-ink-mainnet-0-op-signer/configmap.yaml
+# Cross-referenced with Ink Mainnet Migration Plan §3.3 Addresses; independently verified by ≥3 OP Labs engineers (plan step W4).
 # Live pre-migration Gelato values (for reference / rollback): batcher
 # 0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac, unsafeBlockSigner 0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C.
 [sequencerConfig]
@@ -31,7 +35,7 @@ unsafeBlockSigner = "0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1" # OPE sequencer
 
 [addresses]
 # FoundationOperationsSafe (mainnet) — the SystemConfig owner after the Gelato → FOS
-# ownership transfer (eth/055 / PR #1462). See src/addresses.toml [eth].
+# ownership transfer (PR #1462). See src/addresses.toml [eth].
 OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]

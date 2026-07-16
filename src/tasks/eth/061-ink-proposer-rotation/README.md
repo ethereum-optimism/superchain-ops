@@ -2,7 +2,7 @@
 
 Status: READY TO SIGN
 
-Simulated against live state (signer nonces L1PAO=36 / FUS=60 / SC=60; live `initBonds(1)` = 0.08 ETH confirmed). The proposer-only `gameArgs(1)` diff is confirmed (Gelato proposer fully replaced, challenger preserved); the nested signer domain/message/safe hashes in [VALIDATION.md](./VALIDATION.md) match `just simulate council` / `just simulate foundation` and only move if a signer-safe nonce advances.
+Simulated against the stacked signer nonces recorded in [config.toml](./config.toml) (L1PAO=36 / FUS=62 / SC=60; live `initBonds(1)` = 0.08 ETH confirmed). The proposer-only `gameArgs(1)` diff is confirmed (Gelato proposer fully replaced, challenger preserved); the nested signer domain/message/safe hashes in [VALIDATION.md](./VALIDATION.md) match `just simulate council` / `just simulate foundation` and only move if a signer-safe nonce advances.
 
 > [!NOTE]
 > This task reads the **live** `gameArgs(1)` and swaps **only the proposer**, so it carries whatever impl/prestate/vm/delayedWETH U19 set forward unchanged. Game type 1 is a dormant Guardian fallback; the active respected game post-Karst is permissionless CANNON_KONA (type 8), which has no on-chain proposer. Rotating the type-1 proposer to OPE is done **for correctness** (plan §1 / §2.3).
@@ -25,29 +25,6 @@ Because the prestate (and all other fields) are read live at sign time, this tas
 - **DisputeGameFactoryProxy**: `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD`
 - **PDG impl (unchanged by this task)**: `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e` (v2.4.0, live `gameImpls(1)`).
 - **Signer**: L1 ProxyAdminOwner Safe `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (nested 2-of-2: Foundation Upgrade Safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` + Security Council `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`). Already OP governance — signatures collected in the warm phase (plan step W22), ≥72h before cutover.
-
-## State Changes
-
-Writes to `DisputeGameFactoryProxy` ([`0x10d7B350…12CD`](https://etherscan.io/address/0x10d7B35078d3baabB96Dd45a9143B94be65b12CD#readContract)) for chainId 57073.
-
-### Game type 1 (PDG — PERMISSIONED_CANNON), `gameArgs(1)`
-
-| Field | Bytes | Current (on-chain) | New |
-|-------|-------|--------------------|-----|
-| prestate | 0–32 | read live | unchanged |
-| vm | 32–52 | read live | unchanged |
-| anchorStateRegistry | 52–72 | read live | unchanged |
-| delayedWETH | 72–92 | read live | unchanged |
-| l2ChainId | 92–124 | `57073` | unchanged |
-| **proposer** | 124–144 | `0x65436DDcBc026F34118954f229F7f132b696B3b4` (Gelato) | **`0x3832bfbeF03173E4C49a00ec0DD178817A02D177`** (OPE) |
-| challenger | 144–164 | `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` | unchanged (OP governance) |
-
-`gameImpls(1)` (`0xe1dFFCBE…87e`) and `initBonds(1)` (0.08 ETH) are unchanged by this task (read live). Game types 0 (CANNON) and 8 (CANNON_KONA) are untouched.
-
-- **Current values**: full `gameArgs(1)` read on-chain via `cast call 0x10d7B350… "gameArgs(uint32)(bytes)" 1`, decomposed per the permissioned 164-byte layout.
-- **New proposer**: OPE proposer (plan §3.3), verified W4.
-
-Plus the signer-safe nonces increment by 1.
 
 ## Execution order
 

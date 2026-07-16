@@ -28,6 +28,10 @@ l2chains = [
     {name = "Ink", chainId = 57073}
 ]
 
+# OPE proposer source file (k8s-netchef-prod @ 7115c120):
+#   https://github.com/ethereum-optimism/k8s-netchef-prod/blob/7115c12018a3cd0e71d08ffa0cc8c3969dc437ec/opc/oplabs-prod-ent-mainnet-eu/mn-ink-mainnet-0-op-proposer/values.yaml
+# Cross-referenced with Ink Mainnet Migration Plan §3.3 Addresses; independently verified by ≥3 OP Labs engineers (plan step W4).
+#
 # Single row: PDG (game type 1), proposer only. Every omitted field is read from the live
 # gameArgs(1) and preserved.
 [[gameConfig]]

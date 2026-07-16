@@ -56,7 +56,7 @@ The outer Multicall3 `aggregate3` blob is assembled by the framework and printed
 Nonce increments `120` → `121` (stacked value — see above). (Simulation labels this address `Challenger (GnosisSafe) - Chain ID: 10` — the same Safe is the OP Mainnet challenger in the registry; the contract being modified here is the Ink SystemConfig owner Safe.)
 
 > [!NOTE]
-> The `SystemConfig.owner()` slot-`0x33` value (Gelato → FOS) is **not** a state change produced by this task; it is a simulation-only override modelling the post-transfer state (the live owner is still the Gelato Safe `0xBeA2Bc…9Bbb`). It is set outside this repo by the ownership transfer (eth/055 / PR #1462); remove the override once that transfer executes on-chain.
+> The `SystemConfig.owner()` slot-`0x33` value (Gelato → FOS) is **not** a state change produced by this task; it is a simulation-only override modelling the post-transfer state (the live owner is still the Gelato Safe `0xBeA2Bc…9Bbb`). It is set outside this repo by the ownership transfer ([PR #1462](https://github.com/ethereum-optimism/superchain-ops/pull/1462)); remove the override once that transfer executes on-chain.
 
 ## Post-execution verification
 
