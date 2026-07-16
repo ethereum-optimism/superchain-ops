@@ -1,6 +1,6 @@
 # 059-fos-rotation-2
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x86366bc8466b0b45ece66d277ec47f988cfad38a3147c6d71b623e104d9d2ab5)
 
 ## Objective
 
