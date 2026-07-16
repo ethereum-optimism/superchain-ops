@@ -62,6 +62,16 @@ simulate-all-templates:
                 continue
             fi
 
+            # OPCMUpgradeV800 now encodes SUPER_PERMISSIONED_CANNON (gt=5) game args as
+            # proposer-only, matching the simplified op-contracts V800 ABI. No V800 OPCM is
+            # deployed on-chain yet, so the forked OPCM this example task simulates against
+            # predates that layout and reverts while decoding the args in _build. Coverage
+            # lives in SuperRootUpgradeTest. Remove this skip once V800 is deployed on-chain.
+            if [ "$task_name" = "035-opcm-upgrade-v800" ]; then
+                echo "Skipping $task_name (forked OPCM predates simplified V800 SUPER_PERMISSIONED_CANNON args)"
+                continue
+            fi
+
             # Launch each simulation in background.
             "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))
