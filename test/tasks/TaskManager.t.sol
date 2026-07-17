@@ -12,6 +12,18 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {SystemConfigGasParams} from "src/template/SystemConfigGasParams.sol";
 import {RevShareUpgradeAndSetup} from "src/template/RevShareUpgradeAndSetup.sol";
 
+contract SignerOwnerCheckSafe {
+    address[] internal owners;
+
+    constructor(address[] memory _owners) {
+        owners = _owners;
+    }
+
+    function getOwners() external view returns (address[] memory) {
+        return owners;
+    }
+}
+
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
 
@@ -45,6 +57,21 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
     }
 
+    function testTaskEnvFiles_DoNotContainSkipSignerOwnerCheck() public view {
+        Vm.DirEntry[] memory entries = vm.readDir("src/tasks", type(uint64).max);
+
+        for (uint256 i = 0; i < entries.length; i++) {
+            if (entries[i].isDir || !entries[i].path.endsWith("/.env")) {
+                continue;
+            }
+
+            assertFalse(
+                vm.readFile(entries[i].path).contains("SKIP_SIGNER_OWNER_CHECK"),
+                string.concat("Task .env must not set SKIP_SIGNER_OWNER_CHECK: ", entries[i].path)
+            );
+        }
+    }
+
     function createStateDiff(address who, bytes32 slot, bytes32 oldValue, bytes32 newValue)
         public
         pure
@@ -65,27 +92,41 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         });
     }
 
-    function testRequireSignerOnSafe_FailsIfSignerIsNotOwner() public {
-        vm.createSelectFork("mainnet", 22433511); // Pinning to a block.
+    function testRequireSignerOnSafe() public {
+        string memory originalSkipSignerOwnerCheck = vm.envOr("SKIP_SIGNER_OWNER_CHECK", string(""));
+        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "false");
+        vm.chainId(1);
+
+        address owner = address(0x1111);
+        address signer = address(0x1234);
+        address[] memory owners = new address[](1);
+        owners[0] = owner;
+        SignerOwnerCheckSafe safe = new SignerOwnerCheckSafe(owners);
         TaskManager tm = new TaskManager();
-        address safe = FOUNDATION_OPERATIONS_SAFE;
-        address signer = 0xEbE2cdF322646D8Aa36CED4A3072FCAe7F0a9B0b;
+
         string memory errorMessage = string.concat(
-            "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(safe)
+            "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(address(safe))
         );
         vm.expectRevert(bytes(errorMessage));
-        tm.requireSignerOnSafe(signer, "src/tasks/eth/011-deputy-pause-module-activation");
-        vm.expectRevert(bytes(errorMessage));
-        tm.requireSignerOnSafe(signer, safe);
-    }
+        tm.requireSignerOnSafe(signer, address(safe));
+        tm.requireSignerOnSafe(owner, address(safe));
+        vm.expectRevert("TaskManager: signer cannot be the zero address");
+        tm.requireSignerOnSafe(address(0), address(safe));
 
-    function testRequireSignerOnSafe_PassesIfSignerIsOwner() public {
-        vm.createSelectFork("mainnet", 22433511); // Pinning to a block.
-        TaskManager tm = new TaskManager();
-        address signer = 0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8;
-        address safe = FOUNDATION_OPERATIONS_SAFE;
-        tm.requireSignerOnSafe(signer, "src/tasks/eth/011-deputy-pause-module-activation");
-        tm.requireSignerOnSafe(signer, safe);
+        vm.mockCall(
+            FOUNDATION_OPERATIONS_SAFE, abi.encodeWithSelector(IGnosisSafe.getOwners.selector), abi.encode(owners)
+        );
+        tm.requireSignerOnSafe(owner, "src/tasks/eth/011-deputy-pause-module-activation");
+
+        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", "true");
+        tm.requireSignerOnSafe(signer, address(safe));
+        vm.expectRevert("TaskManager: signer cannot be the zero address");
+        tm.requireSignerOnSafe(address(0), address(safe));
+        address invalidSafe = address(0x5678);
+        vm.expectRevert(bytes(string.concat("TaskManager: Safe ", vm.toString(invalidSafe), " has no code")));
+        tm.requireSignerOnSafe(signer, invalidSafe);
+
+        vm.setEnv("SKIP_SIGNER_OWNER_CHECK", originalSkipSignerOwnerCheck);
     }
 
     function testDataToSignCheck_Passes() public {

@@ -1,6 +1,6 @@
 # 058-fos-rotation-1
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xd3a6afeef57d1e1b7fde86a4b0dd5de6fb6747cec75d6d9edecf54e7eacb19ea)
 
 ## Objective
 
