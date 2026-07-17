@@ -1,0 +1,56 @@
+# Set Fee Vault Config — OP Sepolia (example / regression-test fixture)
+#
+# Updates the recipient / withdrawalNetwork / minWithdrawalAmount of L1FeeVault and
+# OperatorFeeVault on OP Sepolia IN PLACE, via each vault's own owner-gated setters
+# (setRecipient / setWithdrawalNetwork / setMinWithdrawalAmount), sent as
+# OptimismPortal2.depositTransaction from the L1 ProxyAdminOwner. No proxy upgrade.
+#
+# OP Sepolia's vaults are already on the storage-based design (L1FeeVault v1.6.1,
+# OperatorFeeVault v1.1.1), so SetFeeVaultConfig's version gate passes and the setters
+# work. Only the fields that differ from live state produce a deposit (per-field skip):
+#   - L1FeeVault      : recipient + min change; network already 0 (skipped)
+#   - OperatorFeeVault: recipient + network change; min already 0 (skipped)
+#
+# Chain details: https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml
+
+templateName = "SetFeeVaultConfig"
+
+l2chains = [
+  {name = "OP Sepolia", chainId = 11155420}
+]
+
+# Which fee vault predeploys to update — modular subset; Sequencer/Base left untouched.
+vaultProxies = [
+  "0x420000000000000000000000000000000000001a",  # L1FeeVault       (v1.6.1)
+  "0x420000000000000000000000000000000000001b",  # OperatorFeeVault (v1.1.1)
+]
+
+# Per-chain config (length == l2chains.length => applied to every listed vault on the chain).
+recipients           = ["0xE75f598754A552841E65f43197C85028874A96a4"]  # example fee recipient (shared)
+networks             = [0]   # 0 = WithdrawalNetwork.L1
+minWithdrawalAmounts = [0]
+
+# REQUIRED: L2 RPC per chain (same order as l2chains) for the ProxyAdmin-owner preflight,
+# version gate, and setter dry-run.
+l2RpcUrls = ["https://sepolia.optimism.io"]
+
+[addresses]
+# source: superchain-registry sepolia/op.toml
+ProxyAdminOwner     = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"  # 2-of-2 (Foundation + Security Council)
+OptimismPortalProxy = "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
+
+[stateOverrides]
+# Nonces (slot 5) pinned to the live values at the fork block used by the regression test.
+# Update these together with FORK_BLOCK_NUMBER whenever the fixture is re-generated.
+# L1 ProxyAdminOwner
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 54}
+]
+# Foundation Upgrade Safe
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 74}
+]
+# Security Council
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
+]
