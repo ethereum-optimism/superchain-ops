@@ -1,8 +1,8 @@
 # 061-ink-proposer-rotation
 
-Status: READY TO SIGN
+Status: [READY TO SIGN]()
 
-Simulated against the stacked signer nonces recorded in [config.toml](./config.toml) (L1PAO=36 / FUS=62 / SC=60; live `initBonds(1)` = 0.08 ETH confirmed). The proposer-only `gameArgs(1)` diff is confirmed (Gelato proposer fully replaced, challenger preserved); the nested signer domain/message/safe hashes in [VALIDATION.md](./VALIDATION.md) match `just simulate council` / `just simulate foundation` and only move if a signer-safe nonce advances.
+Simulated against the stacked signer nonces recorded in [config.toml](./config.toml) (L1PAO=36 / FUS=62 / SC=60; live `initBonds(1)` = 0.08 ETH confirmed). The proposer-only `gameArgs(1)` diff is confirmed (Gelato proposer fully replaced, challenger preserved); the nested signer domain/message/safe hashes in [VALIDATION.md](./VALIDATION.md) match `just simulate council` / `just simulate foundation`. Each child safe approves the root L1PAO transaction hash, so regenerate the hashes whenever the root L1PAO nonce, either signer-safe nonce, or any live value used to rebuild the task payload (the `gameArgs(1)` fields or `initBonds(1)`) changes before signing.
 
 > [!NOTE]
 > This task reads the **live** `gameArgs(1)` and swaps **only the proposer**, so it carries whatever impl/prestate/vm/delayedWETH U19 set forward unchanged. Game type 1 is a dormant Guardian fallback; the active respected game post-Karst is permissionless CANNON_KONA (type 8), which has no on-chain proposer. Rotating the type-1 proposer to OPE is done **for correctness** (plan §1 / §2.3).
@@ -20,7 +20,7 @@ The PDG is a **dormant safety fallback** (the active game post-Karst is the perm
 
 Ink mainnet's DisputeGameFactory is expected **v1.6.1** post-U19 (plan §3.2 — verify against `standard-versions-mainnet.toml` before signing) and uses the **gameArgs blob pattern**: the PDG/FDG implementations are shared blueprints (their `proposer()` / `challenger()` / `absolutePrestate()` immutables read `0x0`); the per-chain values live in `DisputeGameFactory.gameArgs(gameType)`. `SetDisputeGameArgs` reads the live `gameArgs(1)`, overrides **only** the proposer, keeps every other field, and emits a single `setImplementation(1, sameImpl, newGameArgs)`.
 
-Because the prestate (and all other fields) are read live at sign time, this task is robust to U19/Karst changes — it preserves whatever is live and swaps only the proposer. **Always re-simulate immediately before signing.**
+Because every `gameArgs` field except the proposer is read live at sign time, this task is robust to U19/Karst changes — it preserves whatever is live and swaps only the proposer. The init bond is separate from `gameArgs`: [config.toml](./config.toml) pins it at the current 0.08 ETH (matching the Sepolia rehearsal), which the template asserts — a no-op unless the live `initBonds(1)` drifts before signing, in which case the task would also reset the bond; treat drift as a blocker (see config.toml). **Always re-simulate immediately before signing.**
 
 - **DisputeGameFactoryProxy**: `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD`
 - **PDG impl (unchanged by this task)**: `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e` (v2.4.0, live `gameImpls(1)`).
@@ -32,11 +32,18 @@ Cutover step 4. Signatures collected in the warm phase (plan W21/W22). **Non-blo
 
 ## Simulation & Signing
 
+This is a **nested** task: signers act through one of the L1PAO's two owner safes, so the child-safe argument (`council` or `foundation`) is **required**.
+
 ```bash
 cd src/tasks/eth/061-ink-proposer-rotation
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
-# nested signing flow — see docs/NESTED.md:
-just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign
+
+# Simulate — one command per signer safe (hashes recorded in VALIDATION.md):
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate council
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate foundation
+
+# Sign — with whichever safe you are an owner of (nested signing flow — see docs/NESTED.md):
+just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign council
+just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign foundation
 ```
 
 ## Post-execution verification
