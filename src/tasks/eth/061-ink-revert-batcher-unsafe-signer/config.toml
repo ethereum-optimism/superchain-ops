@@ -4,9 +4,10 @@
 # SystemConfig (chainId 57073), batched into a single Multicall3 transaction. This is the
 # reverse of eth/060-ink-set-batcher-unsafe-signer.
 #
-# Contingency task: use ONLY if the Gelato → OPE migration must be aborted/rolled back.
-# Signed by the post-migration SystemConfig owner (FoundationOperationsSafe) — run this
-# BEFORE the ownership revert (062), while the OP side still controls SystemConfig.
+# Contingency task: use ONLY if a problem is detected after the eth/060 sequencer & batcher
+# rotation and it must be rolled back. Signed by the post-migration SystemConfig owner
+# (FoundationOperationsSafe), which retains ownership through this rollback — ownership is
+# NOT handed back to Gelato here; only the batcher and unsafe block signer are reverted.
 #
 # The restore values below are the PRE-MIGRATION Gelato batcher / unsafe block signer,
 # read live on-chain 2026-07-09 (before the forward migration ran). Re-confirm against the
