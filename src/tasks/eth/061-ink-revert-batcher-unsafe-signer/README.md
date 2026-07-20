@@ -1,6 +1,6 @@
 # 061-ink-revert-batcher-unsafe-signer: ROLLBACK — restore Gelato batcher & unsafe block signer
 
-Status: CONTINGENCY TASK, SIGN AS NEEDED
+Status: CANCELLED (ARMED CONTINGENCY — see warning below; SIGN AS NEEDED)
 
 > [!WARNING]
 > **ARMED break-glass rollback — NOT abandoned work.** The `CANCELLED` status is deliberate: `fetch-tasks.sh` skips `EXECUTED`/`CANCELLED`/`APPROVED`, so this removes the task from the active `eth` stacked simulation and CI stops enforcing pinned nonces/hashes. A rollback can fire at any migration stage, so its nonce cannot be sequenced ahead of time — instead this task reads the **live** on-chain FOS nonce at activation (no nonce override; `StateOverrideManager._getNonceOrOverride` → `IGnosisSafe.nonce()`).
