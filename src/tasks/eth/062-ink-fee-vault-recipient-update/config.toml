@@ -1,0 +1,81 @@
+# Ink mainnet (chainId 57073) — Gelato -> OP Enterprise migration, fee-vault fast follow
+# (migration plan step 15 / W33; NOT on the cutover critical path).
+#
+# Transfers the two cost-covering fee vaults to the OPE cost recipient for Ink Mainnet:
+#   - L1FeeVault       (0x…001a, v1.6.1): recipient only (withdrawal network already L1)
+#   - OperatorFeeVault (0x…001b, v1.1.1): recipient + withdrawal network L2 -> L1
+# SequencerFeeVault and BaseFeeVault are NOT touched (chain-governor revenue).
+#
+# The vaults are on the post-Karst (U19) setter design (verified live 2026-07-20:
+# L1FeeVault v1.6.1, OperatorFeeVault v1.1.1), so this is an in-place config update via the
+# vaults' owner-gated setters — no implementation deploys, no proxy upgrades.
+#
+# Live pre-task values (verified 2026-07-20; also the rollback reference):
+#   L1FeeVault:       recipient 0xa6f0F94C13C4255231958079E7331694205F6c93, min 2 ETH, network L1
+#   OperatorFeeVault: recipient 0x4200000000000000000000000000000000000019 (BaseFeeVault), min 0, network L2
+#
+# Expected deposits (per-field skip-unchanged): 3
+#   1. L1FeeVault.setRecipient(costRecipient)
+#   2. OperatorFeeVault.setRecipient(costRecipient)
+#   3. OperatorFeeVault.setWithdrawalNetwork(L1)
+
+templateName = "SetFeeVaultConfig"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+vaultProxies = [
+  "0x420000000000000000000000000000000000001a",  # L1FeeVault       (v1.6.1)
+  "0x420000000000000000000000000000000000001b",  # OperatorFeeVault (v1.1.1)
+]
+
+# OPE cost recipient for Ink Mainnet — an L1 EOA whose key is managed in Google KMS.
+# Source of truth (k8s-netchef-prod @ main):
+#   manifests/ink-mainnet-0/mn-ink-mainnet-0-op-signer/mn-ink-mainnet-0-op-signer.yaml
+#   auth entry: mn-ink-mainnet-0-cost-recipient (chainID 1, key ring ink-mainnet-0/cost-recipient)
+# This account funds the chain's L1 operating costs (batcher / proposer / challenger top-ups).
+# Per-chain array shape: the single entry applies to both listed vaults.
+recipients = ["0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9"]
+
+# Per-chain array shape: both vaults withdraw to L1 (0). L1FeeVault is unchanged (no deposit);
+# OperatorFeeVault changes L2 -> L1 so operator fees stop cascading into the BaseFeeVault
+# predeploy and instead withdraw to the L1 cost recipient.
+networks = [0]
+
+# Per-(chain, vault) array shape: keeps each vault's live minWithdrawalAmount unchanged
+# (no deposits emitted for this field).
+minWithdrawalAmounts = [
+  2000000000000000000,  # L1FeeVault: 2 ETH (live value, unchanged)
+  0,                    # OperatorFeeVault: 0 (live value, unchanged)
+]
+
+# REQUIRED by the template: L2 RPC for the pre-flight (L2 ProxyAdmin-owner assertion,
+# per-vault version gate, live-value caching, and a dry-run of every setter call).
+l2RpcUrls = ["https://rpc-gel.inkonchain.com"]
+
+[addresses]
+# Pinned for robustness (also resolvable from the superchain-registry).
+ProxyAdminOwner     = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO mainnet (nested 2-of-2: Foundation Upgrade Safe + Security Council)
+OptimismPortalProxy = "0x5d66C1782664115999C47c9fA5cd031f495D3e4F"
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces (slot 5), pinned to the values EXPECTED AT SIGNING TIME,
+# accounting for the two migration tasks that execute before this one (both on main via PR #1490):
+#   - eth/060-ink-set-batcher-unsafe-signer: signed by the FoundationOperationsSafe — does NOT
+#     touch the L1PAO / FUS / SC nonces.
+#   - eth/061-ink-proposer-rotation: signed by the same nested L1PAO — bumps all three by 1.
+# Pins = live on-chain values (read 2026-07-20: L1PAO=36 / FUS=62 / SC=60) + 1 each for eth/061.
+# Re-verify immediately before signing:
+#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
+# and regenerate the VALIDATION.md hashes if any value has drifted (e.g. if this task ends
+# up executing before eth/061, or another L1PAO-signed task lands first).
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 37}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 61}
+]
