@@ -1,0 +1,54 @@
+# Ink mainnet migration (Gelato → OP Enterprise) — cutover steps 2 & 3.
+#
+# Registers the OPE batcher and unsafe block signer on Ink mainnet's SystemConfig
+# (chainId 57073), batched into a single Multicall3 transaction. Source of truth:
+# "Ink Mainnet Migration — Engineering Plan" (target cutover 2026-07-28).
+#
+# Signed by the NEW SystemConfig owner — the FoundationOperationsSafe (FOS). The Gelato →
+# FOS SystemConfig.transferOwnership is executed OUTSIDE this repo (see PR #1462,
+# warm-phase step W25/W26); this task assumes that transfer has landed. For standalone
+# simulation the [stateOverrides] below set SystemConfig.owner() (slot 0x33) to the FOS so
+# the setters authorize. Remove that owner override once the transfer is executed on-chain.
+
+templateName = "SetBatcherAndOrSigner"
+
+# The new SystemConfig owner (FoundationOperationsSafe). A custom identifier is used instead
+# of the registry-resolved "SystemConfigOwner", which still reads the live Gelato owner
+# (0xBeA2Bc…9Bbb) until the ownership transfer executes on-chain.
+safeAddressString = "OPESystemConfigOwnerSafe"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# OPE receiving infrastructure. Source files (k8s-netchef-prod @ 7115c120):
+#   batcherAddress    <- op-batcher values.yaml:
+#     https://github.com/ethereum-optimism/k8s-netchef-prod/blob/7115c12018a3cd0e71d08ffa0cc8c3969dc437ec/opc/oplabs-prod-ent-mainnet-eu/mn-ink-mainnet-0-op-batcher/values.yaml
+#   unsafeBlockSigner <- op-signer key mapping configmap.yaml:
+#     https://github.com/ethereum-optimism/k8s-netchef-prod/blob/7115c12018a3cd0e71d08ffa0cc8c3969dc437ec/kustomize/op-signer/oplabs-prod-ent-mainnet-eu/mn-ink-mainnet-0-op-signer/configmap.yaml
+# Cross-referenced with Ink Mainnet Migration Plan §3.3 Addresses; independently verified by ≥3 OP Labs engineers (plan step W4).
+# Live pre-migration Gelato values (for reference / rollback): batcher
+# 0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac, unsafeBlockSigner 0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C.
+[sequencerConfig]
+batcherAddress    = "0x6db6161fC5662450E801398Bad62dD9921216B98" # OPE batcher
+unsafeBlockSigner = "0x7b322282DF45E537E5de76D60E1432Db3cF3F8E1" # OPE sequencer / unsafe block signer
+
+[addresses]
+# FoundationOperationsSafe (mainnet) — the SystemConfig owner after the Gelato → FOS
+# ownership transfer (PR #1462). See src/addresses.toml [eth].
+OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
+
+[stateOverrides]
+# FoundationOperationsSafe nonce (slot 5). STACKED value 120 = on-chain 118 (read 2026-07-09)
+# + 2 preceding FOS-signed tasks in the eth stack (058-fos-rotation-1, 059-fos-rotation-2).
+# Re-verify before signing: cast call 0x9BA6…006b3A "nonce()" --rpc-url mainnet (and add any
+# further FOS-signed tasks that land ahead of this one).
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 120}
+]
+# Model the post-transfer state: override SystemConfig.owner() (slot 0x33, live value is
+# still the Gelato Safe 0xBeA2Bc…9Bbb) to the FOS so setBatcherHash / setUnsafeBlockSigner
+# authorize during simulation. Remove this override once the ownership transfer is executed.
+0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"}
+]
