@@ -31,8 +31,13 @@ networks             = [0]   # 0 = WithdrawalNetwork.L1
 minWithdrawalAmounts = [0]
 
 # REQUIRED: L2 RPC per chain (same order as l2chains) for the ProxyAdmin-owner preflight,
-# version gate, and setter dry-run.
-l2RpcUrls = ["https://sepolia.optimism.io"]
+# version gate, and setter dry-run. "opSepolia" is a foundry.toml rpc alias (CI archive
+# endpoint under the ci profile; public https://sepolia.optimism.io locally).
+l2RpcUrls = ["opSepolia"]
+
+# TEST FIXTURE ONLY: pin the L2 pre-flight fork so the skip-unchanged decisions — and the
+# calldata pinned in Regression.t.sol — are deterministic. Real tasks MUST omit this field.
+l2ForkBlocks = [46429711]
 
 [addresses]
 # source: superchain-registry sepolia/op.toml
@@ -40,8 +45,10 @@ ProxyAdminOwner     = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"  # 2-of-2 (Fo
 OptimismPortalProxy = "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
 
 [stateOverrides]
-# Nonces (slot 5) pinned to the live values at the fork block used by the regression test.
-# Update these together with FORK_BLOCK_NUMBER whenever the fixture is re-generated.
+# Nonces (slot 5) pinned to the live values at the .env FORK_BLOCK_NUMBER — the L1 fork block
+# that CI's simulate-all-templates run (src/ci.just) and the Regression.t.sol fixture simulate
+# this task at. Update these together with FORK_BLOCK_NUMBER and l2ForkBlocks whenever the
+# fixture is re-generated. (The manual-only integration test forks latest; no pins used.)
 # L1 ProxyAdminOwner
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
   {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 54}

@@ -38,16 +38,17 @@ interface IVersioned {
 ///
 ///         Modular: `vaultProxies` may be any subset of the four fee-vault predeploys. For each
 ///         (chain, vault) only the fields that actually differ from live state produce a deposit
-///         (per-field skip-unchanged). The skip is evaluated against sign-time (pre-flight fork)
-///         state; because the setters write absolute values, drift between sign and execute is
-///         harmless (a stale-skipped field is simply not updated). At least one listed field must
-///         differ — a config where every listed field already matches produces no actions and the
-///         framework reverts with "No actions found".
+///         (per-field skip-unchanged). The skip set is re-derived from live L2 state on EVERY run
+///         (`just execute` rebuilds the actions), so drift that flips a skip decision between
+///         signing and execution changes the calldata and Safe tx hash, invalidating ALL collected
+///         signatures — loud revert, full re-sign. At least one listed field must differ — a config
+///         where every listed field already matches produces no actions and the framework reverts
+///         with "No actions found".
 ///
 ///         Requires the vault to be on the mutable / `ProxyAdminOwnedBase` design that exposes the
 ///         setters — enforced by a per-vault minimum-version check (see `_minVersionFor`):
 ///           - SequencerFeeVault / BaseFeeVault / L1FeeVault : >= 1.6.0
-///           - OperatorFeeVault                              : >= 1.1.1
+///           - OperatorFeeVault                              : >= 1.1.0
 ///         Old immutable-recipient vaults (< min) must be migrated with `FeeVaultUpgradeTemplate`
 ///         first; this template rejects them at setup.
 ///
@@ -57,8 +58,8 @@ interface IVersioned {
 /// @dev    Uses `L2TaskBase` (direct portal calls). Safe -> Multicall3.aggregate3Value ->
 ///         portal.depositTransaction x N. The required `l2RpcUrls` pre-flight forks each L2 to (1)
 ///         assert `ProxyAdmin.owner() == aliased root`, (2) enforce the version gate, (3) cache live
-///         values for skip-unchanged, and (4) DRY-RUN the setter calls as the aliased owner so an L2
-///         revert surfaces here at setup instead of silently on relay.
+///         values for skip-unchanged, and (4) DRY-RUN the setter calls as the aliased owner so an
+///         L2 revert surfaces here at setup instead of silently on relay.
 contract SetFeeVaultConfig is L2TaskBase {
     using stdToml for string;
 
@@ -124,6 +125,14 @@ contract SetFeeVaultConfig is L2TaskBase {
         require(vaultProxies.length > 0, "SetFeeVaultConfig: vaultProxies must not be empty");
         for (uint256 i; i < vaultProxies.length; i++) {
             _requireKnownVault(vaultProxies[i]);
+            // Duplicates would re-cache live values AFTER the first occurrence's dry-run mutated
+            // the pre-flight fork, making _build silently emit zero deposits for that vault.
+            for (uint256 j; j < i; j++) {
+                require(
+                    vaultProxies[j] != vaultProxies[i],
+                    string.concat("SetFeeVaultConfig: duplicate vaultProxies entry ", vm.toString(vaultProxies[i]))
+                );
+            }
         }
 
         recipients = abi.decode(toml.parseRaw(".recipients"), (address[]));
@@ -159,6 +168,17 @@ contract SetFeeVaultConfig is L2TaskBase {
         string[] memory l2RpcUrls = abi.decode(toml.parseRaw(".l2RpcUrls"), (string[]));
         require(l2RpcUrls.length == chains.length, "SetFeeVaultConfig: l2RpcUrls length must equal l2chains.length");
 
+        // TEST FIXTURES ONLY: `l2ForkBlocks` pins each pre-flight fork so fixtures are
+        // deterministic. Real tasks MUST omit it — gates and skips need live sign-time state.
+        uint256[] memory l2ForkBlocks;
+        if (toml.keyExists(".l2ForkBlocks")) {
+            l2ForkBlocks = abi.decode(toml.parseRaw(".l2ForkBlocks"), (uint256[]));
+            require(
+                l2ForkBlocks.length == chains.length,
+                "SetFeeVaultConfig: l2ForkBlocks length must equal l2chains.length"
+            );
+        }
+
         address aliasedRoot = AddressAliasHelper.applyL1ToL2Alias(_rootSafe);
         vm.label(aliasedRoot, "AliasedL1PAO (L2 ProxyAdmin owner)");
         for (uint256 v; v < vaultProxies.length; v++) {
@@ -172,7 +192,11 @@ contract SetFeeVaultConfig is L2TaskBase {
         vm.makePersistent(address(this));
 
         for (uint256 c; c < nChains; c++) {
-            vm.createSelectFork(l2RpcUrls[c]);
+            if (l2ForkBlocks.length != 0) {
+                vm.createSelectFork(l2RpcUrls[c], l2ForkBlocks[c]);
+            } else {
+                vm.createSelectFork(l2RpcUrls[c]);
+            }
             uint256 cid = chains[c].chainId;
             require(
                 block.chainid == cid,
@@ -268,44 +292,75 @@ contract SetFeeVaultConfig is L2TaskBase {
         }
     }
 
-    /// @notice Asserts the captured actions are exactly the expected portal deposits (count + target + value).
+    /// @notice Re-derives the exact expected deposit set (same order and skip rules as `_build`) and
+    ///         asserts each captured action byte-for-byte: positional per-chain portal target, zero
+    ///         value, and the full `depositTransaction` calldata (vault, value, gas limit, isCreation,
+    ///         inner setter call). This anchors precisely what signers sign — no other L1-side
+    ///         artifact can, since value-0 deposits leave no payload-bearing L1 state diff.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         uint256 nChains = chains.length;
 
-        // Expected number of deposits = number of changed fields across all (chain, vault).
-        uint256 expected;
+        uint256 cursor;
+        // NOTE: MUST mirror _build's iteration order and skip-unchanged conditions exactly.
         for (uint256 c; c < nChains; c++) {
             uint256 cid = chains[c].chainId;
+            address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", cid);
             for (uint256 v; v < vaultProxies.length; v++) {
                 address vault = vaultProxies[v];
-                if (_recipientFor(c, v, nChains) != _liveRecipient[cid][vault]) expected++;
-                if (_networkFor(c, v, nChains) != _liveNetwork[cid][vault]) expected++;
-                if (_minFor(c, v, nChains) != _liveMin[cid][vault]) expected++;
+                address newR = _recipientFor(c, v, nChains);
+                uint256 newN = _networkFor(c, v, nChains);
+                uint256 newM = _minFor(c, v, nChains);
+
+                if (newR != _liveRecipient[cid][vault]) {
+                    cursor =
+                        _checkDeposit(_actions, cursor, portal, vault, abi.encodeCall(IFeeVault.setRecipient, (newR)));
+                }
+                if (newN != _liveNetwork[cid][vault]) {
+                    cursor = _checkDeposit(
+                        _actions,
+                        cursor,
+                        portal,
+                        vault,
+                        abi.encodeCall(IFeeVault.setWithdrawalNetwork, (IFeeVault.WithdrawalNetwork(newN)))
+                    );
+                }
+                if (newM != _liveMin[cid][vault]) {
+                    cursor = _checkDeposit(
+                        _actions, cursor, portal, vault, abi.encodeCall(IFeeVault.setMinWithdrawalAmount, (newM))
+                    );
+                }
             }
         }
 
         require(
-            _actions.length == expected,
+            _actions.length == cursor,
             string.concat(
-                "SetFeeVaultConfig: expected ", vm.toString(expected), " deposits, got ", vm.toString(_actions.length)
+                "SetFeeVaultConfig: expected ", vm.toString(cursor), " deposits, got ", vm.toString(_actions.length)
             )
         );
 
-        // Every action must be a value-0 deposit to one of the chains' OptimismPortalProxy.
-        for (uint256 a; a < _actions.length; a++) {
-            require(_actions[a].value == 0, "SetFeeVaultConfig: action value must be 0");
-            bool targetsPortal;
-            for (uint256 c; c < nChains; c++) {
-                if (_actions[a].target == superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[c].chainId)) {
-                    targetsPortal = true;
-                    break;
-                }
-            }
-            require(targetsPortal, "SetFeeVaultConfig: action target must be an OptimismPortalProxy");
-        }
-
         MultisigTaskPrinter.printTitle("SetFeeVaultConfig: validated portal deposit actions");
+    }
+
+    /// @notice Asserts action `i` is exactly `depositTransaction(vault, 0, SETTER_GAS_LIMIT, false, inner)`
+    ///         sent to `portal` with zero value; returns the advanced cursor.
+    function _checkDeposit(Action[] memory _actions, uint256 i, address portal, address vault, bytes memory inner)
+        internal
+        pure
+        returns (uint256)
+    {
+        require(i < _actions.length, "SetFeeVaultConfig: missing expected deposit");
+        require(_actions[i].target == portal, "SetFeeVaultConfig: action target mismatch");
+        require(_actions[i].value == 0, "SetFeeVaultConfig: action value must be 0");
+        require(
+            keccak256(_actions[i].arguments)
+                == keccak256(
+                    abi.encodeCall(IOptimismPortal2.depositTransaction, (vault, 0, SETTER_GAS_LIMIT, false, inner))
+                ),
+            "SetFeeVaultConfig: action calldata mismatch"
+        );
+        return i + 1;
     }
 
     // -------------------------------------------------------------------------
@@ -358,16 +413,34 @@ contract SetFeeVaultConfig is L2TaskBase {
     }
 
     /// @notice Minimum FeeVault version that exposes the owner-gated setters, per vault type.
+    ///         Setters shipped at OperatorFeeVault 1.1.0 / FeeVault 1.6.0 together (upstream
+    ///         ethereum-optimism/optimism#17536, commit 0f21af94 — the commit `FeeVaultUpgrader`'s
+    ///         baked impls are built from); the 1.1.1/1.6.1 bump (#19564) changed no setter
+    ///         behavior, so gating Operator above 1.1.0 would reject the exact implementation
+    ///         `FeeVaultUpgradeTemplate` deploys.
     function _minVersionFor(address _vault) internal pure returns (uint256 major, uint256 minor, uint256 patch) {
-        if (_vault == OPERATOR_FEE_VAULT) return (1, 1, 1);
+        if (_vault == OPERATOR_FEE_VAULT) return (1, 1, 0);
         return (1, 6, 0); // Sequencer / Base / L1
     }
 
     /// @notice Reverts unless the live vault version is >= its per-type minimum (has `setRecipient`).
+    ///         Low-level staticcall: an "absent" predeploy is a genesis Proxy with an UNSET impl
+    ///         (call reverts) or, on non-standard chains, truly codeless (call succeeds with empty
+    ///         returndata — uncatchable by try/catch: decode failures escape the catch clause);
+    ///         both shapes get one actionable message instead of a context-free revert.
     function _requireSetterCapable(address _vault) internal view {
+        (bool ok, bytes memory ret) = _vault.staticcall(abi.encodeCall(IVersioned.version, ()));
+        require(
+            ok && ret.length >= 64, // 64 = minimum well-formed ABI encoding of a `string` return
+            string.concat(
+                "SetFeeVaultConfig: ",
+                _vaultLabel(_vault),
+                " is not live on this chain (predeploy implementation unset or no code) -- remove it from vaultProxies"
+            )
+        );
         (uint256 rMaj, uint256 rMin, uint256 rPat) = _minVersionFor(_vault);
         require(
-            _versionGte(IVersioned(_vault).version(), rMaj, rMin, rPat),
+            _versionGte(abi.decode(ret, (string)), rMaj, rMin, rPat),
             "SetFeeVaultConfig: FeeVault version too old - no setters (migrate with FeeVaultUpgradeTemplate first)"
         );
     }
