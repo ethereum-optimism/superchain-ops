@@ -8,8 +8,8 @@ For **Ink Mainnet** (chainId 57073), transfer the two cost-covering fee vaults t
 
 | Vault | Version (live) | Change |
 |---|---|---|
-| `L1FeeVault` `0x420000000000000000000000000000000000001a` | v1.6.1 | recipient `0xa6f0F94C13C4255231958079E7331694205F6c93` → `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` (network already L1, min 2 ETH unchanged) |
-| `OperatorFeeVault` `0x420000000000000000000000000000000000001b` | v1.1.1 | recipient `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9`; withdrawalNetwork **L2 → L1** (min 0 unchanged) |
+| `L1FeeVault` `0x420000000000000000000000000000000000001a` | v1.6.1 | recipient `0xa6f0F94C13C4255231958079E7331694205F6c93` → `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9`; minWithdrawalAmount **2 ETH → 0** (network already L1) |
+| `OperatorFeeVault` `0x420000000000000000000000000000000000001b` | v1.1.1 | recipient `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9`; withdrawalNetwork **L2 → L1** (min already 0) |
 
 `SequencerFeeVault` (`0x…0011`) and `BaseFeeVault` (`0x…0019`) are **not** touched — chain-governor revenue stays with the current recipient.
 
@@ -28,11 +28,12 @@ The Karst hardfork (U19, active on Ink Mainnet since 2026-07-08) upgraded all fo
 
 `SetFeeVaultConfig` sends each changed field as an `OptimismPortal2.depositTransaction` from the L1PAO; the deposit's aliased sender (`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`, the alias of the L1PAO — verified live as the Ink L2 ProxyAdmin owner) is exactly the owner the setters authorize against. The template's mandatory pre-flight forks Ink via `l2RpcUrls` to assert L2 ProxyAdmin ownership, enforce the per-vault version gate (≥ 1.6.0 / ≥ 1.1.0; live Ink vaults are 1.6.1 / 1.1.1), and dry-run every setter before any signature is collected.
 
-Per-field skip-unchanged yields exactly **3 deposits** (each with a 150,000 L2 gas limit):
+Per-field skip-unchanged yields exactly **4 deposits** (each with a 150,000 L2 gas limit):
 
 1. `L1FeeVault.setRecipient(0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9)`
-2. `OperatorFeeVault.setRecipient(0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9)`
-3. `OperatorFeeVault.setWithdrawalNetwork(WithdrawalNetwork.L1)`
+2. `L1FeeVault.setMinWithdrawalAmount(0)`
+3. `OperatorFeeVault.setRecipient(0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9)`
+4. `OperatorFeeVault.setWithdrawalNetwork(WithdrawalNetwork.L1)`
 
 ## Simulation & Signing
 
@@ -52,7 +53,7 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign foundation
 
 ## Post-execution verification
 
-After the three deposits are relayed on Ink Mainnet:
+After the four deposits are relayed on Ink Mainnet:
 
 ```bash
 RPC=https://rpc-gel.inkonchain.com
@@ -62,9 +63,11 @@ cast call 0x420000000000000000000000000000000000001b "recipient()(address)" -r $
 # → 0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9
 cast call 0x420000000000000000000000000000000000001b "withdrawalNetwork()(uint8)" -r $RPC
 # → 0 (L1)
+cast call 0x420000000000000000000000000000000000001a "minWithdrawalAmount()(uint256)" -r $RPC
+# → 0 (was 2000000000000000000)
 
 # Unchanged:
-cast call 0x420000000000000000000000000000000000001a "minWithdrawalAmount()(uint256)" -r $RPC   # 2000000000000000000
+cast call 0x420000000000000000000000000000000000001a "withdrawalNetwork()(uint8)" -r $RPC        # 0
 cast call 0x420000000000000000000000000000000000001b "minWithdrawalAmount()(uint256)" -r $RPC   # 0
 cast call 0x4200000000000000000000000000000000000011 "recipient()(address)" -r $RPC             # 0xa6f0F94C13C4255231958079E7331694205F6c93
 cast call 0x4200000000000000000000000000000000000019 "recipient()(address)" -r $RPC             # 0xa6f0F94C13C4255231958079E7331694205F6c93
