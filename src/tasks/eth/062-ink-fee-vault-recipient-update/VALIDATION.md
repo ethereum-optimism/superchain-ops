@@ -77,10 +77,19 @@ The full task calldata is:
 
 ## Task State Changes
 
-The only L1 state changes are the L1PAO nonce increment and the Ink `OptimismPortal`'s resource
-metering bookkeeping (written on every deposit). The fee-vault config changes themselves happen
+The L1 state changes are the signer-safe bookkeeping (root L1PAO nonce, the approving child
+safe's nonce, and the child's `approvedHashes` entry on the root) plus the Ink `OptimismPortal`'s
+resource metering write (touched on every deposit). The fee-vault config changes themselves happen
 on Ink L2 once the deposits are relayed — verify them with the commands in
 [README.md](./README.md#post-execution-verification).
+
+### Signer safes
+
+`ProxyAdminOwner` nonce increments `37` → `38`; `Security Council` (61) and `Foundation Upgrade
+Safe` (63) nonces increment by 1 (nested execution through the L1 ProxyAdminOwner
+`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`). During each child safe's approve step, the root
+L1PAO also gains an `approvedHashes[<child safe>][0x4972dab74f22618800b13b3fa95413561b926b3890ac4c79233d531b8331a634] = 1`
+storage write — expect it in the Tenderly state diff of the approval transactions.
 
 ---
 
