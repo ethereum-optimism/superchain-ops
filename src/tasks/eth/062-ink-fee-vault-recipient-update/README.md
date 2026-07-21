@@ -1,6 +1,6 @@
 # 062-ink-fee-vault-recipient-update
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
