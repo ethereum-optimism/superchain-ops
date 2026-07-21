@@ -1,6 +1,6 @@
 # 062-ink-fee-vault-recipient-update
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
@@ -15,9 +15,9 @@ For **Ink Mainnet** (chainId 57073), transfer the two cost-covering fee vaults t
 
 **Cost recipient provenance:** `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` is an L1 EOA whose key is managed in Google KMS (key ring `ink-mainnet-0`, key `cost-recipient`). Source of truth: `k8s-netchef-prod` — `manifests/ink-mainnet-0/mn-ink-mainnet-0-op-signer/mn-ink-mainnet-0-op-signer.yaml`, auth entry `mn-ink-mainnet-0-cost-recipient` (chainID 1). It will fund Ink's L1 operating costs (batcher / proposer / challenger top-ups). Note: the address is freshly created and **unused as of 2026-07-21** (nonce 0, balance 0 on L1) — a never-seen address is expected here, and key control must be proven before signing (see below).
 
-## Why this task is DRAFT
+## Signing gates — do not sign until ALL are cleared
 
-1. **Template dependency:** `SetFeeVaultConfig` is not yet merged — this task's PR is stacked on [#1504](https://github.com/ethereum-optimism/superchain-ops/pull/1504).
+1. **Template dependency:** `SetFeeVaultConfig` merges via [#1504](https://github.com/ethereum-optimism/superchain-ops/pull/1504) — this task's PR is stacked on it and can only merge after it.
 2. **Governance:** the signer is the L1 ProxyAdminOwner (nested 2-of-2: Foundation Upgrade Safe + Security Council), so execution requires the Ink chain-servicer-migration Maintenance Upgrade proposal to clear its optimistic-approval veto window.
 3. **Ordering:** the nonce pins in [config.toml](./config.toml) assume `eth/061-ink-proposer-rotation` ([#1490](https://github.com/ethereum-optimism/superchain-ops/pull/1490), signed by the same nested L1PAO) executes first. Re-simulate and regenerate the [VALIDATION.md](./VALIDATION.md) hashes if the ordering changes or any live nonce drifts.
 4. **Key-control proof:** before signing, the cost-recipient key holder must demonstrate control of `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` (a dust transaction from the address, or a signed message verified against it) — the address has never transacted, and a wrong recipient is only recoverable via another full nested-L1PAO task.
