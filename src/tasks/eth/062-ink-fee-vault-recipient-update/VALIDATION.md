@@ -80,8 +80,8 @@ The full task calldata is:
 The L1 state changes are the signer-safe bookkeeping (root L1PAO nonce, the approving child
 safe's nonce, and the child's `approvedHashes` entry on the root) plus the Ink `OptimismPortal`'s
 resource metering write (touched on every deposit). The fee-vault config changes themselves happen
-on Ink L2 once the deposits are relayed — verify them with the commands in
-[README.md](./README.md#post-execution-verification).
+on Ink L2 once the deposits are relayed — validate them with the
+[L2 post-execution validation](#l2-post-execution-validation) section below.
 
 ### Signer safes
 
@@ -117,3 +117,34 @@ storage write — expect it in the Tenderly state diff of the approval transacti
     Ink Mainnet `OptimismPortal` as a side effect of the three `depositTransaction` calls. The
     exact packed value depends on the block the transaction lands in; only this slot of the
     portal should change.
+
+## L2 post-execution validation
+
+The vault config changes land on Ink L2 (chainId 57073) once the three deposits are relayed —
+typically within a few minutes of L1 execution. **The L1 transaction succeeding does NOT prove the
+L2 writes happened** (a deposit that reverts on L2 leaves the L1 tx successful), so validate the
+end state directly on Ink:
+
+```bash
+RPC=https://rpc-gel.inkonchain.com
+
+# Changed by this task:
+cast call 0x420000000000000000000000000000000000001a "recipient()(address)" -r $RPC
+# → 0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9
+cast call 0x420000000000000000000000000000000000001b "recipient()(address)" -r $RPC
+# → 0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9
+cast call 0x420000000000000000000000000000000000001b "withdrawalNetwork()(uint8)" -r $RPC
+# → 0   (L1 — was 1/L2)
+
+# Must be UNCHANGED:
+cast call 0x420000000000000000000000000000000000001a "withdrawalNetwork()(uint8)" -r $RPC      # 0
+cast call 0x420000000000000000000000000000000000001a "minWithdrawalAmount()(uint256)" -r $RPC  # 2000000000000000000
+cast call 0x420000000000000000000000000000000000001b "minWithdrawalAmount()(uint256)" -r $RPC  # 0
+cast call 0x4200000000000000000000000000000000000011 "recipient()(address)" -r $RPC            # 0xa6f0F94C13C4255231958079E7331694205F6c93
+cast call 0x4200000000000000000000000000000000000019 "recipient()(address)" -r $RPC            # 0xa6f0F94C13C4255231958079E7331694205F6c93
+```
+
+If any "changed" value did not update, the deposit reverted on L2 while the L1 tx still shows
+success: inspect the relayed L2 transactions sent from the aliased L1PAO
+(`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`) on an Ink explorer, and re-run `just simulate` —
+the template's mandatory pre-flight reproduces L2-side failures loudly at simulation time.
