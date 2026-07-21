@@ -1,0 +1,67 @@
+# Ink mainnet migration (Gelato → OP Enterprise) — cutover step 4.
+#
+# Rotates the PermissionedDisputeGame (PDG, game type 1) proposer on Ink mainnet
+# (chainId 57073) to the OPE proposer. The PDG is a dormant safety fallback; per the
+# Ink Mainnet Migration Plan §1 / §2.3 its proposer is updated "for correctness". The
+# active respected game post-Karst (CANNON_KONA, type 8) is permissionless and has no
+# on-chain proposer.
+#
+# Ink mainnet's DisputeGameFactory is expected v1.6.1 post-U19 (plan §3.2), using the
+# gameArgs blob pattern: per-chain data (prestate, vm, ASR, delayedWETH, proposer,
+# challenger) lives in DisputeGameFactory.gameArgs(gameType), NOT as impl immutables.
+# SetDisputeGameArgs reads the live gameArgs(1), overrides ONLY the proposer, and
+# re-emits setImplementation(1, sameImpl, newGameArgs).
+#
+# FIELD-DIFFING — only `proposer` changes (bond is PINNED and re-asserted, not read live; see below):
+#   - prestate           : LEFT UNCHANGED — read live and preserved
+#   - challenger         : LEFT UNCHANGED — confirmed live 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
+#                          (FoundationOperationsSafe, OP governance per plan §3.1 "no action");
+#                          read live and preserved. The OPE challenger is NOT written on-chain.
+#   - vm / ASR / weth / chainId / impl : LEFT UNCHANGED; read live
+#   - bond               : PINNED at the current 0.08 ETH, matching the Sepolia rehearsal
+#                          (sep/102). A present `bond` makes the template assert it in
+#                          _validate and call setInitBond if the live value differs — a no-op
+#                          while live initBonds(1) == 0.08 ETH. If the live bond drifts before
+#                          signing, this task would ALSO reset it to 0.08 ETH: treat drift as a
+#                          BLOCKER — stop, re-align this value, and regenerate the hashes.
+#
+# Every gameArgs field except proposer is read live at sign time, so this task absorbs U19's
+# changes. RE-SIMULATE immediately before signing to confirm the live gameArgs(1) values.
+
+templateName = "SetDisputeGameArgs"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# OPE proposer source file (k8s-netchef-prod @ 7115c120):
+#   https://github.com/ethereum-optimism/k8s-netchef-prod/blob/7115c12018a3cd0e71d08ffa0cc8c3969dc437ec/opc/oplabs-prod-ent-mainnet-eu/mn-ink-mainnet-0-op-proposer/values.yaml
+# Cross-referenced with Ink Mainnet Migration Plan §3.3 Addresses; independently verified by ≥3 OP Labs engineers (plan step W4).
+#
+# Single row: PDG (game type 1), proposer only. Every omitted field is read from the live
+# gameArgs(1) and preserved.
+[[gameConfig]]
+chainId  = 57073
+gameType = 1                                                  # PERMISSIONED_CANNON
+proposer = "0x3832bfbeF03173E4C49a00ec0DD178817A02D177"       # OPE proposer (verified W4). Live pre-migration Gelato proposer (for rollback): 0x65436DDcBc026F34118954f229F7f132b696B3b4.
+bond     = 80000000000000000                                  # 0.08 ETH — pins the CURRENT PDG init bond (confirmed live `initBonds(1)` on mainnet DGF, matches the Sepolia rehearsal). No-op that lets _validate assert it. RE-READ live before signing — drift is a BLOCKER (see header); a value of 0 here would actively RESET the bond to zero.
+
+[addresses]
+# Pinned for robustness (also resolvable from the superchain-registry).
+ProxyAdminOwner         = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # L1PAO mainnet (nested 2-of-2: Foundation Upgrade Safe + Security Council)
+DisputeGameFactoryProxy = "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD"
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces (slot 5). STACKED values: L1PAO=36 and SC=60 (on-chain,
+# untouched by preceding stack tasks); FUS=62 = on-chain 60 (read 2026-07-09) + 2 preceding
+# FUS-signed tasks (056-fus-rotation-1, 057-fus-rotation-2). Re-verify before signing:
+# cast call <safe> "nonce()(uint256)" --rpc-url mainnet (adjust for any tasks landing ahead).
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 36}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 62}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
+]
