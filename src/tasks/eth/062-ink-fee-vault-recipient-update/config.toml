@@ -2,10 +2,10 @@
 # (migration plan step 15 / W33; NOT on the cutover critical path).
 #
 # Transfers the two cost-covering fee vaults to the OPE cost recipient for Ink Mainnet:
-#   - L1FeeVault       (0x…001a, v1.6.1): recipient + minWithdrawalAmount 2 ETH -> 0
+#   - L1FeeVault       (0x…001a, v1.6.1): recipient + minWithdrawalAmount 2 ETH -> 0.15 ETH
 #                                          (withdrawal network already L1)
 #   - OperatorFeeVault (0x…001b, v1.1.1): recipient + withdrawal network L2 -> L1
-#                                          (minWithdrawalAmount already 0)
+#                                          + minWithdrawalAmount 0 -> 0.15 ETH
 # SequencerFeeVault and BaseFeeVault are NOT touched (chain-governor revenue).
 #
 # The vaults are on the post-Karst (U19) setter design (verified live 2026-07-20:
@@ -16,11 +16,12 @@
 #   L1FeeVault:       recipient 0xa6f0F94C13C4255231958079E7331694205F6c93, min 2 ETH, network L1
 #   OperatorFeeVault: recipient 0x4200000000000000000000000000000000000019 (BaseFeeVault), min 0, network L2
 #
-# Expected deposits (per-field skip-unchanged): 4
+# Expected deposits (per-field skip-unchanged): 5
 #   1. L1FeeVault.setRecipient(costRecipient)
-#   2. L1FeeVault.setMinWithdrawalAmount(0)
+#   2. L1FeeVault.setMinWithdrawalAmount(0.15 ETH)
 #   3. OperatorFeeVault.setRecipient(costRecipient)
 #   4. OperatorFeeVault.setWithdrawalNetwork(L1)
+#   5. OperatorFeeVault.setMinWithdrawalAmount(0.15 ETH)
 
 templateName = "SetFeeVaultConfig"
 
@@ -46,13 +47,11 @@ recipients = ["0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9"]
 # predeploy and instead withdraw to the L1 cost recipient.
 networks = [0]
 
-# Per-chain array shape: NO minimum withdrawal on either vault. L1FeeVault changes 2 ETH -> 0
-# (emits a deposit); OperatorFeeVault is already 0 (skipped). Cost-recipient sweeps can then be
-# triggered at any accrued balance (withdraw() is permissionless; no automated trigger planned).
-# Accepted tradeoff: with min = 0, withdraw() also passes at ZERO balance, so any caller can
-# emit empty L2->L1 withdrawal messages at their own gas cost. Harmless to funds; withdrawal
-# triggering stays a manual operator-owned action until a keeper exists.
-minWithdrawalAmounts = [0]
+# Per-chain array shape: 0.15 ETH minimum on BOTH cost vaults (L1FeeVault 2 ETH -> 0.15,
+# OperatorFeeVault 0 -> 0.15). Low enough to keep cost-recipient sweeps frequent (withdraw()
+# is permissionless; no automated trigger planned), non-zero so withdraw() reverts below the
+# threshold — zero/dust-value L2->L1 withdrawal spam is not possible.
+minWithdrawalAmounts = [150000000000000000]
 
 # REQUIRED by the template: L2 RPC for the pre-flight (L2 ProxyAdmin-owner assertion,
 # per-vault version gate, live-value caching, and a dry-run of every setter call).
