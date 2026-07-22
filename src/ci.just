@@ -13,6 +13,8 @@ simulate-all-templates:
     root_dir=$(git rev-parse --show-toplevel)
     forge build
     simulation_count=0
+    node_total="${CIRCLE_NODE_TOTAL:-1}"
+    node_index="${CIRCLE_NODE_INDEX:-0}"
     # When we spawn too many concurrent processes, the simulation fails with 'solc exited with signal: 9 (SIGKILL)'.
     # The batch size should be low enough to not cause issues, but high enough to not make the simulation too slow.
     batch_size=7
@@ -21,7 +23,10 @@ simulate-all-templates:
     # Collect PIDs of each background simulation.
     declare -a pids=()
 
-    for task in "${root_dir}/test/tasks/example/"*/*; do
+    selected_tasks=$("${root_dir}/src/script/list-template-example-tasks.sh" "$root_dir")
+    echo "Template simulation shard $((node_index + 1))/$node_total"
+
+    while IFS= read -r task; do
         if [ -d "$task" ]; then
             echo "Task: $task"
             nested_safe_name_depth_1=""
@@ -72,7 +77,7 @@ simulate-all-templates:
                 echo "Batch completed. Starting next batch..."
             fi
         fi
-    done
+    done <<< "$selected_tasks"
 
     # Wait for any remaining simulations in the final batch
     if [ ${#pids[@]} -gt 0 ]; then
