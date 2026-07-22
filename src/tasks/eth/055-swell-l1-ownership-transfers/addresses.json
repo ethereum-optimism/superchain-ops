@@ -1,0 +1,19 @@
+{
+  "_comment": "Swell (chainId 1923) L1 addresses. Swell has been removed from the public superchain-registry (ethereum-optimism/superchain-registry#1247) as it winds down, so this file is the fallback for SuperchainAddressRegistry. Addresses verified with op-fetcher against SystemConfigProxy 0xD3d4c6B703978a5d24FecF3a70a51127667Ff1A4 and L1StandardBridgeProxy 0x7aA4960908B13D104bf056B23E2C76B43c5AACc8. The chain reuses OP Mainnet's standard SuperchainConfig (0x95703e0982140D16f8ebA6d158FccEde42f04a4C). ProxyAdminOwner is the current (pre-transfer) owner — the standard OP Mainnet L1PAO.",
+  "1923": {
+    "ProxyAdmin": "0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6",
+    "ProxyAdminOwner": "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A",
+    "SuperchainConfig": "0x95703e0982140D16f8ebA6d158FccEde42f04a4C",
+    "SystemConfigProxy": "0xD3d4c6B703978a5d24FecF3a70a51127667Ff1A4",
+    "OptimismPortalProxy": "0x758E0EE66102816F5C3Ec9ECc1188860fbb87812",
+    "L1ERC721BridgeProxy": "0xfd7618330E63B493070DC8C491Ad4aD26144Bc1e",
+    "OptimismMintableERC20FactoryProxy": "0xc2b228cd433eBaE788DE287EDE2abE55B3F3F603",
+    "L1StandardBridgeProxy": "0x7aA4960908B13D104bf056B23E2C76B43c5AACc8",
+    "L1CrossDomainMessengerProxy": "0xe6a99Ef12995DeFC5ff47EC0e13252f0E6903759",
+    "DisputeGameFactoryProxy": "0x87690676786cDc8cCA75A472e483AF7C8F2f0F57",
+    "AnchorStateRegistryProxy": "0x511fB9E172f8A180735ACF9c2beeb208cD0061Ac",
+    "AddressManager": "0xa54a84f17c2180148c762D79bC57BdfF7FdAFC8A",
+    "Challenger": "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A",
+    "Proposer": "0xA2Acb8142b64fabda103DA19b0075aBB56d29FbD"
+  }
+}
