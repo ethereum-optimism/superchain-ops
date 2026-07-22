@@ -20,7 +20,7 @@ simulate_task() {
     
     rpcUrl=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     echo "Task: $task"
-    # Fork at the task's pinned block so this check doesn't race RPC replicas at different heights.
+    # Fork at the task's pinned block so this check reads the same chain state the simulation runs against.
     if [ -f "$task/.env" ]; then
         set -a
         # shellcheck disable=SC1091
