@@ -13,6 +13,8 @@ For **Ink Mainnet** (chainId 57073), transfer the two cost-covering fee vaults t
 
 `SequencerFeeVault` (`0x…0011`) and `BaseFeeVault` (`0x…0019`) are **not** touched — chain-governor revenue stays with the current recipient.
 
+Both cost vaults end with **no minimum withdrawal**, so cost-recipient sweeps can be triggered at any accrued balance (`withdraw()` is permissionless; no automated trigger is planned). Accepted tradeoff: with a zero minimum, `withdraw()` also succeeds at **zero** balance, so any caller can emit empty L2→L1 withdrawal messages at their own gas cost — no vault funds are at risk, and sweep triggering remains a manual, operator-owned action until a keeper exists.
+
 **Cost recipient provenance:** `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` is an L1 EOA whose key is managed in Google KMS (key ring `ink-mainnet-0`, key `cost-recipient`). Source of truth: `k8s-netchef-prod` — `manifests/ink-mainnet-0/mn-ink-mainnet-0-op-signer/mn-ink-mainnet-0-op-signer.yaml`, auth entry `mn-ink-mainnet-0-cost-recipient` (chainID 1). It will fund Ink's L1 operating costs (batcher / proposer / challenger top-ups). Note: the address is freshly created and **unused as of 2026-07-21** (nonce 0, balance 0 on L1) — a never-seen address is expected here, and key control must be proven before signing (see below).
 
 ## Signing gates — do not sign until ALL are cleared

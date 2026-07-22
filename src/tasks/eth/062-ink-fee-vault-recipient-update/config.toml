@@ -49,6 +49,9 @@ networks = [0]
 # Per-chain array shape: NO minimum withdrawal on either vault. L1FeeVault changes 2 ETH -> 0
 # (emits a deposit); OperatorFeeVault is already 0 (skipped). Cost-recipient sweeps can then be
 # triggered at any accrued balance (withdraw() is permissionless; no automated trigger planned).
+# Accepted tradeoff: with min = 0, withdraw() also passes at ZERO balance, so any caller can
+# emit empty L2->L1 withdrawal messages at their own gas cost. Harmless to funds; withdrawal
+# triggering stays a manual operator-owned action until a keeper exists.
 minWithdrawalAmounts = [0]
 
 # REQUIRED by the template: L2 RPC for the pre-flight (L2 ProxyAdmin-owner assertion,

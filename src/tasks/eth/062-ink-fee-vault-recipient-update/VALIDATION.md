@@ -89,10 +89,10 @@ Two layers exist here — one automatic, one you can run yourself:
 
 **Automatic (runs inside `just simulate`):** the template's mandatory pre-flight forks Ink via the
 config's `l2RpcUrls`, asserts the L2 ProxyAdmin owner is the aliased L1PAO, version-gates each
-vault, and **dry-runs every setter call as the aliased owner** — so if any of the three L2 writes
+vault, and **dry-runs every setter call as the aliased owner** — so if any of the four L2 writes
 could revert, the simulation itself fails loudly before any signature is collected.
 
-**Manual replay (recommended independent check):** reproduce exactly what the three deposits will
+**Manual replay (recommended independent check):** reproduce exactly what the four deposits will
 do on Ink and inspect the resulting state, on a local fork:
 
 ```bash
