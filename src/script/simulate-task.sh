@@ -20,7 +20,15 @@ simulate_task() {
     
     rpcUrl=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     echo "Task: $task"
-    is_nested=$(forge script "$root_dir"/src/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 --json | jq -r '.returns["0"].value')
+    # Fork at the task's pinned block so this check doesn't race RPC replicas at different heights.
+    if [ -f "$task/.env" ]; then
+        set -a
+        # shellcheck disable=SC1091
+        source "$task/.env"
+        set +a
+    fi
+    fork_block_args=$(just --justfile "$just_file" _get-fork-block-args)
+    is_nested=$(forge script "$root_dir"/src/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 ${fork_block_args} --json | jq -r '.returns["0"].value')
     echo "Is nested: $is_nested"
     pushd "$task" > /dev/null
     if [ "$is_nested" = "true" ]; then
