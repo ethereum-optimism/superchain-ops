@@ -28,6 +28,7 @@ simulate_task() {
         set +a
     fi
     fork_block_args=$(just --justfile "$just_file" _get-fork-block-args)
+    # shellcheck disable=SC2086  # fork_block_args must word-split ("--fork-block-number <n>" or empty)
     is_nested=$(forge script "$root_dir"/src/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 ${fork_block_args} --json | jq -r '.returns["0"].value')
     echo "Is nested: $is_nested"
     pushd "$task" > /dev/null
