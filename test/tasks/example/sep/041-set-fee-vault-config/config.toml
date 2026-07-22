@@ -35,10 +35,6 @@ minWithdrawalAmounts = [0]
 # endpoint under the ci profile; public https://sepolia.optimism.io locally).
 l2RpcUrls = ["opSepolia"]
 
-# TEST FIXTURE ONLY: pin the L2 pre-flight fork so the skip-unchanged decisions — and the
-# calldata pinned in Regression.t.sol — are deterministic. Real tasks MUST omit this field.
-l2ForkBlocks = [46429711]
-
 [addresses]
 # source: superchain-registry sepolia/op.toml
 ProxyAdminOwner     = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"  # 2-of-2 (Foundation + Security Council)
@@ -47,8 +43,11 @@ OptimismPortalProxy = "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
 [stateOverrides]
 # Nonces (slot 5) pinned to the live values at the .env FORK_BLOCK_NUMBER — the L1 fork block
 # that CI's simulate-all-templates run (src/ci.just) and the Regression.t.sol fixture simulate
-# this task at. Update these together with FORK_BLOCK_NUMBER and l2ForkBlocks whenever the
-# fixture is re-generated. (The manual-only integration test forks latest; no pins used.)
+# this task at. Update these together with FORK_BLOCK_NUMBER (and the L2 pin block inside
+# Regression.t.sol's SetFeeVaultConfigPinnedL2Fork harness) whenever the fixture is
+# re-generated. (Fork selection is not config-driven: the L2 pre-flight forks latest
+# everywhere — simulate-all-templates and the integration test included — except inside the
+# regression harness, which pins it for deterministic fixture bytes.)
 # L1 ProxyAdminOwner
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
   {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 54}

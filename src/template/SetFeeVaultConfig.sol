@@ -168,17 +168,6 @@ contract SetFeeVaultConfig is L2TaskBase {
         string[] memory l2RpcUrls = abi.decode(toml.parseRaw(".l2RpcUrls"), (string[]));
         require(l2RpcUrls.length == chains.length, "SetFeeVaultConfig: l2RpcUrls length must equal l2chains.length");
 
-        // TEST FIXTURES ONLY: `l2ForkBlocks` pins each pre-flight fork so fixtures are
-        // deterministic. Real tasks MUST omit it — gates and skips need live sign-time state.
-        uint256[] memory l2ForkBlocks;
-        if (toml.keyExists(".l2ForkBlocks")) {
-            l2ForkBlocks = abi.decode(toml.parseRaw(".l2ForkBlocks"), (uint256[]));
-            require(
-                l2ForkBlocks.length == chains.length,
-                "SetFeeVaultConfig: l2ForkBlocks length must equal l2chains.length"
-            );
-        }
-
         address aliasedRoot = AddressAliasHelper.applyL1ToL2Alias(_rootSafe);
         vm.label(aliasedRoot, "AliasedL1PAO (L2 ProxyAdmin owner)");
         for (uint256 v; v < vaultProxies.length; v++) {
@@ -192,11 +181,7 @@ contract SetFeeVaultConfig is L2TaskBase {
         vm.makePersistent(address(this));
 
         for (uint256 c; c < nChains; c++) {
-            if (l2ForkBlocks.length != 0) {
-                vm.createSelectFork(l2RpcUrls[c], l2ForkBlocks[c]);
-            } else {
-                vm.createSelectFork(l2RpcUrls[c]);
-            }
+            _createL2Fork(l2RpcUrls[c], c);
             uint256 cid = chains[c].chainId;
             require(
                 block.chainid == cid,
@@ -252,6 +237,16 @@ contract SetFeeVaultConfig is L2TaskBase {
         }
 
         vm.selectFork(originalFork);
+    }
+
+    /// @notice Creates and selects the L2 pre-flight fork for one chain. Production tasks ALWAYS
+    ///         fork latest — the ProxyAdmin-owner assertion, version gate, and skip-unchanged
+    ///         decisions must see live sign-time state, and fork selection is deliberately NOT
+    ///         configurable from the task config. Virtual ONLY so test harnesses (see the pinned
+    ///         subclass in test/tasks/Regression.t.sol) can pin the fork for deterministic
+    ///         fixtures; the second parameter is the `l2chains` index for multi-chain harnesses.
+    function _createL2Fork(string memory _l2RpcUrl, uint256) internal virtual {
+        vm.createSelectFork(_l2RpcUrl);
     }
 
     /// @notice Builds one portal deposit per field that differs from live state (per-field skip-unchanged).
