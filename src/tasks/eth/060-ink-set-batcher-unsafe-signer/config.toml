@@ -12,10 +12,7 @@
 
 templateName = "SetBatcherAndOrSigner"
 
-# The new SystemConfig owner (FoundationOperationsSafe). A custom identifier is used instead
-# of the registry-resolved "SystemConfigOwner", which still reads the live Gelato owner
-# (0xBeA2Bc…9Bbb) until the ownership transfer executes on-chain.
-safeAddressString = "OPESystemConfigOwnerSafe"
+safeAddressString = "FoundationOperationsSafe"
 
 l2chains = [
     {name = "Ink", chainId = 57073}
@@ -45,10 +42,4 @@ OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 # further FOS-signed tasks that land ahead of this one).
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 120}
-]
-# Model the post-transfer state: override SystemConfig.owner() (slot 0x33, live value is
-# still the Gelato Safe 0xBeA2Bc…9Bbb) to the FOS so setBatcherHash / setUnsafeBlockSigner
-# authorize during simulation. Remove this override once the ownership transfer is executed.
-0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"}
 ]
