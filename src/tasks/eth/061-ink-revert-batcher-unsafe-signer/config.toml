@@ -1,0 +1,51 @@
+# ROLLBACK — Ink mainnet migration (OP Enterprise → Gelato) — reverts cutover steps 2 & 3.
+#
+# Restores the ORIGINAL Gelato batcher and unsafe block signer on the Ink mainnet
+# SystemConfig (chainId 57073), batched into a single Multicall3 transaction. This is the
+# reverse of eth/060-ink-set-batcher-unsafe-signer.
+#
+# Contingency task: use ONLY if a problem is detected after the eth/060 sequencer & batcher
+# rotation and it must be rolled back. Signed by the post-migration SystemConfig owner
+# (FoundationOperationsSafe), which retains ownership through this rollback — ownership is
+# NOT handed back to Gelato here; only the batcher and unsafe block signer are reverted.
+#
+# The restore values below are the PRE-MIGRATION Gelato batcher / unsafe block signer,
+# read live on-chain 2026-07-09 (before the forward migration ran). Re-confirm against the
+# execution log at rollback time.
+
+templateName = "SetBatcherAndOrSigner"
+
+# Signer = the post-migration owner (FoundationOperationsSafe). Custom identifier + owner
+# override are used because the registry auto-discovers the LIVE SystemConfig.owner().
+safeAddressString = "OPESystemConfigOwnerSafe"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# ORIGINAL Gelato receiving infrastructure — the values to restore (verified live 2026-07-09).
+[sequencerConfig]
+batcherAddress    = "0x500d7Ea63CF2E501dadaA5feeC1FC19FE2Aa72Ac" # pre-migration Gelato batcher (== registry genesis batcher; live batcherHash confirmed)
+unsafeBlockSigner = "0x7D056B99AA2021864c42E25B4F8cE3BdEAc9463C" # pre-migration Gelato unsafe block signer (live SystemConfig value)
+
+[addresses]
+# FoundationOperationsSafe (mainnet) — the SystemConfig owner after the forward migration.
+OPESystemConfigOwnerSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
+
+[stateOverrides]
+# NO nonce override — break-glass task; the FOS nonce is read LIVE at simulation/sign time
+# (StateOverrideManager._getNonceOrOverride → IGnosisSafe.nonce()). It cannot be sequenced
+# ahead of time because the rollback may fire at any migration stage. Re-simulate at activation.
+#
+# Model the POST-MIGRATION SystemConfig state so this revert shows a genuine OPE → Gelato
+# diff during standalone simulation (the live pre-migration values are already the Gelato
+# ones). Remove ALL three overrides at actual rollback time — the real post-migration state
+# will be live on-chain.
+#   slot 0x33 = owner() → FOS (authorizes the setters)
+#   slot 0x67 = batcherHash → OPE batcher 0x6db6161f…16B98
+#   slot 0x65a7ed54…1c08 = unsafeBlockSigner → OPE sequencer 0x7b322282…F8E1
+0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"},
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000067", value = "0x0000000000000000000000006db6161fc5662450e801398bad62dd9921216b98"},
+    {key = "0x65a7ed542fb37fe237fdfbdd70b31598523fe5b32879e307bae27a0bd9581c08", value = "0x0000000000000000000000007b322282df45e537e5de76d60e1432db3cf3f8e1"}
+]
