@@ -1,0 +1,37 @@
+# managed-by:netchef,network:sdg-v1
+# These devnet chains are not in the superchain registry, so the fixture
+# points at a sibling fallback addresses.json.
+l2chains = [
+    {name = "sdg-v1-0", chainId = 420120084},
+    {name = "sdg-v1-1", chainId = 420120085}
+]
+
+fallbackAddressesJsonPath = "test/tasks/example/sep/036-opcm-migrate-v800/addresses.json"
+
+templateName = "OPCMMigrateV800"
+expectedOPCMVersion = "7.1.17"
+
+[[opcmMigrations]]
+chainId = 420120084
+cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
+
+[[opcmMigrations]]
+chainId = 420120085
+cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
+
+[migrate]
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingAnchorRootL2SequenceNumber = 1778004858
+startingAnchorRootRoot = "0xc212da871d761b597a3c1531bff571351c974432bdedd1eb67f4e181eb9f49ef"
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+superChallenger = "0x293204BfA7f28C4A4275B377cCAFd525d2225D37"
+superProposer = "0x000C245B7A2E946C9eeE6b488f1Da07AF15AD4f4"
+
+[addresses]
+OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 38}
+]
