@@ -1,6 +1,6 @@
 # 057-fus-rotation-2
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x087cbb21ebc9739c7afed878236a9cba9b1e129adc6a976fefe5571b88452ce8)
 
 ## Objective
 
