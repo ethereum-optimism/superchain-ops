@@ -19,7 +19,6 @@ Both cost vaults end with a **0.15 ETH minimum withdrawal** — low enough to ke
 
 ## Signing gates — do not sign until ALL are cleared
 
-1. **Template dependency:** `SetFeeVaultConfig` merges via [#1504](https://github.com/ethereum-optimism/superchain-ops/pull/1504) — this task's PR is stacked on it and can only merge after it.
 2. **Governance:** the signer is the L1 ProxyAdminOwner (nested 2-of-2: Foundation Upgrade Safe + Security Council), so execution requires the Ink chain-servicer-migration Maintenance Upgrade proposal to clear its optimistic-approval veto window.
 3. **Ordering:** the nonce pins in [config.toml](./config.toml) assume `eth/061-ink-proposer-rotation` ([#1490](https://github.com/ethereum-optimism/superchain-ops/pull/1490), signed by the same nested L1PAO) executes first. Re-simulate and regenerate the [VALIDATION.md](./VALIDATION.md) hashes if the ordering changes or any live nonce drifts.
 
