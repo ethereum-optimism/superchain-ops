@@ -20,7 +20,9 @@ Both cost vaults end with a **0.15 ETH minimum withdrawal** — low enough to ke
 ## Signing gates — do not sign until ALL are cleared
 
 1. **Governance:** the signer is the L1 ProxyAdminOwner (nested 2-of-2: Foundation Upgrade Safe + Security Council), so execution requires the Ink chain-servicer-migration Maintenance Upgrade proposal to clear its optimistic-approval veto window.
+   **✅ Cleared 2026-07-29:** the [proposal](https://gov.optimism.io/t/maintenance-upgrade-proposal-ink-mainnet-fee-vault-config-update-and-proposer-rotation/10776) was submitted 2026-07-22 and its optimistic-approval vote [SUCCEEDED](https://vote.optimism.io/proposals/98596515698156453044551125843803184999481750957062514239597457651661195220288) — the veto window ended 2026-07-28 with 0.2% of votable supply against (20% veto quorum not reached).
 2. **Ordering:** the nonce pins in [config.toml](./config.toml) assume `eth/061-ink-proposer-rotation` ([#1490](https://github.com/ethereum-optimism/superchain-ops/pull/1490), signed by the same nested L1PAO) executes first. Re-simulate and regenerate the [VALIDATION.md](./VALIDATION.md) hashes if the ordering changes or any live nonce drifts.
+   **Status 2026-07-29 — holds as planned:** live L1PAO / FUS / SC nonces are 36 / 62 / 60, exactly the expected pre-061 values; the pins (37 / 63 / 61) anticipate 061 executing first, so they are correct for the planned order and signing can proceed in parallel with the 061 ceremony. This gate only fails if the execution order changes or the live nonces move past the expected +1 bump — re-check with `cast call <safe> "nonce()(uint256)"` immediately before executing.
 
 ## Mechanism
 
