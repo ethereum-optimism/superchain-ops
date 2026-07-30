@@ -1,0 +1,62 @@
+# Transfer L2 ProxyAdmin ownership of Swell Mainnet (chainId 1923) to the
+# L1-to-L2 alias of AltLayer's Safe 0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa.
+#
+# Governance post: "Maintenance Upgrade Proposal: Swell Ownership Transfer to AltLayer"
+# https://vote.optimism.io/proposals/55157120062626112833592164692393784963640643805353175342472662837980214398880
+#
+# This is a deposit transaction sent through the L1 OptimismPortal
+# (0x758E0EE66102816F5C3Ec9ECc1188860fbb87812), calling
+# `transferOwnership(alias(newOwner))` on the L2 ProxyAdmin predeploy
+# (0x4200000000000000000000000000000000000018). The current L2 ProxyAdmin owner
+# is 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b — the alias of the *current*
+# standard mainnet L1PAO Safe — so the deposit must be sent from that L1 Safe
+# for the L2 OwnershipTransferred event to be authorized.
+#
+# Stacked after task 063-swell-l1-ownership-transfers (L1 ownership transfer).
+# The `TransferL2PAOFromL1` template asserts `ProxyAdmin.owner() == newOwnerToAlias`
+# at build time, so task 063 must run first; the stateOverride below makes that
+# hold during local simulation. The standalone Safe nonce overrides account for
+# the +1 from 063.
+
+l2chains = [{name = "Swellchain", chainId = 1923}]
+
+fallbackAddressesJsonPath = "src/tasks/eth/064-swell-l2pao-transfer/addresses.json"
+
+templateName = "TransferL2PAOFromL1"
+
+# Unaliased new owner (AltLayer's Safe, confirmed by AltLayer in #oplabs-altlayer).
+# The template applies AddressAliasHelper.applyL1ToL2Alias and sends the aliased
+# value to the L2 ProxyAdmin. Computed alias:
+# 0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b
+newOwnerToAlias = "0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa"
+
+[stateOverrides]
+# The standard mainnet L1PAO is a 2-of-2 nested Safe (FoundationUpgradeSafe +
+# SecurityCouncil). All three Safe nonces are pinned (slot 5) to the values
+# EXPECTED AT SIGNING TIME, accounting for the two READY-TO-SIGN Ink tasks
+# queued ahead (eth/061, eth/062) plus task 063 of this pair.
+# Pins = live on-chain values (read 2026-07-30: L1PAO=36 / FUS=62 / SC=60) + 3.
+# Re-verify immediately before signing:
+#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
+# and bump the corresponding override + re-simulate if any differ.
+#
+# Standard mainnet L1PAO Safe — 36 (live) + 2 (eth/061, eth/062) + 1 (task 063) = 39.
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 39}
+]
+# FoundationUpgradeSafe — 62 (live) + 2 + 1 = 65.
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]
+# SecurityCouncil — 60 (live) + 2 + 1 = 63.
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
+
+# Pre-apply the L1 ownership transfer from task 063 so the template's
+# `proxyAdmin.owner() == newOwnerToAlias` check passes when simulating this
+# task in isolation. Slot 0 holds the ProxyAdmin owner (verified with
+# `cast storage 0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6 0 --rpc-url mainnet`).
+0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x000000000000000000000000a83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa"}
+]
