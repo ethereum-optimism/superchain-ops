@@ -1,6 +1,6 @@
 # 062-ink-fee-vault-recipient-update
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xe3f20296d95ff92411cb62a242f84a1eb1bcc2e38af7a2f955bc4b44a25c5561)
 
 ## Objective
 
