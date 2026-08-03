@@ -19,8 +19,11 @@ Contracts moved by this task (`TransferOwners` template):
 - ProxyAdmin (`0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6`) — `transferOwnership`
 - DisputeGameFactoryProxy (`0x87690676786cDc8cCA75A472e483AF7C8F2f0F57`) — `transferOwnership`
 
-The chain's DelayedWETH is v1.5.0 (post-U16) and not ownable, so the template
-skips it at build time.
+The chain's DelayedWETH (`0xdD525E7E8fA35345D30e88018c9925F3C2876107`) is
+skipped: the fallback `addresses.json` intentionally omits the
+PermissionedWETH/PermissionlessWETH keys, so the template performs no DWETH
+transfer. That is safe because the contract is v1.5.0 (post-U16) and not
+ownable — an `owner()` call returns no data on-chain — so there is no ownership to transfer.
 
 Swell was removed from the public superchain-registry ("Remove Arena-Z and
 Swell (sunsetting chains)"), so its addresses are loaded via

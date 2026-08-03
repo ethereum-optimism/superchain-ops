@@ -49,7 +49,18 @@ when you run the task.
 
 ## State Changes
 
-The simulation produces three state changes on L1 Ethereum Mainnet:
+The simulation produces three state changes on L1 Ethereum Mainnet (the
+ownership transfers and the root Safe nonce), plus the standard
+nested-execution bookkeeping described below.
+
+### Signer safes (nested-execution bookkeeping)
+
+The approving child safe's nonce increments by 1 (FoundationUpgradeSafe
+`64` → `65`, or SecurityCouncil `62` → `63`, per the pinned overrides).
+During each child safe's approve step, the root L1PAO also gains an
+`approvedHashes[<child safe>][0xca0b43a9238dfeb9fca6b6b3c38369a55917b482ca30562fd6d2bd50979f8e9d] = 1`
+storage write — expect it in the Tenderly state diff of the approval
+transactions.
 
 ---
 
@@ -101,9 +112,19 @@ The simulation produces three state changes on L1 Ethereum Mainnet:
     # returns 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
     ```
 
-The chain's DelayedWETH (`0xdD525E7E8fA35345D30e88018c9925F3C2876107`, v1.5.0)
-is post-U16 and not ownable — the `TransferOwners` template logs a "not found
-or not ownable" line for it and produces no state change.
+The chain's DelayedWETH (`0xdD525E7E8fA35345D30e88018c9925F3C2876107`)
+produces no state change: the fallback `addresses.json` intentionally omits
+the PermissionedWETH/PermissionlessWETH keys, so the `TransferOwners`
+template logs a "not found or not ownable" line and performs no DWETH
+transfer. That is safe because the contract is v1.5.0 (post-U16) and not
+ownable — confirm with:
+
+```bash
+cast call 0xdD525E7E8fA35345D30e88018c9925F3C2876107 "version()(string)" --rpc-url mainnet
+# returns "1.5.0"
+cast call 0xdD525E7E8fA35345D30e88018c9925F3C2876107 "owner()(address)" --rpc-url mainnet
+# fails to decode — the v1.5.0 contract has no owner() function
+```
 
 ## Task Calldata
 
