@@ -1,6 +1,6 @@
 # 061-ink-proposer-rotation
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x6065d3a2decf0b16953bc586a209c01b4336dc2ff59bcb050eaf436659ad61fe)
 
 Simulated against the stacked signer nonces recorded in [config.toml](./config.toml) (L1PAO=36 / FUS=62 / SC=60; live `initBonds(1)` = 0.08 ETH confirmed). The proposer-only `gameArgs(1)` diff is confirmed (Gelato proposer fully replaced, challenger preserved); the nested signer domain/message/safe hashes in [VALIDATION.md](./VALIDATION.md) match `just simulate council` / `just simulate foundation`. Each child safe approves the root L1PAO transaction hash, so regenerate the hashes whenever the root L1PAO nonce, either signer-safe nonce, or any live value used to rebuild the task payload (the `gameArgs(1)` fields or `initBonds(1)`) changes before signing.
 
