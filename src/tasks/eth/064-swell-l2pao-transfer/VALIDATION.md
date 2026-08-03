@@ -69,8 +69,19 @@ cast calldata-decode "transferOwnership(address)" \
 
 ## State Changes
 
-The L1 simulation produces two state changes; the L2 state change happens
-after deposit inclusion and must be checked manually (see below).
+The L1 simulation produces two state changes (the root Safe nonce and the
+OptimismPortal deposit bookkeeping), plus the standard nested-execution
+bookkeeping described below; the L2 state change happens after deposit
+inclusion and must be checked manually (see below).
+
+### Signer safes (nested-execution bookkeeping)
+
+The approving child safe's nonce increments by 1 (FoundationUpgradeSafe
+`65` → `66`, or SecurityCouncil `63` → `64`, per the pinned overrides).
+During each child safe's approve step, the root L1PAO also gains an
+`approvedHashes[<child safe>][0xbefcc37ec0dd42e4ebe3c6389c4929047b958910f3cf37376174d1f43b882e9f] = 1`
+storage write — expect it in the Tenderly state diff of the approval
+transactions.
 
 > Note: the simulation also applies the
 > `0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6` slot `0x00` override declared
