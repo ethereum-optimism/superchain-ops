@@ -127,24 +127,8 @@ opaque data encodes the `transferOwnership` payload above.
 
 ## Manual L2 Verification Steps
 
-For a complete walkthrough follow
-[`docs/simulate-l2-ownership-transfer.md`](../../../../docs/simulate-l2-ownership-transfer.md).
-Note that Swell's public RPC (`https://swell-mainnet.alt.technology`) now
-requires authentication — request an endpoint from AltLayer in
-`#oplabs-altlayer` if needed, or verify via https://explorer.swellnetwork.io.
-
-After the L1 transaction is executed:
-
-1. **Find the L2 deposit transaction** on Swell Mainnet from the aliased
-   sender `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` (alias of the standard
-   mainnet L1PAO Safe) to the L2 ProxyAdmin predeploy
-   `0x4200000000000000000000000000000000000018`.
-2. **Verify the `OwnershipTransferred` event**:
-   - `previousOwner`: `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`
-   - `newOwner`:      `0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b`
-3. **Verify final L2 state**:
-   ```bash
-   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url <swell-mainnet-rpc>
-   # Expected: 0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b
-   ```
-4. **AltLayer confirms receipt of ownership** in `#oplabs-altlayer`.
+The L2 owner change lands only after the deposit is relayed. See
+[README.md](./README.md#post-execution-verification) for the post-execution
+checks, and
+[`docs/simulate-l2-ownership-transfer.md`](../../../../docs/simulate-l2-ownership-transfer.md)
+for the full L2 deposit-simulation walkthrough.
