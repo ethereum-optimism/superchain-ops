@@ -119,6 +119,26 @@ emitted by the OptimismPortal; verify in Tenderly that `from` is the L1
 caller, `to` is `0x4200000000000000000000000000000000000018`, and that the
 opaque data encodes the `transferOwnership` payload above.
 
+## Post-execution verification
+
+The L2 change lands only once the deposit is relayed, so it cannot be confirmed
+from L1. On Swell Mainnet:
+
+1. Find the deposit transaction from `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`
+   to the L2 ProxyAdmin predeploy `0x4200000000000000000000000000000000000018`.
+2. Confirm it emitted `OwnershipTransferred` with `newOwner`
+   `0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b`.
+3. Confirm the final owner:
+   ```bash
+   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url <swell-mainnet-rpc>
+   # Expected: 0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b
+   ```
+4. Ask AltLayer to confirm receipt of ownership in `#oplabs-altlayer`.
+
+Swell's public RPC (`https://swell-mainnet.alt.technology`) requires
+authentication — request an endpoint from AltLayer, or use
+https://explorer.swellnetwork.io.
+
 ## Task Calldata
 
 ```

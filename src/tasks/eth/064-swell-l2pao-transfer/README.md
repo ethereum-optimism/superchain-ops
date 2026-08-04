@@ -1,6 +1,6 @@
 # 064-swell-l2pao-transfer: Transfer L2 ProxyAdmin Owner for Swell Mainnet
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
@@ -27,9 +27,9 @@ safe (`foundation`, then `council`).
 
 ```bash
 cd src/tasks/eth/064-swell-l2pao-transfer
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate <foundation|council>
+SIMULATE_WITHOUT_LEDGER=1 just simulate <foundation|council>
 # then, to sign:
-just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign <foundation|council>
+just sign <foundation|council>
 ```
 
 > [!CAUTION]
@@ -39,26 +39,6 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign <foundation|cou
 For extra assurance on the L2 deposit before signing, follow
 [`docs/simulate-l2-ownership-transfer.md`](../../../../docs/simulate-l2-ownership-transfer.md)
 and record the result in `VALIDATION.md`.
-
-## Post-execution verification
-
-The L2 change lands only once the deposit is relayed, so it cannot be confirmed
-from L1. On Swell Mainnet:
-
-1. Find the deposit transaction from `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`
-   to the L2 ProxyAdmin predeploy `0x4200000000000000000000000000000000000018`.
-2. Confirm it emitted `OwnershipTransferred` with `newOwner`
-   `0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b`.
-3. Confirm the final owner:
-   ```bash
-   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url <swell-mainnet-rpc>
-   # Expected: 0xb9501334c6a8Daca576Dc14020d9d2b1b16a9F0b
-   ```
-4. Ask AltLayer to confirm receipt of ownership in `#oplabs-altlayer`.
-
-Swell's public RPC (`https://swell-mainnet.alt.technology`) requires
-authentication — request an endpoint from AltLayer, or use
-https://explorer.swellnetwork.io.
 
 ## Validation
 
