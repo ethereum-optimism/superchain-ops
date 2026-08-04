@@ -20,21 +20,18 @@ The steps are:
 
 > [!CAUTION]
 >
-> Pinned at the following nonces (see `config.toml` `stateOverrides`), each
-> three ahead of the on-chain values (read 2026-07-30: L1PAO=36 / FUS=62 /
-> SC=60) to account for the two READY-TO-SIGN Ink tasks queued ahead
-> (`eth/061`, `eth/062`) plus task 063 of this pair:
+> These hashes assume the pinned nonces below — one ahead of the live on-chain
+> values (verified 2026-08-03: L1PAO=38 / FUS=64 / SC=62), accounting for the
+> bump from task 063:
 > - Standard mainnet L1PAO Safe: **39**
 > - FoundationUpgradeSafe:       **65**
 > - SecurityCouncil:             **63**
 >
-> All three Safes are shared across many mainnet chains. Before signing,
-> re-verify the live nonces with
-> `cast call <safe> "nonce()" --rpc-url mainnet` and your ledger. If task 063
-> has not yet been signed when you simulate this one, the pinned values still
-> apply (the override mimics the post-063 state); if anything else has
-> advanced the live nonces in the meantime, bump the corresponding override
-> and re-simulate so the hashes below are regenerated.
+> Before signing, re-verify each live nonce with
+> `cast call <safe> "nonce()(uint256)" --rpc-url mainnet`. The pins apply
+> whether or not task 063 has been signed yet, since the override mimics the
+> post-063 state. If a nonce has advanced past the values above, bump the
+> override in `config.toml` and re-simulate to regenerate these hashes.
 >
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
@@ -100,8 +97,7 @@ transactions.
   - **After:**  `40`
   - **Summary:** nonce
   - **Detail:** Standard Gnosis Safe nonce bump. Starts at 39 because this
-    task is stacked after the two Ink tasks (`eth/061`, `eth/062`) and task
-    063, which advance the nonce from 36 → 39.
+    task is stacked after task 063, which advances the live nonce 38 → 39.
 
 ---
 
