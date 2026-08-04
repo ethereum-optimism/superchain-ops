@@ -1,6 +1,6 @@
 # 063-swell-l1-ownership-transfers: Transfer L1 owners for Swell Mainnet (ProxyAdmin + DisputeGameFactory)
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
@@ -25,22 +25,15 @@ safe (`foundation`, then `council`).
 
 ```bash
 cd src/tasks/eth/063-swell-l1-ownership-transfers
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate <foundation|council>
+SIMULATE_WITHOUT_LEDGER=1 just simulate <foundation|council>
 # then, to sign:
-just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign <foundation|council>
+just sign <foundation|council>
 ```
 
 > [!CAUTION]
 > The Safe nonces are pinned in `config.toml`. Re-verify them against live
 > on-chain values before signing — see [VALIDATION.md](./VALIDATION.md).
 
-## Post-execution verification
-
-```bash
-cast call 0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6 "owner()(address)" --rpc-url mainnet
-cast call 0x87690676786cDc8cCA75A472e483AF7C8F2f0F57 "owner()(address)" --rpc-url mainnet
-# Both expected: 0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa
-```
 
 ## Validation
 

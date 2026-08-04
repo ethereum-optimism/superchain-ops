@@ -41,6 +41,7 @@ when you run the task.
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
 > - Message Hash: `0x4a54ec799df3c1909da6d65247f982d38887ce48cd31bb5122762c72e3054d4b`
 
+
 ## State Changes
 
 The simulation produces three state changes on L1 Ethereum Mainnet (the
@@ -106,6 +107,14 @@ transactions.
 
 There is no DelayedWETH state change — the contract is not ownable, so there
 is no ownership to transfer. See [config.toml](./config.toml) for the details.
+
+## Post-execution verification
+
+```bash
+cast call 0x4C4710a4Ec3F514A492CC6460818C4A6A6269dd6 "owner()(address)" --rpc-url mainnet
+cast call 0x87690676786cDc8cCA75A472e483AF7C8F2f0F57 "owner()(address)" --rpc-url mainnet
+# Both expected: 0xa83F1334c6a8Daca576Dc14020d9d2b1b16a8Dfa
+```
 
 ## Task Calldata
 
