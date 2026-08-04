@@ -21,21 +21,15 @@ when you run the task.
 
 > [!CAUTION]
 >
-> Pinned at the following nonces (see `config.toml` `stateOverrides`), each
-> two ahead of the on-chain values (read 2026-07-30: L1PAO=36 / FUS=62 /
-> SC=60) to account for the two READY-TO-SIGN Ink tasks queued ahead of this
-> one that are signed by the same nested L1PAO (`eth/061-ink-proposer-rotation`
-> and `eth/062-ink-fee-vault-recipient-update`):
+> These hashes assume the pinned nonces below, which require `eth/061` and
+> `eth/062` to execute first (rationale in [config.toml](./config.toml)):
 > - Standard mainnet L1PAO Safe: **38**
 > - FoundationUpgradeSafe:       **64**
 > - SecurityCouncil:             **62**
 >
-> All three Safes are shared across many mainnet chains. Before signing,
-> re-verify the live nonces with
-> `cast call <safe> "nonce()" --rpc-url mainnet` and your ledger, and account
-> for any queued-but-unexecuted tasks ahead of this one. If anything has
-> shifted, bump the corresponding override and re-simulate so the hashes
-> below are regenerated.
+> Before signing, re-verify each live nonce with
+> `cast call <safe> "nonce()(uint256)" --rpc-url mainnet`. If any has shifted,
+> bump the override in `config.toml` and re-simulate to regenerate these hashes.
 >
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
@@ -112,19 +106,8 @@ transactions.
     # returns 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
     ```
 
-The chain's DelayedWETH (`0xdD525E7E8fA35345D30e88018c9925F3C2876107`)
-produces no state change: the fallback `addresses.json` intentionally omits
-the PermissionedWETH/PermissionlessWETH keys, so the `TransferOwners`
-template logs a "not found or not ownable" line and performs no DWETH
-transfer. That is safe because the contract is v1.5.0 (post-U16) and not
-ownable — confirm with:
-
-```bash
-cast call 0xdD525E7E8fA35345D30e88018c9925F3C2876107 "version()(string)" --rpc-url mainnet
-# returns "1.5.0"
-cast call 0xdD525E7E8fA35345D30e88018c9925F3C2876107 "owner()(address)" --rpc-url mainnet
-# fails to decode — the v1.5.0 contract has no owner() function
-```
+There is no DelayedWETH state change — the contract is not ownable, so there
+is no ownership to transfer. See [config.toml](./config.toml) for the details.
 
 ## Task Calldata
 

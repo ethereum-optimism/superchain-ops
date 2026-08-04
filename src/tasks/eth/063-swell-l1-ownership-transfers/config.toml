@@ -18,7 +18,8 @@
 # PermissionlessWETH keys, so the template skips the DelayedWETH at build
 # time. That is safe because Swell's DelayedWETH
 # (0xdD525E7E8fA35345D30e88018c9925F3C2876107) is v1.5.0 (post-U16) and not
-# ownable — an `owner()` call returns no data on-chain — so there is no ownership to transfer.
+# ownable — an `owner()` call returns no data on-chain — so there is no
+# ownership to transfer.
 #
 # The L2 ProxyAdmin transfer is the follow-up task 064-swell-l2pao-transfer —
 # its `TransferL2PAOFromL1` template requires this L1 transfer to be completed first.
