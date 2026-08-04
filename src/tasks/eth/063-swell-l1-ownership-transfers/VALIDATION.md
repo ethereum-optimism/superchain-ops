@@ -21,14 +21,14 @@ when you run the task.
 
 > [!CAUTION]
 >
-> These hashes assume the pinned nonces below, which require `eth/061` and
-> `eth/062` to execute first (rationale in [config.toml](./config.toml)):
+> These hashes assume the pinned nonces below — the live on-chain values as of
+> 2026-08-03:
 > - Standard mainnet L1PAO Safe: **38**
 > - FoundationUpgradeSafe:       **64**
 > - SecurityCouncil:             **62**
 >
 > Before signing, re-verify each live nonce with
-> `cast call <safe> "nonce()(uint256)" --rpc-url mainnet`. If any has shifted,
+> `cast call <safe> "nonce()(uint256)" --rpc-url mainnet`. If any has advanced,
 > bump the override in `config.toml` and re-simulate to regenerate these hashes.
 >
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
@@ -66,8 +66,6 @@ transactions.
   - **After:**  `39`
   - **Summary:** nonce
   - **Detail:** Standard Gnosis Safe nonce bump for executing this task.
-    Starts at 38 because the override accounts for the two Ink tasks
-    (`eth/061`, `eth/062`) queued ahead of this one.
 
 ---
 

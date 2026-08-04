@@ -31,8 +31,8 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign <foundation|cou
 ```
 
 > [!CAUTION]
-> The pinned Safe nonces assume `eth/061` and `eth/062` execute first.
-> Re-verify the live nonces before signing — see [VALIDATION.md](./VALIDATION.md).
+> The Safe nonces are pinned in `config.toml`. Re-verify them against live
+> on-chain values before signing — see [VALIDATION.md](./VALIDATION.md).
 
 ## Post-execution verification
 
