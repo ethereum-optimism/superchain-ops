@@ -1,6 +1,6 @@
 # 104-reca-standard-game-types
 
-Status: DRAFT — REVIEW REQUIRED
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
