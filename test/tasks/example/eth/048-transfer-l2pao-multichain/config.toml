@@ -1,0 +1,35 @@
+# Multichain L2 ProxyAdmin ownership transfer: transfers the L2 ProxyAdmin of Mode, Metal,
+# Zora and Dust to the alias of the operator's designated Safe in a single task, via each
+# chain's L1 OptimismPortal. Dust (chain ID 55378) is not part of the Superchain Registry,
+# so its addresses are provided via the fallback addresses JSON file.
+l2chains = [
+    {name = "Mode", chainId = 34443},
+    {name = "Metal", chainId = 1750},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+fallbackAddressesJsonPath = "test/tasks/example/eth/048-transfer-l2pao-multichain/addresses.json"
+templateName = "TransferL2PAOFromL1"
+
+# The new owner address to alias: the operator's designated mainnet Safe.
+newOwnerToAlias = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
+
+[stateOverrides]
+# Set the current L1PAO of each chain to the new owner. The TransferL2PAOFromL1 template
+# assumes all L1 ownership transfers have already been completed.
+# Mode ProxyAdmin
+0x470d87b1dae09a454A43D1fD772A561a03276aB7 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
+# Metal ProxyAdmin
+0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
+# Zora ProxyAdmin
+0xD4ef175B9e72cAEe9f1fe7660a6Ec19009903b49 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
+# Dust ProxyAdmin
+0x32C61Bd2B7bf8E50F448331705eDDA99244e7339 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
