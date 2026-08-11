@@ -1,6 +1,6 @@
 # 064-swell-l2pao-transfer: Transfer L2 ProxyAdmin Owner for Swell Mainnet
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x99ed59760859782943f3598836a35b100fe93acd24fe7370bce174eccb38f50d)
 
 ## Objective
 

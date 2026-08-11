@@ -1,6 +1,6 @@
 # 063-swell-l1-ownership-transfers: Transfer L1 owners for Swell Mainnet (ProxyAdmin + DisputeGameFactory)
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xc9051994cae6cd1aa668e73f4b768a6135da4f6504aca1d7740f460841ab6dcb)
 
 ## Objective
 
