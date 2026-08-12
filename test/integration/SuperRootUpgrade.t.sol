@@ -69,19 +69,16 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, chainA);
-        assertEq(chainA, 420120035);
+        assertEq(chainA, 420130015);
 
         assertEq(chainsToUpgrade.length, chains.length);
         assertEq(chainsToUpgrade[0], chainA);
 
         assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainA), superchainConfig);
-        assertEq(superchainConfig, 0xc35da0F6Ee957E270f21E2Db093C29B8D97cBFBF);
+        assertEq(superchainConfig, 0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb);
         assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", chainA), ROOT_SAFE);
         assertEq(
-            superchainAddrRegistry.getAddress("SystemConfigProxy", chainA), 0x13BBcc56FBeCAD753eDF586077286c896e07B397
-        );
-        assertEq(
-            superchainAddrRegistry.getAddress("EthLockboxProxy", chainA), 0x4a54316b72d3Ea5F914442d6Ba6FD511206Aa3C9
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainA), 0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937
         );
 
         // op-contracts/v8.0.0-rc.2 standard prestates: cannon 1.9.0 `interop` and
