@@ -295,9 +295,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         });
         extraInstructions[1] = IOPContractsManagerV800.ExtraInstruction({
             key: "overrides.cfg.startingAnchorRoot",
-            data: abi.encode(
-                upgrades[chainId].startingAnchorRootRoot, upgrades[chainId].startingAnchorRootL2SequenceNumber
-            )
+            data: abi.encode(upgrades[chainId].startingAnchorRootRoot, upgrades[chainId].startingAnchorRootL2SequenceNumber)
         });
         return extraInstructions;
     }
