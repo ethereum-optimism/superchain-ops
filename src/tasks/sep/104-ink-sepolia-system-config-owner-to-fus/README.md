@@ -11,7 +11,7 @@ Transfers ownership of the **Ink Sepolia** (chainId 763373) `SystemConfigProxy` 
 - **Target**: `SystemConfigProxy` [`0x05C993e60179f28bF649a2Bb5b00b5F4283bD525`](https://sepolia.etherscan.io/address/0x05C993e60179f28bF649a2Bb5b00b5F4283bD525) (resolved from the superchain-registry)
 
 > [!IMPORTANT]
-> **Policy going forward: the FUS is the standard owner for all `SystemConfig` proxies.** New chains and migrations should set (or transfer) `SystemConfig` ownership to the FUS, matching the Foundation-owned chains where the FUS already holds this role (e.g. OP Sepolia). This task brings Ink Sepolia in line with that policy; [eth/065](../../eth/065-ink-system-config-owner-to-fus/README.md) does the same for Ink Mainnet.
+> **Policy going forward: the FUS is the standard owner for all `SystemConfig` proxies.** New chains and migrations should set (or transfer) `SystemConfig` ownership to the FUS, matching the Foundation-owned chains where the FUS already holds this role (e.g. OP Mainnet). This task brings Ink Sepolia in line with that policy; [eth/065](../../eth/065-ink-system-config-owner-to-fus/README.md) does the same for Ink Mainnet.
 
 > [!CAUTION]
 > Ownership transfers are **irreversible** (only the new owner could transfer it back). Verify the `newOwner` address against `src/addresses.toml` (`FoundationUpgradeSafe`, `[sep]`) with **≥3 OP Labs engineers** before signing.

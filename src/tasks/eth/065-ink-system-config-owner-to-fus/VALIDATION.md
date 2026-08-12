@@ -5,9 +5,25 @@ transfer transaction which you are signing.
 
 The steps are:
 
-1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Transaction Inputs](config.toml): inputs can be verified in the config.toml file.
-3. State Changes: the template's `_validate` block asserts `SystemConfig.owner() == newOwner`. State changes can also be reviewed in Tenderly via the link printed during simulation.
+1. [Validate the Addresses](#address-sources)
+2. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+3. [Transaction Inputs](config.toml): inputs can be verified in the config.toml file.
+4. State Changes: the template's `_validate` block asserts `SystemConfig.owner() == newOwner`. State changes can also be reviewed in Tenderly via the link printed during simulation.
+
+## Address Sources
+
+| Address | Role | Source |
+|---|---|---|
+| `0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364` | Ink Mainnet `SystemConfigProxy` (target) | [superchain-registry: `superchain/configs/mainnet/ink.toml`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml) (`addresses.SystemConfigProxy`) |
+| `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` | Foundation Operations Safe (current owner, signer) | [`src/addresses.toml`](../../../addresses.toml) `[eth].FoundationOperationsSafe`; cross-reference: same Safe listed as `challenger` in [superchain-registry: `validation/standard/standard-config-roles-mainnet.toml`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-config-roles-mainnet.toml) |
+| `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` | Foundation Upgrade Safe (`newOwner`) | [`src/addresses.toml`](../../../addresses.toml) `[eth].FoundationUpgradeSafe`; cross-references: same Safe listed as `protocolVersionsOwner` in [superchain-registry: `validation/standard/standard-config-roles-mainnet.toml`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-config-roles-mainnet.toml), and it is the current OP Mainnet `SystemConfig` owner (`cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" --rpc-url https://ethereum-rpc.publicnode.com`) |
+
+Verify the current owner on-chain:
+
+```bash
+cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "owner()(address)" --rpc-url https://ethereum-rpc.publicnode.com
+# Expected (pre-execution): 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A (Foundation Operations Safe)
+```
 
 ## Expected Domain and Message Hashes
 
@@ -50,6 +66,6 @@ cast calldata "transferOwnership(address)" 0x847B5c174615B1B7fDF770882256e2D3E95
 ## Post-execution verification
 
 ```bash
-cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "owner()(address)" --rpc-url <MAINNET_RPC>
+cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "owner()(address)" --rpc-url https://ethereum-rpc.publicnode.com
 # Expected: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 ```
