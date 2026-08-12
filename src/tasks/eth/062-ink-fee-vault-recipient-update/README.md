@@ -1,6 +1,6 @@
 # 062-ink-fee-vault-recipient-update
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xe3f20296d95ff92411cb62a242f84a1eb1bcc2e38af7a2f955bc4b44a25c5561)
 
 ## Objective
 
@@ -15,14 +15,14 @@ For **Ink Mainnet** (chainId 57073), transfer the two cost-covering fee vaults t
 
 Both cost vaults end with a **0.15 ETH minimum withdrawal** — low enough to keep cost-recipient sweeps frequent (`withdraw()` is permissionless; no automated trigger is planned), and non-zero so `withdraw()` reverts below the threshold, making zero/dust-value L2→L1 withdrawal spam impossible. Sweep triggering remains a manual, operator-owned action until a keeper exists.
 
-**Cost recipient provenance:** `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` is an L1 EOA whose key is managed in Google KMS (key ring `ink-mainnet-0`, key `cost-recipient`). Source of truth: `k8s-netchef-prod` — `manifests/ink-mainnet-0/mn-ink-mainnet-0-op-signer/mn-ink-mainnet-0-op-signer.yaml`, auth entry `mn-ink-mainnet-0-cost-recipient` (chainID 1). It will fund Ink's L1 operating costs (batcher / proposer / challenger top-ups). Note: the address is freshly created and **unused as of 2026-07-21** (nonce 0, balance 0 on L1) — a never-seen address is expected here, and key control must be proven before signing (see below).
+**Cost recipient provenance:** `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` is an L1 EOA whose key is managed in Google KMS (key ring `ink-mainnet-0`, key `cost-recipient`). Source of truth: `k8s-netchef-prod` — `manifests/ink-mainnet-0/mn-ink-mainnet-0-op-signer/mn-ink-mainnet-0-op-signer.yaml`, auth entry `mn-ink-mainnet-0-cost-recipient` (chainID 1). It will fund Ink's L1 operating costs (batcher / proposer / challenger top-ups). Note: the address is freshly created and **unused as of 2026-07-21** (nonce 0, balance 0 on L1) — a never-seen address is expected here.
 
 ## Signing gates — do not sign until ALL are cleared
 
-1. **Template dependency:** `SetFeeVaultConfig` merges via [#1504](https://github.com/ethereum-optimism/superchain-ops/pull/1504) — this task's PR is stacked on it and can only merge after it.
-2. **Governance:** the signer is the L1 ProxyAdminOwner (nested 2-of-2: Foundation Upgrade Safe + Security Council), so execution requires the Ink chain-servicer-migration Maintenance Upgrade proposal to clear its optimistic-approval veto window.
-3. **Ordering:** the nonce pins in [config.toml](./config.toml) assume `eth/061-ink-proposer-rotation` ([#1490](https://github.com/ethereum-optimism/superchain-ops/pull/1490), signed by the same nested L1PAO) executes first. Re-simulate and regenerate the [VALIDATION.md](./VALIDATION.md) hashes if the ordering changes or any live nonce drifts.
-4. **Key-control proof:** before signing, the cost-recipient key holder must demonstrate control of `0x1eB630b2e7409597D462dd5f3D21E305FC56B8C9` (a dust transaction from the address, or a signed message verified against it) — the address has never transacted, and a wrong recipient is only recoverable via another full nested-L1PAO task.
+1. **Governance:** the signer is the L1 ProxyAdminOwner (nested 2-of-2: Foundation Upgrade Safe + Security Council), so execution requires the Ink chain-servicer-migration Maintenance Upgrade proposal to clear its optimistic-approval veto window.
+   **✅ Cleared 2026-07-29:** the [proposal](https://gov.optimism.io/t/maintenance-upgrade-proposal-ink-mainnet-fee-vault-config-update-and-proposer-rotation/10776) was submitted 2026-07-22 and its optimistic-approval vote [SUCCEEDED](https://vote.optimism.io/proposals/98596515698156453044551125843803184999481750957062514239597457651661195220288) — the veto window ended 2026-07-28 with 0.2% of votable supply against (20% veto quorum not reached).
+2. **Ordering:** the nonce pins in [config.toml](./config.toml) assume `eth/061-ink-proposer-rotation` ([#1490](https://github.com/ethereum-optimism/superchain-ops/pull/1490), signed by the same nested L1PAO) executes first. Re-simulate and regenerate the [VALIDATION.md](./VALIDATION.md) hashes if the ordering changes or any live nonce drifts.
+   **Status 2026-07-29 — holds as planned:** live L1PAO / FUS / SC nonces are 36 / 62 / 60, exactly the expected pre-061 values; the pins (37 / 63 / 61) anticipate 061 executing first, so they are correct for the planned order and signing can proceed in parallel with the 061 ceremony. This gate only fails if the execution order changes or the live nonces move past the expected +1 bump — re-check with `cast call <safe> "nonce()(uint256)"` immediately before executing.
 
 ## Mechanism
 

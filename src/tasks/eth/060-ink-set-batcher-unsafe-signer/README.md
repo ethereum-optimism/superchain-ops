@@ -1,6 +1,6 @@
 # 060-ink-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x482ce168eabf50144cb2377bfc9c3dd8570e4f04a96fc0c9d5e88f146745dc8d)
 
 Simulates successfully with the stacked FoundationOperationsSafe nonce recorded in [config.toml](./config.toml); domain/message/safe hashes recorded in [VALIDATION.md](./VALIDATION.md). Re-run `just simulate` to regenerate the hashes if the FOS nonce advances or the `SystemConfig.owner` override is removed (after the ownership transfer) before signing.
 
