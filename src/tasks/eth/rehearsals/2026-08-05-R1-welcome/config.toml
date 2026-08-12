@@ -1,0 +1,9 @@
+templateName = "WelcomeToSuperchainOps"
+
+name = "Satoshi" # Enter your name here if you like.
+
+allowOverwrite = ["SecurityCouncil"] # We know that we want to overwrite the default SecurityCouncil address in [addresses].
+
+[addresses]
+TargetContract = "0x0fb11b4164894912f079de62699f4cc5a2271f0c" 
+SecurityCouncil = "0x348eebA2609645182872CCd75256D873e689fCFf" 
