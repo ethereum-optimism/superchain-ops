@@ -1,9 +1,21 @@
-# managed-by:netchef,network:sdg-v1
-# These devnet chains are not in the superchain registry, so the fixture
-# points at a sibling fallback addresses.json.
+# Upgrade 20 example task on the u19-beta-0 betanet (Sepolia L1).
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for the chain,
+#     using the op-contracts/v8.0.0-rc.2 OPCM.
+#   - Rotates the chain's respected dispute game type to SUPER_CANNON_KONA (9) — super
+#     roots replace output roots as the proofs foundation. The retiring CANNON_KONA (8)
+#     and PERMISSIONED_CANNON (1) impls are cleared, and the simplified
+#     SUPER_PERMISSIONED (5) game is installed as the permissioned fallback
+#     (proposer-only args, no bond).
+#
+# Betanet chains are not in the public superchain-registry, so we point
+# `fallbackAddressesJsonPath` at a sibling addresses.json populated from the betanet's
+# chain.yaml in ethereum-optimism/devnets:
+#   https://github.com/ethereum-optimism/devnets/tree/main/betanets/u19-beta/u19-beta-0
+
 l2chains = [
-    {name = "sdg-v1-0", chainId = 420120084},
-    {name = "sdg-v1-1", chainId = 420120085}
+    {name = "u19-beta-0", chainId = 420120035}
 ]
 
 fallbackAddressesJsonPath = "test/tasks/example/sep/035-opcm-upgrade-v800/addresses.json"
@@ -12,22 +24,35 @@ templateName = "OPCMUpgradeV800"
 skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
-chainId = 420120084
-cannonPrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef"
-cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
+chainId = 420120035
+# op-contracts/v8.0.0-rc.2 standard prestates (superchain-registry standard-prestates.toml):
+# cannon 1.9.0 `interop` and kona 1.6.0 `cannon64-kona-interop`.
+cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# The honest super root (and its timestamp) the AnchorStateRegistry is re-anchored to via
+# the `overrides.cfg.startingAnchorRoot` instruction. The pre-upgrade anchor is an output
+# root at an L2 block number, which super-root games cannot prove against, so rotating to a
+# super-root respected game type MUST re-anchor. Placeholder for this betanet example —
+# a real task MUST supply an honest super root for the chain (set).
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+# Live validator output captured during simulation against the v8.0.0-rc.2 OPCM.
+# OVERRIDES-* are informational (betanet's non-standard ProxyAdminOwner and Challenger);
+# SYSCON-130 is the betanet's non-standard SystemConfig gas config (also pinned in 037).
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
 initBond = 80000000000000000
-startingRespectedGameType = 9
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
-[[opcmUpgrades]]
-chainId = 420120085
-cannonPrestate = "0x03a3ba2e11df6b4fcf0d6e312288ce28aa4a26fd211134927a9f3c0d38bd5aef"
-cannonKonaPrestate = "0x03a7000000000000000000000000000000000000000000000000000000000001"
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
-initBond = 80000000000000000
-startingRespectedGameType = 9
-
+# op-contracts/v8.0.0-rc.2 OPCM on Sepolia (superchain-registry standard-versions-sepolia.toml).
+# `OPCM.version()` returns "8.0.0"; `OPCM.opcmStandardValidator()` returns
+# 0xB7a5710a35b49aCFd705312DCba16aCf7591D7f5 (OPContractsManagerStandardValidator 2.12.0).
 [addresses]
-OPCM = "0x15c65ee282777e4a2856fdf26d33ee4d5bab30c4"
+OPCM = "0xda83150fd745d35bb347a7afaf2d7af1d1e8b2b6"
 
+# State override: pin the Sepolia betanet ProxyAdminOwner Safe (0xe934...40ff) nonce.
+# Slot 5 is the Gnosis Safe `nonce` slot. We pin it to the current on-chain value so
+# message-hash regeneration is reproducible across simulations.
 [stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 130}
+]

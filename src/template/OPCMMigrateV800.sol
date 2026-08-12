@@ -14,9 +14,13 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 import {IOPContractsManagerV800, ISystemConfig} from "src/template/OPCMUpgradeV800.sol";
 
 /// @notice A template contract for driving OPCM.migrate(...) from superchain-ops.
-/// Supports: op-contracts/v7.1.16 (OPCM with OPContractsManagerMigrator wired in).
+/// Supports: dev OPCM deployments with OPContractsManagerMigrator wired in.
 /// @dev Migration is a one-way operation that merges N pre-interop chains into a single
 /// interop set by deploying a shared DisputeGameFactory, AnchorStateRegistry, and ETHLockbox.
+/// @dev The production op-contracts/v8.0.0-rc.2 OPCM ships migrate(), but it requires the
+/// OPTIMISM_PORTAL_INTEROP dev feature, which is disabled on production deployments
+/// (devFeatureBitmap == 0), so this template must target an interop-enabled (dev) OPCM
+/// until a production OPCM enables it.
 contract OPCMMigrateV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
