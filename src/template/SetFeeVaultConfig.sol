@@ -137,7 +137,11 @@ contract SetFeeVaultConfig is L2TaskBase {
 
         recipients = abi.decode(toml.parseRaw(".recipients"), (address[]));
         networks = abi.decode(toml.parseRaw(".networks"), (uint256[]));
-        minWithdrawalAmounts = abi.decode(toml.parseRaw(".minWithdrawalAmounts"), (uint256[]));
+        // Typed (coercing) reader instead of parseRaw: TOML integers are int64-bounded, so
+        // minimums above ~9.22 ETH (e.g. Soneium's live 10 ETH) cannot be written as bare
+        // integers — encode them as decimal strings ("10000000000000000000"). The typed
+        // reader accepts both bare integers and string-encoded values.
+        minWithdrawalAmounts = toml.readUintArray(".minWithdrawalAmounts");
 
         uint256 nChains = chains.length;
         uint256 nVaults = vaultProxies.length;
