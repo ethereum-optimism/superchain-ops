@@ -1,0 +1,72 @@
+# Transfer L1 ownership of Metal (chainId 1750), Mode (chainId 34443),
+# Zora (chainId 7777777) and Dust (chainId 55378) from the standard mainnet
+# L1PAO Safe to the chain operator's designated Safe
+# 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746 in a single task.
+#
+# Governance post: single proposal covering Dust, Mode, Metal and Zora on both
+# networks — record the link in README.md before signing.
+#
+# For EACH of the four chains, this task moves ownership of:
+#   - DisputeGameFactory   (transferOwnership)
+#   - ProxyAdmin           (transferOwnership)
+# Metal, Mode and Zora are resolved from the superchain-registry. Dust is a
+# Conduit chain that is not in the registry, so its addresses are loaded via
+# `fallbackAddressesJsonPath` (values confirmed against
+# https://api.conduit.xyz/file/v1/optimism/contracts/dust-mainnet-0 and
+# on-chain). All four chains use the standard OP Mainnet SuperchainConfig
+# (0x95703e0982140D16f8ebA6d158FccEde42f04a4C), which is what
+# `TransferOwners._validateSuperchainConfig` enforces (verified on-chain via
+# each portal's `superchainConfig()`).
+#
+# No DelayedWETH transfers: the registry carries no PermissionedWETH /
+# PermissionlessWETH keys for Metal, Mode or Zora, and the fallback
+# addresses.json intentionally omits them for Dust, so the template skips the
+# DelayedWETH at build time. That is safe because these chains' DelayedWETH
+# contracts are v1.5.0 (post-U16) and not ownable — Dust's
+# (0x759d52e749c8918a1dCDd70A577a63D12ad1f917) returns no data for `owner()`
+# on-chain — so there is no ownership to transfer.
+#
+# The L2 ProxyAdmin transfers are the follow-up task 068-mmzd-l2pao-transfer —
+# its `TransferL2PAOFromL1` template requires these L1 transfers to be
+# completed first.
+
+l2chains = [
+    {name = "Metal", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+
+fallbackAddressesJsonPath = "src/tasks/eth/067-mmzd-l1-ownership-transfers/addresses.json"
+
+templateName = "TransferOwners"
+
+# New L1 owner: the operator's 4-of-10 Gnosis Safe v1.3.0 on Ethereum Mainnet,
+# confirmed by the operator (verified with
+# `cast call 0x4a49...A746 "getOwners()(address[])" --rpc-url mainnet` —
+# 10 owners, threshold 4). The same Safe already owns the Metal, Mode and Dust
+# SystemConfig proxies on mainnet.
+newOwner = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
+
+[stateOverrides]
+# The standard mainnet L1PAO is a 2-of-2 nested Safe whose child signers are
+# the FoundationUpgradeSafe and the SecurityCouncil. All three Safe nonces are
+# pinned (slot 5) ONE AHEAD of their live on-chain values (read 2026-08-13:
+# L1PAO=40 / FUS=66 / SC=64), accounting for the bump from
+# eth/066-soneium-fee-vault-recipient-update (PR #1520), which is also
+# L1PAO-signed and executes before this task. eth/065 (PR #1515) is signed by
+# the FoundationOperationsSafe and does not touch these nonces. These Safes
+# are shared across many mainnet chains, so re-verify immediately before
+# signing:
+#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
+# and bump the corresponding override + re-simulate if any has advanced beyond
+# the values below.
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO — 40 + 1 (eth/066)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 41}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe — 66 + 1
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil — 64 + 1
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]

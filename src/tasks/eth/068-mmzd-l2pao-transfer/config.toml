@@ -1,0 +1,95 @@
+# Transfer the L2 ProxyAdmin ownership of Metal (chainId 1750), Mode
+# (chainId 34443), Zora (chainId 7777777) and Dust (chainId 55378) to the
+# L1-to-L2 alias of the chain operator's Safe
+# 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746, in a single task.
+#
+# Governance post: single proposal covering Dust, Mode, Metal and Zora on both
+# networks — record the link in README.md before signing.
+#
+# This task sends one deposit transaction per chain through that chain's L1
+# OptimismPortal, calling `transferOwnership(alias(newOwner))` on the L2
+# ProxyAdmin predeploy (0x4200000000000000000000000000000000000018). The
+# current L2 ProxyAdmin owner on all four L2s is
+# 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b — the alias of the *current*
+# standard mainnet L1PAO Safe (verified on each L2) — so the deposits must be
+# sent from that L1 Safe for the L2 OwnershipTransferred events to be
+# authorized.
+#
+# Metal, Mode and Zora are resolved from the superchain-registry. Dust is a
+# Conduit chain that is not in the registry, so its addresses are loaded via
+# `fallbackAddressesJsonPath`.
+#
+# Stacked after task 067-mmzd-l1-ownership-transfers (L1 ownership transfers).
+# The `TransferL2PAOFromL1` template asserts `ProxyAdmin.owner() ==
+# newOwnerToAlias` for every chain at build time, so task 067 must run first;
+# the per-chain ProxyAdmin stateOverrides below make that hold during local
+# simulation. The standalone Safe nonce overrides account for the +1 from 067.
+
+l2chains = [
+    {name = "Metal", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+
+fallbackAddressesJsonPath = "src/tasks/eth/068-mmzd-l2pao-transfer/addresses.json"
+
+templateName = "TransferL2PAOFromL1"
+
+# Unaliased new owner (the operator's 4-of-10 mainnet Safe, same recipient as
+# task 067). The template applies AddressAliasHelper.applyL1ToL2Alias and
+# sends the aliased value to each L2 ProxyAdmin. Computed alias:
+# 0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857
+newOwnerToAlias = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
+
+[addresses]
+# Pin the executing (parent) Safe globally. After task 067 executes, on-chain
+# discovery resolves each registry chain's ProxyAdminOwner to the operator's
+# Safe, but the deposits must still be sent by the *previous* standard L1PAO —
+# the L2 ProxyAdmin predeploys are owned by its alias. The global pin keeps
+# the root-safe resolution (and therefore the signing hashes) stable whether
+# or not 067 has executed yet.
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[stateOverrides]
+# The standard mainnet L1PAO is a 2-of-2 nested Safe (FoundationUpgradeSafe +
+# SecurityCouncil). All three Safe nonces are pinned (slot 5) TWO AHEAD of
+# their live on-chain values (read 2026-08-13: L1PAO=40 / FUS=66 / SC=64),
+# accounting for the bumps from eth/066 (PR #1520) and task 067. These Safes
+# are shared across many mainnet chains, so re-verify immediately before
+# signing:
+#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
+# and bump the corresponding override + re-simulate if any has advanced beyond
+# the values below.
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO — 40 + 1 (eth/066) + 1 (067)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe — 66 + 2
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil — 64 + 2
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
+]
+
+# Pre-apply task 067's L1 ownership transfers so the template's per-chain
+# `proxyAdmin.owner() == newOwnerToAlias` check passes when simulating this
+# task in isolation. Slot 0 holds each ProxyAdmin's owner (verified with
+# `cast storage <proxyAdmin> 0 --rpc-url mainnet`); these overrides do not
+# produce state changes at signing time — the actual transitions are performed
+# by task 067.
+# Metal ProxyAdmin
+0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
+# Mode ProxyAdmin
+0x470d87b1dae09a454A43D1fD772A561a03276aB7 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
+# Zora ProxyAdmin
+0xD4ef175B9e72cAEe9f1fe7660a6Ec19009903b49 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
+# Dust ProxyAdmin
+0x32C61Bd2B7bf8E50F448331705eDDA99244e7339 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
+]
