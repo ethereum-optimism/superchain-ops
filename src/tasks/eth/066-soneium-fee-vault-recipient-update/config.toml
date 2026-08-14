@@ -1,14 +1,16 @@
-# Soneium Mainnet (chainId 1868) — fee-vault recipient rotation.
+# Soneium Mainnet (chainId 1868) — fee-vault recipient rotation + minimum-withdrawal reduction.
 #
 # Rotates the recipient of ALL FOUR L2 fee-vault predeploys to the new Soneium fee
-# recipient Safe. Recipient is the ONLY field that changes — withdrawal network and
-# minWithdrawalAmount are pinned to their live values so the template's per-field
-# skip-unchanged emits no deposit for them:
-#   - SequencerFeeVault (0x…0011, v1.6.1): recipient 0xF07b…1112 -> 0x34fF…C260
-#   - BaseFeeVault      (0x…0019, v1.6.1): recipient 0xF07b…1112 -> 0x34fF…C260
-#   - L1FeeVault        (0x…001a, v1.6.1): recipient 0xF07b…1112 -> 0x34fF…C260
+# recipient Safe, and lowers the minimum withdrawal amount 10 ETH -> 5 ETH on the three
+# vaults that carry it (value agreed with the chain operator; 5 ETH also fits TOML's
+# int64 integer range — 10 ETH does not — keeping this a task-only change with the
+# unmodified SetFeeVaultConfig template). Withdrawal networks are pinned to their live
+# values (all L2) and therefore produce no deposits:
+#   - SequencerFeeVault (0x…0011, v1.6.1): recipient 0xF07b…1112 -> 0x34fF…C260; min 10 -> 5 ETH
+#   - BaseFeeVault      (0x…0019, v1.6.1): recipient 0xF07b…1112 -> 0x34fF…C260; min 10 -> 5 ETH
+#   - L1FeeVault        (0x…001a, v1.6.1): recipient 0xF07b…1112 -> 0x34fF…C260; min 10 -> 5 ETH
 #   - OperatorFeeVault  (0x…001b, v1.1.1): recipient 0x4200…0019 (BaseFeeVault cascade)
-#                                          -> 0x34fF…C260 (paid directly)
+#                                          -> 0x34fF…C260 (paid directly); min stays 0
 #
 # The vaults are on the post-Karst (U19, task eth/053) setter design, so this is an
 # in-place config update via the vaults' owner-gated setters — no implementation
@@ -18,7 +20,8 @@
 #   Seq/Base/L1FeeVault: recipient 0xF07b3169ffF67A8AECdBb18d9761AEeE34591112, network L2 (1), min 10 ETH
 #   OperatorFeeVault:    recipient 0x4200000000000000000000000000000000000019, network L2 (1), min 0
 #
-# Expected deposits (per-field skip-unchanged): exactly 4 — one setRecipient per vault.
+# Expected deposits (per-field skip-unchanged): exactly 7 —
+# setRecipient on all four vaults + setMinWithdrawalAmount on Seq/Base/L1.
 
 templateName = "SetFeeVaultConfig"
 
@@ -44,11 +47,10 @@ recipients = ["0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260"]
 # UNCHANGED — all four vaults already withdraw on L2 (1). Per-chain array shape.
 networks = [1]
 
-# UNCHANGED — flat per-(chain, vault) shape matching vaultProxies order:
-# Seq / Base / L1FeeVault keep their 10 ETH minimum, OperatorFeeVault keeps 0.
-# String-encoded because 10 ETH (1e19 wei) exceeds TOML's int64 integer range; the
-# template reads this array with the typed coercing parser.
-minWithdrawalAmounts = ["10000000000000000000", "10000000000000000000", "10000000000000000000", "0"]
+# Flat per-(chain, vault) shape matching vaultProxies order: Seq / Base / L1FeeVault
+# lower from 10 ETH to 5 ETH (operator-approved; keeps values int64-representable),
+# OperatorFeeVault keeps its live 0 (no deposit emitted for it).
+minWithdrawalAmounts = [5000000000000000000, 5000000000000000000, 5000000000000000000, 0]
 
 # REQUIRED by the template: L2 RPC for the pre-flight (L2 ProxyAdmin-owner assertion,
 # per-vault version gate, live-value caching, and a dry-run of every setter call).
@@ -62,10 +64,10 @@ OptimismPortalProxy = "0x88e529A6ccd302c948689Cd5156C83D4614FAE92"
 
 [stateOverrides]
 # Nested L1PAO signer-safe nonces (slot 5), pinned to the values EXPECTED AT SIGNING TIME.
-# Pins = live on-chain values (read 2026-08-13: L1PAO=40 / FUS=66 / SC=64) — NO offset for
-# eth/065-ink-system-config-owner-to-fus (PR #1515), which executes before this task but is
-# signed by the FoundationOperationsSafe (0x9BA6…6b3A) and therefore does not touch the
-# L1PAO / FUS / SC nonces.
+# Pins = live on-chain values (read 2026-08-13, re-verified 2026-08-14: L1PAO=40 / FUS=66 /
+# SC=64) — NO offset for eth/065-ink-system-config-owner-to-fus (merged via PR #1515), which
+# executes before this task but is signed by the FoundationOperationsSafe (0x9BA6…6b3A) and
+# therefore does not touch the L1PAO / FUS / SC nonces.
 # Re-verify immediately before signing:
 #   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
 # and regenerate the VALIDATION.md hashes if any value has drifted (e.g. if another

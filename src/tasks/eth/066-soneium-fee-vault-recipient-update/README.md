@@ -4,16 +4,16 @@ Status: READY TO SIGN
 
 ## Objective
 
-For **Soneium Mainnet** (chainId 1868), rotate the recipient of **all four L2 fee-vault predeploys** to the new Soneium fee recipient Safe `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`. The recipient is the **only** field that changes — every vault keeps its current withdrawal network (L2) and minimum withdrawal amount.
+For **Soneium Mainnet** (chainId 1868), rotate the recipient of **all four L2 fee-vault predeploys** to the new Soneium fee recipient Safe `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`, and lower the minimum withdrawal amount **10 ETH → 5 ETH** on the three vaults that carry it. Withdrawal networks are untouched (all L2), as is the OperatorFeeVault's zero minimum.
 
 | Vault | Version (live) | Change |
 |---|---|---|
-| `SequencerFeeVault` `0x4200000000000000000000000000000000000011` | v1.6.1 | recipient `0xF07b3169ffF67A8AECdBb18d9761AEeE34591112` → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` |
-| `BaseFeeVault` `0x4200000000000000000000000000000000000019` | v1.6.1 | recipient `0xF07b3169ffF67A8AECdBb18d9761AEeE34591112` → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` |
-| `L1FeeVault` `0x420000000000000000000000000000000000001A` | v1.6.1 | recipient `0xF07b3169ffF67A8AECdBb18d9761AEeE34591112` → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` |
-| `OperatorFeeVault` `0x420000000000000000000000000000000000001b` | v1.1.1 | recipient `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` |
+| `SequencerFeeVault` `0x4200000000000000000000000000000000000011` | v1.6.1 | recipient `0xF07b3169ffF67A8AECdBb18d9761AEeE34591112` → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`; minWithdrawalAmount **10 ETH → 5 ETH** |
+| `BaseFeeVault` `0x4200000000000000000000000000000000000019` | v1.6.1 | recipient `0xF07b3169ffF67A8AECdBb18d9761AEeE34591112` → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`; minWithdrawalAmount **10 ETH → 5 ETH** |
+| `L1FeeVault` `0x420000000000000000000000000000000000001A` | v1.6.1 | recipient `0xF07b3169ffF67A8AECdBb18d9761AEeE34591112` → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`; minWithdrawalAmount **10 ETH → 5 ETH** |
+| `OperatorFeeVault` `0x420000000000000000000000000000000000001b` | v1.1.1 | recipient `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` (min stays 0, network stays L2) |
 
-Unchanged on every vault: withdrawal network stays **L2 (1)** — funds are disbursed on Soneium itself — and the minimum withdrawal amounts stay **10 ETH** (Sequencer/Base/L1) and **0** (Operator). Live pre-task values verified 2026-08-13; they are also the rollback reference.
+**Why 5 ETH:** the value is agreed with the chain operator. It keeps `withdraw()` (permissionless, no automated trigger planned) spam-resistant while making sweeps to the new recipient roughly twice as frequent — and it fits TOML's int64 integer range (max ~9.22e18 wei ≈ 9.22 ETH), which the previous 10 ETH value did not, keeping this a task-only change against the unmodified `SetFeeVaultConfig` template.
 
 Note on `OperatorFeeVault`: today it cascades into the `BaseFeeVault` predeploy (its recipient), so operator fees already reach the chain fee recipient indirectly via a second hop. After this task it pays the new recipient **directly** — the net destination of all four fee streams is identically `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`.
 
@@ -21,9 +21,9 @@ Note on `OperatorFeeVault`: today it cascades into the `BaseFeeVault` predeploy 
 
 ## Signing gates — do not sign until ALL are cleared
 
-1. **Recipient verification:** confirm `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` (including the L2 Safe's owner set) with the Soneium chain operator through an authenticated channel, and verify it against this README with ≥2 OP Labs engineers. The vault setters can rotate the recipient again if needed, but funds swept to a wrong address in the interim are not recoverable.
+1. **Recipient & threshold verification:** confirm `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260` (including the L2 Safe's owner set) and the 5 ETH minimum with the Soneium chain operator through an authenticated channel, and verify both against this README with ≥2 OP Labs engineers. The vault setters can rotate these values again if needed, but funds swept to a wrong address in the interim are not recoverable.
 2. **Governance:** the signer is the L1 ProxyAdminOwner (nested 2-of-2: Foundation Upgrade Safe + Security Council). The equivalent Ink change ([eth/062](../062-ink-fee-vault-recipient-update/README.md)) required a Maintenance Upgrade proposal to clear its optimistic-approval veto window before signing. Confirm whether this Soneium config change requires one, and record the proposal link and its outcome here before signing.
-3. **Ordering / nonces:** this task is numbered after [eth/065-ink-system-config-owner-to-fus](https://github.com/ethereum-optimism/superchain-ops/pull/1515) and is planned to execute after it. There is **no nonce coupling**: eth/065 is signed by the Foundation Operations Safe (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`), which is neither the L1PAO nor either of its owner safes, so the nonce pins in [config.toml](./config.toml) (L1PAO 40 / FUS 66 / SC 64 — live values read 2026-08-13) hold whether eth/065 has executed or not. They break only if another **L1PAO-signed** task lands first — re-verify with `cast call <safe> "nonce()(uint256)"` immediately before signing and regenerate the [VALIDATION.md](./VALIDATION.md) hashes on any drift.
+3. **Ordering / nonces:** this task is numbered after [eth/065-ink-system-config-owner-to-fus](../065-ink-system-config-owner-to-fus/README.md) (merged via [#1515](https://github.com/ethereum-optimism/superchain-ops/pull/1515)) and is planned to execute after it. There is **no nonce coupling**: eth/065 is signed by the Foundation Operations Safe (`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`), which is neither the L1PAO nor either of its owner safes, so the nonce pins in [config.toml](./config.toml) (L1PAO 40 / FUS 66 / SC 64 — live values re-verified 2026-08-14) hold whether eth/065 has executed or not. They break only if another **L1PAO-signed** task lands first — re-verify with `cast call <safe> "nonce()(uint256)"` immediately before signing and regenerate the [VALIDATION.md](./VALIDATION.md) hashes on any drift.
 
 ## Mechanism
 
@@ -31,16 +31,17 @@ All four Soneium fee vaults are on the post-Karst (U19, [eth/053](../053-U19-op-
 
 `SetFeeVaultConfig` sends each changed field as an `OptimismPortal2.depositTransaction` from the L1PAO; the deposit's aliased sender (`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`, the alias of the L1PAO — verified live as the Soneium L2 ProxyAdmin owner) is exactly the owner the setters authorize against. The template's mandatory pre-flight forks Soneium via `l2RpcUrls` to assert L2 ProxyAdmin ownership, enforce the per-vault version gate (≥ 1.6.0 / ≥ 1.1.0), and dry-run every setter before any signature is collected.
 
-Per-field skip-unchanged yields exactly **4 deposits** (each with a 150,000 L2 gas limit) — one `setRecipient` per vault, in `vaultProxies` order:
+Per-field skip-unchanged yields exactly **7 deposits** (each with a 150,000 L2 gas limit), in `vaultProxies` order with recipient before minimum per vault:
 
 1. `SequencerFeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
-2. `BaseFeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
-3. `L1FeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
-4. `OperatorFeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
+2. `SequencerFeeVault.setMinWithdrawalAmount(5000000000000000000)` (5 ETH)
+3. `BaseFeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
+4. `BaseFeeVault.setMinWithdrawalAmount(5000000000000000000)` (5 ETH)
+5. `L1FeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
+6. `L1FeeVault.setMinWithdrawalAmount(5000000000000000000)` (5 ETH)
+7. `OperatorFeeVault.setRecipient(0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260)`
 
-No `setWithdrawalNetwork` or `setMinWithdrawalAmount` deposits are emitted — the configured values equal the live ones, so the template skips them. Because the skip set is re-derived from live L2 state on every run, any drift between signing and execution changes the calldata and invalidates all collected signatures (loud revert, full re-sign).
-
-Template note: Soneium's live 10 ETH minimum (`1e19` wei) exceeds TOML's int64 integer range, so `minWithdrawalAmounts` is string-encoded in [config.toml](./config.toml) and the template reads it with foundry's typed (coercing) parser — see the note in `src/template/SetFeeVaultConfig.sol`.
+No `setWithdrawalNetwork` deposits are emitted (all four vaults already withdraw on L2), and no `setMinWithdrawalAmount` for the OperatorFeeVault (stays 0). Because the skip set is re-derived from live L2 state on every run, any drift between signing and execution changes the calldata and invalidates all collected signatures (loud revert, full re-sign).
 
 ## Simulation & Signing
 
@@ -60,7 +61,7 @@ just --dotenv-path $(pwd)/.env --justfile ../../../justfile sign foundation
 
 ## Post-execution verification
 
-After the four deposits are relayed on Soneium Mainnet:
+After the seven deposits are relayed on Soneium Mainnet:
 
 ```bash
 RPC=https://rpc.soneium.org
@@ -72,14 +73,16 @@ cast call 0x420000000000000000000000000000000000001a "recipient()(address)" -r $
 cast call 0x420000000000000000000000000000000000001b "recipient()(address)" -r $RPC
 # → each: 0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260
 
-# Must be UNCHANGED — networks all 1 (L2), mins 10 ETH / 10 ETH / 10 ETH / 0:
-cast call 0x4200000000000000000000000000000000000011 "withdrawalNetwork()(uint8)" -r $RPC   # 1
-cast call 0x4200000000000000000000000000000000000019 "withdrawalNetwork()(uint8)" -r $RPC   # 1
-cast call 0x420000000000000000000000000000000000001a "withdrawalNetwork()(uint8)" -r $RPC   # 1
-cast call 0x420000000000000000000000000000000000001b "withdrawalNetwork()(uint8)" -r $RPC   # 1
-cast call 0x4200000000000000000000000000000000000011 "minWithdrawalAmount()(uint256)" -r $RPC # 10000000000000000000
-cast call 0x4200000000000000000000000000000000000019 "minWithdrawalAmount()(uint256)" -r $RPC # 10000000000000000000
-cast call 0x420000000000000000000000000000000000001a "minWithdrawalAmount()(uint256)" -r $RPC # 10000000000000000000
+# Changed by this task — three minimums (10 ETH → 5 ETH):
+cast call 0x4200000000000000000000000000000000000011 "minWithdrawalAmount()(uint256)" -r $RPC # 5000000000000000000
+cast call 0x4200000000000000000000000000000000000019 "minWithdrawalAmount()(uint256)" -r $RPC # 5000000000000000000
+cast call 0x420000000000000000000000000000000000001a "minWithdrawalAmount()(uint256)" -r $RPC # 5000000000000000000
+
+# Must be UNCHANGED — networks all 1 (L2), OperatorFeeVault min 0:
+cast call 0x4200000000000000000000000000000000000011 "withdrawalNetwork()(uint8)" -r $RPC     # 1
+cast call 0x4200000000000000000000000000000000000019 "withdrawalNetwork()(uint8)" -r $RPC     # 1
+cast call 0x420000000000000000000000000000000000001a "withdrawalNetwork()(uint8)" -r $RPC     # 1
+cast call 0x420000000000000000000000000000000000001b "withdrawalNetwork()(uint8)" -r $RPC     # 1
 cast call 0x420000000000000000000000000000000000001b "minWithdrawalAmount()(uint256)" -r $RPC # 0
 ```
 
