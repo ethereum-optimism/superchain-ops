@@ -148,11 +148,15 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             );
         }
 
-        // Register EthLockboxProxy for each chain from the superchain-registry addresses.json.
-        // The V800 upgrade writes to EthLockboxProxy storage, but it is not discovered by the
-        // registry's onchain discovery flow, so we register it here.
+        // Register EthLockboxProxy for each chain. The V800 upgrade writes to EthLockboxProxy
+        // storage. Onchain discovery already registers it via `portal.ethLockbox()` for chains
+        // whose portal has a wired lockbox; `saveAddress` reverts on duplicate keys, so only
+        // fall back to the superchain-registry addresses.json when discovery found nothing.
         string memory addrJson = vm.readFile(superchainAddrRegistry.SUPERCHAIN_REGISTRY_ADDRESSES_PATH());
         for (uint256 i = 0; i < chains.length; i++) {
+            try superchainAddrRegistry.getAddress("EthLockboxProxy", chains[i].chainId) returns (address) {
+                continue;
+            } catch {}
             string memory key = string.concat("$.", vm.toString(chains[i].chainId), ".EthLockboxProxy");
             if (vm.keyExistsJson(addrJson, key)) {
                 address ethLockbox = vm.parseJsonAddress(addrJson, key);

@@ -174,11 +174,15 @@ contract OPCMMigrateV800 is OPCMTaskBase {
             );
         }
 
-        // Register EthLockboxProxy for each chain from the superchain-registry addresses.json.
-        // Migration drains per-chain lockboxes, but they are not discovered by the registry's
-        // onchain discovery flow, so we register them here.
+        // Register EthLockboxProxy for each chain. Migration drains per-chain lockboxes.
+        // Onchain discovery already registers the lockbox via `portal.ethLockbox()` for chains
+        // whose portal has a wired lockbox; `saveAddress` reverts on duplicate keys, so only
+        // fall back to the superchain-registry addresses.json when discovery found nothing.
         string memory addrJson = vm.readFile(superchainAddrRegistry.SUPERCHAIN_REGISTRY_ADDRESSES_PATH());
         for (uint256 i = 0; i < chains.length; i++) {
+            try superchainAddrRegistry.getAddress("EthLockboxProxy", chains[i].chainId) returns (address) {
+                continue;
+            } catch {}
             string memory key = string.concat("$.", vm.toString(chains[i].chainId), ".EthLockboxProxy");
             if (vm.keyExistsJson(addrJson, key)) {
                 address ethLockbox = vm.parseJsonAddress(addrJson, key);
