@@ -24,7 +24,7 @@ just simulate-stack eth 065-ink-system-config-owner-to-fus
 Signing commands:
 ```bash
 cd src/tasks/eth/065-ink-system-config-owner-to-fus
-SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 065-ink-system-config-owner-to-fus
 ```
 
 ## Validation

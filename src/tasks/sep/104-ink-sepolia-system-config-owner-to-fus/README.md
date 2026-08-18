@@ -24,7 +24,7 @@ just simulate-stack sep 104-ink-sepolia-system-config-owner-to-fus
 Signing commands:
 ```bash
 cd src/tasks/sep/104-ink-sepolia-system-config-owner-to-fus
-SKIP_DECODE_AND_PRINT=1 just --dotenv-path $(pwd)/.env sign
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 104-ink-sepolia-system-config-owner-to-fus
 ```
 
 ## Validation
