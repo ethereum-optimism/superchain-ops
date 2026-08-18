@@ -36,9 +36,11 @@ both signing paths):
 
 Each payload below is the `_data` argument of a
 `depositTransaction(vault, 0, 150000, false, _data)` call to the Soneium Mainnet `OptimismPortal`
-(`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`). The seven portal
-calls are batched into one `Multicall3.aggregate3Value` with selector `0x174dea71` (the first four
-bytes of the task calldata above).
+(`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`). On L2, each deposit executes with the **aliased
+L1PAO** (`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`) as sender (the vaults ProxyAdmin owner)
+which the setters authorize against. The seven portal calls are batched into one
+`Multicall3.aggregate3Value` with selector `0x174dea71` (the first four bytes of the task calldata
+above).
 
 **Call 1 — `SequencerFeeVault.setRecipient(newRecipient)`**
 
@@ -101,6 +103,15 @@ order:
 4. the gas limit `0249f0` (150000)
 5. one of the two payloads (`3bbed4a0…` or `85b5b14d…`)
 
+Every byte not belonging to the
+payloads above is zero-padding, an offset, or a length.
+
+To decode the full calldata back into the seven calls and confirm no additional content is
+present:
+
+```bash
+cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task calldata>
+```
 
 ## L1 and L2 Simulation
 
@@ -116,7 +127,8 @@ just simulate-stack eth 066-soneium-fee-vault-recipient-update council #or found
 The output prints domain and message hashes (to check against the expected ones at top of this file) and a
 Tenderly simulation link. Open the link, paste the [task calldata](#task-calldata) into the
 **Raw input data** field and simulate: the state diff must match
-[L1 State Changes](#l1-state-changes).
+[L1 State Changes](#l1-state-changes) and the **Events** must show seven
+`TransactionDeposited` events emitted by the portal.
 
 ### L2 Simulation
 
@@ -145,29 +157,45 @@ done
 cast send 0x420000000000000000000000000000000000001b "setRecipient(address)" $NEW \
   --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
 
-
 # 4. Run the same read-backs as the post-execution section below against $L2RPC and
 #    confirm the changed/unchanged expectations, then kill anvil.
-
-
-# 5. Simulate in Tenderly to see the full state diff (the read-backs in step 4 only
-#    query the expected changes; a full diff would also expose any unexpected write).
 ```
 
-To see the full state diffs in Tenderly, replay all seven calls on a Virtual TestNet:
+**5. Full state diff on Tenderly (Virtual TestNet):** the read-backs in step 4 only query the
+fields expected to change; a full state diff also exposes any unexpected write. Tenderly shows
+one for each of the seven calls:
 
-1. [dashboard.tenderly.co](https://dashboard.tenderly.co) → your project → **Virtual TestNets** →
-   **Create Virtual TestNet**: parent network **Soneium** (chain ID 1868), fork from latest block.
-2. Copy the TestNet's **Admin RPC** URL, then rerun steps 2–3 above against it — drop the two
-   `anvil_*` lines (the Admin RPC accepts unsigned transactions from any sender) and fund the
-   sender first:
+1. In [dashboard.tenderly.co](https://dashboard.tenderly.co), select your project → **Virtual
+   TestNets** → **Create Virtual TestNet**: parent network **Soneium** (chain ID 1868), fork
+   from latest block.
+2. From the TestNet's overview, copy the **Admin RPC** URL and run the replay against it. The
+   Admin RPC accepts transactions from any sender, so no key or impersonation is needed:
 
    ```bash
-   L2RPC=<Admin RPC URL>
-   cast rpc tenderly_setBalance 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b 0xDE0B6B3A7640000 --rpc-url $L2RPC
-   # then the same seven `cast send … --unlocked` commands from step 3, unchanged
-3. Open the Virtual TestNet in the dashboard: the seven transactions appear in its explorer. Open
-each one and check its State Changes tab against L2 State Changes
+   L2RPC=<Admin RPC URL>   # e.g. https://virtual.soneium.rpc.tenderly.co/…
+   ALIASED=0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+   NEW=0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260
+   MIN=5000000000000000000
+
+   # Fund the aliased L1PAO with 1 ETH for gas (Virtual TestNet faucet):
+   cast rpc tenderly_setBalance $ALIASED 0xDE0B6B3A7640000 --rpc-url $L2RPC
+
+   # The seven calls, one transaction each:
+   for v in 0x4200000000000000000000000000000000000011 \
+            0x4200000000000000000000000000000000000019 \
+            0x420000000000000000000000000000000000001a; do
+     cast send $v "setRecipient(address)" $NEW --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
+     cast send $v "setMinWithdrawalAmount(uint256)" $MIN --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
+   done
+   cast send 0x420000000000000000000000000000000000001b "setRecipient(address)" $NEW \
+     --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
+   ```
+
+3. Back in the dashboard, the seven transactions appear in the TestNet's transaction list. Open
+   each one and check its **State Changes** tab against
+   [L2 State Changes](#l2-state-changes): the expected slot with the expected before/after
+   values, and nothing else in the diff. Any additional slot or contract means the calldata does
+   not do what this document claims: do not sign.
 
 
 ## Task State Changes
