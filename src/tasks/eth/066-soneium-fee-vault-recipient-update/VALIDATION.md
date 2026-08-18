@@ -34,12 +34,11 @@ both signing paths):
 
 ## Understanding Task Calldata
 
-The task is a single `Multicall3.aggregate3Value` from the L1PAO containing **7**
-`depositTransaction` calls on the Soneium Mainnet `OptimismPortal`
-(`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`). Each deposit executes on Soneium L2
-(chainId 1868) with the **aliased L1PAO** (`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`) as
-sender, the Soneium L2 ProxyAdmin owner that the fee-vault setters authorize against. Every
-deposit has `value = 0`, `gasLimit = 150000` (`0x249f0`), `isCreation = false`.
+Each payload below becomes the `_data` argument of a
+`depositTransaction(vault, 0, 150000, false, _data)` call to the Soneium Mainnet `OptimismPortal`
+(`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`), and the seven portal
+calls are batched into one `Multicall3.aggregate3Value` with selector `0x174dea71` (the first four
+bytes of the task calldata above).
 
 **Call 1 — `SequencerFeeVault.setRecipient(newRecipient)`**
 
@@ -97,10 +96,17 @@ cast calldata "setMinWithdrawalAmount(uint256)" 5000000000000000000
 
 ### L1 Simulation
 
-**Automatic (runs inside `just simulate`):** the template's mandatory pre-flight forks Soneium via
-the config's `l2RpcUrls`, asserts the L2 ProxyAdmin owner is the aliased L1PAO, version-gates each
-vault, and **dry-runs every setter call as the aliased owner** — so if any of the seven L2 writes
-could revert, the simulation itself fails loudly before any signature is collected.
+Simulation command:
+
+```bash
+cd src/tasks/eth/066-soneium-fee-vault-recipient-update
+just simulate-stack eth 066-soneium-fee-vault-recipient-update council #or foundation
+```
+
+The output prints domain and message hashes (to check against the expected ones at top of this file) and a
+Tenderly simulation link. Open the link, paste the [task calldata](#task-calldata) into the
+**Raw input data** field and simulate: the state diff must match
+[L1 State Changes](#l1-state-changes).
 
 ### L2 Simulation
 
@@ -129,9 +135,20 @@ done
 cast send 0x420000000000000000000000000000000000001b "setRecipient(address)" $NEW \
   --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
 
+
 # 4. Run the same read-backs as the post-execution section below against $L2RPC and
 #    confirm the changed/unchanged expectations, then kill anvil.
+
+
+# 5. Simulate in Tenderly to see the full state diff (the read-backs in step 4 only
+#    query the expected changes; a full diff would also expose any unexpected write).
 ```
+
+On [dashboard.tenderly.co](https://dashboard.tenderly.co) → **Simulator** > **New Simulation**:
+network Soneium (chain ID `1868`), **From** `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`, **To**
+the vault, **Raw input data** the call's inner calldata, gas `150000`. Run one simulation per call
+(7 total): each state diff must show exactly the slot listed in 
+[L2 State Changes](#l2-state-changes) for that call.
 
 ## Task State Changes
 
@@ -171,6 +188,31 @@ storage write — expect it in the Tenderly state diff of the approval transacti
     portal should change.
 
 ### L2 State Changes
+
+Applied on Soneium Mainnet (chain ID 1868) when the seven deposits are relayed. Replaying all
+seven on a Soneium fork and diffing every storage slot of the four vaults yields exactly the
+writes below and nothing else. Layout: slot `1` = `minWithdrawalAmount`; slot `2` packs
+`recipient` (low 20 bytes) with `withdrawalNetwork` (byte 20) — the network byte is `01` (= L2)
+in every before/after value and never changes; slot `0` (`totalProcessed`) is untouched.
+
+#### `0x4200000000000000000000000000000000000011` (SequencerFeeVault), `0x4200000000000000000000000000000000000019` (BaseFeeVault), `0x420000000000000000000000000000000000001a` (L1FeeVault) — identical changes on each
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Before:** `0x0000000000000000000000000000000000000000000000008ac7230489e80000` (10 ETH)
+  - **After:**  `0x0000000000000000000000000000000000000000000000004563918244f40000` (5 ETH)
+  - **Summary:** `minWithdrawalAmount` lowered 10 ETH → 5 ETH
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Before:** `0x000000000000000000000001f07b3169fff67a8aecdbb18d9761aeee34591112`
+  - **After:**  `0x00000000000000000000000134fff1a1cb3c054e9ed1bbd36883b14a66e6c260`
+  - **Summary:** recipient → new Soneium fee recipient Safe; network byte `01` (L2) unchanged
+
+#### `0x420000000000000000000000000000000000001b` (OperatorFeeVault)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Before:** `0x0000000000000000000000014200000000000000000000000000000000000019`
+  - **After:**  `0x00000000000000000000000134fff1a1cb3c054e9ed1bbd36883b14a66e6c260`
+  - **Summary:** recipient rotated from the BaseFeeVault cascade to the new Safe directly;
+    network byte unchanged; slot `1` (min = 0) is not written
 
 ## Post-execution verification calls
 
