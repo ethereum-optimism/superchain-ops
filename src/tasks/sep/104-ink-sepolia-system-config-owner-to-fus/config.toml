@@ -1,22 +1,12 @@
-# Ink Sepolia (chainId 763373) — SystemConfig ownership transfer, post-migration follow-up.
-#
-# Transfers ownership of the Ink Sepolia SystemConfigProxy from the Foundation
-# Operations Safe (FOS) to the Foundation Upgrade Safe (FUS), completing the
-# Gelato -> OP Enterprise migration follow-ups (solutions#973). Going forward the
-# FUS is the standard owner for all SystemConfig proxies.
-#
-# The FOS (0x837D…Fd5E) is the current on-chain SystemConfig owner — it received
-# ownership from the Gelato Safe during the migration cutover (step W26). Verify:
-#   cast call 0x05C993e60179f28bF649a2Bb5b00b5F4283bD525 "owner()(address)" --rpc-url sepolia
-
 templateName = "TransferSystemConfigOwnership"
 
-# The current SystemConfig owner and root Safe for this task: Foundation Operations
-# Safe (sep), resolved from src/addresses.toml.
+# The current SystemConfig owner and root Safe for this task: Sepolia Foundation Operations
+# Safe, resolved from src/addresses.toml
+
 safeAddressString = "FoundationOperationsSafe"
 
-# Foundation Upgrade Safe (sep), per src/addresses.toml. ⚠ Ownership transfers are
-# irreversible — verify with ≥3 OP Labs engineers before signing.
+# Sepolia Foundation Upgrade Safe, per src/addresses.toml
+
 newOwner = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
 
 l2chains = [
@@ -24,9 +14,10 @@ l2chains = [
 ]
 
 [stateOverrides]
-# FOS nonce (slot 5) pinned for stable domain/message hashes. Live value at
+# FOS nonce pinned for stable domain/message hashes. Live value at
 # authoring (2026-08-04) = 14. Re-verify before signing:
-#   cast call 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E "nonce()(uint256)" --rpc-url sepolia
+# cast call 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E "nonce()(uint256)" --rpc-url https://ethereum-sepolia-rpc.publicnode.com
+
 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 14}
 ]
