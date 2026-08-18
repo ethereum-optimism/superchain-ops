@@ -1,10 +1,10 @@
 # 066-soneium-fee-vault-recipient-update
 
-Status: [READY TO SIGN]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-For **Soneium Mainnet** (chainId 1868), rotate the recipient of **all four L2 fee-vault predeploys** to the new Soneium fee recipient Safe `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`, and lower the minimum withdrawal amount **10 ETH > 5 ETH** on the three vaults that carry it. Withdrawal networks are untouched (all L2), as is the OperatorFeeVault's zero minimum.
+For **Soneium Mainnet** (chainId 1868), rotate the recipient of **all four L2 fee-vault predeploys** to the new Soneium fee recipient Safe `0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260`, and lower the minimum withdrawal amount **10 ETH → 5 ETH** on the three vaults that carry it. Withdrawal networks are untouched (all L2), as is the OperatorFeeVault's zero minimum.
 
 | Vault | Version (live) | Change |
 |---|---|---|
