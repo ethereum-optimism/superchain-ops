@@ -172,7 +172,7 @@ one for each of the seven calls:
    Admin RPC accepts transactions from any sender, so no key or impersonation is needed:
 
    ```bash
-   L2RPC=<Admin RPC URL>   # e.g. https://virtual.soneium.rpc.tenderly.co/…
+   L2RPC=<Admin RPC URL>
    ALIASED=0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
    NEW=0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260
    MIN=5000000000000000000
@@ -202,13 +202,6 @@ one for each of the seven calls:
 
 ### L1 State Changes
 
-#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...40` (64)
-  - **After:**  `0x...41` (65)
-  - **Summary:** nonce increment of the approving child safe.
-
 #### `0x24424336F04440b1c28685a38303aC33C9D14a25` (Security Council LivenessGuard)
 
 - **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
@@ -218,13 +211,6 @@ one for each of the seven calls:
     artifact**. The simulation overrides the child safe's owner set and threshold so Multicall3
     can act as the sole signer, and the Security Council's LivenessGuard records a liveness
     timestamp for that simulated signer.
-
-#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...42` (66)
-  - **After:**  `0x...43` (67)
-  - **Summary:** nonce increment of the approving child safe.
 
 #### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe) — both paths
 
@@ -248,6 +234,20 @@ one for each of the seven calls:
     seven deposits; `prevBlockNum` = the simulation block (block-dependent); `prevBaseFee`
     typically stays `0x3b9aca00` (1 gwei, the metering floor). Only this slot of the portal may
     change.
+
+#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...40` (64)
+  - **After:**  `0x...41` (65)
+  - **Summary:** nonce increment of the approving child safe.
+
+#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...42` (66)
+  - **After:**  `0x...43` (67)
+  - **Summary:** nonce increment of the approving child safe.
 
 
 ### L2 State Changes
