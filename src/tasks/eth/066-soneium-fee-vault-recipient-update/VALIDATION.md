@@ -202,38 +202,53 @@ one for each of the seven calls:
 
 ### L1 State Changes
 
-`ProxyAdminOwner` nonce increments `40` > `41`; the approving child safe's nonce increments by 1
-(`Security Council` 64 > 65, `Foundation Upgrade Safe` 66 > 67 — nested execution through the L1
-ProxyAdminOwner `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`). During each child safe's approve
-step, the root L1PAO also gains an
-`approvedHashes[<child safe>][0x2ae3ad0acf2f8e01eba980a6c99402900d67452fa1cbfe55c92d21ef252cc78f] = 1`
-storage write, it is expected in the Tenderly state diff of the approval transactions.
-
----
-
-### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
+#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Before:** `40`
-  - **After:** `41`
-  - **Summary:** nonce
-  - **Detail:** Nonce increment of the L1 ProxyAdminOwner Safe executing this task. The
-    before-value reflects the nonce state override in [config.toml](./config.toml)
+  - **Before:** `0x...40` (64)
+  - **After:**  `0x...41` (65)
+  - **Summary:** nonce increment of the approving child safe.
 
----
+#### `0x24424336F04440b1c28685a38303aC33C9D14a25` (Security Council LivenessGuard)
 
-### `0x88e529a6ccd302c948689cd5156c83d4614fae92` (OptimismPortal2) - Chain ID: 1868
+- **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
+  - **Before:** `0x00...00`
+  - **After:**  the simulation block timestamp
+  - **Summary:** `lastLive[0xca11bde05977b3631167028862bE2a173976CA11]` — a **simulation
+    artifact**. The simulation overrides the child safe's owner set and threshold so Multicall3
+    can act as the sole signer, and the Security Council's LivenessGuard records a liveness
+    timestamp for that simulated signer.
+
+#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...42` (66)
+  - **After:**  `0x...43` (67)
+  - **Summary:** nonce increment of the approving child safe.
+
+#### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe) — both paths
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...28` (40)
+  - **After:**  `0x...29` (41)
+  - **Summary:** nonce increment of the root safe executing the task.
+- **Key (council path):**    `0x2392e5e59325d3e5cd374fb4c274fb4a811999f66af355d60846730f7566a323`
+- **Key (foundation path):** `0xa1f3bd1d5b74b1ede29e80dbec6832c993c6a7563a8fe6beb545c8efd2ca1ba1`
+  - **Before:** `0x00...00`
+  - **After:**  `0x00...01`
+  - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the child safe's
+    approval of the task.
+
+#### `0x88e529A6ccd302c948689Cd5156C83D4614FAE92` (OptimismPortal2)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Decoded Kind:** `struct ResourceMetering.ResourceParams`
-  - **Before:** ``
-  - **After:** ``
-  - **Summary:** params
-  - **Detail:** `ResourceMetering` bookkeeping (`prevBoughtGas` / `prevBlockNum`) updated by the
-    Soneium Mainnet `OptimismPortal` as a side effect of the seven `depositTransaction` calls.
-    The exact packed value depends on the block the transaction lands in; only this slot of the
-    portal should change.
+  - **Summary:** `ResourceMetering.ResourceParams` — packed as `prevBaseFee` (low 16 bytes),
+    `prevBoughtGas` (next 8 bytes), `prevBlockNum` (high 8 bytes). Expected after-values:
+    `prevBoughtGas` = `0x100590` = 1,050,000 = **7 × 150,000**, the gas bought by the
+    seven deposits; `prevBlockNum` = the simulation block (block-dependent); `prevBaseFee`
+    typically stays `0x3b9aca00` (1 gwei, the metering floor). Only this slot of the portal may
+    change.
+
 
 ### L2 State Changes
 
