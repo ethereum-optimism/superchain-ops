@@ -194,8 +194,7 @@ one for each of the seven calls:
 3. Back in the dashboard, the seven transactions appear in the TestNet's transaction list. Open
    each one and check its **State Changes** tab against
    [L2 State Changes](#l2-state-changes): the expected slot with the expected before/after
-   values, and nothing else in the diff. Any additional slot or contract means the calldata does
-   not do what this document claims: do not sign.
+   values.
 
 
 ## Task State Changes
