@@ -20,11 +20,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 ```bash
 cd src/tasks/eth/066-soneium-fee-vault-recipient-update
 
-# Simulate — one command per signer safe (hashes recorded in VALIDATION.md):
+# Simulate with council or foundation safe
 just simulate-stack eth 066-soneium-fee-vault-recipient-update council
 just simulate-stack eth 066-soneium-fee-vault-recipient-update foundation
 
-# Sign — with whichever safe you are an owner of (nested signing flow — see docs/NESTED.md):
+# Sign with council or foundation safe
 SKIP_DECODE_AND_PRINT=1 just sign-stack eth 066-soneium-fee-vault-recipient-update council
 SKIP_DECODE_AND_PRINT=1 just sign-stack eth 066-soneium-fee-vault-recipient-update foundation
 ```

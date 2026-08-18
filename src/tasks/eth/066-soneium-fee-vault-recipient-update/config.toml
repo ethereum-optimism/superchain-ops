@@ -4,6 +4,7 @@ l2chains = [
     {name = "Soneium", chainId = 1868}
 ]
 
+# Predeploys
 vaultProxies = [
   "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
   "0x4200000000000000000000000000000000000019",  # BaseFeeVault
