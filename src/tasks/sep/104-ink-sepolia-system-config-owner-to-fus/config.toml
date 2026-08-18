@@ -15,7 +15,7 @@ l2chains = [
 
 [stateOverrides]
 # FOS nonce pinned for stable domain/message hashes. Live value at
-# authoring (2026-08-04) = 14. Re-verify before signing:
+# authoring (2026-08-04) = 14. To re-verify before signing:
 # cast call 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E "nonce()(uint256)" --rpc-url https://ethereum-sepolia-rpc.publicnode.com
 
 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E = [
