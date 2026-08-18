@@ -34,9 +34,9 @@ both signing paths):
 
 ## Understanding Task Calldata
 
-Each payload below becomes the `_data` argument of a
+Each payload below is the `_data` argument of a
 `depositTransaction(vault, 0, 150000, false, _data)` call to the Soneium Mainnet `OptimismPortal`
-(`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`), and the seven portal
+(`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`). The seven portal
 calls are batched into one `Multicall3.aggregate3Value` with selector `0x174dea71` (the first four
 bytes of the task calldata above).
 
@@ -92,6 +92,16 @@ cast calldata "setMinWithdrawalAmount(uint256)" 5000000000000000000
 # Expected: 0x85b5b14d0000000000000000000000000000000000000000000000004563918244f40000
 ```
 
+The following five fields repeat seven times, in
+order:
+
+1. the portal address `88e529a6…fae92`
+2. the `depositTransaction` selector `e9e05c42`
+3. a vault address (`4200…0011` / `…0019` / `…001a` / `…001b`)
+4. the gas limit `0249f0` (150000)
+5. one of the two payloads (`3bbed4a0…` or `85b5b14d…`)
+
+
 ## L1 and L2 Simulation
 
 ### L1 Simulation
@@ -144,22 +154,32 @@ cast send 0x420000000000000000000000000000000000001b "setRecipient(address)" $NE
 #    query the expected changes; a full diff would also expose any unexpected write).
 ```
 
-On [dashboard.tenderly.co](https://dashboard.tenderly.co) → **Simulator** > **New Simulation**:
-network Soneium (chain ID `1868`), **From** `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`, **To**
-the vault, **Raw input data** the call's inner calldata, gas `150000`. Run one simulation per call
-(7 total): each state diff must show exactly the slot listed in 
-[L2 State Changes](#l2-state-changes) for that call.
+To see the full state diffs in Tenderly, replay all seven calls on a Virtual TestNet:
+
+1. [dashboard.tenderly.co](https://dashboard.tenderly.co) → your project → **Virtual TestNets** →
+   **Create Virtual TestNet**: parent network **Soneium** (chain ID 1868), fork from latest block.
+2. Copy the TestNet's **Admin RPC** URL, then rerun steps 2–3 above against it — drop the two
+   `anvil_*` lines (the Admin RPC accepts unsigned transactions from any sender) and fund the
+   sender first:
+
+   ```bash
+   L2RPC=<Admin RPC URL>
+   cast rpc tenderly_setBalance 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b 0xDE0B6B3A7640000 --rpc-url $L2RPC
+   # then the same seven `cast send … --unlocked` commands from step 3, unchanged
+3. Open the Virtual TestNet in the dashboard: the seven transactions appear in its explorer. Open
+each one and check its State Changes tab against L2 State Changes
+
 
 ## Task State Changes
 
 ### L1 State Changes
 
-`ProxyAdminOwner` nonce increments `40` → `41`; the approving child safe's nonce increments by 1
-(`Security Council` 64 → 65, `Foundation Upgrade Safe` 66 → 67 — nested execution through the L1
+`ProxyAdminOwner` nonce increments `40` > `41`; the approving child safe's nonce increments by 1
+(`Security Council` 64 > 65, `Foundation Upgrade Safe` 66 > 67 — nested execution through the L1
 ProxyAdminOwner `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`). During each child safe's approve
 step, the root L1PAO also gains an
 `approvedHashes[<child safe>][0x2ae3ad0acf2f8e01eba980a6c99402900d67452fa1cbfe55c92d21ef252cc78f] = 1`
-storage write — expect it in the Tenderly state diff of the approval transactions.
+storage write, it is expected in the Tenderly state diff of the approval transactions.
 
 ---
 
@@ -189,12 +209,6 @@ storage write — expect it in the Tenderly state diff of the approval transacti
 
 ### L2 State Changes
 
-Applied on Soneium Mainnet (chain ID 1868) when the seven deposits are relayed. Replaying all
-seven on a Soneium fork and diffing every storage slot of the four vaults yields exactly the
-writes below and nothing else. Layout: slot `1` = `minWithdrawalAmount`; slot `2` packs
-`recipient` (low 20 bytes) with `withdrawalNetwork` (byte 20) — the network byte is `01` (= L2)
-in every before/after value and never changes; slot `0` (`totalProcessed`) is untouched.
-
 #### `0x4200000000000000000000000000000000000011` (SequencerFeeVault), `0x4200000000000000000000000000000000000019` (BaseFeeVault), `0x420000000000000000000000000000000000001a` (L1FeeVault) — identical changes on each
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
@@ -213,6 +227,7 @@ in every before/after value and never changes; slot `0` (`totalProcessed`) is un
   - **After:**  `0x00000000000000000000000134fff1a1cb3c054e9ed1bbd36883b14a66e6c260`
   - **Summary:** recipient rotated from the BaseFeeVault cascade to the new Safe directly;
     network byte unchanged; slot `1` (min = 0) is not written
+
 
 ## Post-execution verification calls
 
