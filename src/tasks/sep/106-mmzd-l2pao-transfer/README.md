@@ -1,14 +1,16 @@
-# 106-mmzd-l2pao-transfer: Transfer L2 ProxyAdmin Owner for Metal, Mode, Zora and Dust Sepolia
+# 106-mmzd-l2pao-transfer
 
-Status: READY TO SIGN
+Status: [READY TO SIGN]
 
 ## Objective
 
-Transfer the L2 ProxyAdmin Owner of Metal Sepolia (chainId 1740), Mode
-Sepolia (chainId 919), Zora Sepolia (chainId 999999999) and Dust Testnet
-(chainId 55377) to the L1-to-L2 alias of the chain operator's Safe, executing
-the L2 half of the ownership handover for all four chains in a single task.
-This is the Sepolia counterpart of `eth/068-mmzd-l2pao-transfer`.
+Transfers the L2 ProxyAdmin owner of **Metal Sepolia** (chainId 1740), **Mode
+Sepolia** (919), **Zora Sepolia** (999999999) and **Dust Testnet** (55377) to
+the L1-to-L2 alias of the chain operator's Safe, in a single task. This is the
+Sepolia counterpart of
+[eth/068-mmzd-l2pao-transfer](../../eth/068-mmzd-l2pao-transfer/README.md) and
+the L2 half of the handover started by
+[105-mmzd-l1-ownership-transfers](../105-mmzd-l1-ownership-transfers/README.md).
 
 | L2 ProxyAdmin `0x4200000000000000000000000000000000000018` (all four L2s) | Address |
 |---|---|
@@ -26,52 +28,25 @@ chain's L1 OptimismPortal:
 | Dust Testnet | `0xe6230Bd9e96AD839D4c546710D9A99835052d1C1` |
 
 > [!IMPORTANT]
-> **Execute `105-mmzd-l1-ownership-transfers` first.** This task requires the
-> L1 ProxyAdmin owner of every chain to already be the operator's Safe.
-
-## Signing gates — do not sign until ALL are cleared
-
-1. **Task 105 executed:** the per-chain `proxyAdmin.owner()` build-time checks
-   only pass on-chain once task 105 has executed (local simulation pre-applies
-   it via state overrides).
-2. **Ordering / nonces:** the nonce pins in [config.toml](./config.toml) sit
-   one ahead of the live values (L1PAO 55 / FUS 75 / SC 69), accounting for
-   task 105. sep/104 (PR #1515) is FOS-signed and has no effect. Re-verify
-   the live nonces immediately before signing and regenerate the
-   [VALIDATION.md](./VALIDATION.md) hashes on any drift.
+> **Execute `105-mmzd-l1-ownership-transfers` first.** The template requires the
+> L1 ProxyAdmin owner of every chain to already be the operator's Safe; the
+> stacked simulation runs 105 first, and the on-chain execution must do the
+> same.
 
 ## Simulation & Signing
 
-The root safe is the 2-of-2 nested L1PAO, so run each command once per child
-safe (`foundation`, then `council`).
+Nested task: run each command with the child safe you sign through.
 
 ```bash
 cd src/tasks/sep/106-mmzd-l2pao-transfer
-SIMULATE_WITHOUT_LEDGER=1 just simulate <foundation|council>
-# then, to sign:
-just sign <foundation|council>
+
+just simulate-stack sep 106-mmzd-l2pao-transfer council   # or foundation
+
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 106-mmzd-l2pao-transfer council   # or foundation
 ```
-
-> [!CAUTION]
-> The Safe nonces are pinned in `config.toml`. Re-verify them against live
-> on-chain values before signing — see [VALIDATION.md](./VALIDATION.md).
-
-For extra assurance on the L2 deposits before signing, follow
-[`docs/simulate-l2-ownership-transfer.md`](../../../../docs/simulate-l2-ownership-transfer.md)
-for each of the four `TransactionDeposited` events and record the results in
-`VALIDATION.md`.
-
-## Post-execution verification
-
-The L2 changes land only once each deposit is relayed — see
-[VALIDATION.md](./VALIDATION.md#post-execution-verification) for the per-chain
-checks (public RPCs: `https://testnet.rpc.metall2.com`,
-`https://sepolia.mode.network`, `https://sepolia.rpc.zora.energy`,
-`https://rpc-dust-testnet-0.t.conduit.xyz`).
 
 ## Validation
 
-See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes
-and state changes. Task inputs and the rationale for the address fallback,
-alias derivation and state overrides are documented in
-[config.toml](./config.toml).
+See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes, the
+calldata breakdown, the L2 replay, the expected state changes on L1 and L2, and
+the post-execution checks.

@@ -1,28 +1,14 @@
-# Transfer the L2 ProxyAdmin ownership of Metal Sepolia (chainId 1740), Mode
-# Sepolia (chainId 919), Zora Sepolia (chainId 999999999) and Dust Testnet
-# (chainId 55377) to the L1-to-L2 alias of the chain operator's Safe
-# 0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2, in a single task.
-#
-# Sepolia counterpart of eth/068-mmzd-l2pao-transfer.
-#
-# This task sends one deposit transaction per chain through that chain's L1
-# OptimismPortal, calling `transferOwnership(alias(newOwner))` on the L2
-# ProxyAdmin predeploy (0x4200000000000000000000000000000000000018). The
-# current L2 ProxyAdmin owner on all four L2s is
-# 0x2FC3ffc903729a0f03966b917003800B145F67F3 — the alias of the *current*
-# standard Sepolia L1PAO Safe (verified on each L2) — so the deposits must be
-# sent from that L1 Safe for the L2 OwnershipTransferred events to be
-# authorized.
-#
-# Metal, Mode and Zora are resolved from the superchain-registry. Dust is a
-# Conduit chain that is not in the registry, so its addresses are loaded via
-# `fallbackAddressesJsonPath`.
-#
-# Stacked after task 105-mmzd-l1-ownership-transfers (L1 ownership transfers).
-# The `TransferL2PAOFromL1` template asserts `ProxyAdmin.owner() ==
-# newOwnerToAlias` for every chain at build time, so task 105 must run first;
-# the per-chain ProxyAdmin stateOverrides below make that hold during local
-# simulation. The standalone Safe nonce overrides account for the +1 from 105.
+templateName = "TransferL2PAOFromL1"
+
+# Sepolia counterpart of eth/068: transfers the L2 ProxyAdmin owner of all four
+# chains to the L1-to-L2 alias of the operator's Safe (the L2 half of the
+# handover), via one depositTransaction per chain through that chain's L1
+# OptimismPortal. Metal, Mode and Zora resolve from the superchain-registry;
+# Dust is not in the registry and its addresses come from
+# fallbackAddressesJsonPath.
+# Stacked after 105-mmzd-l1-ownership-transfers: the template asserts each L1
+# ProxyAdmin.owner() == newOwnerToAlias at build time, which holds once 105 has
+# executed (the stacked simulation runs 105 first).
 
 l2chains = [
     {name = "Metal", chainId = 1740},
@@ -33,61 +19,30 @@ l2chains = [
 
 fallbackAddressesJsonPath = "src/tasks/sep/106-mmzd-l2pao-transfer/addresses.json"
 
-templateName = "TransferL2PAOFromL1"
-
-# Unaliased new owner (the operator's 1-of-1 Sepolia Safe, same recipient as
-# task 105). The template applies AddressAliasHelper.applyL1ToL2Alias and
-# sends the aliased value to each L2 ProxyAdmin. Computed alias:
+# Unaliased new owner (same recipient as task 105). The template applies the
+# L1-to-L2 alias and sends the aliased value to each L2 ProxyAdmin:
 # 0x45588C2Eb9018d5a6487bF0440838cd4238E9E03
 newOwnerToAlias = "0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2"
 
 [addresses]
-# Pin the executing (parent) Safe globally. After task 105 executes, on-chain
-# discovery resolves each registry chain's ProxyAdminOwner to the operator's
-# Safe, but the deposits must still be sent by the *previous* standard L1PAO —
-# the L2 ProxyAdmin predeploys are owned by its alias. The global pin keeps
-# the root-safe resolution (and therefore the signing hashes) stable whether
-# or not 105 has executed yet.
+# Root-safe pin: after 105 executes, on-chain discovery resolves each chain's
+# ProxyAdminOwner to the operator's Safe, but the deposits must still be sent by
+# the previous L1PAO — its alias owns the L2 ProxyAdmin predeploys. The pin keeps
+# root-safe resolution (and the signing hashes) stable whether or not 105 has
+# executed yet.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [stateOverrides]
-# The standard Sepolia L1PAO is a 2-of-2 nested Safe (FoundationUpgradeSafe +
-# SecurityCouncil). All three Safe nonces are pinned (slot 5) ONE AHEAD of
-# their live on-chain values (read 2026-08-13: L1PAO=54 / FUS=74 / SC=68),
-# accounting for the bump from task 105. These Safes are shared across many
-# Sepolia chains, so re-verify immediately before signing:
+# L1PAO / FUS / SC nonces pinned one ahead of live (2026-08-13: 54 / 74 / 68) to
+# account for task 105, which executes before this task. Re-verify before
+# signing and regenerate the VALIDATION.md hashes on any drift:
 #   cast call <safe> "nonce()(uint256)" --rpc-url sepolia
-# and bump the corresponding override + re-simulate if any has advanced beyond
-# the values below.
-0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO — 54 + 1 (task 105)
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 55}
 ]
-0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe — 74 + 1
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 75}
 ]
-0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil — 68 + 1
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 69}
-]
-
-# Pre-apply task 105's L1 ownership transfers so the template's per-chain
-# `proxyAdmin.owner() == newOwnerToAlias` check passes when simulating this
-# task in isolation. Slot 0 holds each ProxyAdmin's owner (verified with
-# `cast storage <proxyAdmin> 0 --rpc-url sepolia`); these overrides do not
-# produce state changes at signing time — the actual transitions are performed
-# by task 105.
-# Metal ProxyAdmin
-0xF7Bc4b3a78C7Dd8bE9B69B3128EEB0D6776Ce18A = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x00000000000000000000000034478c2eB9018d5A6487BF0440838Cd4238e8cf2"}
-]
-# Mode ProxyAdmin
-0xE7413127F29E050Df65ac3FC9335F85bB10091AE = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x00000000000000000000000034478c2eB9018d5A6487BF0440838Cd4238e8cf2"}
-]
-# Zora ProxyAdmin
-0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x00000000000000000000000034478c2eB9018d5A6487BF0440838Cd4238e8cf2"}
-]
-# Dust ProxyAdmin
-0x068881bd385BD917DdD9370f0DBFa19C969340D4 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x00000000000000000000000034478c2eB9018d5A6487BF0440838Cd4238e8cf2"}
 ]

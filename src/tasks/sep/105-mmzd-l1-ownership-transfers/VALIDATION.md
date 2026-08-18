@@ -3,33 +3,15 @@
 This document can be used to validate the inputs and result of the execution of
 the transaction which you are signing.
 
-The steps are:
-
-1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Transaction Inputs](config.toml): the new owner and the four chain IDs can
-   be verified directly in `config.toml`. Dust's fallback addresses are in
-   `addresses.json`.
-3. State Changes: see [State Changes](#state-changes) below. They can also be
-   reviewed in Tenderly using the link printed by the simulation, and verified
-   against the template's `_validate` assertions.
-
 ## Expected Domain and Message Hashes
 
-First, we need to validate the domain and message hashes. These values should
-match both the values on your ledger and the values printed to the terminal
-when you run the task.
+Validate the domain and message hashes. These values should match both the
+values on your ledger and the values printed to the terminal when you run the
+task. The hashes assume the pinned nonces in [config.toml](./config.toml).
 
 > [!CAUTION]
 >
-> These hashes assume the pinned nonces below — the live on-chain values as of
-> 2026-08-13 (sep/104, PR #1515, is FOS-signed and does not touch them):
-> - Standard Sepolia L1PAO Safe: **54**
-> - FoundationUpgradeSafe:       **74**
-> - SecurityCouncil:             **68**
->
-> Before signing, re-verify each live nonce with
-> `cast call <safe> "nonce()(uint256)" --rpc-url sepolia`. If any has advanced,
-> bump the override in `config.toml` and re-simulate to regenerate these hashes.
+> Before signing, ensure the below hashes match what is on your ledger.
 >
 > ### FoundationUpgradeSafe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
@@ -41,148 +23,181 @@ when you run the task.
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
 > - Message Hash: `0x54c625a4a05c3b28fb0d7639f751fdbdca002df7c6993d3e703854e124fc5dab`
 
-## State Changes
-
-The simulation produces nine state changes on L1 Sepolia (two ownership
-transfers per chain and the root Safe nonce), plus the standard
-nested-execution bookkeeping described below.
-
-### Signer safes (nested-execution bookkeeping)
-
-The approving child safe's nonce increments by 1 (FoundationUpgradeSafe
-`74` → `75`, or SecurityCouncil `68` → `69`, per the pinned overrides).
-During each child safe's approve step, the root L1PAO also gains an
-`approvedHashes[<child safe>][0xb2c21a965497c226c47c7b8a123f60b669746b6ea0f3af698f452e634fb1e6df] = 1`
-storage write — expect it in the Tenderly state diff of the approval
-transactions.
-
----
-
-### `0x1eb2ffc903729a0f03966b917003800b145f56e2` (Standard Sepolia L1PAO Safe — parent multisig) — Chain ID: 11155111
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Before:** `54`
-  - **After:**  `55`
-  - **Summary:** nonce
-  - **Detail:** Standard Gnosis Safe nonce bump for executing this task.
-
----
-
-### `0xf7bc4b3a78c7dd8be9b69b3128eeb0d6776ce18a` (Metal Sepolia ProxyAdmin) — Chain ID: 1740
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Metal Sepolia L1 ProxyAdmin ownership to the operator's Safe.
-  - **Detail:** OpenZeppelin Ownable layout — slot 0 holds the owner.
-
-### `0xd9a68f90b2d2debe18a916859b672d70f79eebe3` (Metal Sepolia DisputeGameFactoryProxy) — Chain ID: 1740
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Metal Sepolia DisputeGameFactory ownership to the operator's Safe.
-  - **Detail:** Slot `0x33` is the Ownable owner slot for this contract layout.
-
----
-
-### `0xe7413127f29e050df65ac3fc9335f85bb10091ae` (Mode Sepolia ProxyAdmin) — Chain ID: 919
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Mode Sepolia L1 ProxyAdmin ownership to the operator's Safe.
-  - **Detail:** OpenZeppelin Ownable layout — slot 0 holds the owner.
-
-### `0x7bb634b42373a87712da14064ded13db8b8b14f4` (Mode Sepolia DisputeGameFactoryProxy) — Chain ID: 919
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Mode Sepolia DisputeGameFactory ownership to the operator's Safe.
-  - **Detail:** Slot `0x33` is the Ownable owner slot for this contract layout.
-
----
-
-### `0xe17071f4c216eb189437fbdbcc16bb79c4efd9c2` (Zora Sepolia ProxyAdmin) — Chain ID: 999999999
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Zora Sepolia L1 ProxyAdmin ownership to the operator's Safe.
-  - **Detail:** OpenZeppelin Ownable layout — slot 0 holds the owner.
-
-### `0xa983a71253eb74e5e86a4e4ed9f37113fc25f2bf` (Zora Sepolia DisputeGameFactoryProxy) — Chain ID: 999999999
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Zora Sepolia DisputeGameFactory ownership to the operator's Safe.
-  - **Detail:** Slot `0x33` is the Ownable owner slot for this contract layout.
-
----
-
-### `0x068881bd385bd917ddd9370f0dbfa19c969340d4` (Dust Testnet ProxyAdmin) — Chain ID: 55377
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Dust Testnet L1 ProxyAdmin ownership to the operator's Safe.
-  - **Detail:** OpenZeppelin Ownable layout — slot 0 holds the owner. Dust is
-    not in the superchain-registry, so the simulation output cannot decode
-    this contract — verify the address against `addresses.json` and the
-    Conduit contracts endpoint
-    (https://api.conduit.xyz/file/v1/optimism/contracts/dust-testnet-0).
-
-### `0x157814873342a0f4d6758d69fdf11c4c40c01ed5` (Dust Testnet DisputeGameFactoryProxy) — Chain ID: 55377
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
-  - **Decoded Kind:** `address`
-  - **Before:** `0x1eb2ffc903729a0f03966b917003800b145f56e2`
-  - **After:**  `0x34478c2eb9018d5a6487bf0440838cd4238e8cf2`
-  - **Summary:** Transfer Dust Testnet DisputeGameFactory ownership to the operator's Safe.
-  - **Detail:** Slot `0x33` is the Ownable owner slot for this contract
-    layout. Same registry note as the Dust ProxyAdmin above.
-
-There is no DelayedWETH state change on any chain — the contracts are v1.5.0
-(post-U16) and not ownable, so there is no ownership to transfer. See
-[config.toml](./config.toml) for the details.
-
-## Pre-state verification
-
-Confirm every current owner before signing (each command returns the L1PAO
-`0x1Eb2fFc903729a0F03966B917003800b145F56E2`):
-
-```bash
-# Metal Sepolia (1740)                          ProxyAdmin / DisputeGameFactoryProxy
-cast call 0xF7Bc4b3a78C7Dd8bE9B69B3128EEB0D6776Ce18A "owner()(address)" --rpc-url sepolia
-cast call 0xd9A68F90B2d2DEbe18a916859B672D70f79eEbe3 "owner()(address)" --rpc-url sepolia
-# Mode Sepolia (919)
-cast call 0xE7413127F29E050Df65ac3FC9335F85bB10091AE "owner()(address)" --rpc-url sepolia
-cast call 0x7Bb634B42373A87712Da14064deD13Db8b8b14f4 "owner()(address)" --rpc-url sepolia
-# Zora Sepolia (999999999)
-cast call 0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2 "owner()(address)" --rpc-url sepolia
-cast call 0xA983A71253Eb74e5E86A4E4eD9F37113FC25f2BF "owner()(address)" --rpc-url sepolia
-# Dust Testnet (55377)
-cast call 0x068881bd385BD917DdD9370f0DBFa19C969340D4 "owner()(address)" --rpc-url sepolia
-cast call 0x157814873342A0f4D6758D69fdF11C4C40c01ed5 "owner()(address)" --rpc-url sepolia
-```
-
-## Post-execution verification
-
-Re-run the eight commands above — each is expected to return the new owner
-`0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2`.
+Root L1PAO (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) safe transaction hash
+(identical on both signing paths):
+`0xb2c21a965497c226c47c7b8a123f60b669746b6ea0f3af698f452e634fb1e6df`
 
 ## Task Calldata
 
 ```
 0x174dea7100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c000000000000000000000000000000000000000000000000000000000000003a00000000000000000000000000000000000000000000000000000000000000480000000000000000000000000000000000000000000000000000000000000056000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000720000000000000000000000000d9a68f90b2d2debe18a916859b672d70f79eebe30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000000000000000000000000000f7bc4b3a78c7dd8be9b69b3128eeb0d6776ce18a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf2000000000000000000000000000000000000000000000000000000000000000000000000000000007bb634b42373a87712da14064ded13db8b8b14f40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000000000000000000000000000a983a71253eb74e5e86a4e4ed9f37113fc25f2bf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000000000000000000000000000e17071f4c216eb189437fbdbcc16bb79c4efd9c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000000000000000000000000000157814873342a0f4d6758d69fdf11c4c40c01ed50000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000000000000000000000000000068881bd385bd917ddd9370f0dbfa19c969340d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024f2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf200000000000000000000000000000000000000000000000000000000
+```
+
+## Understanding Task Calldata
+
+The task is a single `Multicall3.aggregate3Value` from the L1PAO (selector
+`0x174dea71`, the first four bytes above) containing **8** direct
+`transferOwnership(address)` calls, one per contract. Every call carries the
+same payload — selector `0xf2fde38b` with the new owner
+`0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2` — and differs only in the target:
+
+| # | Target | Contract |
+|---|---|---|
+| 1 | `0xd9A68F90B2d2DEbe18a916859B672D70f79eEbe3` | Metal Sepolia DisputeGameFactoryProxy |
+| 2 | `0xF7Bc4b3a78C7Dd8bE9B69B3128EEB0D6776Ce18A` | Metal Sepolia ProxyAdmin |
+| 3 | `0x7Bb634B42373A87712Da14064deD13Db8b8b14f4` | Mode Sepolia DisputeGameFactoryProxy |
+| 4 | `0xE7413127F29E050Df65ac3FC9335F85bB10091AE` | Mode Sepolia ProxyAdmin |
+| 5 | `0xA983A71253Eb74e5E86A4E4eD9F37113FC25f2BF` | Zora Sepolia DisputeGameFactoryProxy |
+| 6 | `0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2` | Zora Sepolia ProxyAdmin |
+| 7 | `0x157814873342A0f4D6758D69fdF11C4C40c01ed5` | Dust Testnet DisputeGameFactoryProxy |
+| 8 | `0x068881bd385BD917DdD9370f0DBFa19C969340D4` | Dust Testnet ProxyAdmin |
+
+To verify the payload fingerprint:
+
+```bash
+cast calldata "transferOwnership(address)" 0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2
+# Expected: 0xf2fde38b00000000000000000000000034478c2eb9018d5a6487bf0440838cd4238e8cf2
+```
+
+Every byte not belonging to the payload and targets above is standard ABI
+encoding: zero-padding, offsets, and lengths. The payload selector `f2fde38b`
+appears exactly 8 times and each target exactly once. To decode the full
+calldata back into the eight calls and confirm no additional content is
+present:
+
+```bash
+cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task calldata>
+```
+
+## Simulation
+
+```bash
+cd src/tasks/sep/105-mmzd-l1-ownership-transfers
+just simulate-stack sep 105-mmzd-l1-ownership-transfers council   # or foundation
+```
+
+Check three things:
+
+1. The domain and message hashes printed to the terminal match the ones at the
+   top of this file.
+2. In the Tenderly link printed by the simulation: paste the
+   [task calldata](#task-calldata) into the **Raw input data** field and
+   simulate; the state diff must match
+   [Task State Changes](#task-state-changes) below.
+3. The Tenderly **Events** tab shows exactly eight `OwnershipTransferred`
+   events, all with `newOwner = 0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2`.
+
+## Task State Changes
+
+Tenderly lists the touched contracts in address order, as below. The council
+path shows the LivenessGuard and SecurityCouncil entries; the foundation path
+shows the FoundationUpgradeSafe entry instead. Each of the eight ownership
+entries changes its owner slot from the L1PAO
+(`0x…1eb2ffc903729a0f03966b917003800b145f56e2`) to the operator's Safe
+(`0x…34478c2eb9018d5a6487bf0440838cd4238e8cf2`) — ProxyAdmin contracts hold the
+owner at slot `0x0`, DisputeGameFactory proxies at slot `0x33`. Anything not
+listed here appearing in the diff means the transaction does not do what this
+document claims: do not sign.
+
+#### `0x068881bd385BD917DdD9370f0DBFa19C969340D4` (Dust Testnet ProxyAdmin)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
+  owner: L1PAO → operator Safe. Dust is not in the superchain-registry, so
+  Tenderly cannot label this contract — verify the address against
+  [addresses.json](./addresses.json).
+
+#### `0x157814873342A0f4D6758D69fdF11C4C40c01ed5` (Dust Testnet DisputeGameFactoryProxy)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
+  owner: L1PAO → operator Safe. Same registry note as the Dust ProxyAdmin above.
+
+#### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (ProxyAdminOwner, root safe) — both paths
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...36` (54) → **After:** `0x...37` (55)
+  - **Summary:** nonce increment of the root safe executing the task. The
+    before-value reflects the nonce state override in
+    [config.toml](./config.toml).
+- **Key (council path):**    `0xca93d17d1d3aa2eefa3dac7366df056b955ca4f5d6127049c3c307f2d4f7b8db`
+- **Key (foundation path):** `0x9781f16e41dd0cb5c39a0c0f2ec16a9ffcee7bc06591cce9ccedaa82a062a330`
+  - **Before:** `0x00...00` → **After:** `0x00...01`
+  - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the
+    child safe's approval of the task.
+
+#### `0x7Bb634B42373A87712Da14064deD13Db8b8b14f4` (Mode Sepolia DisputeGameFactoryProxy)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
+  owner: L1PAO → operator Safe.
+
+#### `0xA983A71253Eb74e5E86A4E4eD9F37113FC25f2BF` (Zora Sepolia DisputeGameFactoryProxy)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
+  owner: L1PAO → operator Safe.
+
+#### `0xc26977310bC89DAee5823C2e2a73195E85382cC7` (SecurityCouncil LivenessGuard) — council path only
+
+- **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
+  - **Before:** `0x00...00` → **After:** the simulation block timestamp
+  - **Summary:** `lastLive[0xca11bde05977b3631167028862bE2a173976CA11]` — a
+    **simulation artifact**. The simulation overrides the child safe's owners
+    and threshold so Multicall3 acts as the sole signer, and the guard records
+    a liveness timestamp for it. On the real execution this is written for the
+    actual signers instead.
+
+#### `0xd9A68F90B2d2DEbe18a916859B672D70f79eEbe3` (Metal Sepolia DisputeGameFactoryProxy)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
+  owner: L1PAO → operator Safe.
+
+#### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe) — foundation path only
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...4a` (74) → **After:** `0x...4b` (75)
+  - **Summary:** nonce increment of the approving child safe.
+
+#### `0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2` (Zora Sepolia ProxyAdmin)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
+  owner: L1PAO → operator Safe.
+
+#### `0xE7413127F29E050Df65ac3FC9335F85bB10091AE` (Mode Sepolia ProxyAdmin)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
+  owner: L1PAO → operator Safe.
+
+#### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil) — council path only
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...44` (68) → **After:** `0x...45` (69)
+  - **Summary:** nonce increment of the approving child safe.
+
+#### `0xF7Bc4b3a78C7Dd8bE9B69B3128EEB0D6776Ce18A` (Metal Sepolia ProxyAdmin)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
+  owner: L1PAO → operator Safe.
+
+Tenderly also shows `Nonce N → N+1` (no storage key) on the child safe used as
+the simulation's sender — its protocol account nonce, unrelated to the Safe's
+signing nonce. Ignore it; it does not occur on the real execution.
+
+## Post-execution verification calls
+
+Each command is expected to return the new owner
+`0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2`:
+
+```bash
+RPC=https://ethereum-sepolia-rpc.publicnode.com
+
+# Metal Sepolia (1740)                          ProxyAdmin / DisputeGameFactoryProxy
+cast call 0xF7Bc4b3a78C7Dd8bE9B69B3128EEB0D6776Ce18A "owner()(address)" -r $RPC
+cast call 0xd9A68F90B2d2DEbe18a916859B672D70f79eEbe3 "owner()(address)" -r $RPC
+# Mode Sepolia (919)
+cast call 0xE7413127F29E050Df65ac3FC9335F85bB10091AE "owner()(address)" -r $RPC
+cast call 0x7Bb634B42373A87712Da14064deD13Db8b8b14f4 "owner()(address)" -r $RPC
+# Zora Sepolia (999999999)
+cast call 0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2 "owner()(address)" -r $RPC
+cast call 0xA983A71253Eb74e5E86A4E4eD9F37113FC25f2BF "owner()(address)" -r $RPC
+# Dust Testnet (55377)
+cast call 0x068881bd385BD917DdD9370f0DBFa19C969340D4 "owner()(address)" -r $RPC
+cast call 0x157814873342A0f4D6758D69fdF11C4C40c01ed5 "owner()(address)" -r $RPC
 ```

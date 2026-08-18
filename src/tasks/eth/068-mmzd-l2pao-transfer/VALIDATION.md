@@ -3,38 +3,15 @@
 This document can be used to validate the inputs and result of the execution of
 the transaction which you are signing.
 
-Task 068 transfers the L2 ProxyAdmin Owner of Metal (chainId 1750), Mode
-(chainId 34443), Zora (chainId 7777777) and Dust (chainId 55378) to the
-L1-to-L2 alias of `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`, via one
-deposit transaction per chain through that chain's L1 OptimismPortal. The
-actual L2 state changes (`L2 ProxyAdmin.owner` → aliased new owner) happen
-after each deposit is included on its L2 and cannot be observed in the L1
-simulation.
-
-The steps are:
-
-1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Transaction Inputs](#transaction-inputs)
-3. [State Changes](#state-changes)
-4. [Manual L2 verification](#manual-l2-verification-steps)
-
 ## Expected Domain and Message Hashes
+
+Validate the domain and message hashes. These values should match both the
+values on your ledger and the values printed to the terminal when you run the
+task. The hashes assume the pinned nonces in [config.toml](./config.toml).
 
 > [!CAUTION]
 >
-> These hashes assume the pinned nonces below — two ahead of the live on-chain
-> values (read 2026-08-13: L1PAO=40 / FUS=66 / SC=64), accounting for the
-> bumps from eth/066 and task 067:
-> - Standard mainnet L1PAO Safe: **42**
-> - FoundationUpgradeSafe:       **68**
-> - SecurityCouncil:             **66**
->
-> Before signing, re-verify each live nonce with
-> `cast call <safe> "nonce()(uint256)" --rpc-url mainnet`. The pins apply
-> whether or not eth/066 and task 067 have been signed yet, since the
-> overrides mimic the post-067 state. If a nonce has advanced past the values
-> above, bump the override in `config.toml` and re-simulate to regenerate
-> these hashes.
+> Before signing, ensure the below hashes match what is on your ledger.
 >
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
@@ -46,113 +23,9 @@ The steps are:
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
 > - Message Hash: `0x424a30762d12550ae37fee33fdccf6a8afe4944b5baba5bb7b6e7411cde24f5e`
 
-## Transaction Inputs
-
-The transaction calls each chain's `OptimismPortalProxy.depositTransaction`
-(four calls total, one per chain) with identical arguments:
-
-- `_to`:         `0x4200000000000000000000000000000000000018` (L2 ProxyAdmin predeploy)
-- `_value`:      `0`
-- `_gasLimit`:   `200000`
-- `_isCreation`: `false`
-- `_data`:       `0xf2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b857`
-
-The portals called (in calldata order):
-
-| Chain | OptimismPortalProxy |
-|---|---|
-| Metal (1750) | `0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956` |
-| Mode (34443) | `0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07` |
-| Zora (7777777) | `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` |
-| Dust (55378) | `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` |
-
-The inner `transferOwnership(address)` payload targets
-`0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857` — the L1-to-L2 alias of
-`0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`. Verify by hand with:
-
-```bash
-cast calldata-decode "transferOwnership(address)" \
-  0xf2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b857
-# returns 0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857
-```
-
-## State Changes
-
-The L1 simulation produces five state changes (the root Safe nonce and one
-OptimismPortal deposit-bookkeeping write per chain), plus the standard
-nested-execution bookkeeping described below; the L2 state changes happen
-after deposit inclusion and must be checked manually (see below).
-
-### Signer safes (nested-execution bookkeeping)
-
-The approving child safe's nonce increments by 1 (FoundationUpgradeSafe
-`68` → `69`, or SecurityCouncil `66` → `67`, per the pinned overrides).
-During each child safe's approve step, the root L1PAO also gains an
-`approvedHashes[<child safe>][0x12b35b0929f871f853e244771307512a9e1f24e811a22bef66a88866a81ad5d1] = 1`
-storage write — expect it in the Tenderly state diff of the approval
-transactions.
-
-> Note: the simulation also applies the four ProxyAdmin slot `0x00` overrides
-> declared in `config.toml`. Those overrides pre-apply task 067's L1 ownership
-> transfers so the template's per-chain `proxyAdmin.owner() == newOwnerToAlias`
-> check passes; they do not produce state changes at signing time (the actual
-> transitions are performed by task 067).
-
----
-
-### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (Standard mainnet L1PAO Safe — parent multisig) — Chain ID: 1
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Before:** `42`
-  - **After:**  `43`
-  - **Summary:** nonce
-  - **Detail:** Standard Gnosis Safe nonce bump. Starts at 42 because this
-    task is stacked after eth/066 and task 067, which advance the live nonce
-    40 → 42.
-
----
-
-### OptimismPortalProxy `params` slot (one write per chain)
-
-Each of the four portals updates its slot `0x01` — the packed
-`ResourceMetering.ResourceParams` (`prevBaseFee`, `prevBoughtGas`,
-`prevBlockNum`) bookkeeping that `depositTransaction` updates on every call:
-
-- `0x3f37abde2c6b5b2ed6f8045787df1ed1e3753956` (Metal OptimismPortalProxy) — Chain ID: 1750
-- `0x8b34b14c7c7123459cf3076b8cb929be097d0c07` (Mode OptimismPortalProxy) — Chain ID: 34443
-- `0x1a0ad011913a150f69f6a19df447a0cfd9551054` (Zora OptimismPortalProxy) — Chain ID: 7777777
-- `0xf573a6da7a5b5de9fbadfc26cffc595ad04dc7d4` (Dust OptimismPortalProxy) — Chain ID: 55378
-
-The exact "Before"/"After" values depend on the simulation block; the
-constant `0x30d40` in the middle word matches the requested L2 gas limit
-(200,000).
-
-Each portal also emits a `TransactionDeposited(from, to, version, opaqueData)`
-log; verify in Tenderly that there are exactly four, that `from` is
-`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` (the aliased current L1PAO),
-that `to` is `0x4200000000000000000000000000000000000018`, and that the
-opaque data encodes the `transferOwnership` payload above.
-
-## Post-execution verification
-
-The L2 changes land only once each deposit is relayed, so they cannot be
-confirmed from L1. On each L2:
-
-1. Find the deposit transaction from `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`
-   to the L2 ProxyAdmin predeploy `0x4200000000000000000000000000000000000018`.
-2. Confirm it emitted `OwnershipTransferred` with `newOwner`
-   `0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857`.
-3. Confirm the final owner:
-   ```bash
-   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://rpc.metall2.com
-   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://mainnet.mode.network
-   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://rpc.zora.energy
-   cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://rpc-dust-mainnet-0.t.conduit.xyz
-   # All expected: 0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857
-   ```
-4. Ask the chain operator to confirm receipt of ownership through the shared
-   channel.
+Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
+(identical on both signing paths):
+`0x12b35b0929f871f853e244771307512a9e1f24e811a22bef66a88866a81ad5d1`
 
 ## Task Calldata
 
@@ -160,11 +33,206 @@ confirmed from L1. On each L2:
 0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000240000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000005c00000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e37539560000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b85700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008b34b14c7c7123459cf3076b8cb929be097d0c070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b85700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a0ad011913a150f69f6a19df447a0cfd95510540000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b8570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f573a6da7a5b5de9fbadfc26cffc595ad04dc7d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b8570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ```
 
-## Manual L2 Verification Steps
+## Understanding Task Calldata
 
-The L2 owner changes land only after each deposit is relayed. See
-[README.md](./README.md) for the post-execution checks, and
-[`docs/simulate-l2-ownership-transfer.md`](../../../../docs/simulate-l2-ownership-transfer.md)
-for the full L2 deposit-simulation walkthrough — repeat it for each of the
-four `TransactionDeposited` events, selecting the corresponding L2 network in
-Tenderly each time.
+The task is a single `Multicall3.aggregate3Value` from the L1PAO (selector
+`0x174dea71`, the first four bytes above) containing **4** `depositTransaction`
+calls (selector `0xe9e05c42`), one per chain's L1 OptimismPortal. Every deposit
+uses `_to = 0x4200000000000000000000000000000000000018` (the L2 ProxyAdmin
+predeploy), `_value = 0`, `_gasLimit = 200000` (`0x30d40`),
+`_isCreation = false`, and carries the same inner payload —
+`transferOwnership(address)`, selector `0xf2fde38b`, with the aliased operator
+Safe `0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857`. On each L2 the deposit
+executes as `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`, the alias of the
+current L1PAO, which is the L2 ProxyAdmin owner the transfer authorizes
+against.
+
+| # | Portal | Chain |
+|---|---|---|
+| 1 | `0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956` | Metal (1750) |
+| 2 | `0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07` | Mode (34443) |
+| 3 | `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` | Zora (7777777) |
+| 4 | `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` | Dust (55378) |
+
+To verify the inner payload fingerprint:
+
+```bash
+cast calldata "transferOwnership(address)" 0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857
+# Expected: 0xf2fde38b0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b857
+
+# The alias is newOwner + 0x1111000000000000000000000000000000001111:
+cast to-check-sum-address $(python3 -c "print(hex((0x4a4962275DF8C60a80d3a25faEc5AA7De116A746 + 0x1111000000000000000000000000000000001111) % 2**160))")
+# Expected: 0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857
+```
+
+Every byte not belonging to the fields above is standard ABI encoding:
+zero-padding, offsets, and lengths. The deposit selector `e9e05c42`, the gas
+limit `30d40` and the payload selector `f2fde38b` each appear exactly 4 times,
+and each portal exactly once. To decode the full calldata back into the four
+deposits and confirm no additional content is present:
+
+```bash
+cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task calldata>
+```
+
+## L1 and L2 Simulation
+
+### L1 Simulation
+
+```bash
+cd src/tasks/eth/068-mmzd-l2pao-transfer
+just simulate-stack eth 068-mmzd-l2pao-transfer council   # or foundation
+```
+
+Check three things:
+
+1. The domain and message hashes printed to the terminal match the ones at the
+   top of this file.
+2. In the Tenderly link printed by the simulation: paste the
+   [task calldata](#task-calldata) into the **Raw input data** field and
+   simulate; the state diff must match
+   [L1 State Changes](#l1-state-changes) below.
+3. The Tenderly **Events** tab shows exactly four `TransactionDeposited`
+   events, one per portal, each with
+   `from = 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` and
+   `to = 0x4200000000000000000000000000000000000018`.
+
+### L2 Simulation
+
+**Manual replay (required independent check):** reproduce exactly what each
+deposit will do on its L2 and inspect the resulting state, on a local fork.
+Repeat for each chain (Metal, Mode, Zora and Dust are not in Tenderly's
+supported-network list, so the replay is local only):
+
+```bash
+# 1. Fork the chain (one at a time):
+anvil --fork-url https://rpc.metall2.com --port 9545              # Metal
+# anvil --fork-url https://mainnet.mode.network --port 9545       # Mode
+# anvil --fork-url https://rpc.zora.energy --port 9545            # Zora
+# anvil --fork-url https://rpc-dust-mainnet-0.t.conduit.xyz --port 9545  # Dust
+
+# 2. Impersonate the deposits' L2 sender — the aliased L1PAO (= the L2 ProxyAdmin owner)
+L2RPC=http://127.0.0.1:9545
+ALIASED=0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+cast rpc anvil_impersonateAccount $ALIASED --rpc-url $L2RPC
+cast rpc anvil_setBalance $ALIASED 0xDE0B6B3A7640000 --rpc-url $L2RPC
+
+# 3. Send the exact inner call the deposit carries
+cast send 0x4200000000000000000000000000000000000018 "transferOwnership(address)" \
+  0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857 \
+  --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 200000
+
+# 4. Compare the storage diff against "L2 State Changes" below, then kill anvil
+cast storage 0x4200000000000000000000000000000000000018 0 --rpc-url $L2RPC
+cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url $L2RPC
+```
+
+This replay was executed during task preparation (2026-08-18) on forks of all
+four chains: the transfer succeeds at 33,545 gas (6x headroom under the 200k
+deposit limit), changes only slot `0` of the predeploy, and the same call from
+any other sender reverts with `Ownable: caller is not the owner`.
+
+## Task State Changes
+
+### L1 State Changes
+
+Tenderly lists the touched contracts in address order, as below. The council
+path shows the LivenessGuard and SecurityCouncil entries; the foundation path
+shows the FoundationUpgradeSafe entry instead. Anything not listed here
+appearing in the diff means the transaction does not do what this document
+claims: do not sign.
+
+#### `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` (Zora OptimismPortalProxy) — both paths
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** deposit gas metering (`ResourceMetering.ResourceParams`).
+    After: `prevBoughtGas` = `0x30d40` = 200,000 (this portal's single
+    deposit); `prevBlockNum` = the simulation block; `prevBaseFee` unchanged at
+    1 gwei (`0x3b9aca00`). Only this slot of each portal may change.
+
+#### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard) — council path only
+
+- **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
+  - **Before:** `0x00...00` → **After:** the simulation block timestamp
+  - **Summary:** `lastLive[0xca11bde05977b3631167028862bE2a173976CA11]` — a
+    **simulation artifact**. The simulation overrides the child safe's owners
+    and threshold so Multicall3 acts as the sole signer, and the guard records
+    a liveness timestamp for it. On the real execution this is written for the
+    actual signers instead.
+
+#### `0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956` (Metal OptimismPortalProxy) — both paths
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** same `ResourceParams` update as the Zora portal above.
+
+#### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe) — both paths
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...2a` (42) → **After:** `0x...2b` (43)
+  - **Summary:** nonce increment of the root safe executing the task. The
+    before-value reflects the nonce state override in
+    [config.toml](./config.toml).
+- **Key (council path):**    `0xf5057114c044d7741cbe3003b11c9f09ad8129a92f960980e91aeb999aa66b4e`
+- **Key (foundation path):** `0x902dc8bde7d50c6c5e6793f2f77afc5bfa9506482d853779205bc5364e13edb3`
+  - **Before:** `0x00...00` → **After:** `0x00...01`
+  - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the
+    child safe's approval of the task.
+
+#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe) — foundation path only
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...44` (68) → **After:** `0x...45` (69)
+  - **Summary:** nonce increment of the approving child safe.
+
+#### `0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07` (Mode OptimismPortalProxy) — both paths
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** same `ResourceParams` update as the Zora portal above.
+
+#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil) — council path only
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `0x...42` (66) → **After:** `0x...43` (67)
+  - **Summary:** nonce increment of the approving child safe.
+
+#### `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` (Dust OptimismPortalProxy) — both paths
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** same `ResourceParams` update as the Zora portal above. Dust is
+    not in the superchain-registry, so Tenderly cannot label this contract —
+    verify the address against [addresses.json](./addresses.json).
+
+Tenderly also shows `Nonce N → N+1` (no storage key) on the child safe used as
+the simulation's sender — its protocol account nonce, unrelated to the Safe's
+signing nonce. Ignore it; it does not occur on the real execution.
+
+### L2 State Changes
+
+Applied on each L2 when its deposit is relayed. Verified by replaying the
+deposit on forks of all four chains and diffing the predeploy's storage:
+exactly the write below occurs on every chain, nothing else.
+
+#### `0x4200000000000000000000000000000000000018` (L2 ProxyAdmin) — identical on Metal, Mode, Zora and Dust
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b`
+  - **After:**  `0x0000000000000000000000005b5a62275df8c60a80d3a25faec5aa7de116b857`
+  - **Summary:** owner: aliased L1PAO → aliased operator Safe
+    (`0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` + alias offset).
+
+## Post-execution verification calls
+
+The L2 changes land only once each deposit is relayed. Each command is expected
+to return the new owner `0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857`:
+
+```bash
+cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://rpc.metall2.com
+cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://mainnet.mode.network
+cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://rpc.zora.energy
+cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url https://rpc-dust-mainnet-0.t.conduit.xyz
+```
+
+If any value did not update, that chain's deposit reverted on L2 while the L1
+transaction still shows success: inspect the relayed L2 transaction sent from
+`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` to the L2 ProxyAdmin on that
+chain's explorer.

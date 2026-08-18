@@ -1,14 +1,19 @@
-# 067-mmzd-l1-ownership-transfers: Transfer L1 owners for Metal, Mode, Zora and Dust Mainnet (ProxyAdmin + DisputeGameFactory)
+# 067-mmzd-l1-ownership-transfers
 
-Status: READY TO SIGN
+Status: [DRAFT, NOT READY TO SIGN]
+
+Governance: link the approved proposal covering the Metal/Mode/Zora/Dust handover
+here, then set the status to READY TO SIGN.
 
 ## Objective
 
-Transfer L1 ownership of Metal Mainnet (chainId 1750), Mode Mainnet
-(chainId 34443), Zora Mainnet (chainId 7777777) and Dust Mainnet
-(chainId 55378) to the chain operator's designated Safe
-`0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`, executing the L1 half of the
-ownership handover for all four chains in a single task.
+Transfers L1 ownership — `ProxyAdmin` and `DisputeGameFactory` — of **Metal
+Mainnet** (chainId 1750), **Mode Mainnet** (34443), **Zora Mainnet** (7777777)
+and **Dust Mainnet** (55378) from the L1 ProxyAdminOwner Safe to the chain
+operator's Safe `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`, in a single task.
+This is the L1 half of the handover; the L2 half is
+[068-mmzd-l2pao-transfer](../068-mmzd-l2pao-transfer/README.md), which executes
+after this task.
 
 | Chain | Contract | Current owner | New owner |
 |---|---|---|---|
@@ -21,59 +26,29 @@ ownership handover for all four chains in a single task.
 | Dust | ProxyAdmin `0x32C61Bd2B7bf8E50F448331705eDDA99244e7339` | `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO) | `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` |
 | Dust | DisputeGameFactoryProxy `0xFcD88154a329557499535E7c803f3B3BD7FA1115` | `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO) | `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` |
 
-All current owners verified on-chain 2026-08-13. There is no DelayedWETH
-transfer on any chain — see [config.toml](./config.toml).
+The receiving Safe is a 4-of-10 Gnosis Safe v1.3.0 designated by the chain
+operator (Conduit), confirmed through an authenticated channel during task
+preparation (operator address document plus email record); it already owns the
+Metal, Mode and Dust `SystemConfigProxy` contracts on mainnet. Ownership
+transfers are irreversible.
 
-**Receiving Safe provenance:** `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`
-is a 4-of-10 Gnosis Safe v1.3.0 on Ethereum Mainnet, designated by the chain
-operator (Conduit) as the receiving Safe for all four chains on mainnet, and
-confirmed against Conduit's address document plus the address set exchanged
-over email (`support@conduit.xyz`) for a persistent record. The same Safe
-already owns the Metal, Mode and Dust `SystemConfigProxy` contracts on
-mainnet.
-
-The follow-up L2 ProxyAdmin transfers are `068-mmzd-l2pao-transfer`, which
-must be executed after this task. The `SuperchainConfig` repoint and any
-`SystemConfig` changes are out of scope — they will be executed by the
-operator once it holds the ProxyAdmin.
-
-## Signing gates — do not sign until ALL are cleared
-
-1. **Governance:** the single governance post covering the Dust, Mode, Metal
-   and Zora handover on both networks must be approved. Record the proposal
-   link and its outcome here before signing.
-2. **Receiving Safe verification:** re-confirm
-   `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` (including its owner set) with
-   the chain operator through an authenticated channel, and verify it against
-   this README with ≥2 OP Labs engineers. Ownership transfers are
-   irreversible.
-3. **Ordering / nonces:** this task is numbered after
-   [eth/065](https://github.com/ethereum-optimism/superchain-ops/pull/1515)
-   and [eth/066](https://github.com/ethereum-optimism/superchain-ops/pull/1520)
-   and is planned to execute after them. eth/066 is **L1PAO-signed**, so the
-   nonce pins in [config.toml](./config.toml) sit one ahead of the live values
-   (L1PAO 41 / FUS 67 / SC 65); eth/065 is FOS-signed and has no effect.
-   Re-verify the live nonces immediately before signing and regenerate the
-   [VALIDATION.md](./VALIDATION.md) hashes on any drift.
+There is no DelayedWETH transfer on any chain (the contracts are v1.5.0 and not
+ownable) and no SuperchainConfig or SystemConfig change — those are for the
+operator to execute once it holds the ProxyAdmin.
 
 ## Simulation & Signing
 
-The root safe is the 2-of-2 nested L1PAO, so run each command once per child
-safe (`foundation`, then `council`).
+Nested task: run each command with the child safe you sign through.
 
 ```bash
 cd src/tasks/eth/067-mmzd-l1-ownership-transfers
-SIMULATE_WITHOUT_LEDGER=1 just simulate <foundation|council>
-# then, to sign:
-just sign <foundation|council>
-```
 
-> [!CAUTION]
-> The Safe nonces are pinned in `config.toml`. Re-verify them against live
-> on-chain values before signing — see [VALIDATION.md](./VALIDATION.md).
+just simulate-stack eth 067-mmzd-l1-ownership-transfers council   # or foundation
+
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 067-mmzd-l1-ownership-transfers council   # or foundation
+```
 
 ## Validation
 
-See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes
-and state changes. Task inputs and the rationale for the address fallback and
-nonce overrides are documented in [config.toml](./config.toml).
+See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes, the
+calldata breakdown, the expected state changes and the post-execution checks.
