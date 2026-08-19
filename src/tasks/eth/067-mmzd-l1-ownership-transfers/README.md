@@ -2,15 +2,12 @@
 
 Status: [DRAFT, NOT READY TO SIGN]
 
-Governance: link the approved proposal covering the Metal/Mode/Zora/Dust handover
-here, then set the status to READY TO SIGN.
-
 ## Objective
 
-Transfers L1 ownership — `ProxyAdmin` and `DisputeGameFactory` — of **Metal
+Transfers L1 ownership (`ProxyAdmin` and `DisputeGameFactory`) of **Metal
 Mainnet** (chainId 1750), **Mode Mainnet** (34443), **Zora Mainnet** (7777777)
 and **Dust Mainnet** (55378) from the L1 ProxyAdminOwner Safe to the chain
-operator's Safe `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`, in a single task.
+operator's Safe `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`.
 This is the L1 half of the handover; the L2 half is
 [068-mmzd-l2pao-transfer](../068-mmzd-l2pao-transfer/README.md), which executes
 after this task.
@@ -26,14 +23,12 @@ after this task.
 | Dust | ProxyAdmin `0x32C61Bd2B7bf8E50F448331705eDDA99244e7339` | `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO) | `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` |
 | Dust | DisputeGameFactoryProxy `0xFcD88154a329557499535E7c803f3B3BD7FA1115` | `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO) | `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` |
 
-The receiving Safe is a 4-of-10 Gnosis Safe v1.3.0 designated by the chain
-operator (Conduit), confirmed through an authenticated channel during task
-preparation (operator address document plus email record); it already owns the
-Metal, Mode and Dust `SystemConfigProxy` contracts on mainnet. Ownership
-transfers are irreversible.
+The receiving Safe is a Gnosis Safe v1.3.0 designated by the chain
+operator (Conduit), confirmed via email during task
+preparation. It already owns Metal, Mode and Dust `SystemConfigProxy` 
+contracts on mainnet. Ownership transfers can be reverse by the new owner only.
 
-There is no DelayedWETH transfer on any chain (the contracts are v1.5.0 and not
-ownable) and no SuperchainConfig or SystemConfig change — those are for the
+There is no SuperchainConfig or SystemConfig change, those are for the
 operator to execute once it holds the ProxyAdmin.
 
 ## Simulation & Signing
