@@ -38,8 +38,8 @@ Root L1PAO (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) safe transaction hash
 The task is a single `Multicall3.aggregate3Value` from the L1PAO (selector
 `0x174dea71`, the first four bytes above) containing **8** direct
 `transferOwnership(address)` calls, one per contract. Every call carries the
-same payload — selector `0xf2fde38b` with the new owner
-`0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2` — and differs only in the target:
+same payload, selector `0xf2fde38b` with the new owner
+`0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2`, and differs only in the target:
 
 | # | Target | Contract |
 |---|---|---|
@@ -76,7 +76,7 @@ cd src/tasks/sep/105-mmzd-l1-ownership-transfers
 just simulate-stack sep 105-mmzd-l1-ownership-transfers council   # or foundation
 ```
 
-Check three things:
+Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the
    top of this file.
@@ -89,29 +89,17 @@ Check three things:
 
 ## Task State Changes
 
-Tenderly lists the touched contracts in address order, as below. The council
-path shows the LivenessGuard and SecurityCouncil entries; the foundation path
-shows the FoundationUpgradeSafe entry instead. Each of the eight ownership
-entries changes its owner slot from the L1PAO
-(`0x…1eb2ffc903729a0f03966b917003800b145f56e2`) to the operator's Safe
-(`0x…34478c2eb9018d5a6487bf0440838cd4238e8cf2`) — ProxyAdmin contracts hold the
-owner at slot `0x0`, DisputeGameFactory proxies at slot `0x33`. Anything not
-listed here appearing in the diff means the transaction does not do what this
-document claims: do not sign.
-
 #### `0x068881bd385BD917DdD9370f0DBFa19C969340D4` (Dust Testnet ProxyAdmin)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
-  owner: L1PAO → operator Safe. Dust is not in the superchain-registry, so
-  Tenderly cannot label this contract — verify the address against
-  [addresses.json](./addresses.json).
+  owner: L1PAO → operator Safe.
 
 #### `0x157814873342A0f4D6758D69fdF11C4C40c01ed5` (Dust Testnet DisputeGameFactoryProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
   owner: L1PAO → operator Safe. Same registry note as the Dust ProxyAdmin above.
 
-#### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (ProxyAdminOwner, root safe) — both paths
+#### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (ProxyAdminOwner, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...36` (54) → **After:** `0x...37` (55)
@@ -134,7 +122,7 @@ document claims: do not sign.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
   owner: L1PAO → operator Safe.
 
-#### `0xc26977310bC89DAee5823C2e2a73195E85382cC7` (SecurityCouncil LivenessGuard) — council path only
+#### `0xc26977310bC89DAee5823C2e2a73195E85382cC7` (SecurityCouncil LivenessGuard)
 
 - **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
   - **Before:** `0x00...00` → **After:** the simulation block timestamp
@@ -149,7 +137,7 @@ document claims: do not sign.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
   owner: L1PAO → operator Safe.
 
-#### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe) — foundation path only
+#### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...4a` (74) → **After:** `0x...4b` (75)
@@ -165,7 +153,7 @@ document claims: do not sign.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
   owner: L1PAO → operator Safe.
 
-#### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil) — council path only
+#### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...44` (68) → **After:** `0x...45` (69)
@@ -177,8 +165,7 @@ document claims: do not sign.
   owner: L1PAO → operator Safe.
 
 Tenderly also shows `Nonce N → N+1` (no storage key) on the child safe used as
-the simulation's sender — its protocol account nonce, unrelated to the Safe's
-signing nonce. Ignore it; it does not occur on the real execution.
+the simulation's sender, unrelated to the Safe's signing nonce.
 
 ## Post-execution verification calls
 
