@@ -27,16 +27,11 @@ newOwnerToAlias = "0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2"
 [addresses]
 # Root-safe pin: after 105 executes, on-chain discovery resolves each chain's
 # ProxyAdminOwner to the operator's Safe, but the deposits must still be sent by
-# the previous L1PAO — its alias owns the L2 ProxyAdmin predeploys. The pin keeps
-# root-safe resolution (and the signing hashes) stable whether or not 105 has
-# executed yet.
+# the previous L1PAO (its alias owns the L2 ProxyAdmin predeploys). The pin keeps
+# root-safe resolution stable whether or not 105 has executed yet.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [stateOverrides]
-# L1PAO / FUS / SC nonces pinned one ahead of live (2026-08-13: 54 / 74 / 68) to
-# account for task 105, which executes before this task. Re-verify before
-# signing and regenerate the VALIDATION.md hashes on any drift:
-#   cast call <safe> "nonce()(uint256)" --rpc-url sepolia
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 55}
 ]
