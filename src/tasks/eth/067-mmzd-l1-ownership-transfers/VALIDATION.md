@@ -38,8 +38,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
 The task is a single `Multicall3.aggregate3Value` from the L1PAO (selector
 `0x174dea71`, the first four bytes above) containing **8** direct
 `transferOwnership(address)` calls, one per contract. Every call carries the
-same payload — selector `0xf2fde38b` with the new owner
-`0x4a4962275DF8C60a80d3a25faEc5AA7De116A746` — and differs only in the target:
+same payload (selector `0xf2fde38b` with the new owner
+`0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`) and differs only in target:
 
 | # | Target | Contract |
 |---|---|---|
@@ -76,7 +76,7 @@ cd src/tasks/eth/067-mmzd-l1-ownership-transfers
 just simulate-stack eth 067-mmzd-l1-ownership-transfers council   # or foundation
 ```
 
-Check three things:
+Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the
    top of this file.
@@ -89,17 +89,13 @@ Check three things:
 
 ## Task State Changes
 
-Tenderly lists the touched contracts in address order, as below. The council
-path shows the LivenessGuard and SecurityCouncil entries; the foundation path
-shows the FoundationUpgradeSafe entry instead. Each of the eight ownership
-entries changes its owner slot from the L1PAO
+Tenderly lists the touched contracts. The council path shows the LivenessGuard and 
+SecurityCouncil entries; the foundation path shows the FoundationUpgradeSafe entry. 
+Each of the eight ownership entries changes its owner slot from the L1PAO
 (`0x…5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`) to the operator's Safe
-(`0x…4a4962275df8c60a80d3a25faec5aa7de116a746`) — ProxyAdmin contracts hold the
-owner at slot `0x0`, DisputeGameFactory proxies at slot `0x33`. Anything not
-listed here appearing in the diff means the transaction does not do what this
-document claims: do not sign.
+(`0x…4a4962275df8c60a80d3a25faec5aa7de116a746`).
 
-#### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard) — council path only
+#### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard)
 
 - **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
   - **Before:** `0x00...00` → **After:** the simulation block timestamp
@@ -126,7 +122,7 @@ document claims: do not sign.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` —
   owner: L1PAO → operator Safe.
 
-#### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe) — both paths
+#### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...29` (41) → **After:** `0x...2a` (42)
@@ -149,7 +145,7 @@ document claims: do not sign.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
   owner: L1PAO → operator Safe.
 
-#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe) — foundation path only
+#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...43` (67) → **After:** `0x...44` (68)
@@ -160,7 +156,7 @@ document claims: do not sign.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` —
   owner: L1PAO → operator Safe.
 
-#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil) — council path only
+#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...41` (65) → **After:** `0x...42` (66)
@@ -178,8 +174,8 @@ document claims: do not sign.
   above.
 
 Tenderly also shows `Nonce N → N+1` (no storage key) on the child safe used as
-the simulation's sender — its protocol account nonce, unrelated to the Safe's
-signing nonce. Ignore it; it does not occur on the real execution.
+the simulation's sender. Its protocol account nonce, unrelated to the Safe's
+signing nonce.
 
 ## Post-execution verification calls
 
