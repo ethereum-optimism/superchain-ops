@@ -84,7 +84,7 @@ cd src/tasks/eth/068-mmzd-l2pao-transfer
 just simulate-stack eth 068-mmzd-l2pao-transfer council   # or foundation
 ```
 
-Check three things:
+Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the
    top of this file.
@@ -127,22 +127,11 @@ cast storage 0x4200000000000000000000000000000000000018 0 --rpc-url $L2RPC
 cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url $L2RPC
 ```
 
-This replay was executed during task preparation (2026-08-18) on forks of all
-four chains: the transfer succeeds at 33,545 gas (6x headroom under the 200k
-deposit limit), changes only slot `0` of the predeploy, and the same call from
-any other sender reverts with `Ownable: caller is not the owner`.
-
 ## Task State Changes
 
 ### L1 State Changes
 
-Tenderly lists the touched contracts in address order, as below. The council
-path shows the LivenessGuard and SecurityCouncil entries; the foundation path
-shows the FoundationUpgradeSafe entry instead. Anything not listed here
-appearing in the diff means the transaction does not do what this document
-claims: do not sign.
-
-#### `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` (Zora OptimismPortalProxy) — both paths
+#### `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` (Zora OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** deposit gas metering (`ResourceMetering.ResourceParams`).
@@ -150,7 +139,7 @@ claims: do not sign.
     deposit); `prevBlockNum` = the simulation block; `prevBaseFee` unchanged at
     1 gwei (`0x3b9aca00`). Only this slot of each portal may change.
 
-#### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard) — council path only
+#### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard)
 
 - **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
   - **Before:** `0x00...00` → **After:** the simulation block timestamp
@@ -160,12 +149,12 @@ claims: do not sign.
     a liveness timestamp for it. On the real execution this is written for the
     actual signers instead.
 
-#### `0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956` (Metal OptimismPortalProxy) — both paths
+#### `0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956` (Metal OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** same `ResourceParams` update as the Zora portal above.
 
-#### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe) — both paths
+#### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...2a` (42) → **After:** `0x...2b` (43)
@@ -178,24 +167,24 @@ claims: do not sign.
   - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the
     child safe's approval of the task.
 
-#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe) — foundation path only
+#### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...44` (68) → **After:** `0x...45` (69)
   - **Summary:** nonce increment of the approving child safe.
 
-#### `0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07` (Mode OptimismPortalProxy) — both paths
+#### `0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07` (Mode OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** same `ResourceParams` update as the Zora portal above.
 
-#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil) — council path only
+#### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...42` (66) → **After:** `0x...43` (67)
   - **Summary:** nonce increment of the approving child safe.
 
-#### `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` (Dust OptimismPortalProxy) — both paths
+#### `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` (Dust OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** same `ResourceParams` update as the Zora portal above. Dust is
@@ -212,7 +201,7 @@ Applied on each L2 when its deposit is relayed. Verified by replaying the
 deposit on forks of all four chains and diffing the predeploy's storage:
 exactly the write below occurs on every chain, nothing else.
 
-#### `0x4200000000000000000000000000000000000018` (L2 ProxyAdmin) — identical on Metal, Mode, Zora and Dust
+#### `0x4200000000000000000000000000000000000018` (L2 ProxyAdmin) — same on Metal, Mode, Zora and Dust
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b`
