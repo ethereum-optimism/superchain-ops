@@ -2,9 +2,6 @@
 
 Status: [DRAFT, NOT READY TO SIGN]
 
-Governance: link the approved proposal covering the Metal/Mode/Zora/Dust handover
-here, then set the status to READY TO SIGN.
-
 ## Objective
 
 Transfers the L2 ProxyAdmin owner of **Metal Mainnet** (chainId 1750), **Mode
