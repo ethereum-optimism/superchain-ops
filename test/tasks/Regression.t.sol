@@ -319,9 +319,9 @@ contract RegressionTest is Test {
     /// in a single multichain task via each chain's OptimismPortal. Dust is not in the superchain registry, so
     /// its addresses are provided via the task's fallback addresses JSON file.
     /// The test stacks the tasks in production order: the L1 ownership transfers (047) execute first and this
-    /// task is built on the resulting state, so the fixture's stateOverrides (kept for the standalone
-    /// simulate-all-templates run) are a no-op here. The data-to-sign values reflect the safe nonces after the
-    /// L1 task executed.
+    /// task is built on the resulting state. CI's simulate-all-templates simulates the fixture the same way,
+    /// stacked on 047 (DEPENDS_ON in the fixture's .env). The data-to-sign values reflect the safe nonces after
+    /// the L1 task executed.
     function testRegressionCallDataMatches_TransferL2PAOFromL1_Multichain_Mainnet() public {
         string memory taskConfigFilePath = "test/tasks/example/eth/048-transfer-l2pao-multichain/config.toml";
         string memory expectedCallData =
@@ -387,9 +387,9 @@ contract RegressionTest is Test {
     /// in a single multichain task via each chain's OptimismPortal. Dust is not in the superchain registry, so
     /// its addresses are provided via the task's fallback addresses JSON file.
     /// The test stacks the tasks in production order: the L1 ownership transfers (042) execute first and this
-    /// task is built on the resulting state, so the fixture's stateOverrides (kept for the standalone
-    /// simulate-all-templates run) are a no-op here. The data-to-sign values reflect the safe nonces after the
-    /// L1 task executed.
+    /// task is built on the resulting state. CI's simulate-all-templates simulates the fixture the same way,
+    /// stacked on 042 (DEPENDS_ON in the fixture's .env). The data-to-sign values reflect the safe nonces after
+    /// the L1 task executed.
     function testRegressionCallDataMatches_TransferL2PAOFromL1_Multichain_Sepolia() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/043-transfer-l2pao-multichain/config.toml";
         string memory expectedCallData =

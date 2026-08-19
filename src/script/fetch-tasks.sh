@@ -8,6 +8,9 @@ set -euo pipefail
 # Environment variables:
 #   FETCH_TASKS_TEST_DIR - Directory containing test tasks (enables test mode)
 #   FETCH_REHEARSALS - Set to "1" to fetch rehearsal tasks instead of regular tasks
+#   FETCH_TASKS_ONLY - Comma-separated task directory names; when set, only these
+#                      tasks are returned. Used to scope a stacked simulation to a
+#                      task and its dependencies.
 
 # Array to store tasks that should be executed
 declare -a tasks_to_run=()
@@ -70,6 +73,23 @@ else
   for file in $files; do
     check_status "$file"
   done
+fi
+
+# Optionally restrict the output to an allowlist of task directory names.
+only_tasks=${FETCH_TASKS_ONLY:-}
+if [[ -n "$only_tasks" ]]; then
+  IFS=',' read -r -a only_list <<< "$only_tasks"
+  declare -a filtered=()
+  for config_file in "${tasks_to_run[@]+"${tasks_to_run[@]}"}"; do
+    task_name=$(basename "$(dirname "$config_file")")
+    for only in "${only_list[@]}"; do
+      if [[ "$task_name" == "$only" ]]; then
+        filtered+=("$config_file")
+        break
+      fi
+    done
+  done
+  tasks_to_run=("${filtered[@]+"${filtered[@]}"}")
 fi
 
 # Output the list of tasks to run in a suitable format for consuming contracts.

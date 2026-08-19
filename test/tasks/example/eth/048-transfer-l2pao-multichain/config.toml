@@ -2,6 +2,8 @@
 # Zora and Dust to the alias of the operator's designated Safe in a single task, via each
 # chain's L1 OptimismPortal. Dust (chain ID 55378) is not part of the Superchain Registry,
 # so its addresses are provided via the fallback addresses JSON file.
+# This fixture only makes sense on the state left by 047-transfer-owners-multichain, so it is
+# always simulated stacked on it (DEPENDS_ON in the .env), mirroring production.
 l2chains = [
     {name = "Mode", chainId = 34443},
     {name = "Metal", chainId = 1750},
@@ -18,27 +20,5 @@ newOwnerToAlias = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
 # Root-safe pin, same pattern production tasks use: once the L1 ownership task has executed,
 # the registry resolves each registry chain's ProxyAdminOwner to the new owner, but the
 # deposits must still be sent by the previous L1PAO — its alias owns the L2 ProxyAdmin
-# predeploys. Required by the stacked regression test, harmless standalone.
+# predeploys.
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
-
-[stateOverrides]
-# Set each chain's L1 ProxyAdmin owner to the new owner, satisfying the template's build-time
-# check when this fixture is simulated standalone (simulate-all-templates). The stacked
-# regression test executes 047-transfer-owners-multichain first instead, mirroring production,
-# and these overrides are a no-op there.
-# Mode ProxyAdmin
-0x470d87b1dae09a454A43D1fD772A561a03276aB7 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
-]
-# Metal ProxyAdmin
-0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
-]
-# Zora ProxyAdmin
-0xD4ef175B9e72cAEe9f1fe7660a6Ec19009903b49 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
-]
-# Dust ProxyAdmin
-0x32C61Bd2B7bf8E50F448331705eDDA99244e7339 = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000004a4962275DF8C60a80d3a25faEc5AA7De116A746"}
-]
