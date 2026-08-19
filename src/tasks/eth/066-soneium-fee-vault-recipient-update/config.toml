@@ -19,7 +19,7 @@ recipients = ["0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260"]
 networks = [1]
 
 # Flat per-(chain, vault) shape matching vaultProxies order: Seq / Base / L1FeeVault
-# lower from 10 ETH to 5 ETH (operator-approved; keeps values int64-representable),
+# lower from 10 ETH to 5 ETH (operator-approved),
 # OperatorFeeVault keeps its live 0 (no deposit emitted for it).
 minWithdrawalAmounts = [5000000000000000000, 5000000000000000000, 5000000000000000000, 0]
 
