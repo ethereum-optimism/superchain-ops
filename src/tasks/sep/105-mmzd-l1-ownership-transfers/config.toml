@@ -6,9 +6,6 @@ templateName = "TransferOwners"
 # the superchain-registry. Dust is not in the registry; its addresses come from
 # fallbackAddressesJsonPath, confirmed against
 # https://api.conduit.xyz/file/v1/optimism/contracts/dust-testnet-0 and on-chain.
-# No DelayedWETH transfers: these chains' DelayedWETH contracts are v1.5.0 and not
-# ownable, and neither the registry nor the fallback file carries *WETH keys, so
-# the template skips them at build time.
 
 l2chains = [
     {name = "Metal", chainId = 1740},
@@ -19,15 +16,11 @@ l2chains = [
 
 fallbackAddressesJsonPath = "src/tasks/sep/105-mmzd-l1-ownership-transfers/addresses.json"
 
-# The operator's Safe on Sepolia (1-of-1, expected for a testnet); it already
-# owns the Metal, Mode, Zora and Dust SystemConfig proxies on Sepolia.
+# The operator's Safe on Sepolia; it already owns the
+# Metal, Mode, Zora and Dust SystemConfig proxies on Sepolia.
 newOwner = "0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2"
 
 [stateOverrides]
-# L1PAO / FUS / SC nonces pinned to their live values (2026-08-13: 54 / 74 / 68);
-# sep/104 is FOS-signed and does not touch them. Re-verify before signing and
-# regenerate the VALIDATION.md hashes on any drift:
-#   cast call <safe> "nonce()(uint256)" --rpc-url sepolia
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 54}
 ]
