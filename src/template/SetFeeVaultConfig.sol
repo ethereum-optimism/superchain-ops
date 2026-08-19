@@ -137,11 +137,7 @@ contract SetFeeVaultConfig is L2TaskBase {
 
         recipients = abi.decode(toml.parseRaw(".recipients"), (address[]));
         networks = abi.decode(toml.parseRaw(".networks"), (uint256[]));
-        // Typed (coercing) reader instead of parseRaw: TOML integers are int64-bounded, so
-        // minimums above ~9.22 ETH (e.g. a live 10 ETH value) cannot be written as bare
-        // integers — encode them as decimal strings ("10000000000000000000"). The typed
-        // reader accepts both bare integers and string-encoded values.
-        minWithdrawalAmounts = toml.readUintArray(".minWithdrawalAmounts");
+        minWithdrawalAmounts = _parseMinWithdrawalAmounts(toml);
 
         uint256 nChains = chains.length;
         uint256 nVaults = vaultProxies.length;
@@ -392,6 +388,17 @@ contract SetFeeVaultConfig is L2TaskBase {
                 " length must equal l2chains.length or l2chains.length*vaultProxies.length"
             )
         );
+    }
+
+    /// @notice Parses `.minWithdrawalAmounts` with forge's typed (coercing) reader instead of
+    ///         `parseRaw`: TOML integers are int64-bounded, so minimums above ~9.22 ETH (e.g. a
+    ///         live 10 ETH value) cannot be written as bare integers — encode them as decimal
+    ///         strings ("10000000000000000000"). The reader accepts bare integers, strings, or a
+    ///         mix of both; a bare integer above int64.max fails the TOML parse loudly at setup
+    ///         ("number too large to fit in target type"), so it can never be silently truncated.
+    ///         This behavior is pinned by test/template/SetFeeVaultConfigToml.t.sol.
+    function _parseMinWithdrawalAmounts(string memory tomlContent) internal pure returns (uint256[] memory) {
+        return tomlContent.readUintArray(".minWithdrawalAmounts");
     }
 
     /// @notice Human-readable label for a known fee-vault predeploy (debugging aid via vm.label).

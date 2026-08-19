@@ -132,38 +132,10 @@ Tenderly simulation link. Open the link, paste the [task calldata](#task-calldat
 
 ### L2 Simulation
 
-**Manual replay (required independent check):** reproduce exactly what the seven deposits will
-do on Soneium and inspect the resulting state, on a local fork:
-
-```bash
-# 1. Fork Soneium Mainnet locally
-anvil --fork-url https://rpc.soneium.org --port 9545
-
-# 2. Impersonate the deposits' L2 sender — the aliased L1PAO (= Soneium's L2 ProxyAdmin owner)
-L2RPC=http://127.0.0.1:9545
-ALIASED=0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
-cast rpc anvil_impersonateAccount $ALIASED --rpc-url $L2RPC
-cast rpc anvil_setBalance $ALIASED 0xDE0B6B3A7640000 --rpc-url $L2RPC
-
-# 3. Send the exact inner calls the deposits carry (cross-check the calldata bytes above)
-NEW=0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260
-MIN=5000000000000000000
-for v in 0x4200000000000000000000000000000000000011 \
-         0x4200000000000000000000000000000000000019 \
-         0x420000000000000000000000000000000000001a; do
-  cast send $v "setRecipient(address)" $NEW --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
-  cast send $v "setMinWithdrawalAmount(uint256)" $MIN --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
-done
-cast send 0x420000000000000000000000000000000000001b "setRecipient(address)" $NEW \
-  --from $ALIASED --unlocked --rpc-url $L2RPC --gas-limit 150000
-
-# 4. Run the same read-backs as the post-execution section below against $L2RPC and
-#    confirm the changed/unchanged expectations, then kill anvil.
-```
-
-**5. Full state diff on Tenderly (Virtual TestNet):** the read-backs in step 4 only query the
-fields expected to change; a full state diff also exposes any unexpected write. Tenderly shows
-one for each of the seven calls:
+The deposits execute on Soneium only after the L1 transaction lands, so their effect is
+verified by replaying the seven inner calls on a Tenderly Virtual TestNet fork of Soneium and
+inspecting the **full state diff** of each transaction (a full diff also exposes any write
+beyond the expected ones):
 
 1. In [dashboard.tenderly.co](https://dashboard.tenderly.co), select your project → **Virtual
    TestNets** → **Create Virtual TestNet**: parent network **Soneium** (chain ID 1868), fork
@@ -177,10 +149,10 @@ one for each of the seven calls:
    NEW=0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260
    MIN=5000000000000000000
 
-   # Fund the aliased L1PAO with 1 ETH for gas (Virtual TestNet faucet):
+   # Fund the aliased L1PAO (the deposits' L2 sender) with 1 ETH for gas:
    cast rpc tenderly_setBalance $ALIASED 0xDE0B6B3A7640000 --rpc-url $L2RPC
 
-   # The seven calls, one transaction each:
+   # The seven calls, one transaction each (cross-check the calldata bytes above):
    for v in 0x4200000000000000000000000000000000000011 \
             0x4200000000000000000000000000000000000019 \
             0x420000000000000000000000000000000000001a; do
@@ -194,7 +166,7 @@ one for each of the seven calls:
 3. Back in the dashboard, the seven transactions appear in the TestNet's transaction list. Open
    each one and check its **State Changes** tab against
    [L2 State Changes](#l2-state-changes): the expected slot with the expected before/after
-   values.
+   values, and nothing else.
 
 
 ## Task State Changes
