@@ -25,16 +25,12 @@ after this task.
 | Dust Testnet | ProxyAdmin `0x068881bd385BD917DdD9370f0DBFa19C969340D4` | `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (L1PAO) | `0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2` |
 | Dust Testnet | DisputeGameFactoryProxy `0x157814873342A0f4D6758D69fdF11C4C40c01ed5` | `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (L1PAO) | `0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2` |
 
-The receiving Safe is a 1-of-1 Gnosis Safe v1.3.0 on Sepolia (sole owner
-`0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C`) — weaker than the mainnet
-receiving Safe's 4-of-10, as expected for a testnet. It was designated by the
-chain operator (Conduit), confirmed through an authenticated channel during
-task preparation (operator address document plus email record), and already
+The receiving Safe is a Gnosis Safe v1.3.0 on Sepolia (sole owner
+`0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C`). It was designated by the
+chain operator (Conduit), confirmed via email during task preparation. It already
 owns the Metal, Mode, Zora and Dust `SystemConfigProxy` contracts on Sepolia.
-Ownership transfers are irreversible.
 
-There is no DelayedWETH transfer on any chain (the contracts are v1.5.0 and not
-ownable) and no SuperchainConfig or SystemConfig change — those are for the
+There is no SuperchainConfig or SystemConfig change, those are for the
 operator to execute once it holds the ProxyAdmin.
 
 ## Simulation & Signing
