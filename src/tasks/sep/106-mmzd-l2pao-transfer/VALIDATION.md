@@ -84,7 +84,7 @@ cd src/tasks/sep/106-mmzd-l2pao-transfer
 just simulate-stack sep 106-mmzd-l2pao-transfer council   # or foundation
 ```
 
-Check three things:
+Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the
    top of this file.
@@ -127,22 +127,11 @@ cast storage 0x4200000000000000000000000000000000000018 0 --rpc-url $L2RPC
 cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-url $L2RPC
 ```
 
-This replay was executed during task preparation (2026-08-18) on forks of all
-four chains: the transfer succeeds at 33,545 gas (6x headroom under the 200k
-deposit limit), changes only slot `0` of the predeploy, and the same call from
-any other sender reverts with `Ownable: caller is not the owner`.
-
 ## Task State Changes
 
 ### L1 State Changes
 
-Tenderly lists the touched contracts in address order, as below. The council
-path shows the LivenessGuard and SecurityCouncil entries; the foundation path
-shows the FoundationUpgradeSafe entry instead. Anything not listed here
-appearing in the diff means the transaction does not do what this document
-claims: do not sign.
-
-#### `0x01D4dfC994878682811b2980653D03E589f093cB` (Metal Sepolia OptimismPortalProxy) — both paths
+#### `0x01D4dfC994878682811b2980653D03E589f093cB` (Metal Sepolia OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** deposit gas metering (`ResourceMetering.ResourceParams`).
@@ -150,7 +139,7 @@ claims: do not sign.
     deposit); `prevBlockNum` = the simulation block; `prevBaseFee` unchanged at
     1 gwei (`0x3b9aca00`). Only this slot of each portal may change.
 
-#### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (ProxyAdminOwner, root safe) — both paths
+#### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (ProxyAdminOwner, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...37` (55) → **After:** `0x...38` (56)
@@ -163,12 +152,12 @@ claims: do not sign.
   - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the
     child safe's approval of the task.
 
-#### `0x320e1580effF37E008F1C92700d1eBa47c1B23fD` (Mode Sepolia OptimismPortalProxy) — both paths
+#### `0x320e1580effF37E008F1C92700d1eBa47c1B23fD` (Mode Sepolia OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** same `ResourceParams` update as the Metal Sepolia portal above.
 
-#### `0xc26977310bC89DAee5823C2e2a73195E85382cC7` (SecurityCouncil LivenessGuard) — council path only
+#### `0xc26977310bC89DAee5823C2e2a73195E85382cC7` (SecurityCouncil LivenessGuard)
 
 - **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
   - **Before:** `0x00...00` → **After:** the simulation block timestamp
@@ -178,33 +167,32 @@ claims: do not sign.
     a liveness timestamp for it. On the real execution this is written for the
     actual signers instead.
 
-#### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe) — foundation path only
+#### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...4b` (75) → **After:** `0x...4c` (76)
   - **Summary:** nonce increment of the approving child safe.
 
-#### `0xe6230Bd9e96AD839D4c546710D9A99835052d1C1` (Dust Testnet OptimismPortalProxy) — both paths
+#### `0xe6230Bd9e96AD839D4c546710D9A99835052d1C1` (Dust Testnet OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** same `ResourceParams` update as the Metal Sepolia portal above.
     Dust is not in the superchain-registry, so Tenderly cannot label this
     contract — verify the address against [addresses.json](./addresses.json).
 
-#### `0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f` (Zora Sepolia OptimismPortalProxy) — both paths
+#### `0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f` (Zora Sepolia OptimismPortalProxy)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** same `ResourceParams` update as the Metal Sepolia portal above.
 
-#### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil) — council path only
+#### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...45` (69) → **After:** `0x...46` (70)
   - **Summary:** nonce increment of the approving child safe.
 
 Tenderly also shows `Nonce N → N+1` (no storage key) on the child safe used as
-the simulation's sender — its protocol account nonce, unrelated to the Safe's
-signing nonce. Ignore it; it does not occur on the real execution.
+the simulation's sender, unrelated to the Safe's signing nonce.
 
 ### L2 State Changes
 
