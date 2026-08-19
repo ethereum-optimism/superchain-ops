@@ -1,6 +1,6 @@
 # 104-ink-sepolia-system-config-owner-to-fus
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xeeac6f76120745970222c07c22caecc4d14e642bbd7be6e83e73379e8aa93a0a)
 
 ## Objective
 
