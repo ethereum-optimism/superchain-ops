@@ -16,8 +16,8 @@ contract SetFeeVaultConfigHarness is SetFeeVaultConfig {
 /// @title SetFeeVaultConfigTomlTest
 /// @notice Pins the parsing behavior claimed in `SetFeeVaultConfig._parseMinWithdrawalAmounts`:
 ///         the typed (coercing) reader accepts bare integers, decimal strings, and a mix of both,
-///         so minimums above TOML's int64 bound (~9.22 ETH, e.g. a live 10 ETH value) can be
-///         written as strings — while a bare integer above int64.max fails the TOML parse loudly
+///         so minimums above TOML's int64 bound (~9.22 ETH) can be
+///         written as strings, while a bare integer above int64.max fails the TOML parse loudly
 ///         at task setup instead of being silently truncated or wrapped.
 contract SetFeeVaultConfigTomlTest is Test {
     uint256 internal constant FIVE_ETH = 5_000_000_000_000_000_000;
@@ -73,7 +73,7 @@ contract SetFeeVaultConfigTomlTest is Test {
     }
 
     /// @notice A bare integer above int64.max is a TOML parse error: the cheatcode reverts at
-    ///         setup ("number too large to fit in target type") — a config mistake fails loudly
+    ///         setup ("number too large to fit in target type"), a config mistake fails loudly
     ///         and can never truncate into a wrong on-chain value.
     function test_parseMinWithdrawalAmounts_bareIntegerAboveInt64Reverts() public {
         // 10 ETH in wei, one above int64.max, and int64.max + 1 — all must fail identically.

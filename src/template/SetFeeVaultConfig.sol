@@ -391,8 +391,8 @@ contract SetFeeVaultConfig is L2TaskBase {
     }
 
     /// @notice Parses `.minWithdrawalAmounts` with forge's typed (coercing) reader instead of
-    ///         `parseRaw`: TOML integers are int64-bounded, so minimums above ~9.22 ETH (e.g. a
-    ///         live 10 ETH value) cannot be written as bare integers — encode them as decimal
+    ///         `parseRaw`: TOML integers are int64-bounded, so minimums above ~9.22 ETH
+    ///         cannot be written as bare integers, encode them as decimal
     ///         strings ("10000000000000000000"). The reader accepts bare integers, strings, or a
     ///         mix of both; a bare integer above int64.max fails the TOML parse loudly at setup
     ///         ("number too large to fit in target type"), so it can never be silently truncated.
