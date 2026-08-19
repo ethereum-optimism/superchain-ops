@@ -4,7 +4,7 @@ The following steps describe how to simulate an L2 deposit transaction prior to 
 This template executes an L1 transaction, which is later forwarded to the L2 by the op-node. To gain additional confidence that the L2 deposit transaction works as expected, we manually simulate it and record the results in the task’s VALIDATION.md file.
 
 > [!NOTE]
-> The template supports transferring the L2 ProxyAdmin ownership of multiple chains in a single task. In that case the L1 simulation emits one `TransactionDeposited` event per chain, and the steps below must be repeated for each event, selecting the corresponding L2 network in Tenderly each time.
+> The template supports transferring the L2 ProxyAdmin ownership of multiple chains in a single task. In that case the L1 simulation emits one `TransactionDeposited` event per chain, and the steps below must be repeated per chain — in Tenderly where the L2 is supported, or on a local fork of the L2 otherwise.
 
 ## Steps
 

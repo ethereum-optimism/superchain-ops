@@ -14,9 +14,18 @@ templateName = "TransferL2PAOFromL1"
 # The new owner address to alias: the operator's designated Sepolia Safe.
 newOwnerToAlias = "0x34478c2eB9018d5A6487BF0440838Cd4238e8cf2"
 
+[addresses]
+# Root-safe pin, same pattern production tasks use: once the L1 ownership task has executed,
+# the registry resolves each registry chain's ProxyAdminOwner to the new owner, but the
+# deposits must still be sent by the previous L1PAO — its alias owns the L2 ProxyAdmin
+# predeploys. Required by the stacked regression test, harmless standalone.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
 [stateOverrides]
-# Set the current L1PAO of each chain to the new owner. The TransferL2PAOFromL1 template
-# assumes all L1 ownership transfers have already been completed.
+# Set each chain's L1 ProxyAdmin owner to the new owner, satisfying the template's build-time
+# check when this fixture is simulated standalone (simulate-all-templates). The stacked
+# regression test executes 042-transfer-owners-multichain first instead, mirroring production,
+# and these overrides are a no-op there.
 # Mode ProxyAdmin
 0xE7413127F29E050Df65ac3FC9335F85bB10091AE = [
     {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x00000000000000000000000034478c2eB9018d5A6487BF0440838Cd4238e8cf2"}
