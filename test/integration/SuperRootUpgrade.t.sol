@@ -29,7 +29,7 @@ contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
     string constant INVALID_CONFIG =
         "test/tasks/example/sep/035-opcm-upgrade-v800/opcm-upgrade-v800-cannon-starting-game-type.toml";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_470_000;
+    uint256 internal constant FORK_BLOCK_NUMBER = 11_500_000;
 
     function test_rejects_non_super_starting_respected_game_type() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), FORK_BLOCK_NUMBER);
@@ -45,9 +45,10 @@ contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_470_000;
+    uint256 internal constant FORK_BLOCK_NUMBER = 11_500_000;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
     uint256 internal chainA;
+    uint256 internal chainB;
     address rootSafe;
     address superchainConfig;
 
@@ -57,6 +58,7 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         superchainAddrRegistry = new SuperchainAddressRegistry(configTomlPath);
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         chainA = chains[0].chainId;
+        chainB = chains[1].chainId;
         superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chainA);
         _templateSetup(configTomlPath, address(0));
         address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", chainA);
@@ -67,18 +69,28 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         assertEq(rootSafe, ROOT_SAFE);
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        assertEq(chains.length, 1);
+        assertEq(chains.length, 2);
         assertEq(chains[0].chainId, chainA);
+        assertEq(chains[1].chainId, chainB);
         assertEq(chainA, 420130015);
+        assertEq(chainB, 420130018);
 
         assertEq(chainsToUpgrade.length, chains.length);
         assertEq(chainsToUpgrade[0], chainA);
+        assertEq(chainsToUpgrade[1], chainB);
 
         assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainA), superchainConfig);
+        // sepolia-devnet-3 is registered via the fallback addresses.json and must share the
+        // same SuperchainConfig (enforced by _templateSetup).
+        assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainB), superchainConfig);
         assertEq(superchainConfig, 0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb);
         assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", chainA), ROOT_SAFE);
+        assertEq(superchainAddrRegistry.getAddress("ProxyAdminOwner", chainB), ROOT_SAFE);
         assertEq(
             superchainAddrRegistry.getAddress("SystemConfigProxy", chainA), 0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937
+        );
+        assertEq(
+            superchainAddrRegistry.getAddress("SystemConfigProxy", chainB), 0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF
         );
 
         // op-contracts/v8.0.0-rc.2 standard prestates: cannon 1.9.0 `interop` and
@@ -94,6 +106,29 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         );
         assertEq(upgrades[chainA].startingAnchorRootL2SequenceNumber, 1786000000);
         assertEq(upgrades[chainA].expectedValidationErrors, "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130");
+
+        assertEq(Claim.unwrap(upgrades[chainB].cannonPrestate), cannonPrestate);
+        assertEq(Claim.unwrap(upgrades[chainB].cannonKonaPrestate), cannonKonaPrestate);
+        assertEq(upgrades[chainB].startingRespectedGameType, 5);
+
+        // sepolia-devnet-3 is permissioned-only: no CANNON_KONA impl in its factory, so
+        // SUPER_CANNON_KONA (9) stays disabled and only SUPER_PERMISSIONED (5) is enabled.
+        // This exercises the factory-impl branch of _isGameTypeEnabled for gt=9.
+        IOPContractsManagerV800.DisputeGameConfig[] memory configsB = _buildGameConfigs(chainB);
+        assertEq(configsB.length, 6);
+        for (uint256 i = 0; i < configsB.length; i++) {
+            if (configsB[i].gameType == 5) {
+                assertTrue(configsB[i].enabled);
+                assertEq(configsB[i].initBond, 0);
+                assertEq(configsB[i].gameArgs.length, 32);
+                address proposerB = abi.decode(configsB[i].gameArgs, (address));
+                assertEq(proposerB, superchainAddrRegistry.getAddress("Proposer", chainB));
+            } else {
+                assertFalse(configsB[i].enabled);
+                assertEq(configsB[i].initBond, 0);
+                assertEq(configsB[i].gameArgs.length, 0);
+            }
+        }
 
         IOPContractsManagerV800.DisputeGameConfig[] memory configs = _buildGameConfigs(chainA);
         assertEq(configs.length, 6);
