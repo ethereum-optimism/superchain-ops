@@ -13,11 +13,12 @@
 #     instead; SUPER_CANNON_KONA stays disabled because the chain has no CANNON_KONA
 #     impl to carry over.
 #
-# sepolia-devnet-2 (chainId 420130015) is in the superchain registry:
-# https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia-devnet-2/sepolia-devnet-2.toml
-# sepolia-devnet-3 (chainId 420130018) is NOT in the superchain registry, so its
-# addresses come from the sibling fallback addresses.json (netchef-managed devnet;
-# see ethereum-optimism/devnets-private stg/sepolia-devnet-3/sepolia-devnet-3/chain.yaml).
+# Both chains are in the superchain registry, so their addresses resolve through the
+# normal registry discovery flow (no fallback addresses.json):
+# - sepolia-devnet-2 (chainId 420130015):
+#   https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia-devnet-2/sepolia-devnet-2.toml
+# - sepolia-devnet-3 (chainId 420130018), added in superchain-registry PR #1311:
+#   https://github.com/ethereum-optimism/superchain-registry/pull/1311
 # Both chains sit on op-contracts v7 (SystemConfig 3.14.2, lastUsedOPCM reporting
 # 7.1.17), which satisfies the v8 OPCM's upgrade-sequence gate, and share the same
 # SuperchainConfig and ProxyAdminOwner Safe.
@@ -26,8 +27,6 @@ l2chains = [
     {name = "sepolia-devnet-2", chainId = 420130015},
     {name = "sepolia-devnet-3", chainId = 420130018}
 ]
-
-fallbackAddressesJsonPath = "test/tasks/example/sep/035-opcm-upgrade-v800/addresses.json"
 
 templateName = "OPCMUpgradeV800"
 skipOPCMVersionCheck = false

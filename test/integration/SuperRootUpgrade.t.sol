@@ -80,7 +80,7 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         assertEq(chainsToUpgrade[1], chainB);
 
         assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainA), superchainConfig);
-        // sepolia-devnet-3 is registered via the fallback addresses.json and must share the
+        // sepolia-devnet-3 resolves through registry discovery and must share the
         // same SuperchainConfig (enforced by _templateSetup).
         assertEq(superchainAddrRegistry.getAddress("SuperchainConfig", chainB), superchainConfig);
         assertEq(superchainConfig, 0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb);
