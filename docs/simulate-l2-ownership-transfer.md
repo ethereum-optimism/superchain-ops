@@ -3,6 +3,9 @@
 The following steps describe how to simulate an L2 deposit transaction prior to L1 task execution. The [TransferL2PAOFromL1.sol](../src/template/TransferL2PAOFromL1.sol) transfers the ownership of a L2PAO from a current aliased L1 address to a new aliased L1 address.
 This template executes an L1 transaction, which is later forwarded to the L2 by the op-node. To gain additional confidence that the L2 deposit transaction works as expected, we manually simulate it and record the results in the task’s VALIDATION.md file.
 
+> [!NOTE]
+> The template supports transferring the L2 ProxyAdmin ownership of multiple chains in a single task. In that case the L1 simulation emits one `TransactionDeposited` event per chain, and the steps below must be repeated per chain — in Tenderly where the L2 is supported, or on a local fork of the L2 otherwise.
+
 ## Steps
 
 1. Simulate the task that uses the [TransferL2PAOFromL1.sol](../src/template/TransferL2PAOFromL1.sol) template.

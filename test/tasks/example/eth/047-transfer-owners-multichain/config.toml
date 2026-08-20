@@ -1,0 +1,15 @@
+# Multichain L1 ownership transfer: returns administrative ownership of Mode, Metal, Zora
+# and Dust to their operator's designated Safe in a single task. Transfers the DisputeGameFactory
+# and ProxyAdmin ownership for each chain. Dust (chain ID 55378) is not part of the Superchain
+# Registry, so its addresses are provided via the fallback addresses JSON file.
+l2chains = [
+    {name = "Mode", chainId = 34443},
+    {name = "Metal", chainId = 1750},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+fallbackAddressesJsonPath = "test/tasks/example/eth/047-transfer-owners-multichain/addresses.json"
+templateName = "TransferOwners"
+
+# The operator's designated mainnet Safe receiving ownership of all four chains.
+newOwner = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"

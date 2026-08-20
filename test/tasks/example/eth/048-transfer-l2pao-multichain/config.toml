@@ -1,0 +1,24 @@
+# Multichain L2 ProxyAdmin ownership transfer: transfers the L2 ProxyAdmin of Mode, Metal,
+# Zora and Dust to the alias of the operator's designated Safe in a single task, via each
+# chain's L1 OptimismPortal. Dust (chain ID 55378) is not part of the Superchain Registry,
+# so its addresses are provided via the fallback addresses JSON file.
+# This fixture only makes sense on the state left by 047-transfer-owners-multichain, so it is
+# always simulated stacked on it (DEPENDS_ON in the .env), mirroring production.
+l2chains = [
+    {name = "Mode", chainId = 34443},
+    {name = "Metal", chainId = 1750},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+fallbackAddressesJsonPath = "test/tasks/example/eth/048-transfer-l2pao-multichain/addresses.json"
+templateName = "TransferL2PAOFromL1"
+
+# The new owner address to alias: the operator's designated mainnet Safe.
+newOwnerToAlias = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
+
+[addresses]
+# Root-safe pin, same pattern production tasks use: once the L1 ownership task has executed,
+# the registry resolves each registry chain's ProxyAdminOwner to the new owner, but the
+# deposits must still be sent by the previous L1PAO — its alias owns the L2 ProxyAdmin
+# predeploys.
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
