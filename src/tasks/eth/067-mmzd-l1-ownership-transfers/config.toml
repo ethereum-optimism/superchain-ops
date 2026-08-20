@@ -1,0 +1,31 @@
+templateName = "TransferOwners"
+
+# Transfers ProxyAdmin + DisputeGameFactory ownership of the four chains below to the
+# operator's Safe (the L1 half of the handover; task 068 moves the L2 ProxyAdmin).
+# Metal, Mode and Zora resolve from the superchain-registry. Dust is not in the
+# registry; its addresses come from fallbackAddressesJsonPath, confirmed against
+# https://api.conduit.xyz/file/v1/optimism/contracts/dust-mainnet-0 and on-chain.
+
+l2chains = [
+    {name = "Metal", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+
+fallbackAddressesJsonPath = "src/tasks/eth/067-mmzd-l1-ownership-transfers/addresses.json"
+
+# The operator Safe on Ethereum Mainnet; confirmed via email. It also already owns Metal, Mode
+# and Dust SystemConfig proxies.
+newOwner = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 41}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]
