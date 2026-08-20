@@ -34,3 +34,5 @@ test-config-files/
 
 # lcov.info files from 'forge coverage --report lcov'
 lcov.info
+# Written by SuperRootUpgradeSetupValidationTest at runtime
+test/tasks/example/sep/035-opcm-upgrade-v800/opcm-upgrade-v800-cannon-starting-game-type.toml
