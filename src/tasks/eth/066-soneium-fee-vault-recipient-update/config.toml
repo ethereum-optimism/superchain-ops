@@ -1,0 +1,45 @@
+templateName = "SetFeeVaultConfig"
+
+l2chains = [
+    {name = "Soneium", chainId = 1868}
+]
+
+# Predeploys
+vaultProxies = [
+  "0x4200000000000000000000000000000000000011",  # SequencerFeeVault
+  "0x4200000000000000000000000000000000000019",  # BaseFeeVault
+  "0x420000000000000000000000000000000000001a",  # L1FeeVault
+  "0x420000000000000000000000000000000000001b",  # OperatorFeeVault
+]
+
+# New Soneium fee recipient
+recipients = ["0x34ffF1A1CB3C054E9eD1BbD36883B14A66E6C260"]
+
+# Unchanged, all four vaults already withdraw on L2 (Network 1)
+networks = [1]
+
+# Flat per-(chain, vault) shape matching vaultProxies order: Seq / Base / L1FeeVault
+# lower from 10 ETH to 5 ETH (operator-approved),
+# OperatorFeeVault keeps its live 0 (no deposit emitted for it).
+minWithdrawalAmounts = [5000000000000000000, 5000000000000000000, 5000000000000000000, 0]
+
+# Required by the template: L2 RPC for the pre-checks (L2 ProxyAdmin-owner aliased address assertion,
+# per-vault version check, and dry-run of setter calls)
+l2RpcUrls = ["https://rpc.soneium.org"]
+
+
+[stateOverrides]
+# Nested L1PAO signer-safe nonces, pinned to the values at authoring time.
+# To re-verify:
+#   cast call <safe> "nonce()(uint256)" --rpc-url https://ethereum-rpc.publicnode.com
+# Regenerate the VALIDATION.md hashes if any value has drifted (e.g. if another
+# L1PAO-signed task lands first).
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO mainnet
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 40}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
