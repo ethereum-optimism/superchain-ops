@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "implementationsDeployment": {
+    "OpcmImpl": "0x365b0aeb2b72387897ae0adcd293f75a60555b03",
+    "OpcmGameTypeAdderImpl": "0x77be751385562ec5f5074f1d3d80b9b7df0af77c"
+  },
+  "opChainDeployments": [],
+  "superchainContracts": {},
+  "appliedIntent": {
+    "chains": [
+      {
+        "id": "0x00000000000000000000000000000000000000000000000000000000190a5ebf",
+        "roles": {
+          "l1ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+          "proposer": "0x000c245b7a2e946c9eee6b488f1da07af15ad4f4",
+          "challenger": "0x293204bfa7f28c4a4275b377ccafd525d2225d37"
+        }
+      },
+      {
+        "id": "0x00000000000000000000000000000000000000000000000000000000190a5ec0",
+        "roles": {
+          "l1ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+          "proposer": "0x111c245b7a2e946c9eee6b488f1da07af15ad4f4",
+          "challenger": "0x393204bfa7f28c4a4275b377ccafd525d2225d37"
+        }
+      }
+    ]
+  }
+}
