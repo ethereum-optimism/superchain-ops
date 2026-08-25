@@ -1,6 +1,6 @@
 # 065-ink-system-config-owner-to-fus
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xbf75cc41981ecb8481f3b114697310490b72f96c74fcc34e33b57433b6d9e756)
 
 ## Objective
 
