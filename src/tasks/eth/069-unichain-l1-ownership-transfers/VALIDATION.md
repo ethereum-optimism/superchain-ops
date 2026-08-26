@@ -154,10 +154,6 @@ must match [Task State Changes](#task-state-changes) and the **Events** must sho
   - **After:**  `0x...42` (66)
   - **Summary:** nonce increment of the approving child safe.
 
-There is no DelayedWETH state change — Unichain's
-[`DelayedWETH`](https://github.com/ethereum-optimism/superchain-registry/blob/848b7c912f02fb97403ea78a1a152ae7e181e6cc/superchain/extra/addresses/addresses.json#L147)
-is post-U16 and not ownable, so there is no ownership to transfer.
-
 ### L2 State Changes
 
 None — this task changes L1 ownership only. The L2 `ProxyAdmin` is moved by

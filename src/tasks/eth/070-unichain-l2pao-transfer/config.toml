@@ -10,22 +10,18 @@ l2chains = [
 # L1 OptimismPortal. Stacked after 069: the template asserts
 # L1 ProxyAdmin.owner() == newOwnerToAlias at build time, so simulate and
 # execute through the stack.
+
 newOwnerToAlias = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [addresses]
 # Root-safe pin: the deposit must be sent by the previous L1PAO — the Unichain
 # 3-of-3, whose alias owns the L2 ProxyAdmin predeploy — while after 069
 # executes, on-chain discovery would resolve ProxyAdminOwner to the new owner.
-# Keeps root-safe resolution (and the signing hashes) stable either way.
+
 ProxyAdminOwner = "0x6d5B183F538ABB8572F5cD17109c617b994D5833"
 
 [stateOverrides]
-# Same four safes as task 069, each one ahead of that task's pins (069 executes
-# first). To re-verify:
-#   cast call <safe> "nonce()(uint256)" --rpc-url https://ethereum-rpc.publicnode.com
-# Regenerate the VALIDATION.md hashes if any value has drifted (open PR #1521
-# pins overlapping FUS/SC values, so whichever set of tasks signs second must
-# re-pin).
+
 0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 (current L1PAO)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
 ]

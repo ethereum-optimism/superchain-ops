@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-For **Unichain Mainnet** (chainId 130), transfer L1 ownership of the `ProxyAdmin` and the `DisputeGameFactory` from the Unichain 3-of-3 Safe to the standard OP-governed L1PAO — the same 2-of-2 nested Safe (Foundation Upgrade Safe + Security Council) that owns OP Mainnet. This is the L1 half of the [Unichain ProxyAdmin Owner Transition to Standard Optimism Governance](https://app.notion.com/p/oplabs/EXTERNAL-Maintenance-Upgrade-Proposal-Unichain-ProxyAdmin-Owner-Transition-to-Standard-Optimism-Go-381f153ee16281efad21c307cef7c928) proposal; the L2 half is [070-unichain-l2pao-transfer](../070-unichain-l2pao-transfer/README.md), which executes after this task.
+For **Unichain Mainnet** (chainId 130), transfer L1 ownership of the `ProxyAdmin` and the `DisputeGameFactory` from the Unichain 3-of-3 Safe to the standard OP-governed L1PAO — the same 2-of-2 nested Safe (Foundation Upgrade Safe + Security Council) that owns OP Mainnet. This is the L1 half of the Unichain ProxyAdmin Owner Transition to Standard Optimism Governance proposal; the L2 half is [070-unichain-l2pao-transfer](../070-unichain-l2pao-transfer/README.md), which executes after this task.
 
 | Contract | Current owner | New owner |
 |---|---|---|
