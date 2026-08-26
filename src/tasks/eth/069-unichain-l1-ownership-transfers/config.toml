@@ -1,51 +1,33 @@
 templateName = "TransferOwners"
 
-# Transfers ProxyAdmin + DisputeGameFactory ownership of Unichain Mainnet
-# (chainId 130) from the Unichain 3-of-3 Safe to the standard OP-governed
-# mainnet L1PAO (the L1 half of the transition; task 070 moves the L2
-# ProxyAdmin). All addresses resolve from the superchain-registry.
-#
-# Governance post: "[EXTERNAL] Maintenance Upgrade Proposal: Unichain
-# ProxyAdmin Owner Transition to Standard Optimism Governance"
-# https://app.notion.com/p/oplabs/EXTERNAL-Maintenance-Upgrade-Proposal-Unichain-ProxyAdmin-Owner-Transition-to-Standard-Optimism-Go-381f153ee16281efad21c307cef7c928
-#
-# The registry publishes no PermissionedWETH/PermissionlessWETH keys for
-# Unichain (only DelayedWETHProxy, which the template never reads), so the
-# template skips the DelayedWETH at build time. That is safe because
-# Unichain's DelayedWETH (0x74ad145aC900F1DD5551F0C9E143314DC4022FCf) is
-# post-U16 and not ownable — an `owner()` call returns no data on-chain — so
-# there is no DelayedWETH ownership to transfer.
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
 
-l2chains = [{name = "Unichain", chainId = 130}]
-
-# New L1 owner: the standard OP-governed mainnet L1PAO, the 2-of-2 nested Safe
-# of the FoundationUpgradeSafe and the SecurityCouncil — the same L1PAO as
-# OP Mainnet. Matches the governance post.
+# New owner: the standard OP-governed mainnet L1PAO (2-of-2 of the Foundation
+# Upgrade Safe and the Security Council, same as OP Mainnet), per the
+# governance post linked in the README. Task 070 moves the L2 ProxyAdmin.
+# The registry has no PermissionedWETH/PermissionlessWETH keys for Unichain and
+# its DelayedWETH is post-U16 (not ownable), so the template skips it.
 newOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [stateOverrides]
-# The current owner (root Safe for this task) is the Unichain 3-of-3 whose
-# child signers are the Unichain Chain Governor Safe, the
-# FoundationUpgradeSafe and the SecurityCouncil. All four Safe nonces are
-# pinned (slot 5). The 3-of-3 and Chain Governor pins are the LIVE on-chain
-# values (verified 2026-08-25); the FUS and SC pins are live + 1, accounting
-# for the L1PAO-signed task 066-soneium-fee-vault-recipient-update that is
-# stacked before this one. These Safes are shared across many mainnet tasks,
-# so re-verify immediately before signing:
-#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
-# and bump the corresponding override + re-simulate if any has advanced.
-# NOTE: open PR #1521 (eth/067-mmzd-l1-ownership-transfers) pins the same
-# FUS=67 / SC=65 values — whichever set of tasks signs/executes second must
-# re-pin and re-simulate.
-0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 (current L1PAO) — live 10
+# Nested Unichain 3-of-3 signer-safe nonces, pinned to the values at authoring
+# time (2026-08-25). FUS/SC are live + 1: task 066 is stacked before this one
+# and consumes one nonce on each. To re-verify:
+#   cast call <safe> "nonce()(uint256)" --rpc-url https://ethereum-rpc.publicnode.com
+# Regenerate the VALIDATION.md hashes if any value has drifted (e.g. if another
+# task signed by these safes lands first — open PR #1521 pins the same FUS/SC
+# values, so whichever set of tasks signs second must re-pin).
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 (current L1PAO)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
 ]
-0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Governor Safe — live 19
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Governor Safe
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 19}
 ]
-0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe — live 66 + 1 (task 066)
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
 ]
-0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil — live 64 + 1 (task 066)
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
 ]

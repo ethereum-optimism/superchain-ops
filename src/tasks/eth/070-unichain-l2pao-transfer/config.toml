@@ -1,50 +1,40 @@
 templateName = "TransferL2PAOFromL1"
 
-# Transfers the L2 ProxyAdmin owner of Unichain Mainnet (chainId 130) to the
-# L1-to-L2 alias of the standard OP-governed mainnet L1PAO (the L2 half of the
-# transition), via a depositTransaction through Unichain's L1 OptimismPortal.
-# All addresses resolve from the superchain-registry.
-#
-# Governance post: "[EXTERNAL] Maintenance Upgrade Proposal: Unichain
-# ProxyAdmin Owner Transition to Standard Optimism Governance"
-# https://app.notion.com/p/oplabs/EXTERNAL-Maintenance-Upgrade-Proposal-Unichain-ProxyAdmin-Owner-Transition-to-Standard-Optimism-Go-381f153ee16281efad21c307cef7c928
-#
-# Stacked after 069-unichain-l1-ownership-transfers: the template asserts
-# `L1 ProxyAdmin.owner() == newOwnerToAlias` at build time, which holds once
-# 069 has executed (the stacked simulation runs 069 first).
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
 
-l2chains = [{name = "Unichain", chainId = 130}]
-
-# Unaliased new owner (the same recipient as task 069). The template applies
-# AddressAliasHelper.applyL1ToL2Alias and sends the aliased value to the L2
-# ProxyAdmin predeploy. Computed alias:
-# 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+# Unaliased new owner (same recipient as task 069). The template applies the
+# L1-to-L2 alias (0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b) and transfers the
+# L2 ProxyAdmin predeploy to it via one depositTransaction through Unichain's
+# L1 OptimismPortal. Stacked after 069: the template asserts
+# L1 ProxyAdmin.owner() == newOwnerToAlias at build time, so simulate and
+# execute through the stack.
 newOwnerToAlias = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [addresses]
-# Root-safe pin: after 069 executes, on-chain discovery resolves Unichain's
-# ProxyAdminOwner to the OP-governed L1PAO, but the deposit must still be sent
-# by the previous owner — the Unichain 3-of-3, whose alias owns the L2
-# ProxyAdmin predeploy. The pin keeps root-safe resolution (and the signing
-# hashes) stable whether or not 069 has executed yet.
+# Root-safe pin: the deposit must be sent by the previous L1PAO — the Unichain
+# 3-of-3, whose alias owns the L2 ProxyAdmin predeploy — while after 069
+# executes, on-chain discovery would resolve ProxyAdminOwner to the new owner.
+# Keeps root-safe resolution (and the signing hashes) stable either way.
 ProxyAdminOwner = "0x6d5B183F538ABB8572F5cD17109c617b994D5833"
 
 [stateOverrides]
-# Same four Safes as task 069, each pinned one ahead of that task's override
-# to account for 069 executing first (see 069's config.toml for the live
-# baselines, verified 2026-08-25). Re-verify before signing:
-#   cast call <safe> "nonce()(uint256)" --rpc-url mainnet
-# NOTE: open PR #1521 (eth/067-068) pins overlapping FUS/SC values — whichever
-# set of tasks signs/executes second must re-pin and re-simulate.
-0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 — 10 + 1 (task 069)
+# Same four safes as task 069, each one ahead of that task's pins (069 executes
+# first). To re-verify:
+#   cast call <safe> "nonce()(uint256)" --rpc-url https://ethereum-rpc.publicnode.com
+# Regenerate the VALIDATION.md hashes if any value has drifted (open PR #1521
+# pins overlapping FUS/SC values, so whichever set of tasks signs second must
+# re-pin).
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 (current L1PAO)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
 ]
-0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Governor Safe — 19 + 1 (task 069)
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Governor Safe
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 20}
 ]
-0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe — 66 + 1 (task 066) + 1 (task 069)
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
 ]
-0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil — 64 + 1 (task 066) + 1 (task 069)
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
 ]
