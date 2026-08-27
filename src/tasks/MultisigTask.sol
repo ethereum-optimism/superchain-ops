@@ -546,10 +546,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
+                // The hash-once module's bookkeeping (consumed values, signer window) legitimately
+                // stores owner addresses that may be contracts or EOAs; address-likeness checks
+                // don't apply to it.
+                bool isHashOnceModuleWrite = isNonceless() && account == address(hashOnceModule);
                 // Skip the code check for slots explicitly whitelisted via the task's
                 // `[storageCodeExceptions]` config (e.g. packed slots whose low 160 bits
                 // are not an independent address).
-                if (!_storageCodeExceptions[account][storageAccess.slot]) {
+                if (!_storageCodeExceptions[account][storageAccess.slot] && !isHashOnceModuleWrite) {
                     if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
                         // Log account, slot, and value if there is no code.
                         // forgefmt: disable-start
