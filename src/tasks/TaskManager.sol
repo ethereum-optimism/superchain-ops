@@ -275,7 +275,7 @@ contract TaskManager is Script {
 
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
         task = MultisigTask(deployCode(templatePath));
-        string memory safeAddressString = task.loadSafeAddressString(task, taskConfigFilePath);
+        string memory safeAddressString = task.loadSafeAddressString(taskConfigFilePath);
         TaskType taskType = task.taskType();
 
         if (taskType == TaskType.SimpleTaskBase) {
