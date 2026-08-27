@@ -26,7 +26,8 @@ contract NoncelessMultisigTaskTest is Test {
     string constant HASH_ONCE_INPUT = "test: totally unique string";
 
     /// @notice Single multisig config: SystemConfigOwner of Mode and Metal.
-    string constant singleToml = "l2chains = [{name = \"Mode\", chainId = 34443}, {name = \"Metal\", chainId = 1750}]\n"
+    string constant singleToml =
+        "l2chains = [{name = \"Mode\", chainId = 34443}, {name = \"Metal\", chainId = 1750}]\n"
         "templateName = \"GasConfigTemplate\"\n" "hashOnceInput = \"test: totally unique string\"\n"
         "hashOnceModule = \"0x4242424242424242424242424242424242424242\"\n" "[gasConfigs]\n"
         "gasLimits = [{chainId = 34443, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]\n";
@@ -141,8 +142,8 @@ contract NoncelessMultisigTaskTest is Test {
     }
 
     function test_nonceless_moduleNotDeployed_reverts() public {
-        string memory badToml = "l2chains = [{name = \"Mode\", chainId = 34443}]\n" "templateName = \"GasConfigTemplate\"\n"
-            "hashOnceInput = \"test: totally unique string\"\n"
+        string memory badToml = "l2chains = [{name = \"Mode\", chainId = 34443}]\n"
+            "templateName = \"GasConfigTemplate\"\n" "hashOnceInput = \"test: totally unique string\"\n"
             "hashOnceModule = \"0x9999999999999999999999999999999999999999\"\n" "[gasConfigs]\n"
             "gasLimits = [{chainId = 34443, gasLimit = 100000000}]\n";
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(badToml, TESTING_DIRECTORY, "005");
@@ -154,9 +155,9 @@ contract NoncelessMultisigTaskTest is Test {
     }
 
     function test_nonceless_missingModuleAddress_reverts() public {
-        string memory badToml = "l2chains = [{name = \"Mode\", chainId = 34443}]\n" "templateName = \"GasConfigTemplate\"\n"
-            "hashOnceInput = \"test: totally unique string\"\n" "[gasConfigs]\n"
-            "gasLimits = [{chainId = 34443, gasLimit = 100000000}]\n";
+        string memory badToml = "l2chains = [{name = \"Mode\", chainId = 34443}]\n"
+            "templateName = \"GasConfigTemplate\"\n" "hashOnceInput = \"test: totally unique string\"\n"
+            "[gasConfigs]\n" "gasLimits = [{chainId = 34443, gasLimit = 100000000}]\n";
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(badToml, TESTING_DIRECTORY, "006");
         MultisigTask task = new GasConfigTemplate();
 
@@ -218,15 +219,18 @@ contract NoncelessMultisigTaskTest is Test {
 
         assertEq(dataToSign.length, dataToSignAfterDrift.length, "dataToSign count should match");
         for (uint256 i = 0; i < dataToSign.length; i++) {
-            assertEq(
-                dataToSign[i], dataToSignAfterDrift[i], "dataToSign must not change when any safe's nonce drifts"
-            );
+            assertEq(dataToSign[i], dataToSignAfterDrift[i], "dataToSign must not change when any safe's nonce drifts");
         }
     }
 
     function simulateWithModuleEnabled(MultisigTask task, string memory fileName)
         internal
-        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, bytes[] memory dataToSign, address rootSafe)
+        returns (
+            VmSafe.AccountAccess[] memory accountAccesses,
+            Action[] memory actions,
+            bytes[] memory dataToSign,
+            address rootSafe
+        )
     {
         enableModule(task.getRootSafe(fileName));
         (accountAccesses, actions, dataToSign, rootSafe) = task.simulate(fileName, new address[](0));

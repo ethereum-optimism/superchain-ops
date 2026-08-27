@@ -370,13 +370,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         if (isNonceless()) {
             // Module execution does not touch the safe's nonce; the hash-once value is consumed instead.
-            require(
-                hashOnceModule.executed(rootSafe, hashOnce), "MultisigTask: hash-once value not consumed by module"
-            );
+            require(hashOnceModule.executed(rootSafe, hashOnce), "MultisigTask: hash-once value not consumed by module");
         } else {
-            require(
-                IGnosisSafe(rootSafe).nonce() == originalRootSafeNonce + 1, "MultisigTask: nonce not incremented"
-            );
+            require(IGnosisSafe(rootSafe).nonce() == originalRootSafeNonce + 1, "MultisigTask: nonce not incremented");
         }
 
         _validate(accountAccesses, actions, rootSafe);

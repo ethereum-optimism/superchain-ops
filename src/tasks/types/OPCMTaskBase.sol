@@ -78,7 +78,9 @@ abstract contract OPCMTaskBase is L2TaskBase {
                 "OPCMTaskBase: no state should be updated on upgrade controller multisig for a nonceless task"
             );
         } else {
-            require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
+            require(
+                rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig"
+            );
         }
 
         for (uint256 i = 0; i < OPCM_TARGETS.length; i++) {
