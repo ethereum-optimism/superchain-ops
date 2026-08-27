@@ -10,7 +10,6 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 interface ISystemConfig {
     function setGasLimit(uint64 _gasLimit) external;
     function gasLimit() external view returns (uint64);
-    function owner() external view returns (address);
 }
 
 /// @notice A template that sets ONLY the SystemConfig gas limit (no EIP-1559 params).
@@ -47,57 +46,6 @@ contract SystemConfigGasLimit is L2TaskBase {
     function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
         super._templateSetup(taskConfigFilePath, rootSafe);
 
-        _loadConfig(taskConfigFilePath);
-    }
-
-    /// @notice Simulates the gas-limit update when SystemConfig is directly owned by an EOA.
-    function simulateOwner(string memory taskConfigFilePath) public {
-        address owner = _setupOwnerExecution(taskConfigFilePath);
-        vm.startPrank(owner);
-        _setGasLimits();
-        vm.stopPrank();
-        _validateGasLimits();
-    }
-
-    /// @notice Checks that the selected signer is the direct SystemConfig owner.
-    function validateOwner(string memory taskConfigFilePath, address signer) public {
-        address owner = _setupOwnerExecution(taskConfigFilePath);
-        require(signer == owner, "SystemConfigGasLimit: signer is not SystemConfig owner");
-    }
-
-    /// @notice Broadcasts the gas-limit update directly from the SystemConfig owner.
-    function executeOwner(string memory taskConfigFilePath, address signer) public {
-        address owner = _setupOwnerExecution(taskConfigFilePath);
-        require(signer == owner, "SystemConfigGasLimit: signer is not SystemConfig owner");
-
-        vm.startBroadcast(signer);
-        _setGasLimits();
-        vm.stopBroadcast();
-        _validateGasLimits();
-    }
-
-    function _setupOwnerExecution(string memory taskConfigFilePath) internal returns (address owner) {
-        superchainAddrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
-        _loadConfig(taskConfigFilePath);
-
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        owner = superchainAddrRegistry.getAddress("SystemConfigOwner", chains[0].chainId);
-        require(owner.code.length == 0, "SystemConfigGasLimit: owner execution requires an EOA");
-        for (uint256 i = 0; i < chains.length; i++) {
-            address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId);
-            require(
-                ISystemConfig(systemConfigProxy).owner() == owner,
-                "SystemConfigGasLimit: configured owner is not SystemConfig owner"
-            );
-            if (i == 0) continue;
-            require(
-                superchainAddrRegistry.getAddress("SystemConfigOwner", chains[i].chainId) == owner,
-                "SystemConfigGasLimit: chains have different owners"
-            );
-        }
-    }
-
-    function _loadConfig(string memory taskConfigFilePath) internal {
         string memory tomlContent = vm.readFile(taskConfigFilePath);
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
 
@@ -112,10 +60,6 @@ contract SystemConfigGasLimit is L2TaskBase {
 
     /// @notice Update the gas limit for the SystemConfig contract.
     function _build(address) internal override {
-        _setGasLimits();
-    }
-
-    function _setGasLimits() internal {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -126,10 +70,6 @@ contract SystemConfigGasLimit is L2TaskBase {
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
-        _validateGasLimits();
-    }
-
-    function _validateGasLimits() internal view {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
