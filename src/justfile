@@ -150,7 +150,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     show_usage() {
         echo
         echo "Usage: just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
-        echo "Environment: HD_PATH (default: 0), USE_KEYSTORE"
+        echo "Environment: HD_PATH (default: 0), USE_KEYSTORE, KEYSTORE_PATH"
         echo "Example: just sign-stack eth rehearsals/2025-01-08-R1-welcome  # Rehearsal task"
     }
 
@@ -286,14 +286,27 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     ETH_RPC_URL=$("$root_dir"/src/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
 
+    # Get fork block arguments
+    fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
+
+    execution_mode=$(yq '.executionMode // "safe"' ${config_path})
+    if [ "$execution_mode" = "owner" ]; then
+        echo "Simulating direct owner task"
+        forge script ${script_name} \
+          --sig "simulateOwner(string)" \
+          ${config_path} \
+          --fork-url ${ETH_RPC_URL} \
+          --fork-retries {{forge_fork_retries}} \
+          --fork-retry-backoff {{forge_fork_retry_backoff}} \
+          ${fork_block_args}
+        exit 0
+    fi
+
     # Get function signature and arguments using helper
     eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
     
     # Configure signer for simulation
     signer=$(just --justfile "$root_just_file" _get-simulation-signer "$config_path" "$ETH_RPC_URL" "$child_safe_depth_1" "$child_safe_depth_2")
-    
-    # Get fork block arguments
-    fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
     
     echo -e "⏳ Simulating task: $task_name for network: '$network' on $target_safe\n"
     forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --sender ${signer} ${fork_block_args}
@@ -311,7 +324,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     show_usage() {
         echo
         echo "Usage: just sign [child-safe-name-depth-1] [child-safe-name-depth-2]"
-        echo "Environment: HD_PATH (default: 0), USE_KEYSTORE"
+        echo "Environment: HD_PATH (default: 0), USE_KEYSTORE, KEYSTORE_PATH"
     }
 
     # Set test directory if running test task  
@@ -324,13 +337,26 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     HD_PATH=${HD_PATH:-0}
     USE_KEYSTORE=${USE_KEYSTORE:-}
     
-    # Get function signature and arguments using helper
-    eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
-    
     # Get signer address and arguments using helper function
     signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
     signer=$(echo "$signer_info" | sed -n '1p')
     signer_args=$(echo "$signer_info" | sed -n '2p')
+
+    execution_mode=$(yq '.executionMode // "safe"' ${config_path})
+    if [ "$execution_mode" = "owner" ]; then
+        forge script ${script_name} \
+          --sig "validateOwner(string,address)" \
+          ${config_path} \
+          ${signer} \
+          --fork-url ${ETH_RPC_URL} \
+          --fork-retries {{forge_fork_retries}} \
+          --fork-retry-backoff {{forge_fork_retry_backoff}}
+        echo "Selected signer is the SystemConfig owner; no separate Safe signature is required."
+        exit 0
+    fi
+
+    # Get function signature and arguments using helper
+    eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
     
     # Validate that signer is an owner on the target safe
     echo "Validating signer is an owner on the safe..."
@@ -416,6 +442,22 @@ execute:
   sender=$(echo "$signer_info" | sed -n '1p')
   signer_args=$(echo "$signer_info" | sed -n '2p')
   echo "Executing with sender: ${sender}"
+
+  execution_mode=$(yq '.executionMode // "safe"' ${config_path})
+  if [ "$execution_mode" = "owner" ]; then
+    forge build
+    forge script ${script_name} \
+      --fork-url ${ETH_RPC_URL} \
+      --fork-retries {{forge_fork_retries}} \
+      --fork-retry-backoff {{forge_fork_retry_backoff}} \
+      --broadcast \
+      --sender ${sender} \
+      --sig "executeOwner(string,address)" \
+      ${signer_args} \
+      ${config_path} \
+      ${sender}
+    exit 0
+  fi
 
   forge build
   forge script ${script_name} \
@@ -521,13 +563,17 @@ _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEP
 _get-keystore-private-key:
     #!/usr/bin/env bash
     set -euo pipefail
-    
-    echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
-    keystorePath=$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
-    
-    echo "Keystore path: ${keystorePath}" >&2
-    full_keystore_path="$HOME/.foundry/keystores/${keystorePath}"
-    signer_private_key=$(cast wallet pk --keystore ${full_keystore_path})
+
+    if [ -n "${KEYSTORE_PATH:-}" ]; then
+        full_keystore_path="$KEYSTORE_PATH"
+    else
+        echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
+        keystore_name=$(cd "$HOME/.foundry/keystores/" && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
+        full_keystore_path="$HOME/.foundry/keystores/${keystore_name}"
+    fi
+
+    echo "Keystore path: ${full_keystore_path}" >&2
+    signer_private_key=$(cast wallet pk --keystore "${full_keystore_path}")
     sender=$(cast wallet address --private-key ${signer_private_key})
     echo "Signing with the signer: ${sender}" >&2
     if [ -z "${signer_private_key}" ]; then
