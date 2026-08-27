@@ -16,6 +16,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
+import {IUnorderedExecutionModule} from "src/interfaces/IUnorderedExecutionModule.sol";
 import {Action, TemplateConfig, TaskType, TaskPayload, SafeData} from "src/libraries/MultisigTypes.sol";
 import {StateOverrideManager} from "src/tasks/StateOverrideManager.sol";
 import {Utils} from "src/libraries/Utils.sol";
@@ -43,6 +44,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice The address of the multicall target for this task
     address public multicallTarget;
+
+    /// @notice Hash-once value replacing every safe's nonce when the task is nonceless.
+    /// Derived from the 'hashOnceInput' string in the task config; 0 for nonce-based tasks.
+    uint256 public hashOnce;
+
+    /// @notice The UnorderedExecutionModule used to execute nonceless tasks. Must be enabled as a
+    /// module on every safe in the task. Only set when the task is nonceless.
+    IUnorderedExecutionModule public hashOnceModule;
 
     /// @notice struct to store the addresses that are expected to have storage accesses
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
@@ -130,6 +139,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         SafeData memory safeData = Utils.getSafeData(payload, executionSafeIdx);
         txHash_ = getHash(safeData.callData, safeData.safe, 0, safeData.nonce, payload.safes);
 
+        // Fail early with a clear error: a consumed hash-once value means the task was already
+        // executed, or another task on this safe reused the same hashOnceInput.
+        if (isNonceless()) {
+            require(
+                !hashOnceModule.executed(safeData.safe, hashOnce),
+                "MultisigTask: hash-once value already consumed on this safe. Was the task already executed, or does another task reuse the same hashOnceInput?"
+            );
+        }
+
         // If we are simulating, we need to approve the hash from each owner.
         // Otherwise, we are executing the task and all approvals are already done.
         // No signatures means we are simulating.
@@ -140,7 +158,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 IGnosisSafe(safeData.safe).approveHash(txHash_);
                 // Manually increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
                 // the nonce would be incremented by 1 and we wouldn't have to do this manually.
-                _incrementOwnerNonce(owners[i]);
+                // Nonceless tasks skip this: owner approvals also execute through the module, which
+                // never touches nonces, so simulation must leave them unchanged too.
+                if (!isNonceless()) _incrementOwnerNonce(owners[i]);
             }
             signatures = _prepareSignatures(safeData.safe, txHash_);
         } else {
@@ -281,6 +301,45 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
+    /// @notice Returns true if the task is nonceless (hash-once): its config defines 'hashOnceInput'.
+    function isNonceless() public view returns (bool) {
+        return hashOnce != 0;
+    }
+
+    /// @notice Reads the optional 'hashOnceInput' string from the task config. Its presence makes
+    /// the task nonceless: the derived hash-once value replaces every safe's nonce in the signed
+    /// transaction data, and execution is routed through the UnorderedExecutionModule (which must
+    /// be enabled on every safe in the task) instead of execTransaction. The string must be unique
+    /// per task and must not encode the task directory number, so that signatures survive
+    /// renumbering. 'hashOnceModule' must name the module's deployed address.
+    function _setHashOnceFromConfig(string memory _taskConfigFilePath) private {
+        string memory file = vm.readFile(_taskConfigFilePath);
+        if (!file.keyExists(".hashOnceInput")) return;
+
+        string memory hashOnceInput = file.readString(".hashOnceInput");
+        require(bytes(hashOnceInput).length > 0, "MultisigTask: hashOnceInput must not be empty");
+
+        require(
+            file.keyExists(".hashOnceModule"),
+            "MultisigTask: hashOnceModule address is required when hashOnceInput is set"
+        );
+        hashOnceModule = IUnorderedExecutionModule(vm.parseAddress(file.readString(".hashOnceModule")));
+        require(
+            address(hashOnceModule).code.length > 0,
+            "MultisigTask: hashOnceModule has no code. Is the module deployed on this network?"
+        );
+
+        // The module's derivation is canonical; deriving locally could silently diverge from it.
+        hashOnce = hashOnceModule.deriveHashOnce(hashOnceInput);
+        // The module rejects values a sequential nonce could reach. Unreachable for keccak output.
+        require(hashOnce > type(uint128).max, "MultisigTask: hashOnce value too small");
+        console.log(
+            vm.toUppercase("[INFO]").green().bold(),
+            "Nonceless (hash-once) task. Safe nonces are replaced by:",
+            vm.toString(hashOnce)
+        );
+    }
+
     /// @notice Execute post-task checks. e.g. read state variables of the deployed contracts to make
     /// sure they are deployed and initialized correctly, or read states that are expected to have changed during the simulate step.
     function validate(
@@ -309,7 +368,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             );
         }
 
-        require(IGnosisSafe(rootSafe).nonce() == originalRootSafeNonce + 1, "MultisigTask: nonce not incremented");
+        if (isNonceless()) {
+            // Module execution does not touch the safe's nonce; the hash-once value is consumed instead.
+            require(
+                hashOnceModule.executed(rootSafe, hashOnce), "MultisigTask: hash-once value not consumed by module"
+            );
+        } else {
+            require(
+                IGnosisSafe(rootSafe).nonce() == originalRootSafeNonce + 1, "MultisigTask: nonce not incremented"
+            );
+        }
 
         _validate(accountAccesses, actions, rootSafe);
 
@@ -525,19 +593,43 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             vm.broadcast();
         }
 
-        bytes memory callData = abi.encodeWithSelector(
-            IGnosisSafe.execTransaction.selector,
-            target,
-            value,
-            data,
-            operationType,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            signatures
-        );
+        // Nonceless tasks execute through the UnorderedExecutionModule instead of the safe's own
+        // execTransaction. The module verifies the same signatures against the same transaction
+        // hash (with the hash-once value in the nonce slot) via the safe's checkSignatures.
+        address callTarget;
+        bytes memory callData;
+        if (isNonceless()) {
+            callTarget = address(hashOnceModule);
+            callData = abi.encodeCall(
+                IUnorderedExecutionModule.execute,
+                (
+                    multisig,
+                    IUnorderedExecutionModule.ExecTransactionParams({
+                        to: target,
+                        value: value,
+                        data: data,
+                        operation: operationType
+                    }),
+                    hashOnce,
+                    signatures
+                )
+            );
+        } else {
+            callTarget = multisig;
+            callData = abi.encodeWithSelector(
+                IGnosisSafe.execTransaction.selector,
+                target,
+                value,
+                data,
+                operationType,
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
+                signatures
+            );
+        }
 
         // Use the TENDERLY_GAS environment variable to set a specific gas limit, if provided.
         // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
@@ -545,7 +637,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
         MultisigTaskPrinter.printGasForExecTransaction(gas);
 
-        (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
+        (bool success, bytes memory returnData) = callTarget.call{gas: gas}(callData);
 
         // Check that the transaction did not exceed the maximum gas limit.
         // We must check gas consumed BEFORE refunds, because the EVM requires enough gas upfront,
@@ -647,6 +739,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     {
         require(_preExecutionSnapshot == 0, "MultisigTask: already initialized");
         templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
+        _setHashOnceFromConfig(_taskConfigFilePath);
         IGnosisSafe _root;
         (addrRegistry, _root, multicallTarget) = _configureTask(_taskConfigFilePath);
 
@@ -664,6 +757,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         _setAllowedStorageAccesses();
         _setAllowedBalanceChanges();
+        // The module records the consumed hash-once value during execution.
+        if (isNonceless()) _allowedStorageAccesses.add(address(hashOnceModule));
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
@@ -808,6 +903,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         _setStorageCodeExceptionsFromConfig(_taskConfigFilePath); // Sets '_storageCodeExceptions' mapping.
         allOriginalNonces_ = new uint256[](_allSafes.length);
         for (uint256 i = 0; i < _allSafes.length; i++) {
+            // Nonceless: the hash-once value takes the nonce's place in the signed transaction
+            // data of every safe. Replay protection is per (safe, hashOnce) on the module, so all
+            // safes share the same value. Nonce overrides do not apply and are rejected so that a
+            // leftover [stateOverrides] nonce entry cannot be silently ignored.
+            if (isNonceless()) {
+                require(
+                    !_hasNonceOverride(_allSafes[i]),
+                    "MultisigTask: nonce state overrides are not allowed for a nonceless task"
+                );
+                allOriginalNonces_[i] = hashOnce;
+                continue;
+            }
+
             allOriginalNonces_[i] = _getNonceOrOverride(_allSafes[i], _taskConfigFilePath);
 
             address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
@@ -882,7 +990,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     break;
                 }
             }
-            _printTenderlySimulationData(payload);
+            if (isNonceless()) {
+                // The Tenderly payload builds on execTransaction and live nonces; a module-aware
+                // payload is not supported yet. Nonceless tasks are verified on a live network.
+                console.log(
+                    vm.toUppercase("[INFO]").green().bold(),
+                    "Nonceless task: skipping Tenderly simulation payload (not supported for module execution)."
+                );
+            } else {
+                _printTenderlySimulationData(payload);
+            }
 
             // Collect dataToSign for validation against VALIDATION.md
             if (payload.safes.length <= 1) {
@@ -906,10 +1023,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
         MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
-        address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
-        address childMulticallTarget =
-            payload.safes.length > 1 ? _getMulticallAddress(payload.safes[0], payload.safes) : address(0);
-        MultisigTaskPrinter.printOPTxVerifyLink(block.chainid, payload, rootMulticallTarget, childMulticallTarget);
+        // op-txverify serializes the nonce as a JSON number; a hash-once value overflows
+        // double-precision parsing, so the link is skipped for nonceless tasks.
+        if (!isNonceless()) {
+            address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
+            address childMulticallTarget =
+                payload.safes.length > 1 ? _getMulticallAddress(payload.safes[0], payload.safes) : address(0);
+            MultisigTaskPrinter.printOPTxVerifyLink(block.chainid, payload, rootMulticallTarget, childMulticallTarget);
+        }
     }
 
     /// @notice Collects dataToSign for ALL sibling child safes (contract owners of the root safe).
@@ -953,10 +1074,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     dataToSign_[idx] = simulatedDataToSign;
                 } else {
                     // Generate dataToSign for this sibling.
-                    // Nonces were incremented exactly once during execution, so current - 1 gives pre-execution nonce.
-                    // If nonces are incremented more than once elsewhere in MultisigTask, revert to caching original nonces.
+                    // Nonceless: every safe signs with the hash-once value in the nonce slot.
+                    // Nonce-based: nonces were incremented exactly once during execution, so current - 1 gives
+                    // the pre-execution nonce. If nonces are incremented more than once elsewhere in
+                    // MultisigTask, revert to caching original nonces.
                     address multicallAddr = _getMulticallAddress(sibling, safes);
-                    uint256 originalNonce = IGnosisSafe(sibling).nonce() - 1;
+                    uint256 originalNonce = isNonceless() ? hashOnce : IGnosisSafe(sibling).nonce() - 1;
                     dataToSign_[idx] = GnosisSafeHashes.getEncodedTransactionData(
                         sibling, approvalCalldata, 0, originalNonce, multicallAddr
                     );

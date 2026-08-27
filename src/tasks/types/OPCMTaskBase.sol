@@ -71,7 +71,15 @@ abstract contract OPCMTaskBase is L2TaskBase {
         super.validate(accesses, actions, payload);
         address rootSafe = payload.safes[payload.safes.length - 1];
         AccountAccessParser.StateDiff[] memory rootSafeDiffs = accesses.getStateDiffFor(rootSafe, false);
-        require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
+        if (isNonceless()) {
+            // Module execution touches neither the safe's nonce nor any of its other storage.
+            require(
+                rootSafeDiffs.length == 0,
+                "OPCMTaskBase: no state should be updated on upgrade controller multisig for a nonceless task"
+            );
+        } else {
+            require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
+        }
 
         for (uint256 i = 0; i < OPCM_TARGETS.length; i++) {
             address OPCM = OPCM_TARGETS[i];
