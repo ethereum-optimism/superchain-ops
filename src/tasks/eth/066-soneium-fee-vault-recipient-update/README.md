@@ -1,6 +1,6 @@
 # 066-soneium-fee-vault-recipient-update
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 
