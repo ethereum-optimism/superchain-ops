@@ -1,0 +1,10 @@
+{
+  "55377": {
+    "ProxyAdmin": "0x068881bd385BD917DdD9370f0DBFa19C969340D4",
+    "ProxyAdminOwner": "0x1Eb2fFc903729a0F03966B917003800b145F56E2",
+    "DisputeGameFactoryProxy": "0x157814873342A0f4D6758D69fdF11C4C40c01ed5",
+    "OptimismPortalProxy": "0xe6230Bd9e96AD839D4c546710D9A99835052d1C1",
+    "SuperchainConfig": "0xC2Be75506d5724086DEB7245bd260Cc9753911Be",
+    "SystemConfigProxy": "0x2C329913a0adb77Cfa9F40DfC2515feb710eCC29"
+  }
+}

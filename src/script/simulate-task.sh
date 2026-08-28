@@ -28,6 +28,24 @@ simulate_task() {
         set +a
     fi
     fork_block_args=$(just --justfile "$just_file" _get-fork-block-args)
+
+    # Tasks that declare DEPENDS_ON in their .env only make sense on top of the state left by
+    # earlier tasks. Simulate them stacked on their dependencies, mirroring production stacked
+    # simulations, instead of standalone.
+    if [ -n "${DEPENDS_ON:-}" ]; then
+        task_name=$(basename "$task")
+        test_dir=$(dirname "$(dirname "$task")")
+        echo "Simulating stacked task: $task (depends on: $DEPENDS_ON)"
+        # shellcheck disable=SC2086  # fork_block_args must word-split ("--fork-block-number <n>" or empty)
+        FETCH_TASKS_TEST_DIR="$test_dir" FETCH_TASKS_ONLY="$DEPENDS_ON,$task_name" \
+            forge script "$root_dir"/src/tasks/StackedSimulator.sol:StackedSimulator \
+            --sig "simulateStack(string,string)" "$network" "$task_name" \
+            --ffi --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 ${fork_block_args}
+        echo -e "\n\nDone simulating task: $task"
+        echo ""
+        return
+    fi
+
     # shellcheck disable=SC2086  # fork_block_args must word-split ("--fork-block-number <n>" or empty)
     is_nested=$(forge script "$root_dir"/src/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 ${fork_block_args} --json | jq -r '.returns["0"].value')
     echo "Is nested: $is_nested"
