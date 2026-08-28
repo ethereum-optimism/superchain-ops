@@ -1,6 +1,6 @@
 # 068-mmzd-l2pao-transfer
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 

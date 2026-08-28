@@ -16,16 +16,16 @@ task. The hashes assume the pinned nonces in [config.toml](./config.toml).
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x0038e271761c0265c23ca97deef7dba44d5d5e1c480a719a5183103e3dede1a3`
+> - Message Hash: `0xc0c6b993ca9dc5ef746b100ddf23956503b0395390a8165295786f5f8f20738b`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x8ff5a7f6f876d004d4e6e91c1341970f14e6da3cf6f9aacc9ee7a354a90d1b5a`
+> - Message Hash: `0x646d643022e4a34ea1acb70d441814f43835a6833c1ee56713fcd841cb2aa51c`
 
 Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
 (identical on both signing paths):
-`0xf149ce6aeebb52e755303e5860fbd6f32c9021a33d1a03262b80bf7bdfdaff41`
+`0xe3f44948764bcdce1fa897d8ee4078036add18b64b6f40f0c968210050916b7f`
 
 ## Task Calldata
 
@@ -125,12 +125,12 @@ Each of the eight ownership entries changes its owner slot from the L1PAO
 #### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...29` (41) → **After:** `0x...2a` (42)
+  - **Before:** `0x...28` (40) → **After:** `0x...29` (41)
   - **Summary:** nonce increment of the root safe executing the task. The
     before-value reflects the nonce state override in
     [config.toml](./config.toml).
-- **Key (council path):**    `0x89e66ae1116547fc467515ff0e7138c9cc7c16902532ef47a7956321d7453901`
-- **Key (foundation path):** `0xd2991909e75d594e6519b76e0b825a0ab1767dcddd60e73333996546fd059752`
+- **Key (council path):**    `0xbcf2e8babcc4736e4700c530b88703f431b7774106157ee58d828471be01dfaa`
+- **Key (foundation path):** `0x48e1beb83df6633003b377903b636d0cf2574b9264e9c5f9215f4a4e39f53947`
   - **Before:** `0x00...00` → **After:** `0x00...01`
   - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the
     child safe's approval of the task.
@@ -148,7 +148,7 @@ Each of the eight ownership entries changes its owner slot from the L1PAO
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...43` (67) → **After:** `0x...44` (68)
+  - **Before:** `0x...42` (66) → **After:** `0x...43` (67)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xB0F15106fa1e473Ddb39790f197275BC979Aa37e` (Zora DisputeGameFactoryProxy)
@@ -159,7 +159,7 @@ Each of the eight ownership entries changes its owner slot from the L1PAO
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...41` (65) → **After:** `0x...42` (66)
+  - **Before:** `0x...40` (64) → **After:** `0x...41` (65)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xD4ef175B9e72cAEe9f1fe7660a6Ec19009903b49` (Zora ProxyAdmin)

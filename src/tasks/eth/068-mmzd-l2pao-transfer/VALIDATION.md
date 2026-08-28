@@ -16,16 +16,16 @@ task. The hashes assume the pinned nonces in [config.toml](./config.toml).
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x71c885f2d8fe51616ba61e0235437924854f2e862d4cc0177e8e2f2a775920bb`
+> - Message Hash: `0xe7c0f1f9163bc1016ec2e09d79ee3da76e8fcf62eab0fba4f9a2c2255328226f`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x424a30762d12550ae37fee33fdccf6a8afe4944b5baba5bb7b6e7411cde24f5e`
+> - Message Hash: `0xf621e8a79c6ca7dda9c6d19138e549035369c41d63e286a80863f629b08695b8`
 
 Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
 (identical on both signing paths):
-`0x12b35b0929f871f853e244771307512a9e1f24e811a22bef66a88866a81ad5d1`
+`0xd12f95d7291d245c505669ac68d3a5eb5481d412641725313ab0d44bcf83efe5`
 
 ## Task Calldata
 
@@ -157,12 +157,12 @@ cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-ur
 #### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (ProxyAdminOwner, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...2a` (42) → **After:** `0x...2b` (43)
+  - **Before:** `0x...29` (41) → **After:** `0x...2a` (42)
   - **Summary:** nonce increment of the root safe executing the task. The
     before-value reflects the nonce state override in
     [config.toml](./config.toml).
-- **Key (council path):**    `0xf5057114c044d7741cbe3003b11c9f09ad8129a92f960980e91aeb999aa66b4e`
-- **Key (foundation path):** `0x902dc8bde7d50c6c5e6793f2f77afc5bfa9506482d853779205bc5364e13edb3`
+- **Key (council path):**    `0x63a8fd0c4c702409dcc29f0e0776bc7f636fc8a0e6c6ef2ef3888673dfbb2eb9`
+- **Key (foundation path):** `0x06f4d8be9f7e0bd7609d7018ffa29cdc8c129409f8cc8951021b3787e4cbb61c`
   - **Before:** `0x00...00` → **After:** `0x00...01`
   - **Summary:** `approvedHashes[<child safe>][<root safe tx hash>] = 1` — the
     child safe's approval of the task.
@@ -170,7 +170,7 @@ cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-ur
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...44` (68) → **After:** `0x...45` (69)
+  - **Before:** `0x...43` (67) → **After:** `0x...44` (68)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07` (Mode OptimismPortalProxy)
@@ -181,7 +181,7 @@ cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-ur
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...42` (66) → **After:** `0x...43` (67)
+  - **Before:** `0x...41` (65) → **After:** `0x...42` (66)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` (Dust OptimismPortalProxy)
