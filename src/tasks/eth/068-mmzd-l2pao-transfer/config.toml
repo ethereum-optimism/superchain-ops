@@ -1,0 +1,43 @@
+templateName = "TransferL2PAOFromL1"
+
+# Transfers the L2 ProxyAdmin owner of all four chains to the L1-to-L2 alias of
+# the operator's Safe (the L2 half of the handover), via one depositTransaction
+# per chain through that chain's L1 OptimismPortal. Metal, Mode and Zora resolve
+# from the superchain-registry; Dust is not in the registry and its addresses
+# come from fallbackAddressesJsonPath.
+# Stacked after 067-mmzd-l1-ownership-transfers: the template asserts each L1
+# ProxyAdmin.owner() == newOwnerToAlias at build time, which holds once 067 has
+# executed (the stacked simulation runs 067 first).
+
+l2chains = [
+    {name = "Metal", chainId = 1750},
+    {name = "Mode", chainId = 34443},
+    {name = "Zora", chainId = 7777777},
+    {name = "Dust", chainId = 55378}
+]
+
+fallbackAddressesJsonPath = "src/tasks/eth/068-mmzd-l2pao-transfer/addresses.json"
+
+# Unaliased new owner (same recipient as task 067). The template applies the
+# L1-to-L2 alias and sends the aliased value to each L2 ProxyAdmin:
+# 0x5b5A62275DF8c60A80D3a25FAeC5aA7De116b857
+newOwnerToAlias = "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"
+
+[addresses]
+# Root-safe pin: after 067 executes, on-chain discovery resolves each chain's
+# ProxyAdminOwner to the operator's Safe, but the deposits must still be sent by
+# the previous L1PAO (its alias owns the L2 ProxyAdmin predeploys). The pin keeps
+# root-safe resolution (and the signing hashes) stable whether or not 067 has
+# executed yet.
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 41}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 65}
+]
