@@ -11,9 +11,11 @@ values on your ledger and the values printed to the terminal when you run the ta
 > [!CAUTION]
 >
 > Before signing, ensure the below hashes match what is on your ledger. They assume the safe
-> nonces pinned in [config.toml](./config.toml) (3-of-3 `10`, Chain Governor `19`, FUS `67`,
-> SC `65` — FUS/SC are live + 1 for the stacked task 066). Re-verify the live nonces before
-> signing and re-simulate to regenerate these hashes if any has drifted.
+> nonces pinned in [config.toml](./config.toml) (3-of-3 `10`, Chain Governor `19`, FUS `69`,
+> SC `67` — FUS/SC are live + 3 for the stacked task 066 and tasks 067-068
+> ([#1521](https://github.com/ethereum-optimism/superchain-ops/pull/1521)), which sign first).
+> Re-verify the live nonces before signing and re-simulate to regenerate these hashes if any
+> has drifted.
 >
 > ### Unichain Chain Governor Safe (`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`)
 >
@@ -23,12 +25,12 @@ values on your ledger and the values printed to the terminal when you run the ta
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x5e7b347c7dc25fdfb5efbb3ad0745dccf142808f1462123f7e31eea4d3065211`
+> - Message Hash: `0x9bbc999fef2a6358775dfb0e896661ee60a2c7df7a39d14839eeea7b0538a1a1`
 >
 > ### Security Council Safe (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0xc940286479d5287ad41d0c4c41f2b3be5606199fcd702eeb4150454db0debb5f`
+> - Message Hash: `0x5e7b347c7dc25fdfb5efbb3ad0745dccf142808f1462123f7e31eea4d3065211`
 
 Root Unichain 3-of-3 (`0x6d5B183F538ABB8572F5cD17109c617b994D5833`) safe transaction hash
 (identical on all three signing paths):
@@ -143,15 +145,15 @@ must match [Task State Changes](#task-state-changes) and the **Events** must sho
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...43` (67)
-  - **After:**  `0x...44` (68)
+  - **Before:** `0x...45` (69)
+  - **After:**  `0x...46` (70)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...41` (65)
-  - **After:**  `0x...42` (66)
+  - **Before:** `0x...43` (67)
+  - **After:**  `0x...44` (68)
   - **Summary:** nonce increment of the approving child safe.
 
 ### L2 State Changes
