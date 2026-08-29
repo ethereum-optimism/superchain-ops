@@ -263,11 +263,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Get the safe address string from the config file. If the string is not found, use the value from the template.
-    function loadSafeAddressString(MultisigTask task, string memory taskConfigFilePath)
-        public
-        view
-        returns (string memory)
-    {
+    function loadSafeAddressString(string memory taskConfigFilePath) public view returns (string memory) {
         string memory file = vm.readFile(taskConfigFilePath);
         try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
             console.log(
@@ -277,7 +273,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             );
             return _safeAddressString;
         } catch (bytes memory) {
-            return task.safeAddressString();
+            return safeAddressString();
         }
     }
 
@@ -646,7 +642,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (TaskPayload memory payload_, Action[] memory actions_)
     {
         require(_preExecutionSnapshot == 0, "MultisigTask: already initialized");
-        templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
+        templateConfig.safeAddressString = loadSafeAddressString(_taskConfigFilePath);
         IGnosisSafe _root;
         (addrRegistry, _root, multicallTarget) = _configureTask(_taskConfigFilePath);
 
@@ -666,8 +662,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         _setAllowedBalanceChanges();
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
-        vm.label(address(this), "MultisigTask");
-
         actions_ = build(address(_root));
         bytes[] memory allCalldatas = transactionDatas(actions_, allSafes, allOriginalNonces);
         payload_ = TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
