@@ -17,7 +17,7 @@ The change is one deposit transaction through Unichain Sepolia's L1 [`OptimismPo
 > **Execute `107-unichain-l1-ownership-transfers` first.** The template requires the L1 `ProxyAdmin` owner to already be the OP-governed Sepolia L1PAO; the stacked simulation runs 107 first, and the on-chain execution must do the same.
 
 > [!NOTE]
-> Sepolia is not gated on governance: this dry run precedes the mainnet transition, which must wait for the proposal's special voting cycle and veto period (see [eth/070](https://github.com/ethereum-optimism/superchain-ops/pull/1527)).
+> Sepolia is not gated on governance and executes before the mainnet transition, which must wait for the special voting cycle and veto period.
 
 ## Simulation & Signing
 
