@@ -29,7 +29,6 @@ l2chains = [
 ]
 
 templateName = "OPCMUpgradeV800"
-skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 420130015
@@ -44,10 +43,6 @@ cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403
 # a real task MUST supply an honest super root for the chain (set).
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 1786000000
-# Live validator output captured during simulation against the v8.0.0-rc.2 OPCM.
-# OVERRIDES-* are informational (devnet's non-standard ProxyAdminOwner and Challenger);
-# SYSCON-130 is the devnet's non-standard SystemConfig gas limit (60M).
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
@@ -59,11 +54,6 @@ cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403
 # honest super root for the chain (set).
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 1786000000
-# Live validator output captured during simulation. In addition to the devnet deviations
-# shared with sepolia-devnet-2, SCKDG-SHAPE and SCKDG-10 report that no SUPER_CANNON_KONA
-# game is registered post-upgrade — expected for this permissioned-only chain, which has
-# no CANNON_KONA impl to carry over and rotates to SUPER_PERMISSIONED instead.
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
 # No bonded game is enabled for this chain: SUPER_PERMISSIONED's initBond is forced to
 # zero by the v8 OPCM and SUPER_CANNON_KONA stays disabled (no CANNON_KONA impl).
 initBond = 80000000000000000

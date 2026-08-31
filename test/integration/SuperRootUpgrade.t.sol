@@ -9,15 +9,6 @@ import {IDisputeGameFactory, IOPContractsManagerV800, OPCMUpgradeV800} from "src
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-interface IProxyAdmin {
-    function owner() external view returns (address);
-}
-
-interface ISystemConfigExt {
-    function proxyAdmin() external view returns (address);
-    function superchainConfig() external view returns (address);
-}
-
 contract OPCMUpgradeV800SetupHarness is OPCMUpgradeV800 {
     function setupForTest(string memory configPath) external {
         superchainAddrRegistry = new SuperchainAddressRegistry(configPath);
@@ -60,9 +51,8 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         chainA = chains[0].chainId;
         chainB = chains[1].chainId;
         superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chainA);
-        _templateSetup(configTomlPath, address(0));
-        address systemConfig = superchainAddrRegistry.getAddress("SystemConfigProxy", chainA);
-        rootSafe = IProxyAdmin(ISystemConfigExt(systemConfig).proxyAdmin()).owner();
+        rootSafe = superchainAddrRegistry.getAddress("ProxyAdminOwner", chainA);
+        _templateSetup(configTomlPath, rootSafe);
     }
 
     function test_load_data() public view {
@@ -105,11 +95,12 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
             upgrades[chainA].startingAnchorRootRoot, 0xdead000000000000000000000000000000000000000000000000000000000000
         );
         assertEq(upgrades[chainA].startingAnchorRootL2SequenceNumber, 1786000000);
-        assertEq(upgrades[chainA].expectedValidationErrors, "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130");
+        assertTrue(konaGameWasRegistered[chainA]);
 
         assertEq(Claim.unwrap(upgrades[chainB].cannonPrestate), cannonPrestate);
         assertEq(Claim.unwrap(upgrades[chainB].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(upgrades[chainB].startingRespectedGameType, 5);
+        assertFalse(konaGameWasRegistered[chainB]);
 
         // sepolia-devnet-3 is permissioned-only: no CANNON_KONA impl in its factory, so
         // SUPER_CANNON_KONA (9) stays disabled and only SUPER_PERMISSIONED (5) is enabled.
