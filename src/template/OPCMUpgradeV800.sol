@@ -29,7 +29,6 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         Claim cannonKonaPrestate;
         Claim cannonPrestate;
         uint256 chainId;
-        string expectedValidationErrors;
         uint256 initBond;
         uint256 startingAnchorRootL2SequenceNumber;
         bytes32 startingAnchorRootRoot;
@@ -39,10 +38,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
+    mapping(uint256 => bool) public konaGameWasRegistered;
 
     IOPContractsManagerV800 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
-    bool public skipOPCMVersionCheck;
 
     // Game type constants (from GameTypes library in op-contracts v8.0.0-rc.2).
     // SUPER_CANNON (4) is retired: the v8 OPCM does not accept a config for it and
@@ -107,7 +106,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         require(chains.length > 0, "OPCMUpgradeV800: no chains configured");
 
         // Load upgrades from TOML
-        OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        OPCMUpgrade[] memory _upgrades = _parseUpgrades(tomlContent);
         require(_upgrades.length == chains.length, "OPCMUpgradeV800: opcmUpgrades length mismatch");
         for (uint256 i = 0; i < _upgrades.length; i++) {
             require(_upgrades[i].chainId != 0, "OPCMUpgradeV800: chainId cannot be zero");
@@ -146,6 +145,15 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
                 superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
                 "OPCMUpgradeV800: all chains must share the same SuperchainConfig"
             );
+            _validateContractRelationships(
+                superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
+                superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId),
+                superchainConfig,
+                superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
+                superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId),
+                rootSafe
+            );
         }
 
         // Register EthLockboxProxy for each chain. The V800 upgrade writes to EthLockboxProxy
@@ -172,6 +180,8 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             IDisputeGameFactory factory =
                 IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chains[i].chainId));
+            konaGameWasRegistered[chains[i].chainId] =
+                address(factory.gameImpls(GameType.wrap(CANNON_KONA))) != address(0);
             require(
                 address(factory.gameImpls(GameType.wrap(ZK_DISPUTE_GAME))) == address(0),
                 "OPCMUpgradeV800: chains with a registered ZK_DISPUTE_GAME are not supported"
@@ -181,11 +191,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         // OPCM from TOML; must be the op-contracts/v8.0.0 release (version 8.0.x).
         opcm = IOPContractsManagerV800(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
-        skipOPCMVersionCheck =
-            tomlContent.keyExists(".skipOPCMVersionCheck") && tomlContent.readBool(".skipOPCMVersionCheck");
-        if (!skipOPCMVersionCheck) {
-            require(opcm.version().startsWith("8.0."), "Incorrect OPCM major/minor version");
-        }
+        require(opcm.version().startsWith("8.0."), "Incorrect OPCM major/minor version");
         vm.label(address(opcm), "OPCM");
 
         // Fetch the validator directly from OPCM so it doesn't need to be configured in TOML
@@ -193,6 +199,134 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         require(address(standardValidator) != address(0), "OPCM returned zero validator");
         require(address(standardValidator).code.length > 0, "Validator has no code");
         vm.label(address(standardValidator), "OPCMStandardValidator");
+    }
+
+    /// @notice Parses only fields consumed by this template so legacy TOML fields are harmless.
+    function _parseUpgrades(string memory toml) internal view returns (OPCMUpgrade[] memory parsed) {
+        uint256 count;
+        while (toml.keyExists(string.concat(".opcmUpgrades[", vm.toString(count), "].chainId"))) {
+            count++;
+        }
+
+        parsed = new OPCMUpgrade[](count);
+        for (uint256 i = 0; i < count; i++) {
+            string memory base = string.concat(".opcmUpgrades[", vm.toString(i), "]");
+            uint256 startingRespectedGameType = toml.readUint(string.concat(base, ".startingRespectedGameType"));
+            require(
+                startingRespectedGameType <= type(uint32).max,
+                "OPCMUpgradeV800: startingRespectedGameType exceeds uint32"
+            );
+            parsed[i] = OPCMUpgrade({
+                cannonKonaPrestate: Claim.wrap(toml.readBytes32(string.concat(base, ".cannonKonaPrestate"))),
+                cannonPrestate: Claim.wrap(toml.readBytes32(string.concat(base, ".cannonPrestate"))),
+                chainId: toml.readUint(string.concat(base, ".chainId")),
+                initBond: toml.readUint(string.concat(base, ".initBond")),
+                startingAnchorRootL2SequenceNumber: toml.readUint(
+                    string.concat(base, ".startingAnchorRootL2SequenceNumber")
+                ),
+                startingAnchorRootRoot: toml.readBytes32(string.concat(base, ".startingAnchorRootRoot")),
+                startingRespectedGameType: uint32(startingRespectedGameType)
+            });
+        }
+    }
+
+    /// @notice Ensures registry inputs describe contracts controlled by the task's signing Safe.
+    function _validateContractRelationships(
+        address systemConfig,
+        address optimismPortal,
+        address superchainConfig,
+        address proxyAdmin,
+        address proxyAdminOwner,
+        address disputeGameFactory,
+        address rootSafe
+    ) internal view {
+        require(systemConfig != address(0), "OPCMUpgradeV800: SystemConfig is zero address");
+        require(optimismPortal != address(0), "OPCMUpgradeV800: OptimismPortal is zero address");
+        require(superchainConfig != address(0), "OPCMUpgradeV800: SuperchainConfig is zero address");
+        require(proxyAdmin != address(0), "OPCMUpgradeV800: ProxyAdmin is zero address");
+        require(proxyAdminOwner != address(0), "OPCMUpgradeV800: ProxyAdminOwner is zero address");
+        require(disputeGameFactory != address(0), "OPCMUpgradeV800: DisputeGameFactory is zero address");
+        require(rootSafe == proxyAdminOwner, "OPCMUpgradeV800: rootSafe is not ProxyAdminOwner");
+        require(rootSafe.code.length > 0, "OPCMUpgradeV800: rootSafe has no code");
+        require(IGnosisSafeView(rootSafe).getOwners().length > 0, "OPCMUpgradeV800: rootSafe has no owners");
+
+        require(
+            IOptimismPortalV800(optimismPortal).superchainConfig() == superchainConfig,
+            "OPCMUpgradeV800: OptimismPortal SuperchainConfig mismatch"
+        );
+        require(
+            IOptimismPortalV800(optimismPortal).systemConfig() == systemConfig,
+            "OPCMUpgradeV800: OptimismPortal SystemConfig mismatch"
+        );
+        require(
+            ISystemConfigV800(systemConfig).disputeGameFactory() == disputeGameFactory,
+            "OPCMUpgradeV800: SystemConfig DisputeGameFactory mismatch"
+        );
+        require(
+            IProxyAdminV800(proxyAdmin).getProxyAdmin(payable(systemConfig)) == proxyAdmin,
+            "OPCMUpgradeV800: SystemConfig ProxyAdmin mismatch"
+        );
+        require(
+            ISuperchainConfigV800(superchainConfig).guardian() != address(0),
+            "OPCMUpgradeV800: guardian is zero address"
+        );
+        require(IOwnedV800(proxyAdmin).owner() == rootSafe, "OPCMUpgradeV800: ProxyAdmin owner mismatch");
+        require(
+            IOwnedV800(disputeGameFactory).owner() == proxyAdminOwner,
+            "OPCMUpgradeV800: DisputeGameFactory owner mismatch"
+        );
+    }
+
+    /// @notice Derives the standard-validator exceptions from live roles and pre-upgrade Kona support.
+    /// @dev Ordering matches validator output and the former Netchef inspector.
+    struct ValidationErrorInputs {
+        address challenger;
+        bool konaWasRegistered;
+        address proxyAdminOwner;
+        uint32 startingRespectedGameType;
+        address standardChallenger;
+        address standardL1PAO;
+        address standardSuperchainConfig;
+        address superchainConfig;
+    }
+
+    function _expectedValidationErrors(ValidationErrorInputs memory inputs)
+        internal
+        pure
+        returns (string memory errors)
+    {
+        if (inputs.proxyAdminOwner != inputs.standardL1PAO) {
+            errors = _appendValidationError(errors, "OVERRIDES-L1PAOMULTISIG");
+        }
+        if (inputs.challenger != inputs.standardChallenger) {
+            errors = _appendValidationError(errors, "OVERRIDES-CHALLENGER");
+        }
+        if (inputs.superchainConfig != inputs.standardSuperchainConfig) {
+            errors = _appendValidationError(errors, "SYSCON-130");
+        }
+        if (inputs.startingRespectedGameType == SUPER_PERMISSIONED && !inputs.konaWasRegistered) {
+            errors = _appendValidationError(errors, "SCKDG-SHAPE");
+            errors = _appendValidationError(errors, "SCKDG-10");
+        }
+    }
+
+    function _expectedValidationErrorsForChain(uint256 chainId) internal view returns (string memory) {
+        return _expectedValidationErrors(
+            ValidationErrorInputs({
+                challenger: superchainAddrRegistry.getAddress("Challenger", chainId),
+                konaWasRegistered: konaGameWasRegistered[chainId],
+                proxyAdminOwner: superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                startingRespectedGameType: upgrades[chainId].startingRespectedGameType,
+                standardChallenger: standardValidator.challenger(),
+                standardL1PAO: standardValidator.l1PAOMultisig(),
+                standardSuperchainConfig: standardValidator.superchainConfig(),
+                superchainConfig: superchainAddrRegistry.getAddress("SuperchainConfig", chainId)
+            })
+        );
+    }
+
+    function _appendValidationError(string memory errors, string memory next) private pure returns (string memory) {
+        return bytes(errors).length == 0 ? next : string.concat(errors, ",", next);
     }
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
@@ -395,7 +529,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
                 errors = standardValidator.validate({_input: input, _allowFailure: true});
             }
 
-            string memory expErrors = upgrades[chainId].expectedValidationErrors;
+            string memory expErrors = _expectedValidationErrorsForChain(chainId);
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
     }
@@ -481,6 +615,7 @@ interface IOPContractsManagerStandardValidator {
     }
 
     function validate(ValidationInputDev memory _input, bool _allowFailure) external view returns (string memory);
+    function superchainConfig() external view returns (address);
     function l1PAOMultisig() external view returns (address);
     function challenger() external view returns (address);
     function validateWithOverrides(
@@ -496,6 +631,27 @@ interface ISuperchainConfig {}
 
 interface IDisputeGameFactory {
     function gameImpls(GameType gameType) external view returns (address);
+}
+
+interface IOwnedV800 {
+    function owner() external view returns (address);
+}
+
+interface IProxyAdminV800 {
+    function getProxyAdmin(address payable proxy) external view returns (address);
+}
+
+interface IGnosisSafeView {
+    function getOwners() external view returns (address[] memory);
+}
+
+interface ISuperchainConfigV800 {
+    function guardian() external view returns (address);
+}
+
+interface IOptimismPortalV800 {
+    function superchainConfig() external view returns (address);
+    function systemConfig() external view returns (address);
 }
 
 /// @notice Read-only AnchorStateRegistry accessor. `getStartingAnchorRoot` returns a
@@ -523,6 +679,7 @@ interface ISystemConfig {
 /// It is kept here for callers that read the pre-upgrade SystemConfig (e.g. tests).
 interface ISystemConfigV800 {
     function owner() external view returns (address);
+    function disputeGameFactory() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
     function batchInbox() external view returns (address);
     function batcherHash() external view returns (bytes32);
