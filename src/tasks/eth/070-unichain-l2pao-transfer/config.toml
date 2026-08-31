@@ -1,0 +1,36 @@
+templateName = "TransferL2PAOFromL1"
+
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+# Unaliased new owner (same recipient as task 069). The template applies the
+# L1-to-L2 alias (0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b) and transfers the
+# L2 ProxyAdmin predeploy to it via one depositTransaction through Unichain's
+# L1 OptimismPortal. Stacked after 069: the template asserts
+# L1 ProxyAdmin.owner() == newOwnerToAlias at build time, so simulate and
+# execute through the stack.
+
+newOwnerToAlias = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[addresses]
+# Root-safe pin: the deposit must be sent by the previous L1PAO — the Unichain
+# 3-of-3, whose alias owns the L2 ProxyAdmin predeploy — while after 069
+# executes, on-chain discovery would resolve ProxyAdminOwner to the new owner.
+
+ProxyAdminOwner = "0x6d5B183F538ABB8572F5cD17109c617b994D5833"
+
+[stateOverrides]
+
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 (current L1PAO)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+]
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Governor Safe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 20}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 69}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 67}
+]

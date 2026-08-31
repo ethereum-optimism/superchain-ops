@@ -1,0 +1,26 @@
+templateName = "TransferOwners"
+
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+# New owner: the standard OP-governed mainnet L1PAO (2-of-2 of the Foundation
+# Upgrade Safe and the Security Council, same as OP Mainnet), per the
+# governance post linked in the README. Task 070 transfers the L2 ProxyAdmin.
+
+newOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[stateOverrides]
+
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain 3-of-3 (current L1PAO)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
+]
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Governor Safe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 19}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # Foundation Upgrade Safe (FUS)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # Security Council (SC)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 66}
+]
