@@ -20,6 +20,8 @@ values on your ledger and the values printed to the terminal when you run the ta
 > - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
 > - Message Hash: `0x6900ea187bf261d57d1371f285128be4673befbe64daef8cc809ae100633bfea`
 
+Safe transaction hash (`keccak256(0x1901 ‖ domain ‖ message)`, displayed by Safe tooling):
+`0x241432ba023b136ea5814a6d2bd37eaa2e2a8fb63618e63bb9441665cb8aa4ac`
 
 ## Task Calldata
 
