@@ -1,0 +1,24 @@
+name: freya-u16
+type: betanet
+scope: https://github.com/ethereum-optimism/devnets/issues/0
+status: offline
+l1:
+    name: sepolia
+    chain_id: 11155111
+    beacon_rpc: https://example/beacon
+    blob_archiver_rpc: https://example/blob
+    owner_safe_address: 0xe934Dc97E347C6aCef74364B50125bb8689c40ff
+l2:
+    deployment:
+        op-deployer:
+            version: v0.5.0
+        l1-contracts:
+            locator: https://example/artifacts.tar.gz
+            version: op-contracts/v6.0.0
+        l2-contracts:
+            locator: https://example/artifacts.tar.gz
+    chains:
+        - name: freya-u16-0
+          chain_id: "420110015"
+        - name: freya-u16-1
+          chain_id: "420110016"

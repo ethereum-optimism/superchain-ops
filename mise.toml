@@ -7,6 +7,8 @@ shellcheck = "0.10.0"
 jq = "1.7.1"
 yq = "4.44.5"
 fzf = "0.65.0"
+# Used by `just gen-devnet-task` to manage devnet-gen's pinned Python deps.
+uv = "0.11.8"
 
 # Foundry dependencies
 # Foundry is a special case because it supplies multiple binaries at the same
