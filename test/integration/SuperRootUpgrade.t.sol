@@ -29,7 +29,7 @@ contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
     string constant INVALID_CONFIG =
         "test/tasks/example/sep/035-opcm-upgrade-v800/opcm-upgrade-v800-cannon-starting-game-type.toml";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_500_000;
+    uint256 internal constant FORK_BLOCK_NUMBER = 11_619_054;
 
     function test_rejects_non_super_starting_respected_game_type() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), FORK_BLOCK_NUMBER);
@@ -45,7 +45,7 @@ contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_500_000;
+    uint256 internal constant FORK_BLOCK_NUMBER = 11_619_054;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
     uint256 internal chainA;
     uint256 internal chainB;
@@ -93,7 +93,7 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
             superchainAddrRegistry.getAddress("SystemConfigProxy", chainB), 0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF
         );
 
-        // op-contracts/v8.0.0-rc.2 standard prestate: kona 1.6.0 `cannon64-kona-interop`.
+        // op-contracts/v8.0.0-rc.3 standard prestate: kona 1.6.0 `cannon64-kona-interop`.
         bytes32 cannonKonaPrestate = 0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f;
         assertEq(Claim.unwrap(upgrades[chainA].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(upgrades[chainA].initBond, 0.08 ether);
