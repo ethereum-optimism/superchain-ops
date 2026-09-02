@@ -2,7 +2,7 @@
 #
 # What this task does:
 #   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for each chain,
-#     using the op-contracts/v8.0.0-rc.2 OPCM.
+#     using the op-contracts/v8.0.0-rc.3 OPCM.
 #   - sepolia-devnet-2 rotates its respected dispute game type to SUPER_CANNON_KONA (9) —
 #     super roots replace output roots as the proofs foundation. The retiring
 #     CANNON_KONA (8) and PERMISSIONED_CANNON (1) impls are cleared, and the simplified
@@ -33,7 +33,7 @@ skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 420130015
-# op-contracts/v8.0.0-rc.2 standard prestate: kona 1.6.0 `cannon64-kona-interop`.
+# op-contracts/v8.0.0-rc.3 standard prestate: kona 1.6.0 `cannon64-kona-interop`.
 cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
 # The honest super root (and its timestamp) the AnchorStateRegistry is re-anchored to via
 # the `overrides.cfg.startingAnchorRoot` instruction. The pre-upgrade anchor is an output
@@ -42,7 +42,7 @@ cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403
 # a real task MUST supply an honest super root for the chain (set).
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 1786000000
-# Live validator output captured during simulation against the v8.0.0-rc.2 OPCM.
+# Live validator output captured during simulation against the v8.0.0-rc.3 OPCM.
 # OVERRIDES-* are informational (devnet's non-standard ProxyAdminOwner and Challenger);
 # SYSCON-130 is the devnet's non-standard SystemConfig gas limit (60M).
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
@@ -66,20 +66,16 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-
 initBond = 80000000000000000
 startingRespectedGameType = 5 # SUPER_PERMISSIONED (permissioned-only chain)
 
-# op-contracts/v8.0.0-rc.2 OPCM on Sepolia (superchain-registry standard-versions-sepolia.toml).
-# `OPCM.version()` returns "8.0.0"; `OPCM.opcmStandardValidator()` returns
-# 0xB7a5710a35b49aCFd705312DCba16aCf7591D7f5 (OPContractsManagerStandardValidator 2.12.0).
-# NOTE: op-contracts/v8.0.0-rc.3 is tagged (its OPCM would report version 8.0.1), but no
-# OPCM has been deployed from it on Sepolia yet — standard-versions-sepolia.toml still
-# lists only the rc.2 OPCM below. Repoint this address once an rc.3 OPCM is deployed and
-# registered.
+# op-contracts/v8.0.0-rc.3 OPCM on Sepolia (superchain-registry standard-versions-sepolia.toml).
+# `OPCM.version()` returns "8.0.1"; `OPCM.opcmStandardValidator()` returns
+# 0x16fA86e1F5EcfbF0EEef43ddB5440805371a902f (OPContractsManagerStandardValidator 3.3.0).
 [addresses]
-OPCM = "0xda83150fd745d35bb347a7afaf2d7af1d1e8b2b6"
+OPCM = "0x6abfabbc793883add5fa308a97163e8225a9f4ca"
 
 # State override: pin the Sepolia devnet ProxyAdminOwner Safe (0xe934...40ff) nonce.
-# Slot 5 is the Gnosis Safe `nonce` slot. We pin it to the current on-chain value so
-# message-hash regeneration is reproducible across simulations.
+# Slot 5 is the Gnosis Safe `nonce` slot. We pin it to the on-chain value at
+# FORK_BLOCK_NUMBER so message-hash regeneration is reproducible across simulations.
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 130}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 140}
 ]
