@@ -57,7 +57,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
     /// contract and its OPCM integration, so the upgrade no longer writes to it.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](14);
+        string[] memory storageWrites = new string[](13);
         storageWrites[0] = "SuperchainConfig";
         storageWrites[1] = "DisputeGameFactoryProxy";
         storageWrites[2] = "SystemConfigProxy";
@@ -67,11 +67,10 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         storageWrites[6] = "L1StandardBridgeProxy";
         storageWrites[7] = "L1ERC721BridgeProxy";
         storageWrites[8] = "L1CrossDomainMessengerProxy";
-        storageWrites[9] = "ProxyAdminOwner";
-        storageWrites[10] = "AnchorStateRegistryProxy";
-        storageWrites[11] = "PermissionedWETH";
-        storageWrites[12] = "PermissionlessWETH";
-        storageWrites[13] = "EthLockboxProxy";
+        storageWrites[9] = "AnchorStateRegistryProxy";
+        storageWrites[10] = "PermissionedWETH";
+        storageWrites[11] = "PermissionlessWETH";
+        storageWrites[12] = "EthLockboxProxy";
         return storageWrites;
     }
 
@@ -85,10 +84,11 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
     /// like `SuperchainConfig`, `get(key)` resolves against the sentinel-chain entries
     /// hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet values), so
-    /// devnet-specific addresses never make it into the allowlist. We re-add
-    /// them explicitly per chain so devnet upgrades pass the post-execution check.
+    /// devnet-specific addresses never make it into the allowlist. We remove the
+    /// sentinel address and add only the discovered address for each configured chain.
     function _setAllowedStorageAccesses() internal virtual override {
         super._setAllowedStorageAccesses();
+        _allowedStorageAccesses.remove(superchainAddrRegistry.get("SuperchainConfig"));
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));

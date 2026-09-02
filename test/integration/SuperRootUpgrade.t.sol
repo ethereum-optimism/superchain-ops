@@ -7,6 +7,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IDisputeGameFactory, IOPContractsManagerV800, OPCMUpgradeV800} from "src/template/OPCMUpgradeV800.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 interface IProxyAdmin {
@@ -44,6 +45,8 @@ contract SuperRootUpgradeSetupValidationTest is Test, OPCMUpgradeV800 {
 }
 
 contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
+    using AccountAccessParser for VmSafe.AccountAccess[];
+
     string constant FIXTURES = "test/tasks/example/sep/035-opcm-upgrade-v800/";
     uint256 internal constant FORK_BLOCK_NUMBER = 11_619_054;
     address internal constant ROOT_SAFE = 0xe934Dc97E347C6aCef74364B50125bb8689c40ff;
@@ -211,6 +214,39 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         _executeActions(actions);
 
         _validate(new VmSafe.AccountAccess[](0), actions, rootSafe);
+    }
+
+    function test_storage_allowlist_matches_changed_write_accounts() public {
+        templateConfig.allowedStorageKeys = _taskStorageWrites();
+        templateConfig.allowedStorageKeys.push(safeAddressString());
+        _setAllowedStorageAccesses();
+
+        Action[] memory actions = build(rootSafe);
+        vm.startStateDiffRecording();
+        _executeActions(actions);
+        VmSafe.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
+
+        address[] memory allowed = getAllowedStorageAccess();
+        address[] memory changed = accesses.getUniqueWrites(false);
+        assertEq(allowed.length, changed.length, "storage allowlist contains addresses without changed writes");
+        for (uint256 i = 0; i < changed.length; i++) {
+            assertTrue(_contains(allowed, changed[i]), "changed-write account is not allowlisted");
+        }
+    }
+
+    function test_task_storage_writes_excludes_automatic_safe_key() public pure {
+        string[] memory storageWrites = _taskStorageWrites();
+        bytes32 safeKey = keccak256(bytes(safeAddressString()));
+        for (uint256 i = 0; i < storageWrites.length; i++) {
+            assertNotEq(keccak256(bytes(storageWrites[i])), safeKey, "safe key is added automatically");
+        }
+    }
+
+    function _contains(address[] memory addresses, address candidate) internal pure returns (bool) {
+        for (uint256 i = 0; i < addresses.length; i++) {
+            if (addresses[i] == candidate) return true;
+        }
+        return false;
     }
 
     function _executeActions(Action[] memory actions) internal {
