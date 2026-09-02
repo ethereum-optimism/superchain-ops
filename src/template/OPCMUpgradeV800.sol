@@ -12,7 +12,7 @@ import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: op-contracts/v8.0.0-rc.2
+/// Supports: op-contracts/v8.0.0-rc.3
 contract OPCMUpgradeV800 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -43,7 +43,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     IOPContractsManagerStandardValidator public standardValidator;
     bool public skipOPCMVersionCheck;
 
-    // Game type constants (from GameTypes library in op-contracts v8.0.0-rc.2).
+    // Game type constants (from GameTypes library in op-contracts v8.0.0-rc.3).
     // SUPER_CANNON (4) is retired: the v8 OPCM does not accept a config for it and
     // unconditionally clears its DisputeGameFactory registration during upgrade.
     uint32 internal constant CANNON = 0;
