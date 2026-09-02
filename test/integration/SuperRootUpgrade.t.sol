@@ -93,11 +93,8 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
             superchainAddrRegistry.getAddress("SystemConfigProxy", chainB), 0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF
         );
 
-        // op-contracts/v8.0.0-rc.2 standard prestates: cannon 1.9.0 `interop` and
-        // kona 1.6.0 `cannon64-kona-interop`.
-        bytes32 cannonPrestate = 0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59;
+        // op-contracts/v8.0.0-rc.2 standard prestate: kona 1.6.0 `cannon64-kona-interop`.
         bytes32 cannonKonaPrestate = 0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f;
-        assertEq(Claim.unwrap(upgrades[chainA].cannonPrestate), cannonPrestate);
         assertEq(Claim.unwrap(upgrades[chainA].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(upgrades[chainA].initBond, 0.08 ether);
         assertEq(upgrades[chainA].startingRespectedGameType, 9);
@@ -107,7 +104,6 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
         assertEq(upgrades[chainA].startingAnchorRootL2SequenceNumber, 1786000000);
         assertEq(upgrades[chainA].expectedValidationErrors, "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130");
 
-        assertEq(Claim.unwrap(upgrades[chainB].cannonPrestate), cannonPrestate);
         assertEq(Claim.unwrap(upgrades[chainB].cannonKonaPrestate), cannonKonaPrestate);
         assertEq(upgrades[chainB].startingRespectedGameType, 5);
 
@@ -146,8 +142,6 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
                 continue;
             }
 
-            bool isKona = gameType == 8 || gameType == 9;
-
             if (gameType == 5) {
                 // SUPER_PERMISSIONED does not use bonds; the v8 OPCM requires initBond == 0.
                 assertEq(config.initBond, 0);
@@ -155,13 +149,11 @@ contract SuperRootUpgradeTest is Test, OPCMUpgradeV800 {
                 address proposer = abi.decode(config.gameArgs, (address));
                 assertEq(proposer, superchainAddrRegistry.getAddress("Proposer", chainA));
             } else {
+                // SUPER_CANNON_KONA (gt=9) is the only other game type that can be enabled.
+                assertEq(gameType, 9);
                 assertEq(config.initBond, upgrades[chainA].initBond);
                 bytes32 prestate = abi.decode(config.gameArgs, (bytes32));
-                if (isKona) {
-                    assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonKonaPrestate));
-                } else {
-                    assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonPrestate));
-                }
+                assertEq(prestate, Claim.unwrap(upgrades[chainA].cannonKonaPrestate));
             }
         }
     }

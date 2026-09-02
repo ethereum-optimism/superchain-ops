@@ -33,9 +33,7 @@ skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 420130015
-# op-contracts/v8.0.0-rc.2 standard prestates (superchain-registry standard-prestates.toml):
-# cannon 1.9.0 `interop` and kona 1.6.0 `cannon64-kona-interop`.
-cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+# op-contracts/v8.0.0-rc.2 standard prestate: kona 1.6.0 `cannon64-kona-interop`.
 cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
 # The honest super root (and its timestamp) the AnchorStateRegistry is re-anchored to via
 # the `overrides.cfg.startingAnchorRoot` instruction. The pre-upgrade anchor is an output
@@ -53,7 +51,6 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
 [[opcmUpgrades]]
 chainId = 420130018
-cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
 cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
 # Placeholder super-root anchor, same caveat as above: a real task MUST supply an
 # honest super root for the chain (set).

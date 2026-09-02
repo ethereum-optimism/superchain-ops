@@ -27,7 +27,6 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// meaningless to super-root games.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
-        Claim cannonPrestate;
         uint256 chainId;
         string expectedValidationErrors;
         uint256 initBond;
@@ -112,7 +111,6 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         for (uint256 i = 0; i < _upgrades.length; i++) {
             require(_upgrades[i].chainId != 0, "OPCMUpgradeV800: chainId cannot be zero");
             require(upgrades[_upgrades[i].chainId].chainId == 0, "OPCMUpgradeV800: duplicate chain config");
-            require(Claim.unwrap(_upgrades[i].cannonPrestate) != bytes32(0), "OPCMUpgradeV800: cannonPrestate is zero");
             require(
                 Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
                 "OPCMUpgradeV800: cannonKonaPrestate is zero"
@@ -225,10 +223,12 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     /// @notice Builds a single DisputeGameConfig entry.
     /// @dev SUPER_PERMISSIONED (gt=5) uses the simplified v8 game: proposer-only args
     /// (no prestate, no challenger) and the OPCM requires its initBond to be zero.
+    /// SUPER_CANNON_KONA (gt=9) is the only other game type this template can enable, so
+    /// the Kona prestate is the only prestate ever encoded. The OPCM ignores the game args
+    /// of a disabled config, so the retired Cannon game types need no prestate at all.
     function _buildOneGameConfig(
         GameConfigAddrs memory a,
         uint32 gt,
-        bytes32 cannonPre,
         bytes32 cannonKonaPre,
         uint256 bond,
         uint32 startingRespectedGameType
@@ -236,12 +236,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         bool enabled = _isGameTypeEnabled(a.factory, gt, startingRespectedGameType);
         bytes memory gameArgs;
         if (enabled) {
-            if (gt == SUPER_PERMISSIONED) {
-                gameArgs = abi.encode(a.proposer);
-            } else {
-                bool isKona = gt == CANNON_KONA || gt == SUPER_CANNON_KONA;
-                gameArgs = abi.encode(isKona ? cannonKonaPre : cannonPre);
-            }
+            gameArgs = gt == SUPER_PERMISSIONED ? abi.encode(a.proposer) : abi.encode(cannonKonaPre);
         }
         return IOPContractsManagerV800.DisputeGameConfig({
             enabled: enabled,
@@ -251,7 +246,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         });
     }
 
-    /// @notice Builds DisputeGameConfig[] for a chain from registry addresses and config prestates.
+    /// @notice Builds DisputeGameConfig[] for a chain from registry addresses and the Kona prestate.
     /// @dev The v8 OPCM requires exactly these six game configs, in exactly this order.
     function _buildGameConfigs(uint256 chainId)
         internal
@@ -263,7 +258,6 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
         });
 
-        bytes32 cannonPre = Claim.unwrap(upgrades[chainId].cannonPrestate);
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
         uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
@@ -272,7 +266,7 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
         uint32[6] memory gts =
             [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_PERMISSIONED, SUPER_CANNON_KONA, ZK_DISPUTE_GAME];
         for (uint256 i = 0; i < 6; i++) {
-            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonPre, cannonKonaPre, bond, startingRespectedGameType);
+            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonKonaPre, bond, startingRespectedGameType);
         }
         return cfgs;
     }
@@ -368,7 +362,9 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
                 .ValidationInputDev({
                 sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                cannonPrestate: Claim.unwrap(upgrades[chainId].cannonPrestate),
+                // The validator only reads cannonPrestate on its non-super path. This template
+                // always leaves the chain respecting a super game type, so the value is unused.
+                cannonPrestate: bytes32(0),
                 cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
                 l2ChainID: chainId,
                 proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
