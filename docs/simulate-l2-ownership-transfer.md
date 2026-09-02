@@ -47,7 +47,7 @@ This template executes an L1 transaction, which is later forwarded to the L2 by 
     > undoL1ToL2Alias(0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b)
     # returns: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
     ```
-9. Next we need to fill out the `Transaction Parameters` section on the right of the UI. Specifically, fill out the `From` address and `Gas` fields. The `From` address should be the aliased old L1PAO address obtained as the `from` field in the `TransactionDeposited` event (i.e. `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`). The `Gas` field should be set to `200000`. You can get this number by further parsing the opaque data and extracting the gas limit.
+9. Next we need to fill out the `Transaction Parameters` section on the right of the UI. Specifically, fill out the `From` address and `Gas` fields. The `From` address should be the aliased old L1PAO address obtained as the `from` field in the `TransactionDeposited` event (i.e. `0x7E6c183F538abb8572F5cd17109C617b994d6944` — the current L2 ProxyAdmin owner, not the aliased new owner). The `Gas` field should be set to `200000`. You can get this number by further parsing the opaque data and extracting the gas limit.
     ```bash
     cast --to-dec 0x30d40
     # returns: 200000
