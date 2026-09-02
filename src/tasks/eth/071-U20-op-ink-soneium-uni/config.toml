@@ -98,7 +98,7 @@ startingAnchorRootL2SequenceNumber = 1786000000
 # TODO: once eth/069 has executed and the superchain-registry pin records the standard
 # L1PAO for chain 130, re-capture this value (expected to become empty). This field is
 # assert-only: it does not change the signed calldata or the VALIDATION.md hashes.
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,PROXYA-10,DF-30,SCKDG-DWETH-30"
+expectedValidationErrors = ""
 # Matches the current on-chain CANNON_KONA (type 8) initBond on the Unichain DGF.
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
