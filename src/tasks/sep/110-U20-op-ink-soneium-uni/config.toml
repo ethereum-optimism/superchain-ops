@@ -1,0 +1,142 @@
+# Upgrade 20 (op-contracts/v8.0.0-rc.3) on OP Sepolia, Ink Sepolia, Soneium Minato and
+# Unichain Sepolia.
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for each chain,
+#     using the op-contracts/v8.0.0-rc.3 OPCM.
+#   - All four chains currently respect CANNON_KONA (8) (post-U19) and rotate to
+#     SUPER_CANNON_KONA (9) — super roots replace output roots as the proofs
+#     foundation. The retiring CANNON_KONA (8) and PERMISSIONED_CANNON (1) impls are
+#     cleared, and the simplified SUPER_PERMISSIONED (5) game is installed as the
+#     permissioned fallback (proposer-only args, no bond).
+#
+# Sequencing:
+#   - Stacked after the two pending mmzd tasks (105-mmzd-l1-ownership-transfers,
+#     106-mmzd-l2pao-transfer) — the nonce pins below are the post-106 values.
+#   - Unichain Sepolia's ProxyAdminOwner transfer to the standard OP-governed Sepolia
+#     L1PAO (0x1Eb2fFc903729a0F03966B917003800b145F56E2) is executed by the current
+#     Unichain Safe OUTSIDE this repo. It has no signer overlap with the safes below,
+#     so it does not affect these nonce pins, but it MUST have executed on-chain before
+#     this task is signed. The [addresses] ProxyAdminOwner pin plus the two Unichain
+#     owner state overrides below reproduce the post-transfer state in simulation.
+
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Ink Sepolia", chainId = 763373},
+    {name = "Soneium Testnet Minato", chainId = 1946},
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+templateName = "OPCMUpgradeV800"
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 11155420
+# op-contracts/v8.0.0-rc.3 standard prestates (superchain-registry standard-prestates.toml):
+# cannon 1.9.0 `interop` and kona-client 1.6.0 `cannon64-kona-interop`.
+cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): replace with the honest super root (and its timestamp)
+# for OP Sepolia. The AnchorStateRegistry is re-anchored to this value via the
+# `overrides.cfg.startingAnchorRoot` instruction; the pre-upgrade anchor is an output
+# root at an L2 block number, which super-root games cannot prove against.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 763373
+cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Ink Sepolia.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 1946
+cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Soneium Minato.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+# Live validator output: Soneium uses a registry challenger override
+# (0xB278818732E5BEbb742dc4Aa0617ccd1Dec76b65), reported informationally.
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 1301
+cannonPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Unichain Sepolia.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+# Live validator output against the CURRENT registry pin, which still records
+# Unichain's pre-transfer ProxyAdminOwner (0xd363...9dbf) and its custom challenger
+# (0x921D...43C4) as overrides:
+#   - OVERRIDES-L1PAOMULTISIG / OVERRIDES-CHALLENGER: informational (overrides in use).
+#   - PROXYA-10, DF-30, SCKDG-DWETH-30: ProxyAdmin / DisputeGameFactory / super-game
+#     DelayedWETH owner checks compare against the override PAO (0xd363...) while the
+#     simulated post-transfer state (see [stateOverrides]) has the standard L1PAO —
+#     expected artifacts of simulating ahead of the registry update.
+# TODO: once the Unichain PAO transfer has executed and the superchain-registry pin
+# records the standard L1PAO for chain 1301, re-capture this value (expected to become
+# just "OVERRIDES-CHALLENGER"). This field is assert-only: it does not change the
+# signed calldata or the VALIDATION.md hashes.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PROXYA-10,DF-30,SCKDG-DWETH-30"
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+# op-contracts/v8.0.0-rc.3 OPCM on Sepolia (superchain-registry
+# standard-versions-sepolia.toml, ["op-contracts/v8.0.0-rc.3"].op_contracts_manager).
+# `OPCM.version()` returns "8.0.1"; its OPContractsManagerStandardValidator is
+# 0x16fA86e1F5EcfbF0EEef43ddB5440805371a902f.
+[addresses]
+OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"
+# Root-safe pin: Unichain Sepolia's on-chain ProxyAdminOwner is still the Unichain Safe
+# (0xd363339eE47775888Df411A163c586a8BdEA9dbf) until its externally-executed transfer to
+# the standard OP-governed Sepolia L1PAO lands. The pin keeps root-safe resolution
+# uniform across all four chains; the state overrides below reproduce the post-transfer
+# owner state for simulation.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's SystemConfig packs superchainConfig (low 160 bits) with a non-zero
+# minBaseFee in slot 0x6c, so the slot value exceeds type(uint160).max and the
+# isLikelyAddressThatShouldHaveCode check would reinterpret the low bits as an address
+# that must have no code — reverting on the real SuperchainConfig. Exempt only that
+# slot (same exception as 100-U19-unichain).
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+# Safe nonce pins (slot 5 = Gnosis Safe nonce). Live values on 2026-09-02:
+# L1PAO 54, FoundationUpgradeSafe 74, SecurityCouncil 68
+# (cast call <safe> "nonce()(uint256)" --rpc-url sepolia). Two pending tasks
+# (105-mmzd-l1-ownership-transfers, 106-mmzd-l2pao-transfer) each consume one nonce on
+# all three safes before this task, so this task signs at live + 2. Re-verify before
+# signing.
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 56}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
+# Unichain Sepolia post-PAO-transfer state (the transfer executes outside this repo):
+# L1 ProxyAdmin (0x2BF4...3ea4) owner slot 0, and DisputeGameFactoryProxy
+# (0xeff7...394b) OwnableUpgradeable owner slot 0x33, both set to the standard Sepolia
+# L1PAO. Verified against OP Sepolia's DGF, whose slot 0x33 holds the same owner.
+0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4 = [ # Unichain Sepolia L1 ProxyAdmin
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2"}
+]
+0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b = [ # Unichain Sepolia DisputeGameFactoryProxy
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2"}
+]
