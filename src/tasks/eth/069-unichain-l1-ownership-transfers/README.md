@@ -1,6 +1,6 @@
 # 069-unichain-l1-ownership-transfers
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
