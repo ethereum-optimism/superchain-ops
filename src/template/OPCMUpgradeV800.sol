@@ -55,22 +55,22 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
-    /// contract and its OPCM integration, so the upgrade no longer writes to it.
+    /// contract and its OPCM integration, so the upgrade no longer writes to it. SuperchainConfig
+    /// is resolved per chain in `_setAllowedStorageAccesses` instead of through the generic registry lookup.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](13);
-        storageWrites[0] = "SuperchainConfig";
-        storageWrites[1] = "DisputeGameFactoryProxy";
-        storageWrites[2] = "SystemConfigProxy";
-        storageWrites[3] = "OptimismPortalProxy";
-        storageWrites[4] = "OptimismMintableERC20FactoryProxy";
-        storageWrites[5] = "AddressManager";
-        storageWrites[6] = "L1StandardBridgeProxy";
-        storageWrites[7] = "L1ERC721BridgeProxy";
-        storageWrites[8] = "L1CrossDomainMessengerProxy";
-        storageWrites[9] = "AnchorStateRegistryProxy";
-        storageWrites[10] = "PermissionedWETH";
-        storageWrites[11] = "PermissionlessWETH";
-        storageWrites[12] = "EthLockboxProxy";
+        string[] memory storageWrites = new string[](12);
+        storageWrites[0] = "DisputeGameFactoryProxy";
+        storageWrites[1] = "SystemConfigProxy";
+        storageWrites[2] = "OptimismPortalProxy";
+        storageWrites[3] = "OptimismMintableERC20FactoryProxy";
+        storageWrites[4] = "AddressManager";
+        storageWrites[5] = "L1StandardBridgeProxy";
+        storageWrites[6] = "L1ERC721BridgeProxy";
+        storageWrites[7] = "L1CrossDomainMessengerProxy";
+        storageWrites[8] = "AnchorStateRegistryProxy";
+        storageWrites[9] = "PermissionedWETH";
+        storageWrites[10] = "PermissionlessWETH";
+        storageWrites[11] = "EthLockboxProxy";
         return storageWrites;
     }
 
@@ -80,15 +80,11 @@ contract OPCMUpgradeV800 is OPCMTaskBase {
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
 
     /// @notice Allowlist storage writes for the upgrade.
-    /// @dev L2TaskBase's default `_setAllowedStorageAccesses` calls `addrRegistry.get(key)`
-    /// before falling back to per-chain `getAddress(key, chainId)`. For shared identifiers
-    /// like `SuperchainConfig`, `get(key)` resolves against the sentinel-chain entries
-    /// hardcoded in `src/addresses.toml` (the OP Sepolia / mainnet values), so
-    /// devnet-specific addresses never make it into the allowlist. We remove the
-    /// sentinel address and add only the discovered address for each configured chain.
+    /// @dev `SuperchainConfig` is resolved separately because the base implementation checks
+    /// global or sentinel addresses before per-chain discovery. Add only each configured chain's
+    /// discovered `SuperchainConfig`.
     function _setAllowedStorageAccesses() internal virtual override {
         super._setAllowedStorageAccesses();
-        _allowedStorageAccesses.remove(superchainAddrRegistry.get("SuperchainConfig"));
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
