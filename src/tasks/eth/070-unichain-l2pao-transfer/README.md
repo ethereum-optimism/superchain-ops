@@ -1,10 +1,10 @@
 # 070-unichain-l2pao-transfer
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
-For **Unichain Mainnet** (chainId 130), transfer the L2 `ProxyAdmin` predeploy owner to the L1-to-L2 alias of the standard OP-governed L1PAO, completing the [Unichain ProxyAdmin Owner Transition to Standard Optimism Governance](https://app.notion.com/p/oplabs/EXTERNAL-Maintenance-Upgrade-Proposal-Unichain-ProxyAdmin-Owner-Transition-to-Standard-Optimism-Go-381f153ee16281efad21c307cef7c928) proposal started by [069-unichain-l1-ownership-transfers](../069-unichain-l1-ownership-transfers/README.md).
+For **Unichain Mainnet** (chainId 130), transfer the L2 `ProxyAdmin` predeploy owner to the L1-to-L2 alias of the standard OP-governed L1PAO, completing the [Unichain ProxyAdmin Owner Transition to Standard Optimism Governance](https://gov.optimism.io/t/maintenance-upgrade-proposal-unichain-proxyadmin-owner-transition-to-standard-optimism-governance/10839) proposal started by [069-unichain-l1-ownership-transfers](../069-unichain-l1-ownership-transfers/README.md).
 
 | L2 `ProxyAdmin` `0x4200000000000000000000000000000000000018` | Address |
 |---|---|
