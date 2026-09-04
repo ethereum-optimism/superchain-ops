@@ -31,7 +31,7 @@ networks             = [0]   # 0 = WithdrawalNetwork.L1
 minWithdrawalAmounts = [0]
 
 # REQUIRED: L2 RPC per chain (same order as l2chains) for the ProxyAdmin-owner preflight,
-# version gate, and setter dry-run. "opSepolia" is a foundry.toml rpc alias (CI archive
+# version gate, and setter dry-run. "opSepolia" is a foundry.toml RPC alias (the CI
 # endpoint under the ci profile; public https://sepolia.optimism.io locally).
 l2RpcUrls = ["opSepolia"]
 
