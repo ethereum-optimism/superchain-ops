@@ -1,0 +1,152 @@
+# Upgrade 20 (op-contracts/v8.0.0-rc.3) on OP Mainnet, Ink, Soneium and Unichain.
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for each chain,
+#     using the op-contracts/v8.0.0-rc.3 OPCM.
+#   - OP Mainnet, Ink and Unichain currently respect CANNON_KONA (8) (post-U19) and
+#     rotate to SUPER_CANNON_KONA (9) — super roots replace output roots as the proofs
+#     foundation. The retiring CANNON_KONA (8) and PERMISSIONED_CANNON (1) impls are
+#     cleared, and the simplified SUPER_PERMISSIONED (5) game is installed as the
+#     permissioned fallback (proposer-only args, no bond).
+#   - Soneium mainnet is a permissioned-only chain (respectedGameType 1, no CANNON_KONA
+#     impl to carry over — it stayed permissioned in U19), so it rotates to
+#     SUPER_PERMISSIONED (5) instead; SUPER_CANNON_KONA stays disabled.
+#
+# Sequencing:
+#   - Stacked after the two pending mmzd tasks (067-mmzd-l1-ownership-transfers,
+#     068-mmzd-l2pao-transfer), which each consume one nonce on the L1PAO, the
+#     Foundation Upgrade Safe and the Security Council.
+#   - Also sequenced after the Unichain PAO transition (eth/069-070 on main, DRAFT,
+#     gated on the Unichain governance vote): those tasks execute from the Unichain
+#     3-of-3 Safe (0x6d5B183F538ABB8572F5cD17109c617b994D5833) — they do NOT touch the
+#     standard L1PAO nonce — but the Foundation Upgrade Safe and Security Council are
+#     child signers of that 3-of-3, so 069/070 consume one FUS and one SC nonce each.
+#     The pins below assume 067, 068, 069 and 070 have all executed. 069 MUST have
+#     executed on-chain before this task is signed (it hands Unichain's L1 ProxyAdmin
+#     and DisputeGameFactory to the standard L1PAO); the [addresses] ProxyAdminOwner
+#     pin plus the two Unichain owner state overrides below reproduce that
+#     post-transfer state for simulation on trees that do not contain 069/070.
+
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Ink", chainId = 57073},
+    {name = "Soneium", chainId = 1868},
+    {name = "Unichain", chainId = 130}
+]
+
+templateName = "OPCMUpgradeV800"
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 10
+# op-contracts/v8.0.0-rc.3 standard prestate (superchain-registry standard-prestates.toml):
+# kona-client 1.6.0 `cannon64-kona-interop`.
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): replace with the honest super root (and its timestamp)
+# for OP Mainnet. The AnchorStateRegistry is re-anchored to this value via the
+# `overrides.cfg.startingAnchorRoot` instruction; the pre-upgrade anchor is an output
+# root at an L2 block number, which super-root games cannot prove against.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+expectedValidationErrors = ""
+# Matches the current on-chain CANNON_KONA (type 8) initBond on the OP Mainnet DGF.
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 57073
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Ink.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 1868
+# The template requires a non-zero cannonKonaPrestate for every chain, even though no
+# SUPER_CANNON_KONA game is installed for this permissioned-only chain (see initBond
+# note below).
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Soneium.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+# Live validator output: SCKDG-SHAPE and SCKDG-10 report that no SUPER_CANNON_KONA game
+# is registered post-upgrade — expected for this permissioned-only chain, which has no
+# CANNON_KONA impl to carry over and rotates to SUPER_PERMISSIONED instead.
+expectedValidationErrors = "SCKDG-SHAPE,SCKDG-10"
+# No bonded game is enabled for this chain: SUPER_PERMISSIONED's initBond is forced to
+# zero by the v8 OPCM and SUPER_CANNON_KONA stays disabled (no CANNON_KONA impl to
+# carry over). Matches U19 (eth/053), where Soneium's initBond was also 0.
+initBond = 0
+startingRespectedGameType = 5 # SUPER_PERMISSIONED (permissioned-only chain)
+
+[[opcmUpgrades]]
+chainId = 130
+cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Unichain.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1786000000
+# Live validator output against the CURRENT registry pin, which still records
+# Unichain's pre-069 ProxyAdminOwner (the 3-of-3, 0x6d5B...5833) as an override:
+#   - OVERRIDES-L1PAOMULTISIG: informational (override in use).
+#   - PROXYA-10, DF-30, SCKDG-DWETH-30: ProxyAdmin / DisputeGameFactory / super-game
+#     DelayedWETH owner checks compare against the override PAO (0x6d5B...) while the
+#     simulated post-069 state (see [stateOverrides]) has the standard L1PAO —
+#     expected artifacts of simulating ahead of the registry update.
+# TODO: once eth/069 has executed and the superchain-registry pin records the standard
+# L1PAO for chain 130, re-capture this value (expected to become empty). This field is
+# assert-only: it does not change the signed calldata or the VALIDATION.md hashes.
+expectedValidationErrors = ""
+# Matches the current on-chain CANNON_KONA (type 8) initBond on the Unichain DGF.
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+# op-contracts/v8.0.0-rc.3 OPCM on Mainnet (superchain-registry
+# standard-versions-mainnet.toml, ["op-contracts/v8.0.0-rc.3"].op_contracts_manager).
+# `OPCM.version()` returns "8.0.1"; its OPContractsManagerStandardValidator (3.3.0) is
+# 0xbfd1162d5dbe3766588e165094C97EE199E9b602.
+[addresses]
+OPCM = "0x1951828ce913dc4383a8a1695695d537a11d896a"
+# Root-safe pin: Unichain's on-chain ProxyAdminOwner is still the Unichain 3-of-3 Safe
+# (0x6d5B183F538ABB8572F5cD17109c617b994D5833) until eth/069 executes. The pin keeps
+# root-safe resolution uniform across all four chains; the state overrides below
+# reproduce the post-069 owner state for simulation.
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+# Unichain's SystemConfig packs superchainConfig (low 160 bits) with a non-zero
+# minBaseFee (500000) in slot 0x6c, so the slot value exceeds type(uint160).max and the
+# isLikelyAddressThatShouldHaveCode check would reinterpret the low bits as an address
+# that must have no code — reverting on the real SuperchainConfig. Exempt only that
+# slot (same exception as eth/054-U19-unichain).
+[storageCodeExceptions]
+"0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+# Safe nonce pins (slot 5 = Gnosis Safe nonce). Live values on 2026-09-02:
+# L1PAO 40, FoundationUpgradeSafe 66, SecurityCouncil 64
+# (cast call <safe> "nonce()(uint256)" --rpc-url mainnet). Pending tasks before this
+# one: 067 and 068 each consume one nonce on all three safes; 069 and 070 (Unichain PAO
+# transition, executed from the Unichain 3-of-3) each consume one FUS and one SC nonce
+# but do NOT touch the L1PAO. So this task signs at L1PAO live + 2, FUS/SC live + 4.
+# Re-verify before signing.
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
+]
+# Unichain post-069 state (the PAO transition executes from the Unichain 3-of-3 Safe):
+# L1 ProxyAdmin (0x3B73...f2A4) owner slot 0, and DisputeGameFactoryProxy
+# (0x2F12...dFe4) OwnableUpgradeable owner slot 0x33, both set to the standard L1PAO.
+# Verified against OP Mainnet's DGF, whose slot 0x33 holds the same owner.
+0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4 = [ # Unichain L1 ProxyAdmin
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000005a0aae59d09fccbddb6c6cceb07b7279367c3d2a"}
+]
+0x2F12d621a16e2d3285929C9996f478508951dFe4 = [ # Unichain DisputeGameFactoryProxy
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000005a0aae59d09fccbddb6c6cceb07b7279367c3d2a"}
+]
