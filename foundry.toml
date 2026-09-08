@@ -29,7 +29,10 @@ deny_warnings = true
 [profile.ci.rpc_endpoints]
 mainnet = "${OP_CI_MAINNET_L1_ARCHIVE_RPC_URL}"
 sepolia = "${OP_CI_SEPOLIA_L1_ARCHIVE_RPC_URL}"
-opSepolia = "${OP_CI_SEPOLIA_L2_RPC_URL}"
+# The OP_CI_SEPOLIA_L2_RPC_URL node prunes state after a few hours, which breaks every pinned
+# OP Sepolia fork (Regression.t.sol SetFeeVaultConfigPinnedL2Fork, test/tasks/example/opsep/*).
+# The public endpoint serves historical state, so CI uses it directly.
+opSepolia = "https://sepolia.optimism.io"
 opMainnet = "${OP_CI_MAINNET_L2_RPC_URL}"
 
 [profile.default.rpc_endpoints]
