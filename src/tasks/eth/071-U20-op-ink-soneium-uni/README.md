@@ -1,83 +1,62 @@
 # 071-U20-op-ink-soneium-uni
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-Executes Upgrade 20 (op-contracts/v8.0.0-rc.3) on the four production mainnet chains,
-via `OPCM.upgradeSuperchain` + one `OPCM.upgrade` per chain, bundled into a single
-transaction from the standard Mainnet L1 ProxyAdminOwner
-(`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`, 2-of-2 of the Foundation Upgrade Safe
-and the Security Council):
+Executes Upgrade 20 (`op-contracts/v8.0.0-rc.3`) on the four OP-governed mainnet chains in a
+single transaction from the standard Mainnet L1 ProxyAdminOwner
+([`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/op.toml#L46),
+2-of-2 of the [Foundation Upgrade Safe](../../../addresses.toml#L6) and the
+[Security Council](../../../addresses.toml#L7)): one `OPCM.upgradeSuperchain` followed by
+one `OPCM.upgrade` per chain, through the v8.0.0-rc.3
+[OPCM `0x1951828ce913dc4383a8a1695695d537a11d896a`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/validation/standard/standard-versions-mainnet.toml#L9-L25)
+(version 8.0.1).
 
-| Chain      | Chain ID | Respected game type after upgrade      |
-|------------|----------|----------------------------------------|
-| OP Mainnet | 10       | SUPER_CANNON_KONA (9)                  |
-| Ink        | 57073    | SUPER_CANNON_KONA (9)                  |
-| Soneium    | 1868     | SUPER_PERMISSIONED (5, permissioned-only chain) |
-| Unichain   | 130      | SUPER_CANNON_KONA (9)                  |
+| Chain | Chain ID | Respected game type | SystemConfigProxy |
+|---|---|---|---|
+| OP Mainnet | 10 | CANNON_KONA (8) → SUPER_CANNON_KONA (9) | [`0x229047fed2591dbec1eF1118d64F7aF3dB9EB290`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/op.toml#L51) |
+| Ink | 57073 | CANNON_KONA (8) → SUPER_CANNON_KONA (9) | [`0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/ink.toml#L51) |
+| Soneium | 1868 | PERMISSIONED_CANNON (1) → SUPER_PERMISSIONED (5) | [`0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/soneium.toml#L51) |
+| Unichain | 130 | CANNON_KONA (8) → SUPER_CANNON_KONA (9) | [`0xc407398d063f942feBbcC6F80a156b47F3f1BDA6`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/unichain.toml#L51) |
 
-U20 rotates the proofs foundation from output roots to super roots. On each chain the
-upgrade clears the retiring CANNON (0), PERMISSIONED_CANNON (1) and CANNON_KONA (8)
-game impls, installs SUPER_PERMISSIONED (5) as the permissioned fallback (proposer-only
-args, zero bond), installs SUPER_CANNON_KONA (9) where a CANNON_KONA impl existed to
-carry over (OP Mainnet, Ink, Unichain), rotates
-`AnchorStateRegistry.respectedGameType`, and re-anchors the AnchorStateRegistry to an
-honest super root via the `overrides.cfg.startingAnchorRoot` extra instruction. Soneium
-stayed permissioned through U19 and has no CANNON_KONA impl, so it rotates to
-SUPER_PERMISSIONED (5) instead.
+On every chain the upgrade moves `SystemConfig` to 4.0.0 and `OptimismPortal2` to 5.8.0,
+clears the CANNON (0), PERMISSIONED_CANNON (1) and CANNON_KONA (8) game implementations,
+installs SUPER_PERMISSIONED (5, bondless, proposer-only) and re-anchors the
+`AnchorStateRegistry` to a super root. OP Mainnet, Ink and Unichain additionally install
+SUPER_CANNON_KONA (9, 0.08 ETH bond) and make it the respected game type; Soneium stayed
+permissioned through U19 and has no CANNON_KONA implementation to carry over, so it moves to
+SUPER_PERMISSIONED. Games created before the upgrade keep resolving but no longer update the
+anchor.
 
-The OPCM used is the op-contracts/v8.0.0-rc.3 deployment on Mainnet
-(`0x1951828ce913dc4383a8a1695695d537a11d896a`, version 8.0.1).
+`SUPER_CANNON_KONA` uses the kona-client/v1.7.0-rc.2 `cannon64-kona-interop` prestate
+[`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`](https://github.com/ethereum-optimism/superchain-registry/blob/f4b4840352b7ce490d52ad6379ea403dfb3a37e1/validation/standard/standard-prestates.toml).
+Each chain's starting anchor is a single-chain super root at a finalized L2 block, derived on
+2026-09-08 with the monorepo's `op-chain-ops/cmd/check-super-root` (block, timestamp and RPC
+per chain in [config.toml](./config.toml)). The anchors are part of the signed calldata and are
+fixed once the governance post publishes it.
 
-Every SUPER_CANNON_KONA game is installed with the kona-client/v1.7.0-rc.2
-`cannon64-kona-interop` prestate
-(`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`, from the
-superchain-registry `validation/standard/standard-prestates.toml`). Soneium installs
-no SUPER_CANNON_KONA game, so the prestate is never encoded for it.
-
-## Sequencing and external dependencies
-
-1. This task stacks after the two pending mmzd tasks (`067-mmzd-l1-ownership-transfers`,
-   `068-mmzd-l2pao-transfer`); those consume one nonce each on the L1PAO, Foundation
-   Upgrade Safe and Security Council.
-2. It also sequences after the Unichain PAO transition (`eth/069`/`eth/070` on `main`,
-   DRAFT, gated on the Unichain governance vote). Those tasks execute from the Unichain
-   3-of-3 Safe (`0x6d5B183F538ABB8572F5cD17109c617b994D5833`) — no L1PAO nonce impact —
-   but the Foundation Upgrade Safe and Security Council are child signers of that
-   3-of-3, so each consumes one FUS and one SC nonce. The nonce pins in `config.toml`
-   are therefore L1PAO live+2, FUS/SC live+4.
-3. `eth/069` MUST have executed on-chain before this task is signed: it transfers
-   Unichain's L1 ProxyAdmin and DisputeGameFactory ownership to the standard L1PAO,
-   which this task requires. Simulation reproduces the post-069 state via state
-   overrides on Unichain's L1 ProxyAdmin and DisputeGameFactory owner slots.
-
-The `startingAnchorRootRoot` / `startingAnchorRootL2SequenceNumber` values in `config.toml`
-are single-chain super roots at a recently finalized L2 block of each chain (derived on
-2026-09-08 with `op-chain-ops/cmd/check-super-root`, see the per-chain comments). They are
-part of the signed calldata, so they are fixed once the calldata is published; verify them
-against a trusted node (`check-super-root --timestamp <recorded timestamp>`) before signing.
+> [!IMPORTANT]
+> This task is sequenced after `067-mmzd-l1-ownership-transfers`, `068-mmzd-l2pao-transfer`,
+> `069-unichain-l1-ownership-transfers` and `070-unichain-l2pao-transfer`; the nonce pins in
+> [config.toml](./config.toml) assume all four have executed. `eth/069` MUST execute before this
+> task: it hands Unichain's `ProxyAdmin` and `DisputeGameFactory` to the L1PAO, which this
+> upgrade requires. Simulation reproduces that state through state overrides.
 
 ## Simulation & Signing
 
-```bash
-cd src/
-just simulate-stack eth 071-U20-op-ink-soneium-uni council
-just simulate-stack eth 071-U20-op-ink-soneium-uni foundation
-```
-
-Signing:
-
-```bash
-USE_KEYSTORE=1 just sign-stack eth 071-U20-op-ink-soneium-uni council
-USE_KEYSTORE=1 just sign-stack eth 071-U20-op-ink-soneium-uni foundation
-```
-
-Execution, from the task directory:
+This is a **nested** task: signers act through one of the L1PAO's two owner safes, so the
+child-safe argument (`council` or `foundation`) is required.
 
 ```bash
 cd src/tasks/eth/071-U20-op-ink-soneium-uni
-SIGNATURES=0x... just approve council
-SIGNATURES=0x... just approve foundation
-just execute
+
+just simulate-stack eth 071-U20-op-ink-soneium-uni council   # or foundation
+
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 071-U20-op-ink-soneium-uni council   # or foundation
 ```
+
+## Validation
+
+See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes, the calldata
+breakdown, the expected state changes, the facilitator steps and the post-execution checks.
