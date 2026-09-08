@@ -35,9 +35,6 @@ monorepo's `op-chain-ops/cmd/check-super-root` (block, timestamp and RPC per cha
 [config.toml](./config.toml)). The anchors are part of the signed calldata and are fixed once
 it is published.
 
-> [!NOTE]
-> Devnet task: it is executed from this branch (the OPCMUpgradeV800 template stack) and is not
-> meant to be merged.
 
 ## Simulation & Signing
 
