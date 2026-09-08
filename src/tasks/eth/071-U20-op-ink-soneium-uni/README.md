@@ -30,6 +30,12 @@ SUPER_PERMISSIONED (5) instead.
 The OPCM used is the op-contracts/v8.0.0-rc.3 deployment on Mainnet
 (`0x1951828ce913dc4383a8a1695695d537a11d896a`, version 8.0.1).
 
+Every SUPER_CANNON_KONA game is installed with the kona-client/v1.7.0-rc.2
+`cannon64-kona-interop` prestate
+(`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`, from the
+superchain-registry `validation/standard/standard-prestates.toml`). Soneium installs
+no SUPER_CANNON_KONA game, so the prestate is never encoded for it.
+
 ## Sequencing and external dependencies
 
 1. This task stacks after the two pending mmzd tasks (`067-mmzd-l1-ownership-transfers`,

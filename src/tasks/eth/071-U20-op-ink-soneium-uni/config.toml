@@ -39,9 +39,11 @@ skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 10
-# op-contracts/v8.0.0-rc.3 standard prestate (superchain-registry standard-prestates.toml):
-# kona-client 1.6.0 `cannon64-kona-interop`.
-cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# kona-client/v1.7.0-rc.2 `cannon64-kona-interop` prestate (superchain-registry
+# validation/standard/standard-prestates.toml, added in superchain-registry PR #1328).
+# Same value for every chain below; check-prestate reports all four chains up to date
+# against the registry snapshot embedded in that kona release.
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
 # TODO(BLOCKING — DO NOT SIGN): replace with the honest super root (and its timestamp)
 # for OP Mainnet. The AnchorStateRegistry is re-anchored to this value via the
 # `overrides.cfg.startingAnchorRoot` instruction; the pre-upgrade anchor is an output
@@ -55,7 +57,7 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 
 [[opcmUpgrades]]
 chainId = 57073
-cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
 # TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Ink.
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 1786000000
@@ -67,8 +69,8 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 chainId = 1868
 # The template requires a non-zero cannonKonaPrestate for every chain, even though no
 # SUPER_CANNON_KONA game is installed for this permissioned-only chain (see initBond
-# note below).
-cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+# note below), so the prestate is never encoded in Soneium's upgrade calldata.
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
 # TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Soneium.
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 1786000000
@@ -84,7 +86,7 @@ startingRespectedGameType = 5 # SUPER_PERMISSIONED (permissioned-only chain)
 
 [[opcmUpgrades]]
 chainId = 130
-cannonKonaPrestate = "0x03e3a42cf9a1d116f414206c465c6cdb74556136090e7c9556329403da0f310f"
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
 # TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Unichain.
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 1786000000
@@ -124,8 +126,8 @@ ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 "0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
 [stateOverrides]
-# Safe nonce pins (slot 5 = Gnosis Safe nonce). Live values on 2026-09-02:
-# L1PAO 40, FoundationUpgradeSafe 66, SecurityCouncil 64
+# Safe nonce pins (slot 5 = Gnosis Safe nonce). Live values on 2026-09-08 (unchanged
+# since 2026-09-02): L1PAO 40, FoundationUpgradeSafe 66, SecurityCouncil 64
 # (cast call <safe> "nonce()(uint256)" --rpc-url mainnet). Pending tasks before this
 # one: 067 and 068 each consume one nonce on all three safes; 069 and 070 (Unichain PAO
 # transition, executed from the Unichain 3-of-3) each consume one FUS and one SC nonce
