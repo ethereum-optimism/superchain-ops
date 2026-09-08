@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
-pinned nonce in [config.toml](./config.toml) (devnet ProxyAdminOwner 144) and move only if
+pinned nonce in [config.toml](./config.toml) (devnet ProxyAdminOwner 145) and move only if
 that nonce moves.
 
 > [!CAUTION]
@@ -17,10 +17,10 @@ that nonce moves.
 > ### Devnet ProxyAdminOwner (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `0x40a13f1f9ba4594509d536ec27c00892dcb9b2a05a79dd770ffb00cc57cc9a67`
+> - Message Hash: `0xb41b8e79c9c96d0ff8bd7ccdde9135d3bce4b4c9228ab49d27bd765bc864c5a6`
 
 Safe transaction hash:
-`0x5586746b40ff63897c6f88e1183aad2bca7af83a364d4a0c53f084a68ca46911`
+`0xaa18a0aab87b326fda16e37fdafd5298f3d57b2fb463a80550959adaa5522fcb`
 
 ## For Signers
 
@@ -107,7 +107,7 @@ Before executing, confirm the live nonce still matches the pin in
 
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
-cast call 0xe934Dc97E347C6aCef74364B50125bb8689c40ff "nonce()(uint256)" -r $RPC   # 144
+cast call 0xe934Dc97E347C6aCef74364B50125bb8689c40ff "nonce()(uint256)" -r $RPC   # 145
 ```
 
 Then execute with the collected signature (the safe is 1-of-1; `just execute` refuses to run
@@ -173,7 +173,7 @@ between v7.1.17 and v8.0.0-rc.3.
 ##### `0xe934Dc97E347C6aCef74364B50125bb8689c40ff` (devnet ProxyAdminOwner, 1-of-1 safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...90` (144) → **After:** `0x...91` (145)
+  - **Before:** `0x...91` (145) → **After:** `0x...92` (146)
   - **Summary:** nonce increment of the safe executing the task. The before-value is the
     nonce state override in [config.toml](./config.toml).
 
