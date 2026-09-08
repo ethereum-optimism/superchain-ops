@@ -78,8 +78,8 @@ cast calldata-decode "upgrade((address,(bool,uint256,uint32,bytes)[],(string,byt
 ### For Signers
 
 ```bash
-cd src/tasks/sep/109-U20-sepolia-devnet-2-3
-just simulate-stack sep 109-U20-sepolia-devnet-2-3
+cd src/tasks/sep/107-U20-sepolia-devnet-2-3
+just simulate-stack sep 107-U20-sepolia-devnet-2-3
 ```
 
 Check:
@@ -108,7 +108,7 @@ Then execute with the collected signature (the safe is 1-of-1; `just execute` re
 without `SIGNATURES`):
 
 ```bash
-cd src/tasks/sep/109-U20-sepolia-devnet-2-3
+cd src/tasks/sep/107-U20-sepolia-devnet-2-3
 
 SIGNATURES=0x... just execute
 ```

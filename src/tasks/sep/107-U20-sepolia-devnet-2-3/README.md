@@ -1,4 +1,4 @@
-# 109-U20-sepolia-devnet-2-3
+# 107-U20-sepolia-devnet-2-3
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -45,11 +45,11 @@ This is a **single-safe** task: the devnet ProxyAdminOwner is a 1-of-1 Safe, so 
 argument is needed.
 
 ```bash
-cd src/tasks/sep/109-U20-sepolia-devnet-2-3
+cd src/tasks/sep/107-U20-sepolia-devnet-2-3
 
-just simulate-stack sep 109-U20-sepolia-devnet-2-3
+just simulate-stack sep 107-U20-sepolia-devnet-2-3
 
-USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 109-U20-sepolia-devnet-2-3
+USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 107-U20-sepolia-devnet-2-3
 ```
 
 ## Validation
