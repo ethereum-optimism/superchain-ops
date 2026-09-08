@@ -38,12 +38,12 @@ chainId = 11155420
 # Same value for every chain below; check-prestate reports all four chains up to date
 # against the registry snapshot embedded in that kona release.
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# TODO(BLOCKING — DO NOT SIGN): replace with the honest super root (and its timestamp)
-# for OP Sepolia. The AnchorStateRegistry is re-anchored to this value via the
-# `overrides.cfg.startingAnchorRoot` instruction; the pre-upgrade anchor is an output
-# root at an L2 block number, which super-root games cannot prove against.
-startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
-startingAnchorRootL2SequenceNumber = 1786000000
+# Single-chain super root at finalized L2 block 48523226 (timestamp 1788848992), computed on
+# 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://sepolia.optimism.io
+# --timestamp 1788848992` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
+# block's output root). Re-derive from a trusted node close to signing.
+startingAnchorRootRoot = "0x8645ee6c25c47e2297f9aad7ad3f96deb23a0f36386a5a5dbebad51f5c3b0c70"
+startingAnchorRootL2SequenceNumber = 1788848992
 expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
@@ -51,9 +51,12 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 [[opcmUpgrades]]
 chainId = 763373
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Ink Sepolia.
-startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
-startingAnchorRootL2SequenceNumber = 1786000000
+# Single-chain super root at finalized L2 block 59845048 (timestamp 1788848344), computed on
+# 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://rpc-gel-sepolia.inkonchain.com
+# --timestamp 1788848344` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
+# block's output root). Re-derive from a trusted node close to signing.
+startingAnchorRootRoot = "0xc2d853bc2a4da1e58018d75128bc07e23b899893b310bb99be1fc085b956830d"
+startingAnchorRootL2SequenceNumber = 1788848344
 expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
@@ -61,9 +64,12 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 [[opcmUpgrades]]
 chainId = 1946
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Soneium Minato.
-startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
-startingAnchorRootL2SequenceNumber = 1786000000
+# Single-chain super root at finalized L2 block 32826879 (timestamp 1788848094), computed on
+# 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://rpc.minato.soneium.org
+# --timestamp 1788848094` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
+# block's output root). Re-derive from a trusted node close to signing.
+startingAnchorRootRoot = "0x96ba40829c288b59d96178b9e6cfe7a76a43da1a541e7338f327289630e4cbe7"
+startingAnchorRootL2SequenceNumber = 1788848094
 # Live validator output: Soneium uses a registry challenger override
 # (0xB278818732E5BEbb742dc4Aa0617ccd1Dec76b65), reported informationally.
 expectedValidationErrors = "OVERRIDES-CHALLENGER"
@@ -73,9 +79,12 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 [[opcmUpgrades]]
 chainId = 1301
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# TODO(BLOCKING — DO NOT SIGN): honest super root + timestamp for Unichain Sepolia.
-startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
-startingAnchorRootL2SequenceNumber = 1786000000
+# Single-chain super root at finalized L2 block 61995987 (timestamp 1788848415), computed on
+# 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://sepolia.unichain.org
+# --timestamp 1788848415` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
+# block's output root). Re-derive from a trusted node close to signing.
+startingAnchorRootRoot = "0x298c267f049adf933515b723dfb1141decc2e8b6d4025b2b185ae6357e173a9f"
+startingAnchorRootL2SequenceNumber = 1788848415
 # Live validator output against the CURRENT registry pin, which still records
 # Unichain's pre-transfer ProxyAdminOwner (0xd363...9dbf) and its custom challenger
 # (0x921D...43C4) as overrides:
