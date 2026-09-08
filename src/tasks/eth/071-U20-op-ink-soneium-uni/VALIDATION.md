@@ -9,9 +9,9 @@ upgrade transaction which you are signing.
 > `cannon64-kona-interop` prestate
 > (`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`) and the safe
 > nonces pinned at their post-067/068/069/070 values (L1PAO 42, Foundation Upgrade Safe
-> 70, Security Council 68). They MUST be regenerated (re-run the stacked simulation) after
-> the anchor roots are re-derived close to signing — and after eth/069 (the Unichain PAO
-> transition) executes and the registry pin updates — before anyone signs.
+> 70, Security Council 68). Verify the anchor roots against a trusted node before signing;
+> regenerate the hashes (re-run the stacked simulation) if the safe nonces move or after eth/069 (the Unichain PAO
+> transition) executes and the registry pin updates.
 
 ## Expected Domain and Message Hashes
 

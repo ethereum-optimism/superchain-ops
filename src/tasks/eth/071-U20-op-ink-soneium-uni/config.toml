@@ -47,7 +47,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 156622039 (timestamp 1788842855), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://mainnet.optimism.io
 # --timestamp 1788842855` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0xbd4aeba96e33ef5582e14257fb776b3223ad45934ccd368c2f3084c8b75c1d68"
 startingAnchorRootL2SequenceNumber = 1788842855
 expectedValidationErrors = ""
@@ -61,7 +62,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 55349871 (timestamp 1788848282), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://rpc-gel.inkonchain.com
 # --timestamp 1788848282` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0x25b22a0c711fa1d01b3cdb95fb98c0e7ff003b00909bfe8fade3507a6e62d44e"
 startingAnchorRootL2SequenceNumber = 1788848282
 expectedValidationErrors = ""
@@ -77,7 +79,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 27856837 (timestamp 1788848425), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://rpc.soneium.org
 # --timestamp 1788848425` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0x08a53686fd0b1671ff7b89c3a994582503f15f7be00f0f2e7c9f0d3b187ab124"
 startingAnchorRootL2SequenceNumber = 1788848425
 # Live validator output: SCKDG-SHAPE and SCKDG-10 report that no SUPER_CANNON_KONA game
@@ -96,7 +99,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 58100292 (timestamp 1788848651), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://mainnet.unichain.org
 # --timestamp 1788848651` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0xaf64a866304eb17696278d26290bb172aa941eac3370d9bc8bd313d492beb7d3"
 startingAnchorRootL2SequenceNumber = 1788848651
 # Live validator output against the CURRENT registry pin, which still records
