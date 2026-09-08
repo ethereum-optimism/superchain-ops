@@ -32,10 +32,10 @@ superchain-registry `validation/standard/standard-prestates.toml`). sepolia-devn
 embedded in that kona release's registry snapshot; sepolia-devnet-3 is not, but it
 installs no SUPER_CANNON_KONA game, so the prestate is never encoded for it.
 
-BLOCKING before signing: both `startingAnchorRootRoot` values in `config.toml` are
-placeholders (`0xdead...`) and MUST be replaced with the honest super root (and its
-timestamp as `startingAnchorRootL2SequenceNumber`) for each chain, after which the
-task must be re-simulated and VALIDATION.md hashes regenerated.
+The `startingAnchorRootRoot` / `startingAnchorRootL2SequenceNumber` values in `config.toml`
+are single-chain super roots at a recently finalized L2 block of each chain (derived on
+2026-09-08 with `op-chain-ops/cmd/check-super-root`, see the per-chain comments). They MUST
+be re-derived from a trusted node close to signing and the task re-simulated.
 
 This task is intended to be executed from this PR branch (the V800 template stack),
 not from `main`.
