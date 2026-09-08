@@ -87,8 +87,8 @@ cast calldata-decode "upgrade((address,(bool,uint256,uint32,bytes)[],(string,byt
 ### For Signers
 
 ```bash
-cd src/tasks/sep/110-U20-op-ink-soneium-uni
-just simulate-stack sep 110-U20-op-ink-soneium-uni council   # or foundation
+cd src/tasks/sep/108-U20-op-ink-soneium-uni
+just simulate-stack sep 108-U20-op-ink-soneium-uni council   # or foundation
 ```
 
 Check:
@@ -124,7 +124,7 @@ cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "owner()(address)" -r $RPC
 Then approve once per child safe with the collected signatures and execute:
 
 ```bash
-cd src/tasks/sep/110-U20-op-ink-soneium-uni
+cd src/tasks/sep/108-U20-op-ink-soneium-uni
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

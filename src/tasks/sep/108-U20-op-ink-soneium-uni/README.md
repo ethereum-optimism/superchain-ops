@@ -1,4 +1,4 @@
-# 110-U20-op-ink-soneium-uni
+# 108-U20-op-ink-soneium-uni
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -45,11 +45,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/110-U20-op-ink-soneium-uni
+cd src/tasks/sep/108-U20-op-ink-soneium-uni
 
-just simulate-stack sep 110-U20-op-ink-soneium-uni council   # or foundation
+just simulate-stack sep 108-U20-op-ink-soneium-uni council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 110-U20-op-ink-soneium-uni council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 108-U20-op-ink-soneium-uni council   # or foundation
 ```
 
 ## Validation
