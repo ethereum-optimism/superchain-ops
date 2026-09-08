@@ -56,7 +56,21 @@ just simulate-stack eth 071-U20-op-ink-soneium-uni council   # or foundation
 SKIP_DECODE_AND_PRINT=1 just sign-stack eth 071-U20-op-ink-soneium-uni council   # or foundation
 ```
 
+## Execution
+
+For facilitators, once both child safes have collected their signatures: approve once per
+safe, then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
+
+```bash
+cd src/tasks/eth/071-U20-op-ink-soneium-uni
+
+SIGNATURES=0x... just approve council
+SIGNATURES=0x... just approve foundation
+just execute
+```
+
 ## Validation
 
-See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes, the calldata
-breakdown, the expected state changes, the facilitator steps and the post-execution checks.
+See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hashes, the signer
+checklist, the calldata breakdown, the pre-execution checks, the expected state changes and
+the post-execution checks.
