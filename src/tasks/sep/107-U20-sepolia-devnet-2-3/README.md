@@ -49,7 +49,20 @@ just simulate-stack sep 107-U20-sepolia-devnet-2-3
 USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 107-U20-sepolia-devnet-2-3
 ```
 
+## Execution
+
+For facilitators, once the signature has been collected. Run the pre-execution check in
+[VALIDATION.md](./VALIDATION.md) first. The safe is 1-of-1; `just execute` refuses to run
+without `SIGNATURES`.
+
+```bash
+cd src/tasks/sep/107-U20-sepolia-devnet-2-3
+
+SIGNATURES=0x... just execute
+```
+
 ## Validation
 
-See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hash, the calldata
-breakdown, the expected state changes, the facilitator steps and the post-execution checks.
+See [VALIDATION.md](./VALIDATION.md) for the expected domain/message hash, the signer
+checklist, the calldata breakdown, the pre-execution check, the expected state changes and
+the post-execution checks.
