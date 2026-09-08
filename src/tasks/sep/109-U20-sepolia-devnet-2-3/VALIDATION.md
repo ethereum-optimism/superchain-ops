@@ -7,8 +7,8 @@ upgrade transaction which you are signing.
 > Hashes below were generated with the `startingAnchorRoot` values in `config.toml` (single-chain
 > super roots at finalized L2 blocks, derived 2026-09-08), the kona-client/v1.7.0-rc.2 `cannon64-kona-interop` prestate
 > (`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`) and the devnet
-> ProxyAdminOwner Safe nonce pinned at 144. They MUST be regenerated (re-run the stacked
-> simulation) after the anchor roots are re-derived close to signing.
+> ProxyAdminOwner Safe nonce pinned at 144. Verify the anchor roots against a trusted node
+> before signing; the hashes move only if the safe nonce changes.
 
 ## Expected Domain and Message Hashes
 
