@@ -25,6 +25,13 @@ re-anchors the AnchorStateRegistry to an honest super root via the
 The OPCM used is the op-contracts/v8.0.0-rc.3 deployment on Sepolia
 (`0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca`, version 8.0.1).
 
+The SUPER_CANNON_KONA game installed on sepolia-devnet-2 uses the kona-client/v1.7.0-rc.2
+`cannon64-kona-interop` prestate
+(`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`, from the
+superchain-registry `validation/standard/standard-prestates.toml`). sepolia-devnet-2 is
+embedded in that kona release's registry snapshot; sepolia-devnet-3 is not, but it
+installs no SUPER_CANNON_KONA game, so the prestate is never encoded for it.
+
 BLOCKING before signing: both `startingAnchorRootRoot` values in `config.toml` are
 placeholders (`0xdead...`) and MUST be replaced with the honest super root (and its
 timestamp as `startingAnchorRootL2SequenceNumber`) for each chain, after which the
