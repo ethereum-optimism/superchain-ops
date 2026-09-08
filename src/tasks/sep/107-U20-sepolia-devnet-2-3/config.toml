@@ -6,7 +6,7 @@ templateName = "OPCMUpgradeV800"
 # permissioned-only (no CANNON_KONA impl) and rotates from PERMISSIONED_CANNON (1) to
 # SUPER_PERMISSIONED (5). Both clear the CANNON (0), PERMISSIONED_CANNON (1) and CANNON_KONA (8)
 # impls and re-anchor their AnchorStateRegistry to a super root. Executed by the shared devnet
-# ProxyAdminOwner Safe (1-of-1). Intended to be executed from this branch, not merged.
+# ProxyAdminOwner Safe (1-of-1).
 
 l2chains = [
     {name = "sepolia-devnet-2", chainId = 420130015},
