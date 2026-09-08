@@ -1,6 +1,6 @@
 # 105-mmzd-l1-ownership-transfers
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8c22169b916f8823f676da5a12426737fc9beeb49bca88fa9fe35f5613e2096b)
 
 ## Objective
 
