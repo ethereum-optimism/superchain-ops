@@ -52,10 +52,10 @@ no SUPER_CANNON_KONA game, so the prestate is never encoded for it.
    which this task requires. Simulation reproduces the post-069 state via state
    overrides on Unichain's L1 ProxyAdmin and DisputeGameFactory owner slots.
 
-BLOCKING before signing: all four `startingAnchorRootRoot` values in `config.toml` are
-placeholders (`0xdead...`) and MUST be replaced with each chain's honest super root
-(and its timestamp as `startingAnchorRootL2SequenceNumber`), after which the task must
-be re-simulated and VALIDATION.md hashes regenerated.
+The `startingAnchorRootRoot` / `startingAnchorRootL2SequenceNumber` values in `config.toml`
+are single-chain super roots at a recently finalized L2 block of each chain (derived on
+2026-09-08 with `op-chain-ops/cmd/check-super-root`, see the per-chain comments). They MUST
+be re-derived from a trusted node close to signing and the task re-simulated.
 
 ## Simulation & Signing
 
