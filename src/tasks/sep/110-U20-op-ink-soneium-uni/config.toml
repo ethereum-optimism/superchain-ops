@@ -41,7 +41,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 48523226 (timestamp 1788848992), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://sepolia.optimism.io
 # --timestamp 1788848992` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0x8645ee6c25c47e2297f9aad7ad3f96deb23a0f36386a5a5dbebad51f5c3b0c70"
 startingAnchorRootL2SequenceNumber = 1788848992
 expectedValidationErrors = ""
@@ -54,7 +55,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 59845048 (timestamp 1788848344), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://rpc-gel-sepolia.inkonchain.com
 # --timestamp 1788848344` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0xc2d853bc2a4da1e58018d75128bc07e23b899893b310bb99be1fc085b956830d"
 startingAnchorRootL2SequenceNumber = 1788848344
 expectedValidationErrors = ""
@@ -67,7 +69,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 32826879 (timestamp 1788848094), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://rpc.minato.soneium.org
 # --timestamp 1788848094` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0x96ba40829c288b59d96178b9e6cfe7a76a43da1a541e7338f327289630e4cbe7"
 startingAnchorRootL2SequenceNumber = 1788848094
 # Live validator output: Soneium uses a registry challenger override
@@ -82,7 +85,8 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Single-chain super root at finalized L2 block 61995987 (timestamp 1788848415), computed on
 # 2026-09-08 with `op-chain-ops/cmd/check-super-root --rpc-endpoints https://sepolia.unichain.org
 # --timestamp 1788848415` and cross-checked by hand (keccak256 of the SuperV1 encoding over the
-# block's output root). Re-derive from a trusted node close to signing.
+# block's output root). Part of the signed calldata: fixed once the calldata is published;
+# verify against a trusted node before signing.
 startingAnchorRootRoot = "0x298c267f049adf933515b723dfb1141decc2e8b6d4025b2b185ae6357e173a9f"
 startingAnchorRootL2SequenceNumber = 1788848415
 # Live validator output against the CURRENT registry pin, which still records

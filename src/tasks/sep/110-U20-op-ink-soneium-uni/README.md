@@ -48,8 +48,9 @@ superchain-registry `validation/standard/standard-prestates.toml`).
 
 The `startingAnchorRootRoot` / `startingAnchorRootL2SequenceNumber` values in `config.toml`
 are single-chain super roots at a recently finalized L2 block of each chain (derived on
-2026-09-08 with `op-chain-ops/cmd/check-super-root`, see the per-chain comments). They MUST
-be re-derived from a trusted node close to signing and the task re-simulated.
+2026-09-08 with `op-chain-ops/cmd/check-super-root`, see the per-chain comments). They are
+part of the signed calldata, so they are fixed once the calldata is published; verify them
+against a trusted node (`check-super-root --timestamp <recorded timestamp>`) before signing.
 
 ## Simulation & Signing
 

@@ -8,8 +8,8 @@ upgrade transaction which you are signing.
 > super roots at finalized L2 blocks, derived 2026-09-08), the kona-client/v1.7.0-rc.2 `cannon64-kona-interop` prestate
 > (`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`) and the safe
 > nonces pinned at their live values (L1PAO 56, Foundation Upgrade Safe 76, Security
-> Council 70). They MUST be regenerated (re-run the stacked simulation) after the anchor
-> roots are re-derived close to signing — and after the Unichain PAO transfer lands and the registry
+> Council 70). Verify the anchor roots against a trusted node before signing;
+> regenerate the hashes (re-run the stacked simulation) if the safe nonces move or after the Unichain PAO transfer lands and the registry
 > pin updates.
 
 ## Expected Domain and Message Hashes
