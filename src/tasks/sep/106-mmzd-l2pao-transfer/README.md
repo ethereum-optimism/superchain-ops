@@ -1,6 +1,6 @@
 # 106-mmzd-l2pao-transfer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x75f08552c25869942dab85ea45e9eb97db56407d993eefeac728fd1b0f9d5230)
 
 ## Objective
 
