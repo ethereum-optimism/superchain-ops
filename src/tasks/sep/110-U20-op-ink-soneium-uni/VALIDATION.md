@@ -159,9 +159,8 @@ On each chain:
 - **OptimismPortalProxy**: ERC-1967 implementation `0xe89F13c5ee4033B2D3cD76C9d6958eFBfe26D3C2`
   (5.6.1) → `0x1005217ad392DC64CEf501FA1777A27D42166748` (5.8.0).
 - **AnchorStateRegistryProxy**: `anchorGame` cleared, `startingAnchorRoot` set to the chain's
-  super root and timestamp from [config.toml](./config.toml), `respectedGameType` 8 → 9 and
-  `retirementTimestamp` set to the execution timestamp, so games created before the upgrade no
-  longer update the anchor. Implementation unchanged.
+  super root and timestamp from [config.toml](./config.toml), `respectedGameType` 8 → 9.
+  `retirementTimestamp` and the implementation are unchanged.
 - **DisputeGameFactoryProxy**: `gameImpls`, `initBonds` and `gameArgs` for CANNON_KONA (8,
   impl `0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC`) and PERMISSIONED_CANNON (1, impl
   `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e`) cleared; `gameImpls[9]` =
