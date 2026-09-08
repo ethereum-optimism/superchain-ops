@@ -28,12 +28,17 @@ the AnchorStateRegistry to an honest super root via the
 The OPCM used is the op-contracts/v8.0.0-rc.3 deployment on Sepolia
 (`0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca`, version 8.0.1).
 
+Every SUPER_CANNON_KONA game is installed with the kona-client/v1.7.0-rc.2
+`cannon64-kona-interop` prestate
+(`0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df`, from the
+superchain-registry `validation/standard/standard-prestates.toml`).
+
 ## Sequencing and external dependencies
 
-1. This task stacks after the two pending mmzd tasks
-   (`105-mmzd-l1-ownership-transfers`, `106-mmzd-l2pao-transfer`); the nonce pins in
-   `config.toml` are the post-106 values (live + 2 on the L1PAO, Foundation Upgrade
-   Safe and Security Council).
+1. The two mmzd tasks (`105-mmzd-l1-ownership-transfers`, `106-mmzd-l2pao-transfer`)
+   have executed and no other pending Sepolia task signs from these safes, so the nonce
+   pins in `config.toml` are the live values of the L1PAO, Foundation Upgrade Safe and
+   Security Council.
 2. Unichain Sepolia's ProxyAdminOwner transfer to the standard L1PAO is executed by the
    current Unichain Safe (`0xd363339eE47775888Df411A163c586a8BdEA9dbf`) outside this
    repo. It shares no signers with the safes above (no nonce impact), but it MUST have
