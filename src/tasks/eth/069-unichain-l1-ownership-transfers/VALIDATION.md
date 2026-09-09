@@ -12,7 +12,7 @@ values on your ledger and the values printed to the terminal when you run the ta
 >
 > Before signing, ensure the below hashes match what is on your ledger. They assume the safe
 > nonces pinned in [config.toml](./config.toml) (3-of-3 `10`, Chain Governor `19`, FUS `68`,
-> SC `66` — FUS/SC account for tasks 067-068
+> SC `67` — FUS/SC account for tasks 067-068
 > ([#1521](https://github.com/ethereum-optimism/superchain-ops/pull/1521)), which sign first;
 > task 066 was cancelled).
 > Re-verify the live nonces before signing and re-simulate to regenerate these hashes if any
@@ -31,7 +31,7 @@ values on your ledger and the values printed to the terminal when you run the ta
 > ### Security Council Safe (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0xf3b9e1f953f3d8f772afeb40409becabf104485505327e62eb59d34ec50ec5b3`
+> - Message Hash: `0x5e7b347c7dc25fdfb5efbb3ad0745dccf142808f1462123f7e31eea4d3065211`
 
 
 ## Task Calldata
@@ -150,8 +150,8 @@ must match [Task State Changes](#task-state-changes) and the **Events** must sho
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...42` (66)
-  - **After:**  `0x...43` (67)
+  - **Before:** `0x...43` (67)
+  - **After:**  `0x...44` (68)
   - **Summary:** nonce increment of the approving child safe.
 
 ### L2 State Changes
