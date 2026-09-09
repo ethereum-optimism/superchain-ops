@@ -7,8 +7,8 @@ templateName = "OPCMUpgradeV800"
 # its AnchorStateRegistry to a super root. Executed by the standard Sepolia L1PAO.
 #
 # Sequencing: sep/105 and sep/106 have executed and no other pending Sepolia task signs from
-# these safes. Unichain Sepolia's ProxyAdminOwner transfer to the standard L1PAO is executed by
-# the Unichain Safe outside this repo and MUST land before this task executes.
+# these safes. Unichain Sepolia's ProxyAdminOwner transfer to the standard L1PAO was executed by
+# the Unichain Safe outside this repo and landed on-chain before 2026-09-09.
 
 l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420},
@@ -59,18 +59,18 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # Finalized L2 block 61995987, check-super-root against https://sepolia.unichain.org.
 startingAnchorRootRoot = "0x298c267f049adf933515b723dfb1141decc2e8b6d4025b2b185ae6357e173a9f"
 startingAnchorRootL2SequenceNumber = 1788848415
-# The registry pin still records the pre-transfer ProxyAdminOwner and a custom challenger;
-# PROXYA-10 / DF-30 / SCKDG-DWETH-30 are owner checks against that stale PAO. Re-capture once
-# the registry records the standard L1PAO for chain 1301.
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,PROXYA-10,DF-30,SCKDG-DWETH-30"
+# Unichain Sepolia uses a registry challenger override (informational). The PAO transfer has
+# landed on-chain, so the owner checks (OVERRIDES-L1PAOMULTISIG, PROXYA-10, DF-30,
+# SCKDG-DWETH-30) that fired before it pass now.
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
 [addresses]
 # op-contracts/v8.0.0-rc.3 OPCM, version 8.0.1 (superchain-registry standard-versions-sepolia.toml).
 OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"
-# Root-safe pin: Unichain Sepolia's on-chain ProxyAdminOwner is still the Unichain Safe until
-# its transfer lands; the pin resolves the same root safe for all four chains.
+# Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
+# (0xd363…9dbf); the pin resolves the same root safe for all four chains.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 # Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee in slot 0x6c,
@@ -89,12 +89,4 @@ ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 ]
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
-]
-# Unichain Sepolia post-transfer owners (slot 0 of ProxyAdmin, slot 0x33 of DisputeGameFactory)
-# stand in for the PAO transfer that has not landed yet.
-0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4 = [ # Unichain Sepolia L1 ProxyAdmin
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2"}
-]
-0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b = [ # Unichain Sepolia DisputeGameFactoryProxy
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2"}
 ]

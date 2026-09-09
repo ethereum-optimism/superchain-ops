@@ -33,11 +33,11 @@ Each chain's starting anchor is a single-chain super root at a finalized L2 bloc
 per chain in [config.toml](./config.toml)). The anchors are part of the signed calldata and are
 fixed once it is published.
 
-> [!IMPORTANT]
-> Unichain Sepolia's `ProxyAdmin` and `DisputeGameFactory` are still owned by the Unichain
-> Safe `0xd363339eE47775888Df411A163c586a8BdEA9dbf`. Their transfer to the standard L1PAO is
-> executed outside this repo and MUST land before this task executes. Simulation reproduces the
-> post-transfer state through state overrides in [config.toml](./config.toml).
+> [!NOTE]
+> Unichain Sepolia's `ProxyAdmin` and `DisputeGameFactory` were transferred from the Unichain
+> Safe `0xd363339eE47775888Df411A163c586a8BdEA9dbf` to the standard L1PAO outside this repo;
+> the transfer is on-chain. The registry pin still records the old owner, so
+> [config.toml](./config.toml) pins the root safe explicitly.
 
 ## Simulation & Signing
 
