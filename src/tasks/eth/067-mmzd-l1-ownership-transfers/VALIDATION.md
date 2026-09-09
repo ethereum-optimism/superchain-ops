@@ -21,7 +21,7 @@ task. The hashes assume the pinned nonces in [config.toml](./config.toml).
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x646d643022e4a34ea1acb70d441814f43835a6833c1ee56713fcd841cb2aa51c`
+> - Message Hash: `0xca2592b0b722f9b621a72604e6b511bfd9c3cebfa97f55e11ee2f13bd45e9de6`
 
 Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
 (identical on both signing paths):
@@ -159,7 +159,7 @@ Each of the eight ownership entries changes its owner slot from the L1PAO
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...40` (64) → **After:** `0x...41` (65)
+  - **Before:** `0x...41` (65) → **After:** `0x...42` (66)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xD4ef175B9e72cAEe9f1fe7660a6Ec19009903b49` (Zora ProxyAdmin)
