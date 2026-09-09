@@ -8,7 +8,7 @@ transaction which you are signing.
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
 pinned nonces in [config.toml](./config.toml) (L1PAO 42, FoundationUpgradeSafe 70,
-SecurityCouncil 68, i.e. after eth/067, 068, 069 and 070) and move only if one of those
+SecurityCouncil 69, i.e. after eth/067, 068, 069 and 070) and move only if one of those
 nonces moves.
 
 > [!CAUTION]
@@ -23,7 +23,7 @@ nonces moves.
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x30676e2475f04a44ffabd85bb5f9224dd260ec6fdc2b4a42b8f75435668297f7`
+> - Message Hash: `0xb7139a6abf2276c81d77819c96f4e8fc556159c34447ee842f24543522df76a3`
 
 Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
 (identical on both signing paths):
@@ -122,7 +122,7 @@ Before approving, confirm the live state matches the assumptions in
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-# Nonces must equal the pins (42 / 70 / 68) once eth/067-070 have executed; if not,
+# Nonces must equal the pins (42 / 70 / 69) once eth/067-070 have executed; if not,
 # re-simulate and regenerate the hashes.
 cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # L1PAO
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # FoundationUpgradeSafe
@@ -219,7 +219,7 @@ between v7.1.17 and v8.0.0-rc.3.
 ##### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...44` (68) → **After:** `0x...45` (69)
+  - **Before:** `0x...45` (69) → **After:** `0x...46` (70)
   - **Summary:** nonce increment of the approving child safe.
 
 ##### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard)

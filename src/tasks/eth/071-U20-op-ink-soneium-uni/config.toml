@@ -84,10 +84,10 @@ ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 [storageCodeExceptions]
 "0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
-# Safe nonces pinned to the values at authoring time (2026-09-08: L1PAO 40, FoundationUpgradeSafe
-# 66, SecurityCouncil 64) plus the pending stack (067, 068: +1 each on all three safes; 069, 070:
-# +1 each on FUS and SC). Re-verify with `cast call <safe> "nonce()(uint256)" -r mainnet` and
-# regenerate the VALIDATION.md hashes if drifted.
+# Safe nonces pinned to the live values on 2026-09-09 (L1PAO 40, FoundationUpgradeSafe 66,
+# SecurityCouncil 65 after its 2026-09-08 signer rotation) plus the pending stack (067, 068:
+# +1 each on all three safes; 069, 070: +1 each on FUS and SC). Re-verify with
+# `cast call <safe> "nonce()(uint256)" -r mainnet` and regenerate the VALIDATION.md hashes if drifted.
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
@@ -96,7 +96,7 @@ ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
 ]
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 68}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 69}
 ]
 # Unichain post-eth/069 owners (slot 0 of ProxyAdmin, slot 0x33 of DisputeGameFactory) stand in
 # for eth/069 on trees where it has not executed.
