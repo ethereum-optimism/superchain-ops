@@ -121,65 +121,94 @@ SIGNATURES=0x... just execute
 
 ### Task State Changes
 
-Tenderly lists the contracts below and nothing else.
-
-#### Per chain
-
-| Chain | SystemConfigProxy | OptimismPortalProxy | AnchorStateRegistryProxy | DisputeGameFactoryProxy |
-|---|---|---|---|---|
-| sepolia-devnet-2 | `0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937` | `0xCe313e6d194260417FF9Fee5C58f487D1da9fce0` | `0xfCf4eBC603707F67EA56E5328e998A0F810e241D` | `0x900bcac02aBeA47CF0A5D6c5d2cdaCF2E831318d` |
-| sepolia-devnet-3 | `0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF` | `0x49fd1562CB0290C535813BfDFb43949762Ae96B2` | `0x764138B0271971Eb1aF6b25806ABf226fe00Ff99` | `0xbDE04Dc0b4DbdA6A1A60B0Bf5F32262e129523Ea` |
-
-Addresses are the chains' entries in the superchain-registry
+Tenderly lists the contracts below and nothing else. One header per address, in the order the
+calls touch them: the SuperchainConfig (call 1), the four sepolia-devnet-2 proxies (call 2), the
+four sepolia-devnet-3 proxies (call 3), then the executing safe. Chain addresses are the
+registry entries in
 [addresses.json](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/extra/addresses/addresses.json).
-On each chain:
 
-- **SystemConfigProxy**: ERC-1967 implementation `0x42Ad0173051225Ac784100e9acD43349707F4db9`
-  (3.14.2) → `0x670b850A235A6fA98cD7a195eB139D0277E471fA` (4.0.0); the legacy batch inbox
-  slot is zeroed (4.0.0 removed it, derivation reads the inbox from the rollup config); the
-  recorded OPCM moves from the devnet v7 OPCM `0xe5dF58eAf094F1FdA718c62dF709b81c41f80491`
-  (7.1.17) to `0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca` (8.0.1).
-- **OptimismPortalProxy**: ERC-1967 implementation `0xe89F13c5ee4033B2D3cD76C9d6958eFBfe26D3C2`
-  (5.6.1) → `0x1005217ad392DC64CEf501FA1777A27D42166748` (5.8.0).
-- **AnchorStateRegistryProxy**: `anchorGame` cleared, `startingAnchorRoot` set to the chain's
-  super root and timestamp from [config.toml](./config.toml), `respectedGameType` 8 → 9 on
-  sepolia-devnet-2 and 1 → 5 on sepolia-devnet-3. `retirementTimestamp` and the
-  implementation are unchanged.
-- **DisputeGameFactoryProxy**, sepolia-devnet-2: `gameImpls`, `initBonds` and `gameArgs` for
-  CANNON_KONA (8, impl `0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC`) and PERMISSIONED_CANNON
-  (1, impl `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e`) cleared; `gameImpls[9]` =
-  `0x19AF533Cc2A2A55786DCB8672aA5717e64213208` (SuperFaultDisputeGame) with `initBonds[9]` =
-  0.08 ETH and `gameArgs[9]` = prestate, MIPS and the chain's DelayedWETH /
-  AnchorStateRegistry; `gameImpls[5]` = `0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`
-  (SuperPermissionedDisputeGame), bondless, `gameArgs[5]` = AnchorStateRegistry and
-  proposer. Implementation unchanged.
-- **DisputeGameFactoryProxy**, sepolia-devnet-3: `gameImpls`, `initBonds` and `gameArgs` for
-  PERMISSIONED_CANNON (1, impl `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e`) cleared;
-  `gameImpls[5]` = `0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, bondless, `gameArgs[5]` =
-  AnchorStateRegistry and proposer. No game type 9 entries (the chain had no CANNON_KONA
-  impl). Implementation unchanged.
-
-The L1CrossDomainMessenger, L1StandardBridge, L1ERC721Bridge, OptimismMintableERC20Factory,
-DelayedWETH and ETHLockbox proxies are untouched: their implementations did not change
-between v7.1.17 and v8.0.0-rc.3.
-
-#### Shared
-
-##### `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` (devnet SuperchainConfig)
+#### `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` (devnet SuperchainConfig)
 
 - ERC-1967 implementation `0xE4F9779ab53070a55db24dFAeFf9AF147c6ED550` (2.4.2) →
   `0x5570b1f2b97B1E35b5C6f9Ee76f6cf02c9917504` (2.4.3), written by `upgradeSuperchain`.
 
-##### `0xe934Dc97E347C6aCef74364B50125bb8689c40ff` (devnet ProxyAdminOwner, 1-of-1 safe)
+#### `0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937` (sepolia-devnet-2 SystemConfigProxy)
+
+- ERC-1967 implementation `0x42Ad0173051225Ac784100e9acD43349707F4db9` (3.14.2) →
+  `0x670b850A235A6fA98cD7a195eB139D0277E471fA` (4.0.0).
+- Legacy batch inbox slot zeroed (4.0.0 removed it, derivation reads the inbox from the rollup
+  config).
+- Recorded OPCM `0xe5dF58eAf094F1FdA718c62dF709b81c41f80491` (devnet v7 OPCM, 7.1.17) →
+  `0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca` (8.0.1).
+
+#### `0xCe313e6d194260417FF9Fee5C58f487D1da9fce0` (sepolia-devnet-2 OptimismPortalProxy)
+
+- ERC-1967 implementation `0xe89F13c5ee4033B2D3cD76C9d6958eFBfe26D3C2` (5.6.1) →
+  `0x1005217ad392DC64CEf501FA1777A27D42166748` (5.8.0).
+
+#### `0xfCf4eBC603707F67EA56E5328e998A0F810e241D` (sepolia-devnet-2 AnchorStateRegistryProxy)
+
+- `anchorGame` cleared.
+- `startingAnchorRoot` set to `0x690c8a1dd8d41a69d91eacb663a4ef39c7af14cc2b5b49137a5f27aacb251c1a`,
+  timestamp 1788848442 (the sepolia-devnet-2 values in [config.toml](./config.toml)).
+- `respectedGameType` 8 (CANNON_KONA) → 9 (SUPER_CANNON_KONA).
+- `retirementTimestamp` and the implementation are unchanged.
+
+#### `0x900bcac02aBeA47CF0A5D6c5d2cdaCF2E831318d` (sepolia-devnet-2 DisputeGameFactoryProxy)
+
+- `gameImpls`, `initBonds` and `gameArgs` cleared for CANNON_KONA (8, impl
+  `0x2DDA3584b51eF5236f7726Dea5A0FB6B3cA94AeC`) and PERMISSIONED_CANNON (1, impl
+  `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e`).
+- `gameImpls[9]` = `0x19AF533Cc2A2A55786DCB8672aA5717e64213208` (SuperFaultDisputeGame),
+  `initBonds[9]` = 0.08 ETH, `gameArgs[9]` = prestate, MIPS and the chain's DelayedWETH /
+  AnchorStateRegistry.
+- `gameImpls[5]` = `0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` (SuperPermissionedDisputeGame),
+  bondless, `gameArgs[5]` = AnchorStateRegistry and proposer.
+- Implementation unchanged.
+
+#### `0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF` (sepolia-devnet-3 SystemConfigProxy)
+
+- ERC-1967 implementation `0x42Ad0173051225Ac784100e9acD43349707F4db9` (3.14.2) →
+  `0x670b850A235A6fA98cD7a195eB139D0277E471fA` (4.0.0).
+- Legacy batch inbox slot zeroed (4.0.0 removed it, derivation reads the inbox from the rollup
+  config).
+- Recorded OPCM `0xe5dF58eAf094F1FdA718c62dF709b81c41f80491` (devnet v7 OPCM, 7.1.17) →
+  `0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca` (8.0.1).
+
+#### `0x49fd1562CB0290C535813BfDFb43949762Ae96B2` (sepolia-devnet-3 OptimismPortalProxy)
+
+- ERC-1967 implementation `0xe89F13c5ee4033B2D3cD76C9d6958eFBfe26D3C2` (5.6.1) →
+  `0x1005217ad392DC64CEf501FA1777A27D42166748` (5.8.0).
+
+#### `0x764138B0271971Eb1aF6b25806ABf226fe00Ff99` (sepolia-devnet-3 AnchorStateRegistryProxy)
+
+- `anchorGame` cleared.
+- `startingAnchorRoot` set to `0xc94d9815b82f2c0966ad3de2004abcb446359e79d9819a7eae5c8cf1bc22d1f8`,
+  timestamp 1788848898 (the sepolia-devnet-3 values in [config.toml](./config.toml)).
+- `respectedGameType` 1 (PERMISSIONED_CANNON) → 5 (SUPER_PERMISSIONED).
+- `retirementTimestamp` and the implementation are unchanged.
+
+#### `0xbDE04Dc0b4DbdA6A1A60B0Bf5F32262e129523Ea` (sepolia-devnet-3 DisputeGameFactoryProxy)
+
+- `gameImpls`, `initBonds` and `gameArgs` cleared for PERMISSIONED_CANNON (1, impl
+  `0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e`).
+- `gameImpls[5]` = `0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` (SuperPermissionedDisputeGame),
+  bondless, `gameArgs[5]` = AnchorStateRegistry and proposer.
+- No game type 9 entries (the chain had no CANNON_KONA impl).
+- Implementation unchanged.
+
+#### `0xe934Dc97E347C6aCef74364B50125bb8689c40ff` (devnet ProxyAdminOwner, 1-of-1 safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Before:** `0x...91` (145) → **After:** `0x...92` (146)
   - **Summary:** nonce increment of the safe executing the task. The before-value is the
     nonce state override in [config.toml](./config.toml).
 
-Tenderly also shows `Nonce N → N+1` (no storage key) on the safe owner used as the
-simulation's sender. That is its protocol account nonce, unrelated to the Safe's signing
-nonce.
+Not listed: the L1CrossDomainMessenger, L1StandardBridge, L1ERC721Bridge,
+OptimismMintableERC20Factory, DelayedWETH and ETHLockbox proxies of both chains are untouched,
+since their implementations did not change between v7.1.17 and v8.0.0-rc.3. Tenderly also
+shows `Nonce N → N+1` (no storage key) on the safe owner used as the simulation's sender. That
+is its protocol account nonce, unrelated to the Safe's signing nonce.
 
 ### Post-execution verification calls
 

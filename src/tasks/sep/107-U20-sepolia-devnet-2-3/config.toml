@@ -41,7 +41,7 @@ startingAnchorRootRoot = "0xc94d9815b82f2c0966ad3de2004abcb446359e79d9819a7eae5c
 startingAnchorRootL2SequenceNumber = 1788848898
 # SCKDG-SHAPE / SCKDG-10 report that no SUPER_CANNON_KONA game is registered: expected here.
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
-initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled (as in eth/071 Soneium)
+initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
 startingRespectedGameType = 5 # SUPER_PERMISSIONED
 
 [addresses]

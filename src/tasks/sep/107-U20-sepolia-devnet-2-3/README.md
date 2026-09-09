@@ -1,6 +1,6 @@
 # 107-U20-sepolia-devnet-2-3
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
