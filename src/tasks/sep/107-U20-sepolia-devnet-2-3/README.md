@@ -1,6 +1,6 @@
 # 107-U20-sepolia-devnet-2-3
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8e8ed3d668f06a1430db793eff681849c837597ae5aa6358009d57c0a2bc61b4)
 
 ## Objective
 
