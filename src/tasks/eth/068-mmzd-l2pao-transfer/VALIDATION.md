@@ -21,7 +21,7 @@ task. The hashes assume the pinned nonces in [config.toml](./config.toml).
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0xf621e8a79c6ca7dda9c6d19138e549035369c41d63e286a80863f629b08695b8`
+> - Message Hash: `0xdf6152719fe481c57a6f2c189e74c73db6108f13095363d470556be9f096dafe`
 
 Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash
 (identical on both signing paths):
@@ -181,7 +181,7 @@ cast call 0x4200000000000000000000000000000000000018 "owner()(address)" --rpc-ur
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...41` (65) → **After:** `0x...42` (66)
+  - **Before:** `0x...42` (66) → **After:** `0x...43` (67)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xF573A6DA7a5b5dE9fbADfC26cFFC595ad04Dc7D4` (Dust OptimismPortalProxy)
