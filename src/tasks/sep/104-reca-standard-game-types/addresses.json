@@ -1,0 +1,28 @@
+{
+  "_comment": "RECA Sepolia addresses from the op-deployer v0.7.1 deployment artifacts and verified against live L1 getters at the fork block. Fallback is required because chainId 82696765 is not yet in superchain-registry.",
+  "82696765": {
+    "ProxyAdmin": "0xF4bd6Ed7c1e8C1D30a8f6Da3Ac69d29128e195c0",
+    "ProxyAdminOwner": "0x1Eb2fFc903729a0F03966B917003800b145F56E2",
+    "SuperchainConfig": "0xC2Be75506d5724086DEB7245bd260Cc9753911Be",
+    "ProtocolVersions": "0x79ADD5713B383DAa0a138d3C4780C7A1804a8090",
+    "SystemConfigProxy": "0x8762c3cfa916a38745a0370d6a77d6d488937661",
+    "OptimismPortalProxy": "0x656e11326c0adde5aeb3c17eece0d3cef8521ccb",
+    "L1ERC721BridgeProxy": "0x388d7bf02523adec3c26887266399f8002157a99",
+    "OptimismMintableERC20FactoryProxy": "0xa1904beb78612090c43176e85bb0d72820791d21",
+    "L1StandardBridgeProxy": "0x414ddcc85563317e13d0644ec604e9cf52f738bc",
+    "L1CrossDomainMessengerProxy": "0xabc456d239f349139e371fb02d0594eebd4291ab",
+    "DisputeGameFactoryProxy": "0x7c8039c194985a0eac56d9739dad3cd287c3b30e",
+    "AnchorStateRegistryProxy": "0x0f9a999df3ec5866c9e91a66b6af3b8753729b39",
+    "PermissionedWETH": "0x12cc5e5ecfacb64aa427e6d707431e5d5a67ad79",
+    "PermissionlessWETH": "0x12cc5e5ecfacb64aa427e6d707431e5d5a67ad79",
+    "AddressManager": "0x1846bc3b916d9db935d751c7058aba039d55c737",
+    "MIPS": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+    "PreimageOracle": "0x1e1d73536a081ef2f355d29794547a9770aeb1e0",
+    "Challenger": "0xfd1D2e729aE8eEe2E146c033bf4400fE75284301",
+    "Proposer": "0x98ed3A53efB6d3F7D327b4F1F4b4E6107EE43D05",
+    "Guardian": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
+    "SystemConfigOwner": "0xeA9ecC2F4D32E075e961Afffd522bbf88BBA40a9",
+    "UnsafeBlockSigner": "0x76028019DAEa8115e0c8f18ae6402899bDae9369",
+    "BatchSubmitter": "0x76028019DAEa8115e0c8f18ae6402899bDae9369"
+  }
+}
