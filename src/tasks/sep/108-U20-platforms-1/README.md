@@ -2,10 +2,6 @@
 
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xaa837c9a7737917c52855cd9f0de899c1ab4d25c4d85eda8d4fca9f5422bc2c4)
 
-## Block + TX Hash
-Sepolia Block: `11683558`
-TX Hash      : `0xaa837c9a7737917c52855cd9f0de899c1ab4d25c4d85eda8d4fca9f5422bc2c4`
-
 ## Objective
 
 Executes Upgrade 20 (`op-contracts/v8.0.0-rc.3`) on the platforms-1 devnet from the shared devnet
