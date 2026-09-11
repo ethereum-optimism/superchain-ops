@@ -1,6 +1,6 @@
 # 108-U20-platforms-1
 
-Status: DRAFT
+Status: [READY TO SIGN]
 
 ## Objective
 
