@@ -1,0 +1,43 @@
+templateName = "OPCMUpgradeV800"
+fallbackAddressesJsonPath = "src/tasks/sep/108-U20-platforms-1/addresses.json"
+
+# Upgrade 20 (op-contracts/v8.0.0-rc.3) on the platforms-1 devnet: one OPCM.upgrade for the
+# single chain. platforms-1 rotates its respected game type from CANNON_KONA (8) to
+# SUPER_CANNON_KONA (9), clears the CANNON (0), PERMISSIONED_CANNON (1) and CANNON_KONA (8)
+# impls and re-anchors its AnchorStateRegistry to a super root. platforms-1 is not in the
+# superchain-registry, so its addresses come from addresses.json via fallbackAddressesJsonPath.
+# Executed by the shared devnet ProxyAdminOwner Safe (1-of-1).
+
+l2chains = [
+    {name = "platforms-1", chainId = 420130013}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 420130013
+# Custom kona-client/v1.7.0-rc.2 cannon64-kona-interop prestate: platforms-1 is not in the
+# superchain-registry, so it is not in that release's registry snapshot and the standard
+# prestate does not contain it. Built reproducibly with KONA_CUSTOM_CONFIGS_DIR holding
+# platforms-1's chainList.json + configs.json. Preimage must be uploaded to
+# gs://oplabs-network-data/proofs/kona/cannon/ before op-challenger can play a game.
+cannonKonaPrestate = "0x03fc24f31d8a439afbe11ed2de4bb155f4accfcb391da7bb4cb91ebbbb2ec48c"
+# Single-chain super root at finalized L2 block 6738774 (timestamp 1789068486), read from
+# platforms-1's op-supernode `superroot_atTimestamp` on 2026-09-10. Part of the signed calldata.
+startingAnchorRootRoot = "0x4ac027f8b231ab0f3b3e84b9aa292a51fb013c307d11a84f60bf2c88612af2fd"
+startingAnchorRootL2SequenceNumber = 1789068486
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
+initBond = 80000000000000000 # 0.08 ETH, matching sepolia-devnet-2 (107). platforms-1 previously ran CANNON_KONA at 1 wei.
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[addresses]
+# op-contracts/v8.0.0-rc.3 OPCM, version 8.0.1 (verified on-chain 2026-09-10).
+OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"
+
+# Safe nonce pinned to the value at authoring time (2026-09-10). Re-verify with
+# `cast call 0xe934Dc97E347C6aCef74364B50125bb8689c40ff "nonce()(uint256)" -r sepolia` and
+# regenerate the VALIDATION.md hash if drifted.
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [ # devnet ProxyAdminOwner
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 147}
+]
