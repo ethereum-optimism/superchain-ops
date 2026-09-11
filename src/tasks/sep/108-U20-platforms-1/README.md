@@ -1,6 +1,10 @@
 # 108-U20-platforms-1
 
-Status: [READY TO SIGN]
+Status: [EXECUTED]
+
+## Block + TX Hash
+Sepolia Block: `11683558`
+TX Hash      : `0xaa837c9a7737917c52855cd9f0de899c1ab4d25c4d85eda8d4fca9f5422bc2c4`
 
 ## Objective
 
