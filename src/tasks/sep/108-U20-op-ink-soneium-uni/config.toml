@@ -1,0 +1,92 @@
+templateName = "OPCMUpgradeV800"
+
+# Upgrade 20 (op-contracts/v8.0.0-rc.3): one OPCM.upgradeSuperchain, then one OPCM.upgrade per
+# chain below. Every chain rotates its respected game type from CANNON_KONA (8) to
+# SUPER_CANNON_KONA (9), clears the CANNON (0), PERMISSIONED_CANNON (1) and CANNON_KONA (8)
+# impls, installs SUPER_PERMISSIONED (5) as the bondless permissioned fallback and re-anchors
+# its AnchorStateRegistry to a super root. Executed by the standard Sepolia L1PAO.
+#
+# Sequencing: sep/105 and sep/106 have executed and no other pending Sepolia task signs from
+# these safes. Unichain Sepolia's ProxyAdminOwner transfer to the standard L1PAO was executed by
+# the Unichain Safe outside this repo and landed on-chain before 2026-09-09.
+
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Ink Sepolia", chainId = 763373},
+    {name = "Soneium Testnet Minato", chainId = 1946},
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 11155420
+# kona-client/v1.7.0-rc.2 cannon64-kona-interop (superchain-registry standard-prestates.toml).
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
+# Single-chain super root at finalized L2 block 48523226 (timestamp 1788848992),
+# check-super-root against https://sepolia.optimism.io on 2026-09-08. Part of the signed calldata.
+startingAnchorRootRoot = "0x8645ee6c25c47e2297f9aad7ad3f96deb23a0f36386a5a5dbebad51f5c3b0c70"
+startingAnchorRootL2SequenceNumber = 1788848992
+# Validator output at authoring time; assert-only, does not affect the calldata.
+expectedValidationErrors = ""
+initBond = 80000000000000000 # 0.08 ETH, same as the current CANNON_KONA bond
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+
+[[opcmUpgrades]]
+chainId = 763373
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
+# Finalized L2 block 59845048, check-super-root against https://rpc-gel-sepolia.inkonchain.com.
+startingAnchorRootRoot = "0xc2d853bc2a4da1e58018d75128bc07e23b899893b310bb99be1fc085b956830d"
+startingAnchorRootL2SequenceNumber = 1788848344
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[[opcmUpgrades]]
+chainId = 1946
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
+# Finalized L2 block 32826879, check-super-root against https://rpc.minato.soneium.org.
+startingAnchorRootRoot = "0x96ba40829c288b59d96178b9e6cfe7a76a43da1a541e7338f327289630e4cbe7"
+startingAnchorRootL2SequenceNumber = 1788848094
+# Soneium Minato uses a registry challenger override (informational).
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[[opcmUpgrades]]
+chainId = 1301
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
+# Finalized L2 block 61995987, check-super-root against https://sepolia.unichain.org.
+startingAnchorRootRoot = "0x298c267f049adf933515b723dfb1141decc2e8b6d4025b2b185ae6357e173a9f"
+startingAnchorRootL2SequenceNumber = 1788848415
+# Unichain Sepolia uses a registry challenger override (informational). The PAO transfer has
+# landed on-chain, so the owner checks (OVERRIDES-L1PAOMULTISIG, PROXYA-10, DF-30,
+# SCKDG-DWETH-30) that fired before it pass now.
+expectedValidationErrors = "OVERRIDES-CHALLENGER"
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[addresses]
+# op-contracts/v8.0.0-rc.3 OPCM, version 8.0.1 (superchain-registry standard-versions-sepolia.toml).
+OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"
+# Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
+# (0xd363…9dbf); the pin resolves the same root safe for all four chains.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee in slot 0x6c,
+# which the code-presence check would misread as an address. Same exception as sep/100-U19-unichain.
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+# Safe nonces pinned to the values at authoring time (2026-09-08). Re-verify with
+# `cast call <safe> "nonce()(uint256)" -r sepolia` and regenerate the VALIDATION.md hashes if drifted.
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 56}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 70}
+]
