@@ -21,7 +21,7 @@ chainId = 420130013
 # prestate does not contain it. Built reproducibly with KONA_CUSTOM_CONFIGS_DIR holding
 # platforms-1's chainList.json + configs.json. Preimage must be uploaded to
 # gs://oplabs-network-data/proofs/kona/cannon/ before op-challenger can play a game.
-cannonKonaPrestate = "0x03fc24f31d8a439afbe11ed2de4bb155f4accfcb391da7bb4cb91ebbbb2ec48c"
+cannonKonaPrestate = "0x030bec4509e7d0cf41cbd686cfeeca04f4cdb0c4048605a2f275e4f6edeaa73b"
 # Single-chain super root at finalized L2 block 6738774 (timestamp 1789068486), read from
 # platforms-1's op-supernode `superroot_atTimestamp` on 2026-09-10. Part of the signed calldata.
 startingAnchorRootRoot = "0x4ac027f8b231ab0f3b3e84b9aa292a51fb013c307d11a84f60bf2c88612af2fd"

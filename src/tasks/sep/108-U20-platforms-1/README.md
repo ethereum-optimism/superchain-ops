@@ -36,7 +36,7 @@ State before this task (read on-chain 2026-09-10):
 
 platforms-1 is not in the superchain-registry, so the task reads its addresses from
 [addresses.json](./addresses.json) via `fallbackAddressesJsonPath`. Every address there was
-taken from the chain's op-deployer state (`devnets-private@8907ea5`
+taken from the chain's op-deployer state (`devnets-private@8810e39`
 `stg/platforms-1/op-deployer/state.json` and `intent.toml`) and cross-checked on-chain against
 `SystemConfig`, `OptimismPortal2`, `DisputeGameFactory` and `ProxyAdmin` getters.
 
@@ -48,15 +48,15 @@ reproducible build at that same release with platforms-1's chain config baked in
 
 | Field | Value |
 |---|---|
-| Prestate | `0x03fc24f31d8a439afbe11ed2de4bb155f4accfcb391da7bb4cb91ebbbb2ec48c` |
+| Prestate | `0x030bec4509e7d0cf41cbd686cfeeca04f4cdb0c4048605a2f275e4f6edeaa73b` |
 | Variant | `kona-client-int` (`prestate-artifacts-cannon-interop`, cannon64-kona-interop) |
 | Source | `ethereum-optimism/optimism` tag `kona-client/v1.7.0-rc.2` = commit `64b043ea5bbca9bc6e57e0f1c8df0404b4cf5f68` |
-| Build | `cd rust && KONA_CUSTOM_CONFIGS_DIR=<configs> just build-kona-reproducible-prestate` |
+| Build | `KONA_CUSTOM_CONFIGS_DIR=<configs> just reproducible-prestate` (repo root) |
 
 The build embeds platforms-1's `chainList.json` + `configs.json` together with a single-chain
 dependency set, mirroring what the superchain registry generates for a chain that has no
 depset of its own. Both config files are committed at
-`devnets-private@8907ea5` `stg/platforms-1/platforms-1/`, and the resulting hash is recorded
+`devnets-private@8810e39` `stg/platforms-1/platforms-1/`, and the resulting hash is recorded
 in that devnet's `op-program/prestates.json`, so this prestate is reproducible from that
 commit. Regenerate it with:
 
@@ -68,7 +68,8 @@ netchef fault-proofs generate-prestates \
 ```
 
 which builds at the `kona-program` ref pinned in that devnet's `manifest.yaml`
-(`kona-client/v1.7.0-rc.2`) and requires infrastructure-services#1426.
+(`kona-client/v1.7.0-rc.2`). Requires infrastructure-services#1430 for the hardfork encoding;
+#1426 (merged) for the build path.
 
 **The preimage must be uploaded to `gs://oplabs-network-data/proofs/kona/cannon/` before execution**, or
 op-challenger and vm-runner cannot fetch it. `netchef fault-proofs generate-prestates` uploads
