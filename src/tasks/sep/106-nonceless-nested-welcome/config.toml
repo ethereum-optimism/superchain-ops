@@ -1,0 +1,13 @@
+templateName = "WelcomeToSuperchainOps"
+
+name = "NoncelessNested"
+
+allowOverwrite = ["SecurityCouncil"]
+
+# Nonceless (hash-once) nested task: the root safe is owned by another safe.
+hashOnceInput = "sep/nonceless-nested-welcome: first nested nonceless task"
+hashOnceModule = "0xF4678ab3b188c4bF2bBab965517Ec86D69Ac4788"
+
+[addresses]
+TargetContract = "0x5c6623738B2a3a54edF1d46B2A85f959fe6b1f6b"
+SecurityCouncil = "0xf6475613C0Fa02c43eA6e6e296D3e424c39AE49d" # Safe v1.5.0 owned by the 105 task's safe; UnorderedExecutionModule enabled on both.
