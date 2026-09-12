@@ -11,7 +11,7 @@ values on your ledger and the values printed to the terminal when you run the ta
 > [!CAUTION]
 >
 > Before signing, ensure the below hashes match what is on your ledger. They assume the safe
-> nonces pinned in [config.toml](./config.toml) (3-of-3 `10`, Chain Governor `19`, FUS `68`,
+> nonces pinned in [config.toml](./config.toml) (3-of-3 `10`, Chain Governor `20`, FUS `68`,
 > SC `67` — FUS/SC account for tasks 067-068
 > ([#1521](https://github.com/ethereum-optimism/superchain-ops/pull/1521)), which sign first;
 > task 066 was cancelled).
@@ -20,8 +20,15 @@ values on your ledger and the values printed to the terminal when you run the ta
 >
 > ### Unichain Chain Governor Safe (`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`)
 >
+> The Chain Governor has **already approved this task on-chain** at its nonce `19`, in
+> [`0xdc5de66b…4ecd1`](https://etherscan.io/tx/0xdc5de66b3683a3b09ed58adc26e66f2a91351ea42c7fec8edea8b98e7224ecd1)
+> (block 25956808), which is why its pin is now `20`. That approval set
+> `approvedHashes[chain-governor][0x853896d5…4390]` on the 3-of-3 (see
+> [Task State Changes](#task-state-changes)) and remains valid — the root safe transaction
+> hash is unchanged. The hashes below only apply if the Chain Governor signs again.
+>
 > - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
-> - Message Hash: `0x28e77c5d683769217491d0641e997b31da6e7af654ec5cd90c6f4fd4771f6197`
+> - Message Hash: `0x3cbf706c1d884418b1747e65b9d5f4fc0cf22f4591ad9f47517b2df845259c85`
 >
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
@@ -136,8 +143,8 @@ must match [Task State Changes](#task-state-changes) and the **Events** must sho
 #### `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Unichain Chain Governor Safe)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...13` (19)
-  - **After:**  `0x...14` (20)
+  - **Before:** `0x...14` (20)
+  - **After:**  `0x...15` (21)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)

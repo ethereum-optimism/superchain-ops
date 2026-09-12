@@ -11,15 +11,18 @@ values on your ledger and the values printed to the terminal when you run the ta
 > [!CAUTION]
 >
 > Before signing, ensure the below hashes match what is on your ledger. They assume the safe
-> nonces pinned in [config.toml](./config.toml) (3-of-3 `11`, Chain Governor `20`, FUS `69`,
+> nonces pinned in [config.toml](./config.toml) (3-of-3 `11`, Chain Governor `21`, FUS `69`,
 > SC `68` — each one ahead of task 069's pins, since 069 executes first; the pins apply whether
 > or not 069 has been signed yet). Re-verify the live nonces before signing and re-simulate to
 > regenerate these hashes if any has drifted.
 >
 > ### Unichain Chain Governor Safe (`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`)
 >
+> The Chain Governor pin is `21` rather than `20` because it has already spent nonce `19`
+> approving task 069 on-chain (see [069's VALIDATION](../069-unichain-l1-ownership-transfers/VALIDATION.md)).
+>
 > - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
-> - Message Hash: `0xe2d1b1a28173296b9bbd2fe2058fa55bf3202bfa7a74de07573b677a32e6e6ed`
+> - Message Hash: `0x3f3046779ff8be4fcb83c0e82311351d2cec5ae0d71877f9987629133748fdb6`
 >
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
@@ -162,8 +165,8 @@ one):
 #### `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Unichain Chain Governor Safe)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...14` (20)
-  - **After:**  `0x...15` (21)
+  - **Before:** `0x...15` (21)
+  - **After:**  `0x...16` (22)
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
