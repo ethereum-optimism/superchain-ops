@@ -1,0 +1,17 @@
+templateName = "TransferOwners"
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+# New owner: the standard OP-governed Sepolia L1PAO (2-of-2 of the Foundation
+# Upgrade Safe and the Security Council, same as OP Sepolia), per the
+# governance post linked in the README. Task 108 transfers the L2 ProxyAdmin.
+
+newOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[stateOverrides]
+
+0xd363339eE47775888Df411A163c586a8BdEA9dbf = [ # Unichain Sepolia Safe (current L1PAO)
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 45}
+]
