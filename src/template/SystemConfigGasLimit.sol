@@ -10,6 +10,9 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 interface ISystemConfig {
     function setGasLimit(uint64 _gasLimit) external;
     function gasLimit() external view returns (uint64);
+    function minimumGasLimit() external view returns (uint64);
+    function maximumGasLimit() external view returns (uint64);
+    function owner() external view returns (address);
 }
 
 /// @notice A template that sets ONLY the SystemConfig gas limit (no EIP-1559 params).
@@ -50,11 +53,16 @@ contract SystemConfigGasLimit is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
 
         // Read the gas limit from the cached TOML content.
-        uint64 gasLimit = uint64(vm.parseTomlUint(tomlContent, ".gasParams.gasLimit"));
+        uint256 configuredGasLimit = vm.parseTomlUint(tomlContent, ".gasParams.gasLimit");
+        uint64 gasLimit = _toUint64GasLimit(configuredGasLimit);
 
         // Set the configuration for each chain.
         for (uint256 i = 0; i < _chains.length; i++) {
-            cfg[_chains[i].chainId] = TaskInputs({gasLimit: gasLimit});
+            uint256 chainId = _chains[i].chainId;
+            ISystemConfig systemConfig = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
+            _requireRootSafe(rootSafe, systemConfig.owner());
+            _requireValidGasLimit(gasLimit, systemConfig.minimumGasLimit(), systemConfig.maximumGasLimit());
+            cfg[chainId] = TaskInputs({gasLimit: gasLimit});
         }
     }
 
@@ -80,4 +88,18 @@ contract SystemConfigGasLimit is L2TaskBase {
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+
+    function _requireValidGasLimit(uint64 gasLimit, uint64 minimum, uint64 maximum) internal pure {
+        require(gasLimit >= minimum, "SystemConfigGasLimit: gas limit below minimum");
+        require(gasLimit <= maximum, "SystemConfigGasLimit: gas limit above maximum");
+    }
+
+    function _toUint64GasLimit(uint256 gasLimit) internal pure returns (uint64) {
+        require(gasLimit <= type(uint64).max, "SystemConfigGasLimit: gas limit exceeds uint64");
+        return uint64(gasLimit);
+    }
+
+    function _requireRootSafe(address rootSafe, address owner) internal pure {
+        require(rootSafe == owner, "SystemConfigGasLimit: root safe is not SystemConfig owner");
+    }
 }
