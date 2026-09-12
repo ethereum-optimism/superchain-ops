@@ -9,7 +9,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {Vm} from "forge-std/Vm.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-import {MultisigTask} from "src/tasks/MultisigTask.sol";
+import {MultisigTask, AddressRegistry} from "src/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
@@ -18,6 +18,14 @@ import {HighGasMultisigTask} from "test/tasks/mock/HighGasMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
+
+    // Non-address bytes that the real Bedrock contracts pack next to the address in these slots, which
+    // `_packAddress` reproduces so extraction is tested against realistic junk. `0x0101` is OpenZeppelin
+    // `Initializable`'s `_initialized` (low byte) and `_initializing` (next byte); `0x01` is a one-byte
+    // spacer; `1 << 160` is the `_initialized` flag sitting just above an address held in the low 20 bytes.
+    uint256 internal constant INITIALIZABLE_FLAGS = 0x0101;
+    uint256 internal constant SPACER_BYTE = 0x01;
+    uint256 internal constant ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG = uint256(1) << 160;
 
     SuperchainAddressRegistry public addrRegistry;
     MultisigTask public task;
@@ -349,6 +357,152 @@ contract MultisigTaskUnitTest is Test {
         assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
+    function testPackedStorageAddressExtractionMatchesKnownSlots() public {
+        MockMultisigTask harness = _packedSlotHarness();
+
+        _assertPackedAddressExtraction(harness, "AnchorStateRegistryProxy", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "EthLockboxProxy", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(53)), 1);
+        _assertPackedAddressExtraction(harness, "OptimismPortalProxy", bytes32(uint256(63)), 0);
+        _assertPackedAddressExtraction(harness, "SuperchainConfig", bytes32(uint256(0)), 2);
+        _assertPackedAddressExtraction(harness, "SystemConfigProxy", bytes32(uint256(108)), 0);
+    }
+
+    function testPackedStorageAddressExtractionIgnoresFilteredSlots() public {
+        MockMultisigTask harness = _packedSlotHarness();
+
+        _assertNotPackedAddressSlot(harness, "OptimismPortalProxy", bytes32(uint256(52)));
+        _assertNotPackedAddressSlot(harness, "L1CrossDomainMessengerProxy", bytes32(uint256(0)));
+    }
+
+    function testPackedStorageAddressExtractionMatchesConfigAddressOverride() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerSentinelStorageAccount("SuperchainConfig");
+        address expected = address(uint160(0x1111111111111111111111111111111111111110));
+
+        (bool isPackedAddressSlot, address packedAddress) = harness.wrapperGetPackedStorageAddress(
+            address(storageAccount), bytes32(uint256(0)), uint256(_packAddress(expected, 2))
+        );
+
+        assertTrue(isPackedAddressSlot, "SuperchainConfig");
+        assertEq(packedAddress, expected, "SuperchainConfig");
+    }
+
+    function testPackedStorageAddressExtractionRevertsForOutOfBoundsOffset() public {
+        MockMultisigTask harness = _packedSlotHarness();
+
+        vm.expectRevert("MultisigTask: packed address offset out of bounds");
+        harness.wrapperExtractPackedAddress(0, 13);
+    }
+
+    function testCheckStateDiffValidatesPackedAddressAtNonZeroOffset() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(new MockTarget());
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(guardian, 2))
+        );
+    }
+
+    function testCheckStateDiffValidatesPackedAddressAtOffsetZero() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("SystemConfigProxy");
+        address superchainConfig = address(new MockTarget());
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(108)), _packAddress(superchainConfig, 0))
+        );
+    }
+
+    function testCheckStateDiffRevertsWhenPackedAddressHasNoCode() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(uint160(0x1111111111111111111111111111111111111111));
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+
+        bytes32 slot = bytes32(uint256(0));
+        bytes32 packedValue = _packAddress(guardian, 2);
+        string memory err = string.concat(
+            "Likely address in storage has no code\n",
+            "  account: ",
+            vm.toString(address(storageAccount)),
+            "\n  slot:    ",
+            vm.toString(slot),
+            "\n  value:   ",
+            vm.toString(bytes32(uint256(uint160(guardian))))
+        );
+        vm.expectRevert(bytes(err));
+        harness.wrapperCheckStateDiff(_singleStorageWrite(address(storageAccount), slot, packedValue));
+    }
+
+    function testCheckStateDiffAllowsPackedAddressCodeException() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(uint160(0x1111111111111111111111111111111111111111));
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = guardian;
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperSetCodeExceptions(codeExceptions);
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(guardian, 2))
+        );
+    }
+
+    function testCheckStateDiffRevertsWhenPackedAddressCodeExceptionHasCode() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("AnchorStateRegistryProxy");
+        address guardian = address(new MockTarget());
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = guardian;
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperSetCodeExceptions(codeExceptions);
+
+        bytes32 slot = bytes32(uint256(0));
+        string memory err = string.concat(
+            "Likely address in storage has unexpected code\n",
+            "  account: ",
+            vm.toString(address(storageAccount)),
+            "\n  slot:    ",
+            vm.toString(slot),
+            "\n  value:   ",
+            vm.toString(bytes32(uint256(uint160(guardian))))
+        );
+        vm.expectRevert(bytes(err));
+        harness.wrapperCheckStateDiff(_singleStorageWrite(address(storageAccount), slot, _packAddress(guardian, 2)));
+    }
+
+    function testCheckStateDiffDoesNotTreatUnregisteredNewContractAsKnownPackedSlot() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = new MockTarget();
+        address systemConfig = address(uint160(0x1111111111111111111111111111111111111111));
+
+        harness.wrapperAddAllowedStorageAccess(address(0x1234));
+        harness.wrapperCheckStateDiff(
+            _singleNewContractStorageWrite(address(storageAccount), bytes32(uint256(0)), _packAddress(systemConfig, 2))
+        );
+    }
+
+    /// @notice A registered contract that isn't one of the known packed-slot contracts must use the
+    /// full-word check, even when it writes slot 0. `type(uint256).max` proves which path was taken: on the
+    /// full-word path it exceeds `type(uint160).max`, so it isn't address-shaped and passes; if the slot were
+    /// wrongly treated as packed, the extracted low 160 bits would be `uint160.max` — address-shaped with no
+    /// code — and the check would revert. No revert therefore means the packed path was not taken.
+    function testCheckStateDiffDoesNotTreatOtherRegisteredSlotZeroWritesAsKnownPackedSlot() public {
+        MockMultisigTask harness = _packedSlotHarness();
+        MockTarget storageAccount = _registerStorageAccount("TargetContract");
+
+        harness.wrapperAddAllowedStorageAccess(address(storageAccount));
+        harness.wrapperCheckStateDiff(
+            _singleStorageWrite(address(storageAccount), bytes32(uint256(0)), bytes32(type(uint256).max))
+        );
+    }
+
     // Helper to create AccountAccess struct
     function createAccess(VmSafe.AccountAccessKind kind, address account, address accessor, uint64 depth)
         internal
@@ -370,6 +524,108 @@ contract MultisigTaskUnitTest is Test {
             storageAccesses: new VmSafe.StorageAccess[](0),
             depth: depth
         });
+    }
+
+    function _packedSlotHarness() internal returns (MockMultisigTask harness) {
+        harness = new MockMultisigTask();
+        harness.wrapperSetAddressRegistry(AddressRegistry.wrap(address(addrRegistry)));
+    }
+
+    function _assertPackedAddressExtraction(
+        MockMultisigTask harness,
+        string memory identifier,
+        bytes32 slot,
+        uint256 offset
+    ) internal {
+        MockTarget storageAccount = _registerStorageAccount(identifier);
+        address expected = address(uint160(0x1111111111111111111111111111111111111110));
+
+        (bool isPackedAddressSlot, address packedAddress) = harness.wrapperGetPackedStorageAddress(
+            address(storageAccount), slot, uint256(_packAddress(expected, offset))
+        );
+
+        assertTrue(isPackedAddressSlot, identifier);
+        assertEq(packedAddress, expected, identifier);
+    }
+
+    function _assertNotPackedAddressSlot(MockMultisigTask harness, string memory identifier, bytes32 slot) internal {
+        MockTarget storageAccount = _registerStorageAccount(identifier);
+        (bool isPackedAddressSlot, address packedAddress) =
+            harness.wrapperGetPackedStorageAddress(address(storageAccount), slot, uint256(_packAddress(address(1), 0)));
+
+        assertFalse(isPackedAddressSlot, identifier);
+        assertEq(packedAddress, address(0), identifier);
+    }
+
+    /// @notice Deploys a `MockTarget` and registers it under `identifier` on `chain`, so that
+    /// `_isRegistryAddress` resolves the mock when validating a packed storage slot.
+    function _registerStorageAccountOnChain(string memory identifier, SuperchainAddressRegistry.ChainInfo memory chain)
+        internal
+        returns (MockTarget storageAccount)
+    {
+        storageAccount = new MockTarget();
+        string[] memory allowOverwrite = new string[](1);
+        allowOverwrite[0] = identifier;
+        addrRegistry.saveAddress(identifier, chain, address(storageAccount), allowOverwrite);
+    }
+
+    /// @notice Registers the mock as a per-L2-chain address. This is the path `_isRegistryAddress` finds by
+    /// iterating `getChains()` and calling `getAddress(identifier, chainId)`.
+    function _registerStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
+        return _registerStorageAccountOnChain(identifier, addrRegistry.getChains()[0]);
+    }
+
+    /// @notice Registers the mock on the sentinel chain, i.e. the config `[addresses]` section. This is the
+    /// path `_isRegistryAddress` finds via `registry.get(identifier)`, which takes precedence over per-chain
+    /// discovery.
+    function _registerSentinelStorageAccount(string memory identifier) internal returns (MockTarget storageAccount) {
+        (uint256 chainId, string memory name) = addrRegistry.sentinelChain();
+        return _registerStorageAccountOnChain(
+            identifier, SuperchainAddressRegistry.ChainInfo({chainId: chainId, name: name})
+        );
+    }
+
+    /// @notice Builds an `AccountAccess[]` with a single storage write to `slot`, in the shape
+    /// `_checkStateDiff` consumes.
+    function _singleStorageWrite(address account, bytes32 slot, bytes32 newValue)
+        internal
+        pure
+        returns (VmSafe.AccountAccess[] memory accountAccesses)
+    {
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = VmSafe.StorageAccess({
+            account: account,
+            slot: slot,
+            isWrite: true,
+            previousValue: bytes32(0),
+            newValue: newValue,
+            reverted: false
+        });
+        accountAccesses = new VmSafe.AccountAccess[](1);
+        accountAccesses[0] = createAccess(VmSafe.AccountAccessKind.Call, account, address(0x1234), 0);
+        accountAccesses[0].storageAccesses = storageAccesses;
+    }
+
+    /// @notice Same as `_singleStorageWrite`, but marks the account as freshly deployed (a `Create` access
+    /// with code), so it exercises the new-contract allowance path in `_checkStateDiff`.
+    function _singleNewContractStorageWrite(address account, bytes32 slot, bytes32 newValue)
+        internal
+        pure
+        returns (VmSafe.AccountAccess[] memory accountAccesses)
+    {
+        accountAccesses = _singleStorageWrite(account, slot, newValue);
+        accountAccesses[0].kind = VmSafe.AccountAccessKind.Create;
+        accountAccesses[0].deployedCode = hex"01";
+    }
+
+    /// @notice Builds a packed slot value: `addr` placed `offset` bytes from the low end, with the remaining
+    /// bytes filled with realistic non-address junk (Initializable flags or a spacer byte). This mirrors how
+    /// the real Bedrock contracts pack these slots, so tests confirm extraction reads the address and ignores
+    /// the adjacent fields.
+    function _packAddress(address addr, uint256 offset) internal pure returns (bytes32) {
+        uint256 flags =
+            offset == 0 ? ADDRESS_FOLLOWED_BY_INITIALIZED_FLAG : offset == 1 ? SPACER_BYTE : INITIALIZABLE_FLAGS;
+        return bytes32((uint256(uint160(addr)) << (offset * 8)) | flags);
     }
 
     function createActions(
