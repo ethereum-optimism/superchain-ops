@@ -1,6 +1,6 @@
 # 069-unichain-l1-ownership-transfers
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xfca98b14ae7163d444cd17285c7f97e1fb76db00cd971bae847a8af5f8ecb77f)
 
 ## Objective
 

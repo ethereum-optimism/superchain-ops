@@ -1,6 +1,6 @@
 # 067-mmzd-l1-ownership-transfers
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xa5888be651d314fc0de435d6bef7f2c934c2c9f0328cb6af7b86210d966ac551)
 
 ## Objective
 
