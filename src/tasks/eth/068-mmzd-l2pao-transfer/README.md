@@ -1,6 +1,6 @@
 # 068-mmzd-l2pao-transfer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xf1609a0ce7f11e663dcbd2232b23471580ac344265e15ecd0ecab91549fbb71a)
 
 ## Objective
 
