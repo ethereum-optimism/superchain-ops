@@ -1,5 +1,5 @@
 templateName = "OPCMUpgradeV800"
-fallbackAddressesJsonPath = "src/tasks/sep/108-U20-platforms-1/addresses.json"
+fallbackAddressesJsonPath = "src/tasks/sep/109-U20-platforms-1/addresses.json"
 
 # Upgrade 20 (op-contracts/v8.0.0-rc.3) on the platforms-1 devnet: one OPCM.upgrade for the
 # single chain. platforms-1 rotates its respected game type from CANNON_KONA (8) to

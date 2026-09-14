@@ -1,4 +1,4 @@
-# 108-U20-platforms-1
+# 109-U20-platforms-1
 
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xaa837c9a7737917c52855cd9f0de899c1ab4d25c4d85eda8d4fca9f5422bc2c4)
 
@@ -94,7 +94,7 @@ the VALIDATION.md hashes if this task is re-dated.
 
 ```
 cd src
-just simulate-stack sep 108-U20-platforms-1
+just simulate-stack sep 109-U20-platforms-1
 
-USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 108-U20-platforms-1
+USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 109-U20-platforms-1
 ```

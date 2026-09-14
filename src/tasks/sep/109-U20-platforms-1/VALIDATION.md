@@ -28,7 +28,7 @@ Simulate the task and check the output against this file before signing.
 
 ```bash
 cd src
-just simulate-stack sep 108-U20-platforms-1
+just simulate-stack sep 109-U20-platforms-1
 ```
 
 Check:
@@ -87,7 +87,7 @@ Then execute with the collected signature (the safe is 1-of-1; `just execute` re
 without `SIGNATURES`):
 
 ```bash
-cd src/tasks/sep/108-U20-platforms-1
+cd src/tasks/sep/109-U20-platforms-1
 
 SIGNATURES=0x... just execute
 ```
