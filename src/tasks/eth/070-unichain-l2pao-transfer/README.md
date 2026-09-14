@@ -1,6 +1,6 @@
 # 070-unichain-l2pao-transfer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x53c072f1be2e42d2089aa76b6f769a378a3d12200a4d7b7c11606df2c7e0a8e2)
 
 ## Objective
 
