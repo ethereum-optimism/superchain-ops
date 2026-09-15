@@ -1,6 +1,6 @@
 # 108-U20-op-ink-soneium-uni
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
