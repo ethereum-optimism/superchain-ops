@@ -202,8 +202,12 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
                     assertNotEq(addrRegistry.getAddress("Challenger", chainId), address(0), "230");
                 }
                 assertNotEq(addrRegistry.getAddress("AnchorStateRegistryProxy", chainId), address(0), "240");
-                assertNotEq(addrRegistry.getAddress("MIPS", chainId), address(0), "250");
-                assertNotEq(addrRegistry.getAddress("PreimageOracle", chainId), address(0), "260");
+                // Only a game that runs a fault proof carries a VM. A chain left with just the
+                // simplified super permissioned game has no MIPS, and so no PreimageOracle either.
+                if (hasFaultGame || hasPermissionedGame || hasSuperFaultGame) {
+                    assertNotEq(addrRegistry.getAddress("MIPS", chainId), address(0), "250");
+                    assertNotEq(addrRegistry.getAddress("PreimageOracle", chainId), address(0), "260");
+                }
             } else {
                 assertNotEq(addrRegistry.getAddress("L2OutputOracleProxy", chainId), address(0), "270");
             }
@@ -415,6 +419,66 @@ contract SuperchainAddressRegistryTest_Sepolia is SuperchainAddressRegistryTest_
 /// @notice Minimal read-only view of `DisputeGameFactory.gameImpls`.
 interface IGameImplsView {
     function gameImpls(uint32 gameType) external view returns (address);
+}
+
+/// @notice A chain can end up with SUPER_PERMISSIONED (5) as its only game: Upgrade 20 leaves
+/// SUPER_CANNON_KONA (9) disabled on a chain that had no CANNON_KONA impl to carry over, which is
+/// the case for sepolia-devnet-3 after sep/107 and for Soneium once eth/071 executes. That game
+/// carries no VM, so discovery must skip `MIPS` and `PreimageOracle` instead of reverting with
+/// `SuperchainAddressRegistry: zero address for MIPS`.
+contract SuperchainAddressRegistryTest_SuperPermissionedOnly is Test {
+    string constant TESTING_DIRECTORY = "superchain-address-registry-super-permissioned-testing";
+
+    /// @notice sepolia-devnet-3. Its rotation to SUPER_PERMISSIONED executed in block 11_667_382.
+    uint256 constant CHAIN_ID = 420130018;
+    uint256 constant FORK_BLOCK_NUMBER = 11_700_000;
+
+    address constant DISPUTE_GAME_FACTORY = 0xbDE04Dc0b4DbdA6A1A60B0Bf5F32262e129523Ea;
+    address constant ANCHOR_STATE_REGISTRY = 0x764138B0271971Eb1aF6b25806ABf226fe00Ff99;
+    address constant PROPOSER = 0x7824594364cDd4ee178d19894685BbfC1E61604a;
+
+    SuperchainAddressRegistry private registry;
+
+    function setUp() public {
+        vm.createSelectFork("sepolia", FORK_BLOCK_NUMBER);
+        string memory tomlContent = 'l2chains = [{name = "sepolia-devnet-3", chainId = 420130018}]\n';
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "000");
+        registry = new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_superPermissionedOnlyChain_skipsVmEntries() public {
+        IGameImplsView factory = IGameImplsView(registry.getAddress("DisputeGameFactoryProxy", CHAIN_ID));
+        assertEq(address(factory), DISPUTE_GAME_FACTORY, "10");
+
+        // The chain has no fault game of any kind, legacy or super.
+        assertEq(factory.gameImpls(0), address(0), "20");
+        assertEq(factory.gameImpls(1), address(0), "30");
+        assertEq(factory.gameImpls(9), address(0), "40");
+
+        assertEq(registry.getAddress("SuperPermissionedDisputeGame", CHAIN_ID), factory.gameImpls(5), "50");
+        // Both shared roles the simplified game does carry still resolve, from its 40-byte gameArgs.
+        assertEq(registry.getAddress("AnchorStateRegistryProxy", CHAIN_ID), ANCHOR_STATE_REGISTRY, "60");
+        assertEq(registry.getAddress("Proposer", CHAIN_ID), PROPOSER, "70");
+
+        // No game carries a VM, so neither the VM nor its oracle is registered.
+        vm.expectRevert(bytes(_notFound("MIPS")));
+        registry.getAddress("MIPS", CHAIN_ID);
+        vm.expectRevert(bytes(_notFound("PreimageOracle")));
+        registry.getAddress("PreimageOracle", CHAIN_ID);
+
+        // Nor are the entries that only the legacy permissioned game provides.
+        vm.expectRevert(bytes(_notFound("PermissionedDisputeGame")));
+        registry.getAddress("PermissionedDisputeGame", CHAIN_ID);
+        vm.expectRevert(bytes(_notFound("Challenger")));
+        registry.getAddress("Challenger", CHAIN_ID);
+    }
+
+    function _notFound(string memory identifier) private view returns (string memory) {
+        return string.concat(
+            "SuperchainAddressRegistry: address not found for ", identifier, " on chain ", vm.toString(CHAIN_ID)
+        );
+    }
 }
 
 // We test the addresses key-value store by extending the SimpleAddressRegistryTest.

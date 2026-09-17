@@ -411,9 +411,15 @@ contract SuperchainAddressRegistry is StdChains {
             : _firstNonZero(superArgs.asr, superPermissionedArgs.asr);
         saveAddress("AnchorStateRegistryProxy", chain, asr);
 
+        // The VM, and therefore its PreimageOracle, only exists on a game that runs a fault proof.
+        // The simplified super permissioned game does not, so a chain left with only that game
+        // (sepolia-devnet-3 today, Soneium once eth/071 executes) registers neither entry rather
+        // than reverting on a zero VM.
         address mips = hasPdg ? _addrOr(args1.vm_, pdg, IFetcher.vm.selector) : superArgs.vm_;
-        saveAddress("MIPS", chain, mips);
-        saveAddress("PreimageOracle", chain, IFetcher(mips).oracle());
+        if (mips != address(0)) {
+            saveAddress("MIPS", chain, mips);
+            saveAddress("PreimageOracle", chain, IFetcher(mips).oracle());
+        }
 
         address proposer =
             hasPdg ? _addrOr(args1.proposer, pdg, IFetcher.proposer.selector) : superPermissionedArgs.proposer;
