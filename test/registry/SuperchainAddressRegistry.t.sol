@@ -11,7 +11,7 @@ import {MultisigTaskTestHelper} from "../tasks/MultisigTask.t.sol";
 abstract contract SuperchainAddressRegistryTest_Base is Test {
     using LibString for string;
 
-    SuperchainAddressRegistry private addrRegistry;
+    SuperchainAddressRegistry internal addrRegistry;
 
     uint256 public metalChainId;
     uint256 public opChainId;
@@ -192,7 +192,12 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
                 assertNotEq(disputeGameFactoryProxy, address(0), "210");
                 bool hasFaultGame = getOptionalAddress("FaultDisputeGame", chainId) != address(0);
                 bool hasPermissionedGame = getOptionalAddress("PermissionedDisputeGame", chainId) != address(0);
-                assertTrue(hasFaultGame || hasPermissionedGame, "220");
+                // Upgrade 20 (op-contracts/v8.0.0) clears the legacy game implementations and
+                // installs the super-root games in their place.
+                bool hasSuperFaultGame = getOptionalAddress("SuperFaultDisputeGame", chainId) != address(0);
+                bool hasSuperPermissionedGame =
+                    getOptionalAddress("SuperPermissionedDisputeGame", chainId) != address(0);
+                assertTrue(hasFaultGame || hasPermissionedGame || hasSuperFaultGame || hasSuperPermissionedGame, "220");
                 if (hasPermissionedGame) {
                     assertNotEq(addrRegistry.getAddress("Challenger", chainId), address(0), "230");
                 }
@@ -380,6 +385,36 @@ contract SuperchainAddressRegistryTest_Sepolia is SuperchainAddressRegistryTest_
         configFilePath_ = "test/tasks/mock/configs/DiscoverChainAddressesTestnetConfig.toml";
         chainName_ = "sepolia";
     }
+
+    /// @notice Upgrade 20 (op-contracts/v8.0.0) cleared OP Sepolia's CANNON (0) and
+    /// PERMISSIONED_CANNON (1) implementations and installed SUPER_CANNON_KONA (9) plus
+    /// SUPER_PERMISSIONED (5). Discovery must resolve the dispute game entries through the super
+    /// games instead of reverting on the cleared permissioned game.
+    function test_superRootGamesDiscovered_opSepolia() public view {
+        IGameImplsView factory = IGameImplsView(addrRegistry.getAddress("DisputeGameFactoryProxy", opChainId));
+
+        assertEq(addrRegistry.getAddress("SuperFaultDisputeGame", opChainId), factory.gameImpls(9), "10");
+        assertEq(addrRegistry.getAddress("SuperPermissionedDisputeGame", opChainId), factory.gameImpls(5), "20");
+        assertEq(getOptionalAddress("FaultDisputeGame", opChainId), address(0), "30");
+        assertEq(getOptionalAddress("PermissionedDisputeGame", opChainId), address(0), "40");
+
+        // The simplified super permissioned game carries only an AnchorStateRegistry and a
+        // proposer, so there is no challenger or permissioned WETH to discover.
+        assertEq(getOptionalAddress("Challenger", opChainId), address(0), "50");
+        assertEq(getOptionalAddress("PermissionedWETH", opChainId), address(0), "60");
+
+        // The shared roles still resolve, now via the super games.
+        assertNotEq(addrRegistry.getAddress("AnchorStateRegistryProxy", opChainId), address(0), "70");
+        assertNotEq(addrRegistry.getAddress("MIPS", opChainId), address(0), "80");
+        assertNotEq(addrRegistry.getAddress("PreimageOracle", opChainId), address(0), "90");
+        assertNotEq(addrRegistry.getAddress("PermissionlessWETH", opChainId), address(0), "100");
+        assertNotEq(addrRegistry.getAddress("Proposer", opChainId), address(0), "110");
+    }
+}
+
+/// @notice Minimal read-only view of `DisputeGameFactory.gameImpls`.
+interface IGameImplsView {
+    function gameImpls(uint32 gameType) external view returns (address);
 }
 
 // We test the addresses key-value store by extending the SimpleAddressRegistryTest.

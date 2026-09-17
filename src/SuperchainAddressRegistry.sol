@@ -84,6 +84,11 @@ contract SuperchainAddressRegistry is StdChains {
     string public constant SUPERCHAIN_REGISTRY_ADDRESSES_PATH =
         "lib/superchain-registry/superchain/extra/addresses/addresses.json";
 
+    /// @notice The super-root game types installed by Upgrade 20 (op-contracts/v8.0.0). They are
+    /// declared here because the pinned `GameTypes` library predates them.
+    GameType internal constant SUPER_PERMISSIONED = GameType.wrap(5);
+    GameType internal constant SUPER_CANNON_KONA = GameType.wrap(9);
+
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
     /// @param configPath the path to the TOML file containing the network configuration(s)
@@ -359,31 +364,60 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @dev Saves all dispute game related registry entries.
-    /// @dev Supports both pre-v6.0.0 (values on dispute game) and v6.0.0+ (values in gameArgs).
+    /// @dev Supports pre-v6.0.0 (values on dispute game), v6.0.0+ (values in gameArgs) and the
+    /// v8.0.0 super-root games. Upgrade 20 clears the CANNON, PERMISSIONED_CANNON and CANNON_KONA
+    /// impls and installs SUPER_CANNON_KONA (permissionless) plus SUPER_PERMISSIONED (the
+    /// simplified, bondless permissioned game), so on an upgraded chain the shared roles are only
+    /// reachable through the super games.
     function _saveDisputeGameEntries(ChainInfo memory chain, address factory) internal {
         saveAddress("DisputeGameFactoryProxy", chain, factory);
 
         address fdg = getFaultDisputeGame(factory);
         address pdg = getPermissionedDisputeGame(factory);
+        address superFdg = getGameImpl(factory, SUPER_CANNON_KONA);
+        address superPdg = getGameImpl(factory, SUPER_PERMISSIONED);
 
         // Decode gameArgs once per game type (empty struct if pre-v6.0.0)
-        DecodedGameArgs memory args0 = _tryDecodeGameArgs(factory, GameType.wrap(0));
-        DecodedGameArgs memory args1 = _tryDecodeGameArgs(factory, GameType.wrap(1));
+        DecodedGameArgs memory args0 = _tryDecodeGameArgs(factory, GameTypes.CANNON);
+        DecodedGameArgs memory args1 = _tryDecodeGameArgs(factory, GameTypes.PERMISSIONED_CANNON);
+        DecodedGameArgs memory superArgs = _tryDecodeGameArgs(factory, SUPER_CANNON_KONA);
+        // The super permissioned game carries only an AnchorStateRegistry and a proposer: it has no
+        // challenger, WETH or VM, so a chain that only has that game registers neither
+        // `Challenger` nor `PermissionedWETH`.
+        SuperPermissionedGameArgs memory superPermissionedArgs =
+            _tryDecodeSuperPermissionedGameArgs(factory, SUPER_PERMISSIONED);
 
         if (fdg != address(0)) {
             saveAddress("FaultDisputeGame", chain, fdg);
             saveAddress("PermissionlessWETH", chain, _addrOr(args0.weth, fdg, IFetcher.weth.selector));
+        } else if (superFdg != address(0)) {
+            saveAddress("SuperFaultDisputeGame", chain, superFdg);
+            saveAddress("PermissionlessWETH", chain, superArgs.weth);
         }
 
-        saveAddress("PermissionedDisputeGame", chain, pdg);
-        saveAddress("Challenger", chain, _addrOr(args1.challenger, pdg, IFetcher.challenger.selector));
-        saveAddress("AnchorStateRegistryProxy", chain, _addrOr(args1.asr, pdg, IFetcher.anchorStateRegistry.selector));
-        saveAddress("PermissionedWETH", chain, _addrOr(args1.weth, pdg, IFetcher.weth.selector));
+        if (pdg != address(0)) {
+            saveAddress("PermissionedDisputeGame", chain, pdg);
+            saveAddress("Challenger", chain, _addrOr(args1.challenger, pdg, IFetcher.challenger.selector));
+            saveAddress("PermissionedWETH", chain, _addrOr(args1.weth, pdg, IFetcher.weth.selector));
+        } else if (superPdg != address(0)) {
+            saveAddress("SuperPermissionedDisputeGame", chain, superPdg);
+        }
 
-        address mips = _addrOr(args1.vm_, pdg, IFetcher.vm.selector);
+        // The AnchorStateRegistry, VM and proposer are shared roles. Read them from the
+        // permissioned game as before, and fall back to the super games once it is cleared.
+        bool hasPdg = pdg != address(0);
+        address asr = hasPdg
+            ? _addrOr(args1.asr, pdg, IFetcher.anchorStateRegistry.selector)
+            : _firstNonZero(superArgs.asr, superPermissionedArgs.asr);
+        saveAddress("AnchorStateRegistryProxy", chain, asr);
+
+        address mips = hasPdg ? _addrOr(args1.vm_, pdg, IFetcher.vm.selector) : superArgs.vm_;
         saveAddress("MIPS", chain, mips);
         saveAddress("PreimageOracle", chain, IFetcher(mips).oracle());
-        saveAddress("Proposer", chain, _addrOr(args1.proposer, pdg, IFetcher.proposer.selector));
+
+        address proposer =
+            hasPdg ? _addrOr(args1.proposer, pdg, IFetcher.proposer.selector) : superPermissionedArgs.proposer;
+        saveAddress("Proposer", chain, proposer);
     }
 
     /// @notice Saves all addresses for a given chain from the addresses.json file. This does not perform any onchain discovery.
@@ -481,18 +515,18 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     function getFaultDisputeGame(address disputeGameFactoryProxy) internal view returns (address) {
-        try IFetcher(disputeGameFactoryProxy).gameImpls(GameTypes.CANNON) returns (address faultDisputeGame) {
-            return faultDisputeGame;
-        } catch {
-            return address(0);
-        }
+        return getGameImpl(disputeGameFactoryProxy, GameTypes.CANNON);
     }
 
     function getPermissionedDisputeGame(address disputeGameFactoryProxy) internal view returns (address) {
-        try IFetcher(disputeGameFactoryProxy).gameImpls(GameTypes.PERMISSIONED_CANNON) returns (
-            address permissionedDisputeGame
-        ) {
-            return permissionedDisputeGame;
+        return getGameImpl(disputeGameFactoryProxy, GameTypes.PERMISSIONED_CANNON);
+    }
+
+    /// @notice Returns the implementation registered for `gameType`, or address(0) if the factory
+    /// has no implementation for it (or predates `gameImpls`).
+    function getGameImpl(address disputeGameFactoryProxy, GameType gameType) internal view returns (address) {
+        try IFetcher(disputeGameFactoryProxy).gameImpls(gameType) returns (address gameImpl) {
+            return gameImpl;
         } catch {
             return address(0);
         }
@@ -531,11 +565,42 @@ contract SuperchainAddressRegistry is StdChains {
         } catch {}
     }
 
+    /// @notice Decoded game arguments of the simplified super permissioned game.
+    /// @dev The SUPER_PERMISSIONED game is bondless and proposer-only, so its gameArgs hold just
+    ///      two values: asr (20) | proposer (20).
+    struct SuperPermissionedGameArgs {
+        address asr;
+        address proposer;
+    }
+
+    /// @notice Tries to fetch and decode the simplified super permissioned gameArgs from the
+    /// factory. Returns an empty struct if unavailable.
+    function _tryDecodeSuperPermissionedGameArgs(address factory, GameType gameType)
+        internal
+        view
+        returns (SuperPermissionedGameArgs memory d)
+    {
+        try IFetcher(factory).gameArgs(gameType) returns (bytes memory args) {
+            if (args.length == 40) {
+                assembly {
+                    let p := add(args, 32) // skip length prefix
+                    mstore(add(d, 0x00), shr(96, mload(p))) // asr at offset 0
+                    mstore(add(d, 0x20), shr(96, mload(add(p, 20)))) // proposer at offset 20
+                }
+            }
+        } catch {}
+    }
+
     /// @notice Returns `primary` if non-zero, otherwise calls `selector` on `fallback_`.
     function _addrOr(address primary, address fallback_, bytes4 selector) internal view returns (address) {
         if (primary != address(0)) return primary;
         (bool ok, bytes memory data) = fallback_.staticcall(abi.encodeWithSelector(selector));
         return (ok && data.length == 32) ? abi.decode(data, (address)) : address(0);
+    }
+
+    /// @notice Returns `primary` if non-zero, otherwise `fallback_`.
+    function _firstNonZero(address primary, address fallback_) internal pure returns (address) {
+        return primary != address(0) ? primary : fallback_;
     }
 
     function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {
