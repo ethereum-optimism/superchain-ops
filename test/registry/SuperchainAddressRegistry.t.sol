@@ -474,7 +474,7 @@ contract SuperchainAddressRegistryTest_SuperPermissionedOnly is Test {
         registry.getAddress("Challenger", CHAIN_ID);
     }
 
-    function _notFound(string memory identifier) private view returns (string memory) {
+    function _notFound(string memory identifier) private pure returns (string memory) {
         return string.concat(
             "SuperchainAddressRegistry: address not found for ", identifier, " on chain ", vm.toString(CHAIN_ID)
         );
