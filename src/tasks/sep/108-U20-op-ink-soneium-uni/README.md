@@ -1,6 +1,6 @@
 # 108-U20-op-ink-soneium-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x788dfac2ac1b025b31a95b72336e7435fd192a352af8aec302a7d3907a603c4a)
 
 ## Objective
 
