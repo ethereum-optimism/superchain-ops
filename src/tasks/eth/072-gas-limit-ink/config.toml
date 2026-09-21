@@ -1,0 +1,27 @@
+templateName = "SystemConfigGasLimit"
+
+# Sets the Ink Mainnet SystemConfig gas limit from 60,000,000 back to 30,000,000 (the genesis value
+# in superchain-registry superchain/configs/mainnet/ink.toml) with one SystemConfig.setGasLimit call.
+# Single-safe task executed by the SystemConfig owner, the Foundation Upgrade Safe (owner since
+# eth/065). Sequenced after eth/071-U20-op-ink-soneium-uni, which consumes one FUS nonce as an
+# L1PAO child.
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+# Root safe resolved per chain from SystemConfig.owner(): the Foundation Upgrade Safe.
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+# Target value. Live value at authoring time (2026-09-21): 60000000.
+gasLimit = 30000000
+
+# Safe nonce pinned to the live value at authoring time (2026-09-21, FoundationUpgradeSafe 70) plus
+# one for the pending eth/071. Re-verify with
+# `cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r mainnet` and
+# regenerate the VALIDATION.md hashes if drifted.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 71}
+]
