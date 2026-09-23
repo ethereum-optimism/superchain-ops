@@ -1,0 +1,15 @@
+templateName = "SystemConfigGasLimit"
+
+l2chains = [
+    {name = "Ink", chainId = 57073}
+]
+
+safeAddressString = "SystemConfigOwner"
+
+[gasParams]
+gasLimit = 30000000
+
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe nonce
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 72}
+]
