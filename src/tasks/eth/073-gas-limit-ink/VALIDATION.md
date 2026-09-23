@@ -37,11 +37,13 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the top of this
    file.
-2. In the Tenderly link printed by the simulation: paste the
-   [task calldata](#task-calldata) into the **Raw input data** field and simulate; the
+2. In the Tenderly link printed by the simulation: paste the **execution calldata printed
+   beneath the link** (it starts with `0x6a761202`, `Safe.execTransaction`, and wraps the
+   [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
    contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
-   and nothing else.
-3. The decoded input is a single `setGasLimit` call on
+   and nothing else. The draft targets the Foundation Upgrade Safe, so the inner task calldata
+   (`0x174dea71`) on its own reverts there.
+3. The call trace shows a single `setGasLimit` call on
    `0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364` with `_gasLimit = 30000000`, and the Tenderly
    **Events** tab shows exactly one `ConfigUpdate` with `updateType = 2` (`GAS_LIMIT`).
 
@@ -52,6 +54,10 @@ calldata and its breakdown, the pre-execution checks and execution commands, the
 state changes and the post-execution checks. Signers only need the two sections above.
 
 ### Task Calldata
+
+The inner `aggregate3Value` payload, for decoding and verification. It is what the Safe
+delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
+`execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
 
 ```
 0x174dea7100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000062c0a111929fa32cec2f76adba54c16afb6e83640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c0000000000000000000000000000000000000000000000000000000001c9c38000000000000000000000000000000000000000000000000000000000
