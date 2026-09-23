@@ -7,8 +7,8 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
-pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe 71, i.e. after eth/071)
-and move only if that nonce moves.
+pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe 72, i.e. after eth/071 and
+eth/072) and move only if that nonce moves.
 
 > [!CAUTION]
 >
@@ -17,21 +17,21 @@ and move only if that nonce moves.
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x0841944189d38586943006e985be16725267ebdfc530b1aa9afab182c3cae03c`
+> - Message Hash: `0xfd63b36ee23c93a36ad8f5251ef45d08b6aa1589dbae41f6264c3f54400436d1`
 
-Safe transaction hash: `0x22594ec7d1bcad4a6b00ff79e75bf5e6ed7d66e08d7b2b9eaea959c4b4fb448d`
+Safe transaction hash: `0xda0887b52b1506e84ce94310c61e6394f6e90b8336cf4c3706fa1811326ac737`
 
 ## For Signers
 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/072-gas-limit-ink
-just simulate-stack eth 072-gas-limit-ink
+cd src/tasks/eth/073-gas-limit-ink
+just simulate-stack eth 073-gas-limit-ink
 ```
 
-While eth/071 is pending, the stacked simulation executes it first; the hashes and Tenderly
-link for this task are the last ones printed.
+While eth/071 and eth/072 are pending, the stacked simulation executes them first; the hashes
+and Tenderly link for this task are the last ones printed.
 
 Check:
 
@@ -90,7 +90,7 @@ Before executing, confirm the live state matches the assumptions in
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-# Nonce must equal the pin (71) once eth/071 has executed; if not, re-simulate and
+# Nonce must equal the pin (72) once eth/071 and eth/072 have executed; if not, re-simulate and
 # regenerate the hashes.
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC
 
@@ -103,7 +103,7 @@ cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "gasLimit()(uint64)" -r $RP
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/072-gas-limit-ink
+cd src/tasks/eth/073-gas-limit-ink
 
 SIGNATURES=0x... just execute
 ```
@@ -124,7 +124,7 @@ Two contracts change.
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `0x...47` (71) → **After:** `0x...48` (72)
+  - **Before:** `0x...48` (72) → **After:** `0x...49` (73)
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects
     the nonce state override in [config.toml](./config.toml).
 
@@ -138,7 +138,7 @@ RPC=https://ethereum-rpc.publicnode.com
 SC=0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364
 
 cast call $SC "gasLimit()(uint64)" -r $RPC                                            # 30000000
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 72
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 73
 
 # Unchanged
 cast call $SC "owner()(address)" -r $RPC                 # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92

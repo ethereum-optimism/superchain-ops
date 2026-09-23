@@ -1,4 +1,4 @@
-# 072-gas-limit-ink
+# 073-gas-limit-ink
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -21,20 +21,21 @@ once the L1 block containing it becomes an L1 origin. No other `SystemConfig` pa
 (fee scalars, EIP-1559 denominator and elasticity) changes.
 
 > [!IMPORTANT]
-> This task is sequenced after `071-U20-op-ink-soneium-uni`, which consumes one Foundation
-> Upgrade Safe nonce as an L1PAO child; the nonce pin in [config.toml](./config.toml) assumes
-> it has executed.
+> This task is sequenced after `071-U20-op-ink-soneium-uni` and
+> `072-soneium-fee-vault-recipient-update`, each of which consumes one Foundation Upgrade Safe
+> nonce as an L1PAO child; the nonce pin in [config.toml](./config.toml) assumes both have
+> executed.
 
 ## Simulation & Signing
 
 This is a **single-safe** task executed directly by the Foundation Upgrade Safe.
 
 ```bash
-cd src/tasks/eth/072-gas-limit-ink
+cd src/tasks/eth/073-gas-limit-ink
 
-just simulate-stack eth 072-gas-limit-ink
+just simulate-stack eth 073-gas-limit-ink
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 072-gas-limit-ink
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 073-gas-limit-ink
 ```
 
 ## Execution
@@ -44,7 +45,7 @@ pre-execution checks in [VALIDATION.md](./VALIDATION.md) first. `just execute` r
 without `SIGNATURES`.
 
 ```bash
-cd src/tasks/eth/072-gas-limit-ink
+cd src/tasks/eth/073-gas-limit-ink
 
 SIGNATURES=0x... just execute
 ```
