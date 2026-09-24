@@ -1,6 +1,6 @@
 # 071-U20-op-ink-soneium-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x0a0fe86f7b1a3d3d2d0be990e3f8b15628b885363ae527fa9548cb2c2375741a)
 
 ## Objective
 
