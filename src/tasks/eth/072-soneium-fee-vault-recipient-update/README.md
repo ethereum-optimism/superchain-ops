@@ -1,6 +1,6 @@
 # 072-soneium-fee-vault-recipient-update
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x677b799289e2ea11d2b4f835533008f454b183301afcc6a0a1e0488c350a96b7)
 
 ## Objective
 
