@@ -1,6 +1,6 @@
 # 073-gas-limit-ink
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xd06981d54dc004fb96a406592896a2ae8cc286a9fe67423c9e050eab49542782)
 
 ## Objective
 
