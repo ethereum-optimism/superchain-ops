@@ -88,7 +88,6 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         Claim cannonKonaPrestate;
         Claim cannonPrestate;
         uint256 chainId;
-        string expectedValidationErrors;
         uint256 initBond;
         uint32 startingRespectedGameType;
     }
@@ -194,7 +193,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         require(chains.length > 0, "OPCMUpgradeV700: no chains configured");
 
         // Decode `[[opcmUpgrades]]` rows.
-        OPCMUpgrade[] memory parsed = abi.decode(toml.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        OPCMUpgrade[] memory parsed = _parseUpgrades(toml);
         require(parsed.length == chains.length, "OPCMUpgradeV700: opcmUpgrades length mismatch");
         for (uint256 i = 0; i < parsed.length; i++) {
             require(parsed[i].chainId != 0, "OPCMUpgradeV700: chainId zero");
@@ -241,6 +240,71 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         require(address(STANDARD_VALIDATOR) != address(0), "OPCMUpgradeV700: validator zero");
         require(address(STANDARD_VALIDATOR).code.length > 0, "OPCMUpgradeV700: validator has no code");
         vm.label(address(STANDARD_VALIDATOR), "OPCMStandardValidator");
+
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            _validateContractRelationships(
+                superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
+                superchainAddrRegistry.getAddress("SuperchainConfig", chainId),
+                superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
+                superchainAddrRegistry.getAddress("ProxyAdminOwner", chainId),
+                superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId),
+                rootSafe
+            );
+        }
+    }
+
+    function _validateContractRelationships(
+        address systemConfig,
+        address superchainConfig,
+        address proxyAdmin,
+        address proxyAdminOwner,
+        address disputeGameFactory,
+        address rootSafe
+    ) internal view {
+        ISystemConfig sysCfg = ISystemConfig(systemConfig);
+        require(rootSafe == proxyAdminOwner, "OPCMUpgradeV700: root safe is not ProxyAdminOwner");
+        require(
+            IOptimismPortal(sysCfg.optimismPortal()).superchainConfig() == superchainConfig,
+            "OPCMUpgradeV700: OptimismPortal SuperchainConfig mismatch"
+        );
+        require(
+            IProxyAdmin(proxyAdmin).getProxyAdmin(payable(systemConfig)) == proxyAdmin,
+            "OPCMUpgradeV700: SystemConfig ProxyAdmin mismatch"
+        );
+        require(
+            sysCfg.disputeGameFactory() == disputeGameFactory,
+            "OPCMUpgradeV700: SystemConfig DisputeGameFactory mismatch"
+        );
+        require(IProxyAdmin(proxyAdmin).owner() == proxyAdminOwner, "OPCMUpgradeV700: ProxyAdmin owner mismatch");
+        require(
+            IDisputeGameFactory(disputeGameFactory).owner() == proxyAdminOwner,
+            "OPCMUpgradeV700: DisputeGameFactory owner mismatch"
+        );
+    }
+
+    function _parseUpgrades(string memory toml) internal view returns (OPCMUpgrade[] memory parsed) {
+        uint256 count;
+        while (toml.keyExists(string.concat(".opcmUpgrades[", vm.toString(count), "].chainId"))) {
+            count++;
+        }
+
+        parsed = new OPCMUpgrade[](count);
+        for (uint256 i = 0; i < count; i++) {
+            string memory base = string.concat(".opcmUpgrades[", vm.toString(i), "]");
+            uint256 startingRespectedGameType = toml.readUint(string.concat(base, ".startingRespectedGameType"));
+            require(
+                startingRespectedGameType <= type(uint32).max,
+                "OPCMUpgradeV700: startingRespectedGameType exceeds uint32"
+            );
+            parsed[i] = OPCMUpgrade({
+                cannonKonaPrestate: Claim.wrap(toml.readBytes32(string.concat(base, ".cannonKonaPrestate"))),
+                cannonPrestate: Claim.wrap(toml.readBytes32(string.concat(base, ".cannonPrestate"))),
+                chainId: toml.readUint(string.concat(base, ".chainId")),
+                initBond: toml.readUint(string.concat(base, ".initBond")),
+                startingRespectedGameType: uint32(startingRespectedGameType)
+            });
+        }
     }
 
     /* ---------- DisputeGameConfig builders ---------- */
@@ -494,9 +558,35 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
                 errors = STANDARD_VALIDATOR.validate({_input: input, _allowFailure: true});
             }
 
-            string memory expected = upgrades[chainId].expectedValidationErrors;
+            string memory expected = _expectedValidationErrors({
+                l1PAOOverride: l1PAOOverride != address(0),
+                challengerOverride: challengerOverride != address(0),
+                superchainConfigMismatch: superchainAddrRegistry.getAddress("SuperchainConfig", chainId)
+                    != STANDARD_VALIDATOR.superchainConfig(),
+                targetGameType: upgrades[chainId].startingRespectedGameType
+            });
             require(errors.eq(expected), string.concat("Unexpected errors: ", errors, "; expected: ", expected));
         }
+    }
+
+    function _expectedValidationErrors(
+        bool l1PAOOverride,
+        bool challengerOverride,
+        bool superchainConfigMismatch,
+        uint32 targetGameType
+    ) internal pure returns (string memory errors) {
+        if (l1PAOOverride) errors = _appendValidationError(errors, "OVERRIDES-L1PAOMULTISIG");
+        if (challengerOverride) errors = _appendValidationError(errors, "OVERRIDES-CHALLENGER");
+        if (superchainConfigMismatch) errors = _appendValidationError(errors, "SYSCON-130");
+        if (targetGameType == PERMISSIONED_CANNON) {
+            errors = _appendValidationError(errors, "CKDG-NOSHAPE");
+        }
+        errors = _appendValidationError(errors, "PLDG-10");
+        if (targetGameType == PERMISSIONED_CANNON) errors = _appendValidationError(errors, "CKDG-10");
+    }
+
+    function _appendValidationError(string memory errors, string memory next) private pure returns (string memory) {
+        return bytes(errors).length == 0 ? next : string.concat(errors, ",", next);
     }
 
     /// @notice Code-length exceptions for storage values written by the upgrade.
@@ -595,13 +685,24 @@ interface IOPContractsManagerStandardValidator {
     ) external view returns (string memory);
     function l1PAOMultisig() external view returns (address);
     function challenger() external view returns (address);
+    function superchainConfig() external view returns (address);
     function version() external view returns (string memory);
 }
 
 interface ISuperchainConfig {}
 
+interface IProxyAdmin {
+    function owner() external view returns (address);
+    function getProxyAdmin(address payable proxy) external view returns (address);
+}
+
+interface IOptimismPortal {
+    function superchainConfig() external view returns (address);
+}
+
 interface IDisputeGameFactory {
     function gameImpls(GameType gameType) external view returns (address);
+    function owner() external view returns (address);
 }
 
 interface ISystemConfig {
@@ -616,4 +717,6 @@ interface ISystemConfig {
     }
 
     function getAddresses() external view returns (Addresses memory);
+    function disputeGameFactory() external view returns (address);
+    function optimismPortal() external view returns (address);
 }
