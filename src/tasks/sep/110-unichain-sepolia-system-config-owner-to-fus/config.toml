@@ -1,0 +1,14 @@
+templateName = "TransferSystemConfigOwnership"
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+safeAddressString = "SystemConfigOwner"
+
+newOwner = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
+
+[stateOverrides]
+0x325B777f8F0bC71fb6b617Bc41A8703CA7077891 = [ # SystemConfigOwner nonce
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+]
