@@ -41,6 +41,24 @@ Check:
    nothing else. The inner task calldata (`0x174dea71`) on its own reverts against the Safe.
 3. The call trace shows a single `transferOwnership` call on `0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D` with
    `newOwner = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`, and one `OwnershipTransferred(0x325B777f8F0bC71fb6b617Bc41A8703CA7077891, 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B)` event.
+4. `newOwner` (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`) is the Sepolia Foundation Upgrade Safe, see
+   [Verifying the new owner](#verifying-the-new-owner).
+
+### Verifying the new owner
+
+The transfer is irreversible for the current owner, so check that `newOwner` is the Sepolia
+Foundation Upgrade Safe against independent sources:
+
+- [`src/addresses.toml#L18`](../../../addresses.toml#L18) `FoundationUpgradeSafe`.
+- superchain-registry [`standard-config-roles-sepolia.toml#L3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/validation/standard/standard-config-roles-sepolia.toml#L3) lists the Sepolia L1 ProxyAdmin owner `0x1Eb2fFc903729a0F03966B917003800b145F56E2`, whose two owners are the Foundation Upgrade Safe and the Security Council (first check below).
+- On-chain:
+
+```bash
+RPC=https://ethereum-sepolia-rpc.publicnode.com
+
+cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "getOwners()(address[])" -r $RPC   # [0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B, 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977] (L1PAO = FUS + Security Council)
+cast call 0x05C993e60179f28bF649a2Bb5b00b5F4283bD525 "owner()(address)" -r $RPC        # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B (Ink Sepolia SystemConfig owner since sep/104)
+```
 
 ## For Facilitators and Reviewers
 

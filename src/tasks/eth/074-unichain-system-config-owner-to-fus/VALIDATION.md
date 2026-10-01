@@ -41,6 +41,25 @@ Check:
    nothing else. The inner task calldata (`0x174dea71`) on its own reverts against the Safe.
 3. The call trace shows a single `transferOwnership` call on `0xc407398d063f942feBbcC6F80a156b47F3f1BDA6` with
    `newOwner = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92`, and one `OwnershipTransferred(0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1, 0x847B5c174615B1B7fDF770882256e2D3E95b9D92)` event.
+4. `newOwner` (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`) is the Mainnet Foundation Upgrade Safe, see
+   [Verifying the new owner](#verifying-the-new-owner).
+
+### Verifying the new owner
+
+The transfer is irreversible for the current owner, so check that `newOwner` is the Mainnet
+Foundation Upgrade Safe against independent sources:
+
+- [`src/addresses.toml#L6`](../../../addresses.toml#L6) `FoundationUpgradeSafe`.
+- superchain-registry [`standard-config-roles-mainnet.toml#L4`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/validation/standard/standard-config-roles-mainnet.toml#L4) lists it as the standard `protocolVersionsOwner`, and [`#L3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/validation/standard/standard-config-roles-mainnet.toml#L3) lists the L1 ProxyAdmin owner `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`, whose two owners are the Foundation Upgrade Safe and the Security Council (first check below).
+- On-chain:
+
+```bash
+RPC=https://ethereum-rpc.publicnode.com
+
+cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "getOwners()(address[])" -r $RPC   # [0x847B5c174615B1B7fDF770882256e2D3E95b9D92, 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03] (L1PAO = FUS + Security Council)
+cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC        # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (OP Mainnet SystemConfig owner)
+cast call 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 "owner()(address)" -r $RPC        # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (Ink SystemConfig owner since eth/065)
+```
 
 ## For Facilitators and Reviewers
 
