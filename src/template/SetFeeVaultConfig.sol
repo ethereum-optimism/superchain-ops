@@ -75,6 +75,9 @@ contract SetFeeVaultConfig is L2TaskBase {
     ///         single storage write and an event — 150k is comfortably sufficient.
     uint64 internal constant SETTER_GAS_LIMIT = 150_000;
 
+    /// @notice Blocks behind the reported L2 head at which the pre-flight fork is created.
+    uint256 internal constant L2_FORK_HEAD_LAG = 5;
+
     // -------------------------------------------------------------------------
     // Config inputs
     // -------------------------------------------------------------------------
@@ -240,13 +243,23 @@ contract SetFeeVaultConfig is L2TaskBase {
     }
 
     /// @notice Creates and selects the L2 pre-flight fork for one chain. Production tasks ALWAYS
-    ///         fork latest — the ProxyAdmin-owner assertion, version gate, and skip-unchanged
-    ///         decisions must see live sign-time state, and fork selection is deliberately NOT
-    ///         configurable from the task config. Virtual ONLY so test harnesses (see the pinned
-    ///         subclass in test/tasks/Regression.t.sol) can pin the fork for deterministic
-    ///         fixtures; the second parameter is the `l2chains` index for multi-chain harnesses.
+    ///         fork near latest (`L2_FORK_HEAD_LAG` blocks behind the reported head, because
+    ///         load-balanced public L2 RPCs can report a head the serving node does not have yet) —
+    ///         the ProxyAdmin-owner assertion, version gate, and skip-unchanged decisions must see
+    ///         live sign-time state, and fork selection is deliberately NOT configurable from the
+    ///         task config. Virtual ONLY so test harnesses (see the pinned subclass in
+    ///         test/tasks/Regression.t.sol) can pin the fork for deterministic fixtures; the second
+    ///         parameter is the `l2chains` index for multi-chain harnesses.
     function _createL2Fork(string memory _l2RpcUrl, uint256) internal virtual {
-        vm.createSelectFork(_l2RpcUrl);
+        vm.createSelectFork(_l2RpcUrl, _l2Head(_l2RpcUrl) - L2_FORK_HEAD_LAG);
+    }
+
+    /// @notice Head block number reported by `_l2RpcUrl`, via `eth_blockNumber`.
+    function _l2Head(string memory _l2RpcUrl) internal returns (uint256 head) {
+        bytes memory raw = vm.rpc(_l2RpcUrl, "eth_blockNumber", "[]");
+        for (uint256 i; i < raw.length; i++) {
+            head = (head << 8) | uint8(raw[i]);
+        }
     }
 
     /// @notice Builds one portal deposit per field that differs from live state (per-field skip-unchanged).
