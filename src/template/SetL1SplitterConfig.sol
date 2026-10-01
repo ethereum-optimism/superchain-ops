@@ -67,6 +67,9 @@ contract SetL1SplitterConfig is L2TaskBase {
     /// @notice OZ v5 `Ownable2Step._pendingOwner` storage slot (`Ownable._owner` is slot 0).
     bytes32 internal constant PENDING_OWNER_SLOT = bytes32(uint256(1));
 
+    /// @notice Blocks behind the reported L2 head at which the pre-flight fork is created.
+    uint256 internal constant L2_FORK_HEAD_LAG = 5;
+
     // -------------------------------------------------------------------------
     // Config inputs
     // -------------------------------------------------------------------------
@@ -227,10 +230,20 @@ contract SetL1SplitterConfig is L2TaskBase {
         vm.selectFork(originalFork);
     }
 
-    /// @notice Creates and selects the L2 pre-flight fork. Production tasks always fork latest;
-    ///         virtual only so test harnesses can pin the fork for deterministic fixtures.
+    /// @notice Creates and selects the L2 pre-flight fork. Production tasks fork `L2_FORK_HEAD_LAG`
+    ///         blocks behind the reported head, because load-balanced public L2 RPCs can report a
+    ///         head the serving node does not have yet; virtual only so test harnesses can pin the
+    ///         fork for deterministic fixtures.
     function _createL2Fork(string memory _l2RpcUrl) internal virtual {
-        vm.createSelectFork(_l2RpcUrl);
+        vm.createSelectFork(_l2RpcUrl, _l2Head(_l2RpcUrl) - L2_FORK_HEAD_LAG);
+    }
+
+    /// @notice Head block number reported by `_l2RpcUrl`, via `eth_blockNumber`.
+    function _l2Head(string memory _l2RpcUrl) internal returns (uint256 head) {
+        bytes memory raw = vm.rpc(_l2RpcUrl, "eth_blockNumber", "[]");
+        for (uint256 i; i < raw.length; i++) {
+            head = (head << 8) | uint8(raw[i]);
+        }
     }
 
     /// @notice One portal deposit per resolved call, in `_calls()` order.
