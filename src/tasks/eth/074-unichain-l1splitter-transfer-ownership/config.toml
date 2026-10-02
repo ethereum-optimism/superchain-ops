@@ -9,7 +9,7 @@ safeAddressString = "UnichainSystemConfigOwnerSafe"
 l1Splitter = "0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003"
 l2RpcUrl = "https://mainnet.unichain.org"
 
-newOwnerToAlias = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A" # TODO confirm: L1PAO
+newOwnerToAlias = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [addresses]
 UnichainSystemConfigOwnerSafe = "0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1"

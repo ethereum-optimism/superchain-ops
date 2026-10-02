@@ -1,4 +1,4 @@
-# 078-unichain-proposer-rotation
+# 076-unichain-proposer-rotation
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -17,26 +17,17 @@ via `setImplementation(5, impl, gameArgs)` from the L1PAO. Since U20 the type-5 
 The impl (`0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, SuperPermissionedDisputeGame v1.1.0), the anchorStateRegistry and the zero init
 bond are read live and kept.
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000000003`: OPE proposer
-
-> [!IMPORTANT]
-> Mainnet L1PAO actions on Unichain go through a Maintenance Upgrade governance post (as eth/061 and eth/062 did for Ink); signing is gated on it.
-
 ## Simulation & Signing
 
 This is a **nested** task: signers act through one of the L1PAO's two owner safes, so the
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/078-unichain-proposer-rotation
+cd src/tasks/eth/076-unichain-proposer-rotation
 
-just simulate-stack eth 078-unichain-proposer-rotation council   # or foundation
+just simulate-stack eth 076-unichain-proposer-rotation council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 078-unichain-proposer-rotation council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 076-unichain-proposer-rotation council   # or foundation
 ```
 
 ## Execution
@@ -45,7 +36,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/eth/078-unichain-proposer-rotation
+cd src/tasks/eth/076-unichain-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

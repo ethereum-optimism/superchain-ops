@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/079-unichain-l1splitter-accept-and-configure
-just simulate-stack eth 079-unichain-l1splitter-accept-and-configure council   # or foundation
+cd src/tasks/eth/077-unichain-l1splitter-accept-and-configure
+just simulate-stack eth 077-unichain-l1splitter-accept-and-configure council   # or foundation
 ```
 
 Check:
@@ -102,13 +102,13 @@ RPC=https://ethereum-rpc.publicnode.com
 cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 45
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 75
 cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 72
-cast call 0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003 "pendingOwner()(address)" -r https://mainnet.unichain.org   # 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b (eth/076 relayed)
+cast call 0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003 "pendingOwner()(address)" -r https://mainnet.unichain.org   # 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b (eth/074 relayed)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/079-unichain-l1splitter-accept-and-configure
+cd src/tasks/eth/077-unichain-l1splitter-accept-and-configure
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
