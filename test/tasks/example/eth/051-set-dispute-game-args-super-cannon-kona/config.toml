@@ -1,0 +1,25 @@
+# Example task for SetDisputeGameArgs on a SUPER_CANNON_KONA (9) slot: bumps the Unichain Mainnet
+# type-9 prestate, keeping the live impl, vm, anchorStateRegistry, delayedWETH and bond (124-byte
+# layout with chainId = 0). Synthetic prestate; this is a test, not a real prestate update.
+
+templateName = "SetDisputeGameArgs"
+
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+[[gameConfig]]
+chainId = 130
+gameType = 9
+prestate = "0x0300000000000000000000000000000000000000000000000000000000c0ffee"
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO nonce at FORK_BLOCK_NUMBER
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe nonce at FORK_BLOCK_NUMBER
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 73}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil nonce at FORK_BLOCK_NUMBER
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 71}
+]
