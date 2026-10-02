@@ -7,7 +7,7 @@ l2chains = [
 [[gameConfig]]
 chainId = 1301
 gameType = 5
-proposer = "0xdead000000000000000000000000000000000003" # PLACEHOLDER: OPE proposer
+proposer = "0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800"
 
 [stateOverrides]
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO nonce
