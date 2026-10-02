@@ -1,4 +1,4 @@
-# 117-soneium-minato-fee-vault
+# 115-soneium-minato-fee-vault
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -18,17 +18,8 @@ authorize against). The Sequencer and Base fee vaults are not touched.
 | OperatorFeeVault `0x420000000000000000000000000000000000001b` | `withdrawalNetwork()` | 1 (L2) → 0 (L1) |
 | OperatorFeeVault `0x420000000000000000000000000000000000001b` | `minWithdrawalAmount()` | 0 → 0.15 ETH |
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000001004`: OPE cost recipient (L1)
-
 > [!IMPORTANT]
 > The L1FeeVault already withdraws to L1, so its network is unchanged and no deposit is sent for it.
-
-> [!IMPORTANT]
-> Soneium Minato cuts over after U21 Sepolia. If the U21 tasks land before this one in the sep stack, the nonce pins and hashes must be regenerated, and the task may need renumbering after the U21 tasks.
 
 ## Simulation & Signing
 
@@ -36,11 +27,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/117-soneium-minato-fee-vault
+cd src/tasks/sep/115-soneium-minato-fee-vault
 
-just simulate-stack sep 117-soneium-minato-fee-vault council   # or foundation
+just simulate-stack sep 115-soneium-minato-fee-vault council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 117-soneium-minato-fee-vault council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 115-soneium-minato-fee-vault council   # or foundation
 ```
 
 ## Execution
@@ -49,7 +40,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/sep/117-soneium-minato-fee-vault
+cd src/tasks/sep/115-soneium-minato-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

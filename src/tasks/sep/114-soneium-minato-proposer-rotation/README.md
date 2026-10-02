@@ -1,4 +1,4 @@
-# 116-soneium-minato-proposer-rotation
+# 114-soneium-minato-proposer-rotation
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -16,26 +16,17 @@ are `anchorStateRegistry | proposer` with no challenger. The respected game type
 The impl (`0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, SuperPermissionedDisputeGame v1.1.0), the anchorStateRegistry and the zero init
 bond are read live and kept.
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000001003`: OPE proposer
-
-> [!IMPORTANT]
-> Soneium Minato cuts over after U21 Sepolia. If the U21 tasks land before this one in the sep stack, the nonce pins, hashes and (if U21 redeploys the type-5 game) the impl must be regenerated, and the task may need renumbering after the U21 tasks.
-
 ## Simulation & Signing
 
 This is a **nested** task: signers act through one of the L1PAO's two owner safes, so the
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/116-soneium-minato-proposer-rotation
+cd src/tasks/sep/114-soneium-minato-proposer-rotation
 
-just simulate-stack sep 116-soneium-minato-proposer-rotation council   # or foundation
+just simulate-stack sep 114-soneium-minato-proposer-rotation council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 116-soneium-minato-proposer-rotation council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 114-soneium-minato-proposer-rotation council   # or foundation
 ```
 
 ## Execution
@@ -44,7 +35,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/sep/116-soneium-minato-proposer-rotation
+cd src/tasks/sep/114-soneium-minato-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

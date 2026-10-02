@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-80), with the SystemConfig owner set to the FoundationUpgradeSafe by 111-soneium-minato-system-config-owner-to-fus and move only if those inputs move.
+80), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -25,8 +25,8 @@ Safe transaction hash: `0x0a04e5ac34c2af4e3bb85fe51d686eac51e06077895bb075e05ed2
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/115-soneium-minato-set-batcher-unsafe-signer
-just simulate-stack sep 115-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/113-soneium-minato-set-batcher-unsafe-signer
+just simulate-stack sep 113-soneium-minato-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -95,7 +95,7 @@ cast call 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 "owner()(address)" -r $RPC 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/sep/115-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/113-soneium-minato-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
