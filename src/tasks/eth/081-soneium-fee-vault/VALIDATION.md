@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/083-soneium-fee-vault
-just simulate-stack eth 083-soneium-fee-vault council   # or foundation
+cd src/tasks/eth/081-soneium-fee-vault
+just simulate-stack eth 081-soneium-fee-vault council   # or foundation
 ```
 
 Check:
@@ -111,7 +111,7 @@ cast call 0x4200000000000000000000000000000000000018 "owner()(address)" -r https
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/083-soneium-fee-vault
+cd src/tasks/eth/081-soneium-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/082-soneium-proposer-rotation
-just simulate-stack eth 082-soneium-proposer-rotation council   # or foundation
+cd src/tasks/eth/080-soneium-proposer-rotation
+just simulate-stack eth 080-soneium-proposer-rotation council   # or foundation
 ```
 
 Check:
@@ -101,7 +101,7 @@ cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameArgs(uint32)(bytes)" 5
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/082-soneium-proposer-rotation
+cd src/tasks/eth/080-soneium-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

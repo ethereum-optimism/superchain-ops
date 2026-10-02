@@ -1,4 +1,4 @@
-# 081-soneium-set-batcher-unsafe-signer
+# 079-soneium-set-batcher-unsafe-signer
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -14,29 +14,19 @@ block signer on the **Soneium** (chainId 1868) `SystemConfigProxy` with `setBatc
 | Soneium | 1868 | [`0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/soneium.toml#L51) | `batcherHash()` | `0x6776BE80dBAda6A02B5F2095cF13734ac303B8d1` → `0xdead000000000000000000000000000000001001` |
 | | | | `unsafeBlockSigner()` | `0x7c2Bd59ee2a2C7391c9A240132f26071e9546262` → `0xdead000000000000000000000000000000001002` |
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000001001`: OPE batcher
->   - `0xdead000000000000000000000000000000001002`: OPE sequencer (unsafe block signer)
-
 > [!IMPORTANT]
-> The FoundationUpgradeSafe only becomes the SystemConfig owner with `075-soneium-system-config-owner-to-fus`. Until that executes, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
-
-> [!IMPORTANT]
-> Soneium Mainnet cuts over after U21 Mainnet. If the U21 tasks land before this one in the eth stack, the nonce pins, hashes and (if U21 redeploys the type-5 game) the impl must be regenerated, and the task may need renumbering after the U21 tasks.
+> The FoundationUpgradeSafe becomes the SystemConfig owner through a `transferOwnership` the current owner executes from its own Safe, outside this repo. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
 
 ## Simulation & Signing
 
 This is a **single-safe** task executed directly by the FoundationUpgradeSafe.
 
 ```bash
-cd src/tasks/eth/081-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/079-soneium-set-batcher-unsafe-signer
 
-just simulate-stack eth 081-soneium-set-batcher-unsafe-signer
+just simulate-stack eth 079-soneium-set-batcher-unsafe-signer
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 081-soneium-set-batcher-unsafe-signer
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 079-soneium-set-batcher-unsafe-signer
 ```
 
 ## Execution
@@ -45,7 +35,7 @@ For facilitators, once the Safe has collected its signatures. Run the pre-execut
 [VALIDATION.md](./VALIDATION.md) first. `just execute` refuses to run without `SIGNATURES`.
 
 ```bash
-cd src/tasks/eth/081-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/079-soneium-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```

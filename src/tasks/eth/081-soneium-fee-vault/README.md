@@ -1,4 +1,4 @@
-# 083-soneium-fee-vault
+# 081-soneium-fee-vault
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -19,29 +19,17 @@ authorize against). The Sequencer and Base fee vaults are not touched.
 | OperatorFeeVault `0x420000000000000000000000000000000000001b` | `withdrawalNetwork()` | 1 (L2) → 0 (L1) |
 | OperatorFeeVault `0x420000000000000000000000000000000000001b` | `minWithdrawalAmount()` | 0 → 0.15 ETH |
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000001004`: OPE cost recipient (L1)
-
-> [!IMPORTANT]
-> Mainnet L1PAO actions on Soneium go through a Maintenance Upgrade governance post (as eth/062 did for Ink); signing is gated on it.
-
-> [!IMPORTANT]
-> Soneium Mainnet cuts over after U21 Mainnet. If the U21 tasks land before this one in the eth stack, the nonce pins and hashes must be regenerated, and the task may need renumbering after the U21 tasks.
-
 ## Simulation & Signing
 
 This is a **nested** task: signers act through one of the L1PAO's two owner safes, so the
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/083-soneium-fee-vault
+cd src/tasks/eth/081-soneium-fee-vault
 
-just simulate-stack eth 083-soneium-fee-vault council   # or foundation
+just simulate-stack eth 081-soneium-fee-vault council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 083-soneium-fee-vault council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 081-soneium-fee-vault council   # or foundation
 ```
 
 ## Execution
@@ -50,7 +38,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/eth/083-soneium-fee-vault
+cd src/tasks/eth/081-soneium-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

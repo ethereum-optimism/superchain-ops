@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-77), with the SystemConfig owner set to the FoundationUpgradeSafe by 075-soneium-system-config-owner-to-fus and move only if those inputs move.
+77), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -25,8 +25,8 @@ Safe transaction hash: `0x9a8eb928f51793f145b7eb512dd16f5248a3210ff25d78717b37cb
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/081-soneium-set-batcher-unsafe-signer
-just simulate-stack eth 081-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/079-soneium-set-batcher-unsafe-signer
+just simulate-stack eth 079-soneium-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -95,7 +95,7 @@ cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "owner()(address)" -r $RPC 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/081-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/079-soneium-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
