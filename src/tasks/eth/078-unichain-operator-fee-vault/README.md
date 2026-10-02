@@ -1,4 +1,4 @@
-# 080-unichain-operator-fee-vault
+# 078-unichain-operator-fee-vault
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -17,26 +17,17 @@ touched.
 | | | | `withdrawalNetwork()` | 1 (L2) → 0 (L1) |
 | | | | `minWithdrawalAmount()` | 0 → 0.15 ETH (the eth/062 cost-vault value) |
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000000004`: OPE cost recipient (L1)
-
-> [!IMPORTANT]
-> Mainnet L1PAO actions on Unichain go through a Maintenance Upgrade governance post (as eth/061 and eth/062 did for Ink); signing is gated on it.
-
 ## Simulation & Signing
 
 This is a **nested** task: signers act through one of the L1PAO's two owner safes, so the
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/080-unichain-operator-fee-vault
+cd src/tasks/eth/078-unichain-operator-fee-vault
 
-just simulate-stack eth 080-unichain-operator-fee-vault council   # or foundation
+just simulate-stack eth 078-unichain-operator-fee-vault council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 080-unichain-operator-fee-vault council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 078-unichain-operator-fee-vault council   # or foundation
 ```
 
 ## Execution
@@ -45,7 +36,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/eth/080-unichain-operator-fee-vault
+cd src/tasks/eth/078-unichain-operator-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

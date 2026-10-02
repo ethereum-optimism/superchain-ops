@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-73), with the SystemConfig owner set to the FoundationUpgradeSafe by eth/074 and move only if those inputs move.
+73), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -25,8 +25,8 @@ Safe transaction hash: `0x0433f5d484af76d2e112bbffc3057ce79d61259d3d14b35ea6af5d
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/077-unichain-set-batcher-unsafe-signer
-just simulate-stack eth 077-unichain-set-batcher-unsafe-signer
+cd src/tasks/eth/075-unichain-set-batcher-unsafe-signer
+just simulate-stack eth 075-unichain-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -89,13 +89,13 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-rpc.publicnode.com
 
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 73
-cast call 0xc407398d063f942feBbcC6F80a156b47F3f1BDA6 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (after eth/074)
+cast call 0xc407398d063f942feBbcC6F80a156b47F3f1BDA6 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (after the SystemConfig owner transfer)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/077-unichain-set-batcher-unsafe-signer
+cd src/tasks/eth/075-unichain-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
@@ -113,7 +113,7 @@ SIGNATURES=0x... just execute
   - **After:**  `0x000000000000000000000000dead000000000000000000000000000000000002`
   - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner") - 1`).
 
-The slot `0x33` owner value is a state override standing in for eth/074, not a change made by this task.
+The slot `0x33` owner value is a state override standing in for the SystemConfig owner transfer, not a change made by this task.
 
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 

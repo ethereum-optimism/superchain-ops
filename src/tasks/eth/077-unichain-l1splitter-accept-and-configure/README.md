@@ -1,11 +1,11 @@
-# 079-unichain-l1splitter-accept-and-configure
+# 077-unichain-l1splitter-accept-and-configure
 
 Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
 Unichain Mainnet migration, fee step 2 of 2: the L1PAO accepts ownership of the Unichain
-`L1Splitter` started by [076-unichain-l1splitter-transfer-ownership](../076-unichain-l1splitter-transfer-ownership/README.md),
+`L1Splitter` started by [074-unichain-l1splitter-transfer-ownership](../074-unichain-l1splitter-transfer-ownership/README.md),
 points its L1 recipient at the OP Enterprise cost recipient and lowers its minimum withdrawal, with
 three `OptimismPortal2.depositTransaction` calls executed on L2 by the aliased L1PAO
 (`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`). `0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003` is Uniswap's `L1Splitter` (unichain-contracts `src/FeeSplitter/L1Splitter.sol`, `Ownable2Step`), the L1-fee leg of Unichain's FeeSplitter `0x4300c0D3c0d3c0d3c0d3c0d3C0D3c0d3c0d30001`. The disbursement interval (24h) is unchanged.
@@ -16,17 +16,8 @@ three `OptimismPortal2.depositTransaction` calls executed on L2 by the aliased L
 | | | | `l1Recipient()` | `0x7078c4537C04c2b2E52ddBa06074dBdACF23cA15` → `0xdead000000000000000000000000000000000004` |
 | | | | `minWithdrawalAmount()` | 10 ETH → 0.15 ETH (the eth/062 cost-vault value) |
 
-> [!WARNING]
-> This task contains **placeholder** values, so it stays DRAFT and its hashes and calldata are
-> not signable. Replace them in [config.toml](./config.toml), re-run the simulation and
-> regenerate [VALIDATION.md](./VALIDATION.md):
->   - `0xdead000000000000000000000000000000000004`: OPE cost recipient (L1)
-
 > [!IMPORTANT]
-> `pendingOwner()` is set by eth/076. Until that deposit is relayed, [config.toml](./config.toml) sets `simulatePendingOwnerTransfer = true` so the template simulates it on the L2 fork; remove the flag once `pendingOwner()` returns the aliased L1PAO. If eth/076 never landed, these deposits revert on L2.
-
-> [!IMPORTANT]
-> Mainnet L1PAO actions on Unichain go through a Maintenance Upgrade governance post (as eth/061 and eth/062 did for Ink); signing is gated on it.
+> `pendingOwner()` is set by eth/074. Until that deposit is relayed, [config.toml](./config.toml) sets `simulatePendingOwnerTransfer = true` so the template simulates it on the L2 fork; remove the flag once `pendingOwner()` returns the aliased L1PAO. If eth/074 never landed, these deposits revert on L2.
 
 ## Simulation & Signing
 
@@ -34,11 +25,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/079-unichain-l1splitter-accept-and-configure
+cd src/tasks/eth/077-unichain-l1splitter-accept-and-configure
 
-just simulate-stack eth 079-unichain-l1splitter-accept-and-configure council   # or foundation
+just simulate-stack eth 077-unichain-l1splitter-accept-and-configure council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 079-unichain-l1splitter-accept-and-configure council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 077-unichain-l1splitter-accept-and-configure council   # or foundation
 ```
 
 ## Execution
@@ -47,7 +38,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/eth/079-unichain-l1splitter-accept-and-configure
+cd src/tasks/eth/077-unichain-l1splitter-accept-and-configure
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
