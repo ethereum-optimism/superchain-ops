@@ -6,8 +6,8 @@ transaction which you are signing.
 ## Expected Domain and Message Hashes
 
 Validate the domain and message hashes. These values should match both the values on your
-ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 59,
-FoundationUpgradeSafe 81, SecurityCouncil 73) and move
+ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 58,
+FoundationUpgradeSafe 80, SecurityCouncil 72) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -17,23 +17,23 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x373e2496ff973ec634fa328936d0c560b3c2a550e366ddea68b96e12fb387fb5`
+> - Message Hash: `0xff04b509d76d4a3b03a5271911df5f6fed41bda326d71e46fa78dc33ffcb7b08`
 >
 > ### SecurityCouncil (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0xf43450f52bb5bcbe7b76955ae5f8ee37715cbd10834ca419ff72e74e20476e46`
+> - Message Hash: `0xa758c24ca90118bd1cc007fb94aa2d9a4bb8bc2396105168fecc169d8d156f05`
 
 Root L1PAO (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) safe transaction hash (identical on both signing paths):
-`0xe2ff865c3164096a10d964a451e52f5a5d1ff1c5651751a5ff8cd45755a057b1`
+`0x5bc790021d480bf35d69c25a77d759125bc40f65e422df5845839b601ecda761`
 
 ## For Signers
 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/114-soneium-minato-proposer-rotation
-just simulate-stack sep 114-soneium-minato-proposer-rotation council   # or foundation
+cd src/tasks/sep/113-soneium-minato-proposer-rotation
+just simulate-stack sep 113-soneium-minato-proposer-rotation council   # or foundation
 ```
 
 Check:
@@ -91,9 +91,9 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
-cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" -r $RPC   # 59
-cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 81
-cast call 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 "nonce()(uint256)" -r $RPC   # 73
+cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" -r $RPC   # 58
+cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 80
+cast call 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 "nonce()(uint256)" -r $RPC   # 72
 cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameImpls(uint32)(address)" 5 -r $RPC   # 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691
 cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameArgs(uint32)(bytes)" 5 -r $RPC    # 0x90066735ee774b405c4f54bfec05b07f16d67188a759a2c80ec4c6421829862da30dd34436114502
 ```
@@ -101,7 +101,7 @@ cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameArgs(uint32)(bytes)" 5
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/sep/114-soneium-minato-proposer-rotation
+cd src/tasks/sep/113-soneium-minato-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -123,26 +123,26 @@ just execute
 #### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (L1PAO, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `59` → **After:** `60`
+  - **Before:** `58` → **After:** `59`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
-- **Key (foundation path):** `0x7ccae1db45bc39058d142983ed33dca086aed86b00649948dc8faf6efdb692ac`
-- **Key (council path):** `0x0efd48a0bc6c977611fe38132f34dc25abd384a50f0e1f11956584b52fc9f7e4`
+- **Key (foundation path):** `0xfc6624fc5be56db26ff080d48b7ab5cc5459ea274409cd017d68d83efc2842db`
+- **Key (council path):** `0x49ac8ad8301af8238b0cba09465f0c3da829d131109934ac931dc1b7b18eb01d`
   - **Before:** `0` → **After:** `1`
-  - **Summary:** `approvedHashes[<child safe>][0xe2ff865c…]`, the child safe's approval. Only the
+  - **Summary:** `approvedHashes[<child safe>][0x5bc79002…]`, the child safe's approval. Only the
     key of the path being simulated is written. Derive with
-    `cast index bytes32 0xe2ff865c3164096a10d964a451e52f5a5d1ff1c5651751a5ff8cd45755a057b1 $(cast index address <child> 8)`.
+    `cast index bytes32 0x5bc790021d480bf35d69c25a77d759125bc40f65e422df5845839b601ecda761 $(cast index address <child> 8)`.
 
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `81` → **After:** `82`
+  - **Before:** `80` → **After:** `81`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil), council path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `73` → **After:** `74`
+  - **Before:** `72` → **After:** `73`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc26977310bC89DAee5823C2e2a73195E85382cC7` (SecurityCouncil LivenessGuard), council path

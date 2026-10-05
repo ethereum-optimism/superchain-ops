@@ -1,4 +1,4 @@
-# 115-soneium-minato-fee-vault
+# 114-soneium-minato-fee-vault
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -27,11 +27,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/115-soneium-minato-fee-vault
+cd src/tasks/sep/114-soneium-minato-fee-vault
 
-just simulate-stack sep 115-soneium-minato-fee-vault council   # or foundation
+just simulate-stack sep 114-soneium-minato-fee-vault council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 115-soneium-minato-fee-vault council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 114-soneium-minato-fee-vault council   # or foundation
 ```
 
 ## Execution
@@ -40,7 +40,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/sep/115-soneium-minato-fee-vault
+cd src/tasks/sep/114-soneium-minato-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
