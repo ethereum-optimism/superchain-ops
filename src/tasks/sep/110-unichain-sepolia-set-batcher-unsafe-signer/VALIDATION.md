@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-77), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+77) and move only if that nonce moves.
 
 > [!CAUTION]
 >
@@ -37,8 +37,8 @@ Check:
    beneath the link** (it starts with `0x6a761202`, the outer
    `execTransaction`, and wraps the
    [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
-   contracts touched must be the ones listed in [Task State Changes](#task-state-changes), and
-   nothing else.
+   storage writes must match [Task State Changes](#task-state-changes), which also explains the
+   simulation's nonce override and sender nonce bump.
 3. The call trace shows `setBatcherHash` and `setUnsafeBlockSigner` on `0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D` with the values in the [Understanding Task Calldata](#understanding-task-calldata) table, and two `ConfigUpdate` events (`updateType` 0 `BATCHER` and 3 `UNSAFE_BLOCK_SIGNER`).
 
 ## For Facilitators and Reviewers
@@ -89,7 +89,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
 cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 77
-cast call 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D "owner()(address)" -r $RPC   
+cast call 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
 ```
 
 Then execute with the collected signatures:
@@ -111,9 +111,7 @@ SIGNATURES=0x... just execute
 - **Key:** `0x65a7ed542fb37fe237fdfbdd70b31598523fe5b32879e307bae27a0bd9581c08`
   - **Before:** `0x000000000000000000000000565b71025ab4de80aca33c62e51439af56301493`
   - **After:**  `0x00000000000000000000000023449eae2bc890db1649aa3071b0e6a9aa97433b`
-  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner") - 1`).
-
-The slot `0x33` owner value is a state override standing in for the SystemConfig owner transfer, not a change made by this task.
+  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner")`, `UNSAFE_BLOCK_SIGNER_SLOT()`).
 
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe)
 
