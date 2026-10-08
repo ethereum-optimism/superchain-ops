@@ -505,6 +505,28 @@ contract RegressionTest is Test {
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
+    /// @notice SetDisputeGameArgs must reject an impl override on types 5 and 9: their impls return 0 from
+    ///         gameType(), so type 9's impl in slot 5 would otherwise pass and break game creation.
+    function testRegressionSetDisputeGameArgs_RejectsSuperGameImplOverride() public {
+        string memory toml = string.concat(
+            'templateName = "SetDisputeGameArgs"\n',
+            'l2chains = [{name = "Unichain", chainId = 130}]\n',
+            "[[gameConfig]]\n",
+            "chainId = 130\n",
+            "gameType = 5\n",
+            'impl = "0x19AF533Cc2A2A55786DCB8672aA5717e64213208"\n' // Unichain type-9 impl
+        );
+        string memory configPath =
+            MultisigTaskTestHelper.createTempTomlFile(toml, "SetDisputeGameArgs", "superGameImplOverride");
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address[] memory childSafes = new address[](1);
+        childSafes[0] = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        vm.createSelectFork("mainnet", 26096434);
+        vm.expectRevert("SetDisputeGameArgs: impl cannot be changed for types 5 and 9");
+        multisigTask.simulate(configPath, childSafes);
+        MultisigTaskTestHelper.removeFile(configPath);
+    }
+
     /// @notice SetDisputeGameArgs, SUPER_CANNON_KONA (9): Unichain prestate bump at mainnet block 26096434.
     ///         Simulate from task directory (test/tasks/example/eth/051-set-dispute-game-args-super-cannon-kona/) with:
     ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
