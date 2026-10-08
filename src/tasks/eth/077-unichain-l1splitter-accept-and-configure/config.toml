@@ -10,7 +10,7 @@ l2RpcUrl = "https://mainnet.unichain.org"
 acceptOwnership = true
 simulatePendingOwnerTransfer = true
 
-l1Recipient = "0xdead000000000000000000000000000000000004" # PLACEHOLDER: OPE cost recipient
+l1Recipient = "0xdead00000000000000000000000000000004dead" # PLACEHOLDER: OPE cost recipient
 minWithdrawalAmount = "150000000000000000"
 
 [stateOverrides]
