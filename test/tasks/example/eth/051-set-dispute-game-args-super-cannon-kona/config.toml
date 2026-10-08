@@ -1,6 +1,4 @@
-# Example task for SetDisputeGameArgs on a SUPER_CANNON_KONA (9) slot: bumps the Unichain Mainnet
-# type-9 prestate, keeping the live impl, vm, anchorStateRegistry, delayedWETH and bond (124-byte
-# layout with chainId = 0). Synthetic prestate; this is a test, not a real prestate update.
+# SetDisputeGameArgs type 9: synthetic Unichain prestate bump.
 
 templateName = "SetDisputeGameArgs"
 
