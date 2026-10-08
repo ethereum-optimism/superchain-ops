@@ -66,10 +66,11 @@ contract SetDisputeGameArgs is L2TaskBase {
     /// @notice Resolved actions, in declaration order.
     ResolvedGame[] public resolvedGames;
 
-    /// @notice GameTypes.SUPER_PERMISSIONED.
+    /* ---------- GameType IDs (op-contracts/v8.0.0 GameTypes.sol) ---------- */
+    uint32 internal constant CANNON = 0;
+    uint32 internal constant PERMISSIONED_CANNON = 1;
     uint32 internal constant SUPER_PERMISSIONED = 5;
-
-    /// @notice GameTypes.SUPER_CANNON_KONA.
+    uint32 internal constant CANNON_KONA = 8;
     uint32 internal constant SUPER_CANNON_KONA = 9;
 
     /// @notice Returns the string identifier for the safe executing this transaction.
@@ -109,8 +110,8 @@ contract SetDisputeGameArgs is L2TaskBase {
         uint32 gameType = uint32(gtRaw);
         // Revert on any type whose gameArgs layout this template does not model.
         require(
-            gameType == 0 || gameType == 1 || gameType == SUPER_PERMISSIONED || gameType == 8
-                || gameType == SUPER_CANNON_KONA,
+            gameType == CANNON || gameType == PERMISSIONED_CANNON || gameType == SUPER_PERMISSIONED
+                || gameType == CANNON_KONA || gameType == SUPER_CANNON_KONA,
             "SetDisputeGameArgs: unsupported gameType (only 0, 1, 5, 8, 9)"
         );
         // Reject fields the type-5 layout would silently drop.
@@ -303,7 +304,7 @@ contract SetDisputeGameArgs is L2TaskBase {
     /// @notice Whether a (supported) game type is permissioned. Among the types this template supports
     ///         (0, 1, 5, 8, 9) only 1 and 5 are permissioned.
     function _isPermissioned(uint32 gameType) internal pure returns (bool) {
-        return gameType == 1 || gameType == SUPER_PERMISSIONED;
+        return gameType == PERMISSIONED_CANNON || gameType == SUPER_PERMISSIONED;
     }
 
     /// @notice Decode an on-chain gameArgs blob into its fields. `permissioned` is taken from the game
