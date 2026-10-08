@@ -1,6 +1,4 @@
-# Example task for SetDisputeGameArgs on a SUPER_PERMISSIONED (5) slot: rotates the Soneium
-# Mainnet type-5 proposer, keeping the live impl and anchorStateRegistry (40-byte layout
-# anchorStateRegistry(20) | proposer(20)). Synthetic proposer; this is a test, not a real rotation.
+# SetDisputeGameArgs type 5: synthetic Soneium proposer rotation.
 
 templateName = "SetDisputeGameArgs"
 

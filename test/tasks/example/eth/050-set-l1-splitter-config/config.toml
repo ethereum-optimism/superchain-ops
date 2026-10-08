@@ -1,7 +1,4 @@
-# Example task for SetL1SplitterConfig, leg B: the L1PAO accepts ownership of the Unichain
-# L1Splitter and updates its recipient, minimum and interval in one batch of portal deposits.
-# The pending-owner transfer (leg A) is simulated on the L2 pre-flight fork. Synthetic values;
-# this is a test, not a real handover.
+# SetL1SplitterConfig leg B: synthetic Unichain L1Splitter handover.
 
 templateName = "SetL1SplitterConfig"
 
@@ -17,7 +14,6 @@ simulatePendingOwnerTransfer = true
 
 l1Recipient = "0x000000000000000000000000000000000000dEaD"
 minWithdrawalAmount = "1000000000000000000"
-feeDisbursementInterval = 3600
 
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO nonce at FORK_BLOCK_NUMBER
