@@ -11,8 +11,8 @@ block signer on the **Soneium** (chainId 1868) `SystemConfigProxy` with `setBatc
 
 | Chain | Chain ID | SystemConfigProxy | Field | Change |
 |---|---|---|---|---|
-| Soneium | 1868 | [`0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/soneium.toml#L51) | `batcherHash()` | `0x6776BE80dBAda6A02B5F2095cF13734ac303B8d1` → `0xdead000000000000000000000000000000001001` |
-| | | | `unsafeBlockSigner()` | `0x7c2Bd59ee2a2C7391c9A240132f26071e9546262` → `0xdead000000000000000000000000000000001002` |
+| Soneium | 1868 | [`0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/soneium.toml#L51) | `batcherHash()` | `0x6776BE80dBAda6A02B5F2095cF13734ac303B8d1` → `0xdead00000000000000000000000000001001dead` |
+| | | | `unsafeBlockSigner()` | `0x7c2Bd59ee2a2C7391c9A240132f26071e9546262` → `0xdead00000000000000000000000000001002dead` |
 
 > [!IMPORTANT]
 > The FoundationUpgradeSafe becomes the SystemConfig owner through a `transferOwnership` the current owner executes from its own Safe, outside this repo. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
