@@ -1,4 +1,4 @@
-# SetDisputeGameArgs type 5: synthetic Soneium proposer rotation.
+# Regression-test example: rotates the Soneium SUPER_PERMISSIONED (5) proposer to a placeholder address.
 
 templateName = "SetDisputeGameArgs"
 
