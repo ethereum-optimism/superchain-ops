@@ -75,7 +75,7 @@ contract SetFeeVaultConfig is L2TaskBase {
     ///         single storage write and an event — 150k is comfortably sufficient.
     uint64 internal constant SETTER_GAS_LIMIT = 150_000;
 
-    /// @notice Blocks behind the reported L2 head at which the pre-flight fork is created.
+    /// @notice Fork this many blocks behind the L2 head (public RPCs can lag their reported head).
     uint256 internal constant L2_FORK_HEAD_LAG = 5;
 
     // -------------------------------------------------------------------------
@@ -243,13 +243,11 @@ contract SetFeeVaultConfig is L2TaskBase {
     }
 
     /// @notice Creates and selects the L2 pre-flight fork for one chain. Production tasks ALWAYS
-    ///         fork near latest (`L2_FORK_HEAD_LAG` blocks behind the reported head, because
-    ///         load-balanced public L2 RPCs can report a head the serving node does not have yet) —
-    ///         the ProxyAdmin-owner assertion, version gate, and skip-unchanged decisions must see
-    ///         live sign-time state, and fork selection is deliberately NOT configurable from the
-    ///         task config. Virtual ONLY so test harnesses (see the pinned subclass in
-    ///         test/tasks/Regression.t.sol) can pin the fork for deterministic fixtures; the second
-    ///         parameter is the `l2chains` index for multi-chain harnesses.
+    ///         fork latest (minus `L2_FORK_HEAD_LAG`) — the ProxyAdmin-owner assertion, version gate,
+    ///         and skip-unchanged decisions must see live sign-time state, and fork selection is
+    ///         deliberately NOT configurable from the task config. Virtual ONLY so test harnesses (see
+    ///         the pinned subclass in test/tasks/Regression.t.sol) can pin the fork for deterministic
+    ///         fixtures; the second parameter is the `l2chains` index for multi-chain harnesses.
     function _createL2Fork(string memory _l2RpcUrl, uint256) internal virtual {
         vm.createSelectFork(_l2RpcUrl, _l2Head(_l2RpcUrl) - L2_FORK_HEAD_LAG);
     }
