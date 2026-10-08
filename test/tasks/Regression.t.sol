@@ -480,6 +480,78 @@ contract RegressionTest is Test {
         );
     }
 
+    /// @notice SetDisputeGameArgs, SUPER_PERMISSIONED (5): Soneium proposer rotation at mainnet block 26096434.
+    ///         Simulate from task directory (test/tasks/example/eth/049-set-dispute-game-args-super-permissioned/) with:
+    ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
+    function testRegressionCallDataMatches_SetDisputeGameArgsSuperPermissioned() public {
+        string memory taskConfigFilePath =
+            "test/tasks/example/eth/049-set-dispute-game-args-super-permissioned/config.toml";
+        string memory expectedCallData =
+            "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c4b107095700000000000000000000000000000000000000000000000000000000000000050000000000000000000000005c3eb47cb0174aea522a2a9ae79487139a53d691000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000284890928941e62e273da359374b105f803329f473dead00000000000000000000000000000000dead00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address rootSafe = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // L1PAO
+        address nestedSafe = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 26096434, "mainnet", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        expectedDataToSign[0] =
+            "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b7326724e61b850792072a94517b38b77a6c8d38a48b4d9593f22a9c9b7fd33bfd15012"; // Foundation
+        expectedDataToSign[1] =
+            "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967da11f7a64c3c5770ad1739bd904a23cd240ef5f977a42e9e18afd8d256e7895b"; // Security Council
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+    }
+
+    /// @notice SetDisputeGameArgs must reject an impl override on types 5 and 9: their impls return 0 from
+    ///         gameType(), so type 9's impl in slot 5 would otherwise pass and break game creation.
+    function testRegressionSetDisputeGameArgs_RejectsSuperGameImplOverride() public {
+        string memory toml = string.concat(
+            'templateName = "SetDisputeGameArgs"\n',
+            'l2chains = [{name = "Unichain", chainId = 130}]\n',
+            "[[gameConfig]]\n",
+            "chainId = 130\n",
+            "gameType = 5\n",
+            'impl = "0x19AF533Cc2A2A55786DCB8672aA5717e64213208"\n' // Unichain type-9 impl
+        );
+        string memory configPath =
+            MultisigTaskTestHelper.createTempTomlFile(toml, "SetDisputeGameArgs", "superGameImplOverride");
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address[] memory childSafes = new address[](1);
+        childSafes[0] = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        vm.createSelectFork("mainnet", 26096434);
+        vm.expectRevert("SetDisputeGameArgs: impl cannot be changed for types 5 and 9");
+        multisigTask.simulate(configPath, childSafes);
+        MultisigTaskTestHelper.removeFile(configPath);
+    }
+
+    /// @notice SetDisputeGameArgs, SUPER_CANNON_KONA (9): Unichain prestate bump at mainnet block 26096434.
+    ///         Simulate from task directory (test/tasks/example/eth/051-set-dispute-game-args-super-cannon-kona/) with:
+    ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
+    function testRegressionCallDataMatches_SetDisputeGameArgsSuperCannonKona() public {
+        string memory taskConfigFilePath =
+            "test/tasks/example/eth/051-set-dispute-game-args-super-cannon-kona/config.toml";
+        string memory expectedCallData =
+            "0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000002f12d621a16e2d3285929c9996f478508951dfe40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104b1070957000000000000000000000000000000000000000000000000000000000000000900000000000000000000000019af533cc2a2a55786dcb8672aa5717e642132080000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000007c03dead000000000000000000000000000000000000000000000000000000deadacc005dcd857b401e4732e6f7837135a22825cfa27cf508e4e3aa8d30b3226ac3b5ea0e8bcacaff974ad145ac900f1dd5551f0c9e143314dc4022fcf00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address rootSafe = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // L1PAO
+        address nestedSafe = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 26096434, "mainnet", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        expectedDataToSign[0] =
+            "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672c79f1f45e01f1f9665972670ffdf4f47790aa33ea6a2e3f2743f670e25056ce2"; // Foundation
+        expectedDataToSign[1] =
+            "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce9673efd87e4eda116232488299405da20389bd4c534d4b61e0fd264f9ac12463de4"; // Security Council
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+    }
+
     /// @notice expected call data and data to sign generated by manually running the WelcomeToSuperchainOps at block 22884610 on mainnet using script:
     /// forge script test/template/WelcomeToSuperchainOps.sol --sig "simulate(string)" test/tasks/example/eth/011-welcome-to-superchain-ops/config.toml --rpc-url mainnet --fork-block-number 22884610 -vv
     function testRegressionCallDataMatches_WelcomeToSuperchainOps() public {
