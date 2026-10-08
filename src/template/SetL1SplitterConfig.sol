@@ -30,10 +30,17 @@ interface IL1Splitter {
 }
 
 /// @title SetL1SplitterConfig
-/// @notice Configures the Unichain `L1Splitter` (owned by an aliased L1 Safe) via one portal deposit
-///         per call: leg A = setters then `transferOwnership`, leg B = `acceptOwnership` then setters.
-///         Unchanged setters are skipped. Every call is dry-run on an `l2RpcUrl` fork first.
-///         `simulatePendingOwnerTransfer` fakes leg A on that fork for simulating leg B early.
+/// @notice Configures the Unichain `L1Splitter` (L2, `Ownable2Step`, owned by an aliased L1 Safe) via
+///         one portal deposit per call from that Safe:
+///           - leg A (current owner): setters, then `transferOwnership(alias(newOwnerToAlias))`.
+///           - leg B (new owner):     `acceptOwnership()`, then setters.
+///         Config: `l1Splitter`, `l2RpcUrl` (required); `newOwnerToAlias` (leg A) or `acceptOwnership`
+///         (leg B); optional `l1Recipient`, `minWithdrawalAmount` (skipped when unchanged).
+///
+/// @dev    Every call is dry-run as the aliased Safe on an `l2RpcUrl` fork, so an L2 revert fails the
+///         simulation instead of silently on relay. `simulatePendingOwnerTransfer` (leg B only) sets
+///         `pendingOwner` on that fork when leg A has not landed on L2 yet; it never touches the
+///         signed payload, and the task must check `pendingOwner()` before execution.
 contract SetL1SplitterConfig is L2TaskBase {
     using stdToml for string;
 
@@ -62,6 +69,7 @@ contract SetL1SplitterConfig is L2TaskBase {
     address internal _liveL1Recipient;
     uint256 internal _liveMinWithdrawalAmount;
 
+    /// @notice Overridable with `safeAddressString` in config.toml (leg A is signed by the current owner).
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
     }
@@ -119,7 +127,7 @@ contract SetL1SplitterConfig is L2TaskBase {
     function _preflightL2(string memory _l2RpcUrl, address _rootSafe) internal {
         address aliasedRoot = AddressAliasHelper.applyL1ToL2Alias(_rootSafe);
         uint256 originalFork = vm.activeFork();
-        vm.makePersistent(address(this));
+        vm.makePersistent(address(this)); // keep config and cache readable across the fork switch
 
         _createL2Fork(_l2RpcUrl);
         require(block.chainid == chainId, "SetL1SplitterConfig: l2RpcUrl chainId mismatch");
@@ -223,7 +231,7 @@ contract SetL1SplitterConfig is L2TaskBase {
                 abi.encodeCall(IL1Splitter.transferOwnership, (AddressAliasHelper.applyL1ToL2Alias(newOwnerToAlias)));
         }
         assembly {
-            mstore(calls, n)
+            mstore(calls, n) // trim to the calls actually emitted
         }
     }
 }

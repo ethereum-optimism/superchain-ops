@@ -40,8 +40,11 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///               prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
 ///                                                              ... | proposer(20) | challenger(20)
 ///
-///           SUPER_PERMISSIONED=5                       → 40 bytes, bond 0:
+///           SUPER_PERMISSIONED=5                       → 40 bytes, bond 0 (as the v8.0.0 OPCM sets it):
 ///               anchorStateRegistry(20) | proposer(20)
+///
+///         Super games (5, 9) are not bound to one chain: the chain ID lives in the super root proof,
+///         so their gameArgs carry chainId = 0 and their impls have no l2ChainId().
 ///
 ///         Whether a slot is permissioned is fixed by the game type (only 1 and 5 are) —
 ///         it is never inferred from the on-chain args length.
@@ -183,7 +186,7 @@ contract SetDisputeGameArgs is L2TaskBase {
         }
 
         if (m.permissioned) {
-            // Type 5 has no challenger.
+            // Permissioned games need a proposer; PERMISSIONED_CANNON also needs a challenger.
             require(
                 m.proposer != address(0) && (m.superPermissioned || m.challenger != address(0)),
                 "SetDisputeGameArgs: proposer/challenger unset on permissioned game"
@@ -384,7 +387,7 @@ contract SetDisputeGameArgs is L2TaskBase {
         } catch {
             revert("SetDisputeGameArgs: impl is not a dispute game (gameType reverted)");
         }
-        if (gameType == SUPER_PERMISSIONED || gameType == SUPER_CANNON_KONA) return; // super games have no l2ChainId().
+        if (gameType == SUPER_PERMISSIONED || gameType == SUPER_CANNON_KONA) return; // no l2ChainId() on super games.
         try IDisputeGameImpl(impl).l2ChainId() returns (uint256 implChainId) {
             require(implChainId == 0 || implChainId == chainId, "SetDisputeGameArgs: impl l2ChainId mismatch");
         } catch {
