@@ -1,6 +1,6 @@
 # 110-unichain-sepolia-set-batcher-unsafe-signer
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -13,9 +13,6 @@ block signer on the **Unichain Sepolia** (chainId 1301) `SystemConfigProxy` with
 |---|---|---|---|---|
 | Unichain Sepolia | 1301 | [`0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/unichain.toml#L52) | `batcherHash()` | `0x4AB3387810eF500bfe05a49dc53A44C222cbab3e` → `0xf10b9B33Ae8da0581E08AB7cA9eCE394301843A9` |
 | | | | `unsafeBlockSigner()` | `0x565B71025Ab4de80AcA33c62E51439af56301493` → `0x23449Eae2BC890db1649AA3071b0e6A9Aa97433b` |
-
-> [!IMPORTANT]
-> The FoundationUpgradeSafe becomes the SystemConfig owner through a `transferOwnership` the current owner executes from its own Safe, outside this repo. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
 
 ## Simulation & Signing
 

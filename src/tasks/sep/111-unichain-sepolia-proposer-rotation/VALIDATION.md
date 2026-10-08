@@ -44,9 +44,9 @@ Check:
    beneath the link** (it starts with `0x6a761202`, the outer
    `execTransaction` that the child safe sends to the L1PAO, and wraps the
    [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
-   contracts touched must be the ones listed in [Task State Changes](#task-state-changes), and
-   nothing else.
-3. The call trace shows one `setImplementation` on `0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b` with `_gameType = 5`, `_impl = 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` and the 40-byte `_args` in the [Understanding Task Calldata](#understanding-task-calldata) table, and nothing else.
+   storage writes must match [Task State Changes](#task-state-changes), which also explains the
+   simulation's nonce overrides and sender nonce bump.
+3. The call trace shows one `setImplementation` on `0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b` with `_gameType = 5`, `_impl = 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` and the 40-byte `_args` in the [Understanding Task Calldata](#understanding-task-calldata) table, and no other call.
 
 ## For Facilitators and Reviewers
 
@@ -118,7 +118,7 @@ just execute
 - **Key:** `0x7879f54b7a738fb6adc3b9585859cd2970241c1545ca5cbe8b1895abdfa5acf8`
   - **Before:** `0xf44db1a9c166474e000000000000000000000000000000000000000000000000`
   - **After:**  `0x42dfb21aabb40800000000000000000000000000000000000000000000000000`
-  - **Summary:** the two data slots of the `gameArgs[5]` bytes value: the first 20 bytes (anchorStateRegistry) are unchanged, the proposer moves to `0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800`. `gameImpls[5]` and `initBonds[5]` are rewritten with their current values (no diff).
+  - **Summary:** the two data slots of the `gameArgs[5]` bytes value: the first 20 bytes (anchorStateRegistry) are unchanged, the proposer moves to `0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800`. `gameImpls[5]` is rewritten with its current value (no diff); `initBonds[5]` is not written (no `bond` in the config, live value 0).
 
 #### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (L1PAO, root safe)
 
