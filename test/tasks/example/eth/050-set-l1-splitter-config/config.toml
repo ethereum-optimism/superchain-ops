@@ -1,4 +1,4 @@
-# SetL1SplitterConfig leg B: synthetic Unichain L1Splitter handover.
+# Regression-test example: leg B of the Unichain L1Splitter handover, with placeholder recipient and minimum.
 
 templateName = "SetL1SplitterConfig"
 
