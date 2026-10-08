@@ -1,6 +1,6 @@
 # 110-unichain-sepolia-set-batcher-unsafe-signer
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
