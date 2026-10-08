@@ -6,8 +6,8 @@ transaction which you are signing.
 ## Expected Domain and Message Hashes
 
 Validate the domain and message hashes. These values should match both the values on your
-ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 47,
-FoundationUpgradeSafe 78, SecurityCouncil 74) and move
+ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 48,
+FoundationUpgradeSafe 80, SecurityCouncil 75) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/080-soneium-proposer-rotation
-just simulate-stack eth 080-soneium-proposer-rotation council   # or foundation
+cd src/tasks/eth/083-soneium-proposer-rotation
+just simulate-stack eth 083-soneium-proposer-rotation council   # or foundation
 ```
 
 Check:
@@ -91,9 +91,9 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 47
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 78
-cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 74
+cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 48
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 80
+cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 75
 cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameImpls(uint32)(address)" 5 -r $RPC   # 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691
 cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameArgs(uint32)(bytes)" 5 -r $RPC    # 0x4890928941e62e273da359374b105f803329f473400c164c4a8ca84385b70eed6eb03ea847c8e1b8
 ```
@@ -101,7 +101,7 @@ cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameArgs(uint32)(bytes)" 5
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/080-soneium-proposer-rotation
+cd src/tasks/eth/083-soneium-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -123,7 +123,7 @@ just execute
 #### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `47` → **After:** `48`
+  - **Before:** `48` → **After:** `49`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
 - **Key (foundation path):** `0x89dd343745a3fe23fba8be51722512ff2f9b535b3f8c6fc7fcd4928d22c03fc0`
@@ -136,13 +136,13 @@ just execute
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `78` → **After:** `79`
+  - **Before:** `80` → **After:** `81`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil), council path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `74` → **After:** `75`
+  - **Before:** `75` → **After:** `76`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard), council path

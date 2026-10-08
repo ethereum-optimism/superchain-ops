@@ -6,8 +6,8 @@ transaction which you are signing.
 ## Expected Domain and Message Hashes
 
 Validate the domain and message hashes. These values should match both the values on your
-ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 48,
-FoundationUpgradeSafe 79, SecurityCouncil 75) and move
+ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 49,
+FoundationUpgradeSafe 81, SecurityCouncil 76) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/081-soneium-fee-vault
-just simulate-stack eth 081-soneium-fee-vault council   # or foundation
+cd src/tasks/eth/084-soneium-fee-vault
+just simulate-stack eth 084-soneium-fee-vault council   # or foundation
 ```
 
 Check:
@@ -102,16 +102,16 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 48
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 79
-cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 75
+cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 49
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 81
+cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 76
 cast call 0x4200000000000000000000000000000000000018 "owner()(address)" -r https://rpc.soneium.org   # aliased L1PAO
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/081-soneium-fee-vault
+cd src/tasks/eth/084-soneium-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -130,7 +130,7 @@ On L2, once relayed, each vault's `recipient` / `withdrawalNetwork` (slot `2`) a
 #### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `48` → **After:** `49`
+  - **Before:** `49` → **After:** `50`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
 - **Key (foundation path):** `0xec49b5802f36ff32414b2fef01174b8538572aac53ffeefba6ec18713042aaa9`
@@ -143,13 +143,13 @@ On L2, once relayed, each vault's `recipient` / `withdrawalNetwork` (slot `2`) a
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `79` → **After:** `80`
+  - **Before:** `81` → **After:** `82`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil), council path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `75` → **After:** `76`
+  - **Before:** `76` → **After:** `77`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard), council path
