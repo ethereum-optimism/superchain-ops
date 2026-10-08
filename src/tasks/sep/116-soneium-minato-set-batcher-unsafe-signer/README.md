@@ -1,4 +1,4 @@
-# 112-soneium-minato-set-batcher-unsafe-signer
+# 116-soneium-minato-set-batcher-unsafe-signer
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -22,11 +22,11 @@ block signer on the **Soneium Minato** (chainId 1946) `SystemConfigProxy` with `
 This is a **single-safe** task executed directly by the FoundationUpgradeSafe.
 
 ```bash
-cd src/tasks/sep/112-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
 
-just simulate-stack sep 112-soneium-minato-set-batcher-unsafe-signer
+just simulate-stack sep 116-soneium-minato-set-batcher-unsafe-signer
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 112-soneium-minato-set-batcher-unsafe-signer
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 116-soneium-minato-set-batcher-unsafe-signer
 ```
 
 ## Execution
@@ -35,7 +35,7 @@ For facilitators, once the Safe has collected its signatures. Run the pre-execut
 [VALIDATION.md](./VALIDATION.md) first. `just execute` refuses to run without `SIGNATURES`.
 
 ```bash
-cd src/tasks/sep/112-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```

@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-79), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+82), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -25,8 +25,8 @@ Safe transaction hash: `0xbdc3dbdc70a50dd010b52e434d25c04fdb6c35e4b7aaad65c27f4e
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/112-soneium-minato-set-batcher-unsafe-signer
-just simulate-stack sep 112-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
+just simulate-stack sep 116-soneium-minato-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -88,14 +88,14 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
-cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 79
+cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 82
 cast call 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B (after 111)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/sep/112-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
@@ -118,7 +118,7 @@ The slot `0x33` owner value is a state override standing in for 111, not a chang
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `79` → **After:** `80`
+  - **Before:** `82` → **After:** `83`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 
