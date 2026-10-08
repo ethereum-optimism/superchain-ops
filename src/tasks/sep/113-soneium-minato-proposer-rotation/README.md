@@ -11,7 +11,7 @@ are `anchorStateRegistry | proposer` with no challenger. The respected game type
 
 | Chain | Chain ID | DisputeGameFactoryProxy | `gameArgs(5)` proposer |
 |---|---|---|---|
-| Soneium Minato | 1946 | [`0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/soneium-minato.toml#L53) | `0xa759A2C80Ec4C6421829862da30dD34436114502` → `0xdead000000000000000000000000000000001003` |
+| Soneium Minato | 1946 | [`0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/soneium-minato.toml#L53) | `0xa759A2C80Ec4C6421829862da30dD34436114502` → `0xdead00000000000000000000000000001003dead` |
 
 The impl (`0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, SuperPermissionedDisputeGame v1.1.0), the anchorStateRegistry and the zero init
 bond are read live and kept.

@@ -7,8 +7,8 @@ l2chains = [
 safeAddressString = "FoundationUpgradeSafe"
 
 [sequencerConfig]
-batcherAddress = "0xdead000000000000000000000000000000001001" # PLACEHOLDER: OPE batcher
-unsafeBlockSigner = "0xdead000000000000000000000000000000001002" # PLACEHOLDER: OPE sequencer
+batcherAddress = "0xdead00000000000000000000000000001001dead" # PLACEHOLDER: OPE batcher
+unsafeBlockSigner = "0xdead00000000000000000000000000001002dead" # PLACEHOLDER: OPE sequencer
 
 [stateOverrides]
 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe nonce
