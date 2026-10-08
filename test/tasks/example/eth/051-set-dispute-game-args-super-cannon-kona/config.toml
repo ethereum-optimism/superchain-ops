@@ -1,4 +1,4 @@
-# SetDisputeGameArgs type 9: synthetic Unichain prestate bump.
+# Regression-test example: sets the Unichain SUPER_CANNON_KONA (9) prestate to a placeholder value.
 
 templateName = "SetDisputeGameArgs"
 
