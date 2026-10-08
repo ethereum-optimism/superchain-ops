@@ -50,9 +50,6 @@ contract SetL1SplitterConfig is L2TaskBase {
     /// @notice `Ownable2Step._pendingOwner` slot.
     bytes32 internal constant PENDING_OWNER_SLOT = bytes32(uint256(1));
 
-    /// @notice Fork this many blocks behind the L2 head (public RPCs can lag their reported head).
-    uint256 internal constant L2_FORK_HEAD_LAG = 5;
-
     address public l1Splitter;
     address public newOwnerToAlias;
     bool public acceptOwnership;
@@ -176,14 +173,7 @@ contract SetL1SplitterConfig is L2TaskBase {
 
     /// @notice Virtual only so test harnesses can pin the L2 fork.
     function _createL2Fork(string memory _l2RpcUrl) internal virtual {
-        vm.createSelectFork(_l2RpcUrl, _l2Head(_l2RpcUrl) - L2_FORK_HEAD_LAG);
-    }
-
-    function _l2Head(string memory _l2RpcUrl) internal returns (uint256 head) {
-        bytes memory raw = vm.rpc(_l2RpcUrl, "eth_blockNumber", "[]");
-        for (uint256 i; i < raw.length; i++) {
-            head = (head << 8) | uint8(raw[i]);
-        }
+        vm.createSelectFork(_l2RpcUrl);
     }
 
     function _build(address) internal override {
