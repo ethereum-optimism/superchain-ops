@@ -11,10 +11,10 @@ the SystemConfig owner, the [FoundationUpgradeSafe](../../../addresses.toml#L18)
 |---|---|---|---|---|
 | OP Sepolia | 11155420 | [`0x034edD2A225f7f429A63E0f1D2084B9E0A93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/op.toml#L52) | `unsafeBlockSigner()` | `0x57CACBB0d30b01eb2462e5dC940c161aff3230D3` → `0xdead00000000000000000000000000002002dead` |
 
-The batcher was rotated in sep/112; this task only moves the unsafe block signer. The new signer is a `0xdead…dead` placeholder until the OPE sequencer key is available.
+The batcher was rotated in sep/112; this task only moves the unsafe block signer. A standalone `just simulate` (without sep/112 applied) would also rotate the batcher, so sign only from `just simulate-stack`.
 
 > [!IMPORTANT]
-> Like sep/112, this needs the SystemConfig owner transferred from the EOA `0xfd1D2e729aE8eEe2E146c033bf4400fE75284301` to the FoundationUpgradeSafe. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) for simulation. A standalone `just simulate` (without sep/112 applied) would also rotate the batcher; sign only from `just simulate-stack`.
+> Like sep/112, this needs the SystemConfig owner transferred from the EOA `0xfd1D2e729aE8eEe2E146c033bf4400fE75284301` to the FoundationUpgradeSafe. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) for simulation.
 
 ## Simulation & Signing
 
