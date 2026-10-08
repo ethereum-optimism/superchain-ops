@@ -13,7 +13,7 @@ touched.
 
 | Chain | Chain ID | OptimismPortalProxy | OperatorFeeVault field | Change |
 |---|---|---|---|---|
-| Unichain | 130 | [`0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/unichain.toml#L50) | `recipient()` | `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0xdead000000000000000000000000000000000004` |
+| Unichain | 130 | [`0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/unichain.toml#L50) | `recipient()` | `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0xdead00000000000000000000000000000004dead` |
 | | | | `withdrawalNetwork()` | 1 (L2) → 0 (L1) |
 | | | | `minWithdrawalAmount()` | 0 → 0.15 ETH (the eth/062 cost-vault value) |
 

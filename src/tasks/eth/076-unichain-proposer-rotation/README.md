@@ -12,7 +12,7 @@ via `setImplementation(5, impl, gameArgs)` from the L1PAO. Since U20 the type-5 
 
 | Chain | Chain ID | DisputeGameFactoryProxy | `gameArgs(5)` proposer |
 |---|---|---|---|
-| Unichain | 130 | [`0x2F12d621a16e2d3285929C9996f478508951dFe4`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/unichain.toml#L52) | `0xD5F0E2912C70771C589CD8bB087EDE0Dab4AFA9A` → `0xdead000000000000000000000000000000000003` |
+| Unichain | 130 | [`0x2F12d621a16e2d3285929C9996f478508951dFe4`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/unichain.toml#L52) | `0xD5F0E2912C70771C589CD8bB087EDE0Dab4AFA9A` → `0xdead00000000000000000000000000000003dead` |
 
 The impl (`0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, SuperPermissionedDisputeGame v1.1.0), the anchorStateRegistry and the zero init
 bond are read live and kept.

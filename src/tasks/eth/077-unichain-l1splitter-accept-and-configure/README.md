@@ -13,7 +13,7 @@ three `OptimismPortal2.depositTransaction` calls executed on L2 by the aliased L
 | Chain | Chain ID | L1Splitter (L2) | Field | Change |
 |---|---|---|---|---|
 | Unichain | 130 | `0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003` | `owner()` | `0xa356d5D10aA8A842B31530dE71EA86c0760CB2C2` → `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` |
-| | | | `l1Recipient()` | `0x7078c4537C04c2b2E52ddBa06074dBdACF23cA15` → `0xdead000000000000000000000000000000000004` |
+| | | | `l1Recipient()` | `0x7078c4537C04c2b2E52ddBa06074dBdACF23cA15` → `0xdead00000000000000000000000000000004dead` |
 | | | | `minWithdrawalAmount()` | 10 ETH → 0.15 ETH (the eth/062 cost-vault value) |
 
 > [!IMPORTANT]
