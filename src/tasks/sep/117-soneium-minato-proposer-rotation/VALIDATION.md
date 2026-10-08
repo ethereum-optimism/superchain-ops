@@ -17,15 +17,15 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x64c09720a183ba94f1ec549b0293caa33fabde133f4eeafe99f4075ed067ea37`
+> - Message Hash: `0x5d5f5f411ca2f532fe95bf0ab42c433c4bddae1edc5e895b0d75d0b281181d9e`
 >
 > ### SecurityCouncil (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
 > - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0xa6d036d71e03753eb497a2b47883e1f6ddbc8599bc3f1f437f62ad5ae2c8c98d`
+> - Message Hash: `0x8b31b3baa0e4a7d716db4aef430aeb0a42f5050832d4d7aefa0b2d7e8e08b2ad`
 
 Root L1PAO (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) safe transaction hash (identical on both signing paths):
-`0x99ea538ec8be385a2930098e05ef0064f1c09bbb595934d8e61096358fbb869e`
+`0x18eb4672fec9f2f96045eb0fad3c1579ada7e72e6e2fe1c629c72174a9e67dde`
 
 ## For Signers
 
@@ -126,12 +126,12 @@ just execute
   - **Before:** `59` → **After:** `60`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
-- **Key (foundation path):** `0xef87f95ead5a95b6465c8b8da2e43ffd06424d34b5643025cebfa1b3f0a755df`
-- **Key (council path):** `0x4ddd4d0eb791647ccc62bbb921406e6e1466eecf6db95a8bb571024ae4696358`
+- **Key (foundation path):** `0x1dcbbe8162a0116bc173cd113ec2afe1756c8b89b26837d8a20f0aa939f5a251`
+- **Key (council path):** `0x20841157b2134ae513916b2eaa899fda9fcf9bb7f4d00dcdf20d6a08d1adc158`
   - **Before:** `0` → **After:** `1`
-  - **Summary:** `approvedHashes[<child safe>][0x99ea538e…]`, the child safe's approval. Only the
+  - **Summary:** `approvedHashes[<child safe>][0x18eb4672…]`, the child safe's approval. Only the
     key of the path being simulated is written. Derive with
-    `cast index bytes32 0x99ea538ec8be385a2930098e05ef0064f1c09bbb595934d8e61096358fbb869e $(cast index address <child> 8)`.
+    `cast index bytes32 0x18eb4672fec9f2f96045eb0fad3c1579ada7e72e6e2fe1c629c72174a9e67dde $(cast index address <child> 8)`.
 
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe), foundation path
 

@@ -16,9 +16,9 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x6a4c94daab5ed9a62238b439b41c10df560b92ee49a94de071a5b235760d21ac`
+> - Message Hash: `0xe5f880988744ca893ddfc9b0e452e2b287e96549134f8eafca9f513915f51d96`
 
-Safe transaction hash: `0xbdc3dbdc70a50dd010b52e434d25c04fdb6c35e4b7aaad65c27f4efc26eb98a8`
+Safe transaction hash: `0xb611b71195883a041f940cc1bc1a71f6f34d8b61782e9cff353c5e191f892072`
 
 ## For Signers
 
