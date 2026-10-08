@@ -43,6 +43,8 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///           SUPER_PERMISSIONED=5                       → 40 bytes, bond 0 (as the v8.0.0 OPCM sets it):
 ///               anchorStateRegistry(20) | proposer(20)
 ///
+///         Types 5 and 9 always keep their live impl (it cannot be checked against the game type).
+///
 ///         Super games (5, 9) are not bound to one chain: the chain ID lives in the super root proof,
 ///         so their gameArgs carry chainId = 0 and their impls have no l2ChainId().
 ///
@@ -122,7 +124,14 @@ contract SetDisputeGameArgs is L2TaskBase {
                         || toml.keyExists(string.concat(base, ".delayedWETH"))
                         || toml.keyExists(string.concat(base, ".challenger"))
                 ),
-            "SetDisputeGameArgs: SUPER_PERMISSIONED only takes impl, anchorStateRegistry, proposer, bond"
+            "SetDisputeGameArgs: SUPER_PERMISSIONED only takes anchorStateRegistry, proposer, bond"
+        );
+        // Super game impls return 0 from gameType(), so a wrong impl (e.g. type 9's in slot 5) would
+        // pass every check here. Keep the live impl.
+        require(
+            !(gameType == SUPER_PERMISSIONED || gameType == SUPER_CANNON_KONA)
+                || !toml.keyExists(string.concat(base, ".impl")),
+            "SetDisputeGameArgs: impl cannot be changed for types 5 and 9"
         );
 
         // No two rows may target the same (chainId, gameType): the later one would silently win.
