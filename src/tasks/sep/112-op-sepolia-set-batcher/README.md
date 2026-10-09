@@ -1,6 +1,6 @@
 # 112-op-sepolia-set-batcher
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
