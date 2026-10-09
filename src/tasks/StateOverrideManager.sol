@@ -107,6 +107,19 @@ abstract contract StateOverrideManager is CommonBase {
         return currentActualNonce;
     }
 
+    /// @notice Returns true if a user-defined state override sets the Gnosis Safe nonce slot for
+    /// the given contract. Used to reject nonce overrides on nonceless (hash-once) tasks.
+    function _hasNonceOverride(address safeAddress) internal view returns (bool) {
+        bytes32 nonceSlot = bytes32(uint256(0x5));
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            if (_stateOverrides[i].contractAddress != safeAddress) continue;
+            for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
+                if (_stateOverrides[i].overrides[j].key == nonceSlot) return true;
+            }
+        }
+        return false;
+    }
+
     /// @notice Root safe override. If `owner` is non-zero, it will be added as an owner when not already.
     function _rootSafeTenderlyOverride(address rootSafe, address owner)
         private

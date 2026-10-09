@@ -145,6 +145,22 @@ library GnosisSafeHashes {
     /// @param _safeAddress The address of the Gnosis Safe contract
     /// @return isOldVersion_ True if the version is below 1.3.0, false otherwise
     function isOldDomainSeparatorVersion(address _safeAddress) internal view returns (bool isOldVersion_) {
+        (uint256 major, uint256 minor) = getMajorMinorVersion(_safeAddress);
+        isOldVersion_ = (major < 1 || (major == 1 && minor < 3));
+    }
+
+    /// @notice Checks if the Safe's version is 1.5.0 or above, where encodeTransactionData()
+    /// was removed from the Safe contract and the encoding must be constructed locally.
+    /// @param _safeAddress The address of the Gnosis Safe contract
+    /// @return removed_ True if the version is 1.5.0 or above, false otherwise
+    function isEncodeTransactionDataRemoved(address _safeAddress) internal view returns (bool removed_) {
+        (uint256 major, uint256 minor) = getMajorMinorVersion(_safeAddress);
+        removed_ = (major > 1 || (major == 1 && minor >= 5));
+    }
+
+    /// @notice Parses the major and minor version from the Safe's VERSION() string.
+    /// We are ignoring tags such as beta, rc, etc.
+    function getMajorMinorVersion(address _safeAddress) internal view returns (uint256 major_, uint256 minor_) {
         // Get the version from the Gnosis Safe contract
         GnosisSafe safe = GnosisSafe(payable(_safeAddress));
         string memory version = safe.VERSION();
@@ -157,10 +173,8 @@ library GnosisSafeHashes {
         require(secondDot != type(uint256).max, "GnosisSafeHashes: Invalid version format");
 
         // Parse major and minor versions
-        uint256 major = JSONParserLib.parseUint(LibString.slice(version, 0, firstDot));
-        uint256 minor = JSONParserLib.parseUint(LibString.slice(version, firstDot + 1, secondDot - firstDot + 1));
-
-        isOldVersion_ = (major < 1 || (major == 1 && minor < 3));
+        major_ = JSONParserLib.parseUint(LibString.slice(version, 0, firstDot));
+        minor_ = JSONParserLib.parseUint(LibString.slice(version, firstDot + 1, secondDot - firstDot + 1));
     }
 
     /// @notice Reads the result of a call to Safe.encodeTransactionData and returns the message hash.
@@ -236,18 +250,41 @@ library GnosisSafeHashes {
         uint256 _originalNonce,
         address _multicallAddress
     ) internal view returns (bytes memory encodedTxData) {
-        encodedTxData = IGnosisSafe(_safe).encodeTransactionData({
-            to: _multicallAddress,
-            value: _value,
-            data: _data,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: _originalNonce
-        });
+        if (isEncodeTransactionDataRemoved(_safe)) {
+            // Safe 1.5.0 removed encodeTransactionData(); construct the EIP-712 encoding locally.
+            // The SafeTx typehash and encoding are byte-identical across 1.3.0, 1.4.1 and 1.5.0,
+            // and getTransactionHash() on the Safe is the keccak256 of exactly this encoding.
+            bytes32 structHash = keccak256(
+                abi.encode(
+                    SAFE_TX_TYPEHASH,
+                    _multicallAddress,
+                    _value,
+                    keccak256(_data),
+                    uint8(Enum.Operation.DelegateCall),
+                    uint256(0),
+                    uint256(0),
+                    uint256(0),
+                    address(0),
+                    address(0),
+                    _originalNonce
+                )
+            );
+            encodedTxData =
+                abi.encodePacked(bytes1(0x19), bytes1(0x01), IGnosisSafe(_safe).domainSeparator(), structHash);
+        } else {
+            encodedTxData = IGnosisSafe(_safe).encodeTransactionData({
+                to: _multicallAddress,
+                value: _value,
+                data: _data,
+                operation: Enum.Operation.DelegateCall,
+                safeTxGas: 0,
+                baseGas: 0,
+                gasPrice: 0,
+                gasToken: address(0),
+                refundReceiver: address(0),
+                _nonce: _originalNonce
+            });
+        }
         require(encodedTxData.length == 66, "GnosisSafeHashes: encodedTxData length is not 66 bytes.");
     }
 
