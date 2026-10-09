@@ -1,6 +1,6 @@
 # Nested Safe Execution
 
-This document provides instructions for signing and executing transactions on **nested safe architectures** where child safes (like Foundation, Security Council, or Chain Governor) are owned by a root safe.
+This document provides instructions for signing and executing transactions on **nested safe architectures** where child safes (like Foundation or Security Council) are owned by a root safe.
 
 For single safe operations (root safe only), please use [SINGLE.md](./SINGLE.md) instead.
 
@@ -55,12 +55,6 @@ For the Foundation:
 
 ```shell
 just --dotenv-path $(pwd)/.env simulate foundation
-```
-
-For the Chain Governor:
-
-```shell
-just --dotenv-path $(pwd)/.env simulate chain-governor
 ```
 
 **This will generate an op-txverify link with instructions on how to verify the domain and message hashes. Follow and complete the instructions before proceeding.**
@@ -153,12 +147,6 @@ For the Foundation:
 just --dotenv-path $(pwd)/.env sign foundation
 ```
 
-For the Chain Governor:
-
-```shell
-just --dotenv-path $(pwd)/.env sign chain-governor
-```
-
 > [!WARNING]
 > This is the most security critical part of the playbook: make sure the
 > domain hash and message hash in the following two places match:
@@ -229,12 +217,6 @@ For the Security Council:
 ```shell
 export SIGNATURES="0xAAAABBBB"  
 just --dotenv-path $(pwd)/.env approve council
-```
-
-For the Chain Governor:
-```shell
-export SIGNATURES="0xAAAABBBB"
-just --dotenv-path $(pwd)/.env approve chain-governor
 ```
 
 ### Execute the transaction
