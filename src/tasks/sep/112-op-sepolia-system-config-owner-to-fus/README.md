@@ -1,6 +1,6 @@
 # 112-op-sepolia-system-config-owner-to-fus
 
-Status: [CANCELLED]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa926ae4c7953a6a17ac0ae09639f75ba8a5f4f39376a2fea2dca2e9487ea67c9)
 
 DO NOT MERGE, REFERENCE ONLY, NOT A SAFE TASK
 
