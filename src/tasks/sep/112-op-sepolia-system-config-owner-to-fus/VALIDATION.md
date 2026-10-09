@@ -16,7 +16,7 @@ must check is the destination, the calldata and the signing address.
 ```bash
 # Ledger:
 cast wallet address --ledger
-# Raw private key (prompted):
+# Raw private key:
 cast wallet address --interactive
 # Foundry keystore:
 cast wallet address --account op-sep-sysconfig-owner
@@ -51,9 +51,9 @@ cast calldata "transferOwnership(address)" 0xDEe57160aAfCF04c34C887B5962D0a69676
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
-# Current owner is the EOA, and it has no code.
+# Current owner is the EOA
 cast call 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "owner()(address)" -r $RPC   # 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301
-cast code 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301 -r $RPC                     # 0x
+cast code 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301 -r $RPC                     # 0x - no data as it's EOA
 
 # New owner is the Sepolia FoundationUpgradeSafe (src/addresses.toml), a live Safe.
 cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "getThreshold()(uint256)" -r $RPC   # non-zero
@@ -65,7 +65,7 @@ cast call 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "transferOwnership(address)
 
 Then send the transaction with one of the commands in the [README](./README.md#execution).
 
-### Transaction State Changes
+### State Changes
 
 #### `0x034edD2A225f7f429A63E0f1D2084B9E0A93b538` (OP Sepolia SystemConfigProxy)
 
@@ -79,7 +79,7 @@ One event: `OwnershipTransferred(previousOwner, newOwner)` (topic0
 `previousOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301` and
 `newOwner = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`.
 
-The EOA's account nonce increments by one and it pays the gas (about 36k gas).
+The EOA's account nonce increments by one.
 
 ### Post-execution verification calls
 

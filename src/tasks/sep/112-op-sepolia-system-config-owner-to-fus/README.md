@@ -1,6 +1,8 @@
 # 112-op-sepolia-system-config-owner-to-fus
 
-Status: [REFERENCE ONLY, NOT A SAFE TASK, DO NOT MERGE]
+Status: [CANCELLED]
+
+DO NOT MERGE, REFERENCE ONLY, NOT A SAFE TASK
 
 ## Objective
 
@@ -25,16 +27,15 @@ It is kept here as a reference with the same validation shape as the other tasks
 ## Execution
 
 For the holder of the EOA key. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md)
-first, then send the transaction with one of the signer options below. Never paste the key on the
-command line or in a file.
+first, then send the transaction with one of the signer options below.
 
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
-# Key in a Ledger:
+# Ledger:
 cast send 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "transferOwnership(address)" 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B --rpc-url $RPC --ledger
 
-# Raw private key, prompted at run time (not stored, not in shell history):
+# Raw private key, prompted at run time:
 cast send 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "transferOwnership(address)" 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B --rpc-url $RPC --interactive
 
 # Raw private key imported once into an encrypted foundry keystore:
