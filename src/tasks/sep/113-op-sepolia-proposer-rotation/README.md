@@ -1,6 +1,6 @@
 # 113-op-sepolia-proposer-rotation
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
