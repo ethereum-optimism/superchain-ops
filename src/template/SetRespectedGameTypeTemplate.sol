@@ -25,7 +25,7 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
 
     /// @notice Execute as the Guardian safe (authorized on ASR).
     function safeAddressString() public pure override returns (string memory) {
-        return "GuardianSafe";
+        return "Guardian";
     }
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
@@ -44,6 +44,19 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
         }
+
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            require(cfg[chainId].chainId != 0, "SetRespectedGameType: Config not found for chain");
+            address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
+            address guardian = IAnchorStateRegistry(asrAddress).superchainConfig().guardian();
+            _requireRootSafe(rootSafe, guardian);
+            address registryFactory = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
+            address asrFactory = address(IAnchorStateRegistry(asrAddress).disputeGameFactory());
+            _requireMatchingDisputeGameFactory(asrFactory, registryFactory);
+            _requireGameTypeRegistered(IDisputeGameFactory(asrFactory).gameImpls(cfg[chainId].gameType));
+        }
     }
 
     /// @notice Write the calls that you want to execute for the task.
@@ -52,8 +65,6 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            require(cfg[chainId].chainId != 0, "SetRespectedGameType: Config not found for chain");
-
             address asrAddress = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
             IAnchorStateRegistry asr = IAnchorStateRegistry(asrAddress);
 
@@ -84,10 +95,32 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
     function _getCodeExceptions() internal pure override returns (address[] memory) {
         return new address[](0);
     }
+
+    function _requireGameTypeRegistered(address implementation) internal pure {
+        require(implementation != address(0), "SetRespectedGameType: Game implementation is zero address");
+    }
+
+    function _requireMatchingDisputeGameFactory(address actual, address expected) internal pure {
+        require(actual == expected, "SetRespectedGameType: DisputeGameFactory mismatch");
+    }
+
+    function _requireRootSafe(address rootSafe, address guardian) internal pure {
+        require(rootSafe == guardian, "SetRespectedGameType: root safe is not Guardian");
+    }
 }
 
 // Minimal local copy; only what this template needs.
 interface IAnchorStateRegistry {
+    function disputeGameFactory() external view returns (IDisputeGameFactory);
+    function superchainConfig() external view returns (ISuperchainConfigGuardian);
     function respectedGameType() external view returns (GameType);
     function setRespectedGameType(GameType _gameType) external;
+}
+
+interface ISuperchainConfigGuardian {
+    function guardian() external view returns (address);
+}
+
+interface IDisputeGameFactory {
+    function gameImpls(GameType gameType) external view returns (address);
 }
