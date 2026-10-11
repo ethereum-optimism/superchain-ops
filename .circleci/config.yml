@@ -144,6 +144,7 @@ jobs:
   template_regression_tests:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    parallelism: 4
     environment:
       FOUNDRY_PROFILE: ci
     steps:
