@@ -38,9 +38,11 @@ interface ISystemConfig {
 /// `OptimismPortal2.setProofMaturityDelaySeconds` on each chain's portal, and
 /// `AnchorStateRegistry.setDisputeGameFinalityDelaySeconds` / `DelayedWETH.setDelay` on the chain's
 /// AnchorStateRegistry and DelayedWETH, which the chains of an interop set share.
-/// Every `[delays]` key is optional and one value applies to all chains in the task; a setter is only
+///
+/// Every `[delays]` key is optional and one value applies to all chains in the task. A setter is only
 /// called where the on-chain value differs, and a shared contract is called once. All three setters
 /// are restricted to the ProxyAdminOwner.
+///
 /// List every chain of an interop set in the same task: shared contracts are then written once and the
 /// proof maturity uniformity check in `_validate` sees all members.
 /// Supports: OptimismPortal2 >= 6.0.0, AnchorStateRegistry >= 5.0.0, DelayedWETH >= 3.0.0.
@@ -124,6 +126,7 @@ contract SetReviewPeriodDelays is L2TaskBase {
                     asr.maxDisputeGameFinalityDelaySeconds(),
                     "disputeGameFinalityDelaySeconds"
                 );
+                // Chains of the interop set resolve to the same ASR, so it is collected once and called once.
                 if (asr.disputeGameFinalityDelaySeconds() != cfg.disputeGameFinalityDelaySeconds) {
                     _pushUnique(asrsToSet, address(asr));
                 }
@@ -137,6 +140,7 @@ contract SetReviewPeriodDelays is L2TaskBase {
                     IDelayedWETH(weth).maxDelay(),
                     "withdrawalDelaySeconds"
                 );
+                // Chains of the interop set share one DelayedWETH, so it is collected once and called once.
                 if (IDelayedWETH(weth).delay() != cfg.withdrawalDelaySeconds) {
                     _pushUnique(wethsToSet, weth);
                 }
@@ -226,7 +230,8 @@ contract SetReviewPeriodDelays is L2TaskBase {
         }
     }
 
-    /// @notice Fails at setup, with a readable message, instead of inside the Safe simulation where the
+    /// @notice Checks that the desired delay falls within configured bounds.
+    /// Fails at setup, with a readable message, instead of inside the Safe simulation where the
     /// contract's custom error is not surfaced.
     function _requireInBounds(uint256 value, uint256 min, uint256 max, string memory name) internal pure {
         require(
