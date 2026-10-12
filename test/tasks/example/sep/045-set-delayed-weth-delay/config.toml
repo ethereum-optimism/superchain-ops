@@ -1,0 +1,13 @@
+templateName = "SetDelayedWETHDelay"
+
+# Both devnets share ProxyAdminOwner 0xe934Dc97E347C6aCef74364B50125bb8689c40ff, which L2TaskBase
+# resolves as the root safe. Chains of an interop set share one DelayedWETH; list them together so
+# it is written once.
+l2chains = [
+    {name = "sepolia-devnet-2", chainId = 420130015},
+    {name = "sepolia-devnet-3", chainId = 420130018}
+]
+
+# Seconds, within the contract's [minDelay, maxDelay] (standard bounds [43200, 604800]).
+[delayedWETH]
+delaySeconds = 172800
