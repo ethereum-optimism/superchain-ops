@@ -18,7 +18,7 @@ contract SetReviewPeriodDelaysHarness is SetReviewPeriodDelays {
 }
 
 /// @title SetReviewPeriodDelaysTomlTest
-/// @notice Pins the contract claimed by `SetReviewPeriodDelays._parseDelays`: both `[delays]` keys are
+/// @notice Pins the contract claimed by `SetReviewPeriodDelays._parseDelays`: every `[delays]` key is
 ///         optional and an absent key leaves its `set*` flag false, so that delay is not touched.
 contract SetReviewPeriodDelaysTomlTest is Test {
     SetReviewPeriodDelaysHarness internal harness;
@@ -27,25 +27,28 @@ contract SetReviewPeriodDelaysTomlTest is Test {
         harness = new SetReviewPeriodDelaysHarness();
     }
 
-    /// @notice Both keys present: both flags are set and both values parsed.
+    /// @notice All three keys present: every flag is set and every value parsed.
     function test_parseDelays_allKeys() public view {
         SetReviewPeriodDelays.Delays memory delays = harness.parseDelays(
-            "[delays]\nproofMaturityDelaySeconds = 172800\ndisputeGameFinalityDelaySeconds = 86400"
+            "[delays]\nproofMaturityDelaySeconds = 172800\ndisputeGameFinalityDelaySeconds = 86400\nwithdrawalDelaySeconds = 259200"
         );
         assertTrue(delays.setProofMaturity);
         assertTrue(delays.setFinalityDelay);
+        assertTrue(delays.setWithdrawalDelay);
         assertEq(delays.proofMaturityDelaySeconds, 172800);
         assertEq(delays.disputeGameFinalityDelaySeconds, 86400);
+        assertEq(delays.withdrawalDelaySeconds, 259200);
     }
 
-    /// @notice A single key only sets its own flag; the other delay stays untouched.
+    /// @notice A single key only sets its own flag; the other delays stay untouched.
     function test_parseDelays_singleKey() public view {
-        SetReviewPeriodDelays.Delays memory delays =
-            harness.parseDelays("[delays]\ndisputeGameFinalityDelaySeconds = 86400");
+        SetReviewPeriodDelays.Delays memory delays = harness.parseDelays("[delays]\nwithdrawalDelaySeconds = 259200");
         assertFalse(delays.setProofMaturity);
-        assertTrue(delays.setFinalityDelay);
+        assertFalse(delays.setFinalityDelay);
+        assertTrue(delays.setWithdrawalDelay);
         assertEq(delays.proofMaturityDelaySeconds, 0);
-        assertEq(delays.disputeGameFinalityDelaySeconds, 86400);
+        assertEq(delays.disputeGameFinalityDelaySeconds, 0);
+        assertEq(delays.withdrawalDelaySeconds, 259200);
     }
 
     /// @notice No `[delays]` section at all: nothing is set. `_templateSetup` then rejects the task.
@@ -53,6 +56,7 @@ contract SetReviewPeriodDelaysTomlTest is Test {
         SetReviewPeriodDelays.Delays memory delays = harness.parseDelays("templateName = \"SetReviewPeriodDelays\"");
         assertFalse(delays.setProofMaturity);
         assertFalse(delays.setFinalityDelay);
+        assertFalse(delays.setWithdrawalDelay);
     }
 
     /// @notice The bounds check is inclusive and names the offending key in its message.
@@ -67,9 +71,7 @@ contract SetReviewPeriodDelaysTomlTest is Test {
     }
 
     function test_requireInBounds_aboveMaxReverts() public {
-        vm.expectRevert(
-            bytes("SetReviewPeriodDelays: disputeGameFinalityDelaySeconds outside the contract's [min, max]")
-        );
-        harness.requireInBounds(302401, 43200, 302400, "disputeGameFinalityDelaySeconds");
+        vm.expectRevert(bytes("SetReviewPeriodDelays: withdrawalDelaySeconds outside the contract's [min, max]"));
+        harness.requireInBounds(604801, 43200, 604800, "withdrawalDelaySeconds");
     }
 }

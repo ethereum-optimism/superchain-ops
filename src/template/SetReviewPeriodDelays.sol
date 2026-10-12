@@ -23,15 +23,27 @@ interface IAnchorStateRegistry {
     function maxDisputeGameFinalityDelaySeconds() external view returns (uint256);
 }
 
+interface IDelayedWETH {
+    function setDelay(uint256 _delay) external;
+    function delay() external view returns (uint256);
+    function minDelay() external view returns (uint256);
+    function maxDelay() external view returns (uint256);
+}
+
+interface ISystemConfig {
+    function delayedWETH() external view returns (address);
+}
+
 /// @notice Sets the withdrawal review period delays of every chain in the task in one transaction:
-/// `OptimismPortal2.setProofMaturityDelaySeconds` on each chain's portal and
-/// `AnchorStateRegistry.setDisputeGameFinalityDelaySeconds` on the chain's AnchorStateRegistry, which
-/// the chains of an interop set share.
-/// Both `[delays]` keys are optional and one value applies to all chains in the task; a setter is only
-/// called where the on-chain value differs. Both setters are restricted to the ProxyAdminOwner.
-/// List every chain of an interop set in the same task: the shared AnchorStateRegistry is then written
-/// once and the proof maturity uniformity check in `_validate` sees all members.
-/// Supports: OptimismPortal2 >= 6.0.0, AnchorStateRegistry >= 5.0.0.
+/// `OptimismPortal2.setProofMaturityDelaySeconds` on each chain's portal, and
+/// `AnchorStateRegistry.setDisputeGameFinalityDelaySeconds` / `DelayedWETH.setDelay` on the chain's
+/// AnchorStateRegistry and DelayedWETH, which the chains of an interop set share.
+/// Every `[delays]` key is optional and one value applies to all chains in the task; a setter is only
+/// called where the on-chain value differs, and a shared contract is called once. All three setters
+/// are restricted to the ProxyAdminOwner.
+/// List every chain of an interop set in the same task: shared contracts are then written once and the
+/// proof maturity uniformity check in `_validate` sees all members.
+/// Supports: OptimismPortal2 >= 6.0.0, AnchorStateRegistry >= 5.0.0, DelayedWETH >= 3.0.0.
 contract SetReviewPeriodDelays is L2TaskBase {
     using stdToml for string;
 
@@ -39,8 +51,10 @@ contract SetReviewPeriodDelays is L2TaskBase {
     struct Delays {
         uint256 proofMaturityDelaySeconds;
         uint256 disputeGameFinalityDelaySeconds;
+        uint256 withdrawalDelaySeconds;
         bool setProofMaturity;
         bool setFinalityDelay;
+        bool setWithdrawalDelay;
     }
 
     /// @notice Configuration for the task. One value applies to every chain.
@@ -50,17 +64,20 @@ contract SetReviewPeriodDelays is L2TaskBase {
     /// several chains in the task appears once, since the task framework rejects duplicate actions.
     address[] public portalsToSet;
     address[] public asrsToSet;
+    address[] public wethsToSet;
 
-    /// @notice Returns the safe address string identifier. Both setters are ProxyAdminOwner-only.
+    /// @notice Returns the safe address string identifier. All three setters are ProxyAdminOwner-only.
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
     }
 
     /// @notice Returns the storage write permissions required for this task.
+    /// `DelayedWETH` is registered in `_templateSetup` from `SystemConfig.delayedWETH()`.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](2);
+        string[] memory storageWrites = new string[](3);
         storageWrites[0] = "OptimismPortalProxy";
         storageWrites[1] = "AnchorStateRegistryProxy";
+        storageWrites[2] = "DelayedWETH";
         return storageWrites;
     }
 
@@ -70,11 +87,21 @@ contract SetReviewPeriodDelays is L2TaskBase {
         super._templateSetup(_taskConfigFilePath, _rootSafe);
 
         cfg = _parseDelays(vm.readFile(_taskConfigFilePath));
-        require(cfg.setProofMaturity || cfg.setFinalityDelay, "SetReviewPeriodDelays: no key set under [delays]");
+        require(
+            cfg.setProofMaturity || cfg.setFinalityDelay || cfg.setWithdrawalDelay,
+            "SetReviewPeriodDelays: no key set under [delays]"
+        );
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+
+            // SystemConfig.delayedWETH() is the canonical DelayedWETH pointer (StandardValidator DWETH-70).
+            // The registry has no key for it, so register one to allow-list its storage writes.
+            address weth = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)).delayedWETH();
+            if (weth != address(0)) {
+                superchainAddrRegistry.saveAddress("DelayedWETH", chains[i], weth);
+            }
 
             if (cfg.setProofMaturity) {
                 IOptimismPortal2 portal = _portal(chainId);
@@ -101,10 +128,23 @@ contract SetReviewPeriodDelays is L2TaskBase {
                     _pushUnique(asrsToSet, address(asr));
                 }
             }
+
+            if (cfg.setWithdrawalDelay) {
+                require(weth != address(0), "SetReviewPeriodDelays: SystemConfig.delayedWETH() is zero");
+                _requireInBounds(
+                    cfg.withdrawalDelaySeconds,
+                    IDelayedWETH(weth).minDelay(),
+                    IDelayedWETH(weth).maxDelay(),
+                    "withdrawalDelaySeconds"
+                );
+                if (IDelayedWETH(weth).delay() != cfg.withdrawalDelaySeconds) {
+                    _pushUnique(wethsToSet, weth);
+                }
+            }
         }
 
         require(
-            portalsToSet.length + asrsToSet.length > 0,
+            portalsToSet.length + asrsToSet.length + wethsToSet.length > 0,
             "SetReviewPeriodDelays: no-op (all configured delays already match on-chain values)"
         );
     }
@@ -116,6 +156,9 @@ contract SetReviewPeriodDelays is L2TaskBase {
         }
         for (uint256 i = 0; i < asrsToSet.length; i++) {
             IAnchorStateRegistry(asrsToSet[i]).setDisputeGameFinalityDelaySeconds(cfg.disputeGameFinalityDelaySeconds);
+        }
+        for (uint256 i = 0; i < wethsToSet.length; i++) {
+            IDelayedWETH(wethsToSet[i]).setDelay(cfg.withdrawalDelaySeconds);
         }
     }
 
@@ -134,6 +177,12 @@ contract SetReviewPeriodDelays is L2TaskBase {
                 require(
                     _asr(chainId).disputeGameFinalityDelaySeconds() == cfg.disputeGameFinalityDelaySeconds,
                     "SetReviewPeriodDelays: disputeGameFinalityDelaySeconds mismatch"
+                );
+            }
+            if (cfg.setWithdrawalDelay) {
+                require(
+                    _weth(chainId).delay() == cfg.withdrawalDelaySeconds,
+                    "SetReviewPeriodDelays: withdrawalDelaySeconds mismatch"
                 );
             }
         }
@@ -161,15 +210,19 @@ contract SetReviewPeriodDelays is L2TaskBase {
         }
     }
 
-    /// @notice Reads `[delays]`. Both keys are optional; an absent key leaves that delay untouched.
+    /// @notice Reads `[delays]`. Every key is optional; an absent key leaves that delay untouched.
     function _parseDelays(string memory tomlContent) internal view returns (Delays memory delays) {
         delays.setProofMaturity = tomlContent.keyExists(".delays.proofMaturityDelaySeconds");
         delays.setFinalityDelay = tomlContent.keyExists(".delays.disputeGameFinalityDelaySeconds");
+        delays.setWithdrawalDelay = tomlContent.keyExists(".delays.withdrawalDelaySeconds");
         if (delays.setProofMaturity) {
             delays.proofMaturityDelaySeconds = tomlContent.readUint(".delays.proofMaturityDelaySeconds");
         }
         if (delays.setFinalityDelay) {
             delays.disputeGameFinalityDelaySeconds = tomlContent.readUint(".delays.disputeGameFinalityDelaySeconds");
+        }
+        if (delays.setWithdrawalDelay) {
+            delays.withdrawalDelaySeconds = tomlContent.readUint(".delays.withdrawalDelaySeconds");
         }
     }
 
@@ -196,6 +249,10 @@ contract SetReviewPeriodDelays is L2TaskBase {
 
     function _asr(uint256 _chainId) internal view returns (IAnchorStateRegistry) {
         return IAnchorStateRegistry(superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", _chainId));
+    }
+
+    function _weth(uint256 _chainId) internal view returns (IDelayedWETH) {
+        return IDelayedWETH(superchainAddrRegistry.getAddress("DelayedWETH", _chainId));
     }
 
     /// @notice No EOAs are written to, so there are no code exceptions.
