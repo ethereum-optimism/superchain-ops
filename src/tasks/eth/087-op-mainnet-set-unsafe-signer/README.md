@@ -1,4 +1,4 @@
-# 085-op-mainnet-set-unsafe-signer
+# 087-op-mainnet-set-unsafe-signer
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -11,18 +11,18 @@ the SystemConfig owner, the [FoundationUpgradeSafe](../../../addresses.toml#L6) 
 |---|---|---|---|---|
 | OP Mainnet | 10 | [`0x229047fed2591dbec1eF1118d64F7aF3dB9EB290`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/op.toml#L51) | `unsafeBlockSigner()` | `0xAAAA45d9549EDA09E70937013520214382Ffc4A2` → `0xdead00000000000000000000000000002002dead` |
 
-The batcher was rotated in eth/079; this task only moves the unsafe block signer. A standalone `just simulate` (without eth/079 applied) would also rotate the batcher, so sign only from `just simulate-stack`.
+The batcher was rotated in eth/081; this task only moves the unsafe block signer. A standalone `just simulate` (without eth/081 applied) would also rotate the batcher, so sign only from `just simulate-stack`.
 
 ## Simulation & Signing
 
 This is a **single-safe** task executed directly by the FoundationUpgradeSafe.
 
 ```bash
-cd src/tasks/eth/085-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/087-op-mainnet-set-unsafe-signer
 
-just simulate-stack eth 085-op-mainnet-set-unsafe-signer
+just simulate-stack eth 087-op-mainnet-set-unsafe-signer
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 085-op-mainnet-set-unsafe-signer
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 087-op-mainnet-set-unsafe-signer
 ```
 
 ## Execution
@@ -31,7 +31,7 @@ For facilitators, once the Safe has collected its signatures. Run the pre-execut
 [VALIDATION.md](./VALIDATION.md) first. `just execute` refuses to run without `SIGNATURES`.
 
 ```bash
-cd src/tasks/eth/085-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/087-op-mainnet-set-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
