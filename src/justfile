@@ -389,7 +389,6 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     --fork-retries {{forge_fork_retries}} \
     --fork-retry-backoff {{forge_fork_retry_backoff}} \
     --broadcast \
-    --gas-estimate-multiplier 300 \
     --sender ${sender} \
     --sig "approve(string,address[],bytes)" \
     ${signer_args} \
@@ -426,7 +425,6 @@ execute:
     --fork-retries {{forge_fork_retries}} \
     --fork-retry-backoff {{forge_fork_retry_backoff}} \
     --broadcast \
-    --gas-estimate-multiplier 300 \
     --sender ${sender} \
     --sig "execute(string,bytes,address[])" \
     ${signer_args} \
