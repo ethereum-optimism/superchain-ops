@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-73), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+74), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,17 +16,17 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x8e6a2647b6df3537b18b78a142c88e4c0cd294bfc71a5a25374ece112f968975`
+> - Message Hash: `0xfca497e1b638f92c694adf31366b73284447b733a0901d8110622e45fdf9a5a0`
 
-Safe transaction hash: `0x4cd87698d412e9e79f31fcfa12b004eebf422b1527e8444530356d84daf89436`
+Safe transaction hash: `0xf30cd117ca424b16ecf41d9a21c31a49733ca3c084bee50bfa4be21feb8be9ee`
 
 ## For Signers
 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/075-unichain-set-batcher-unsafe-signer
-just simulate-stack eth 075-unichain-set-batcher-unsafe-signer
+cd src/tasks/eth/077-unichain-set-batcher-unsafe-signer
+just simulate-stack eth 077-unichain-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -88,14 +88,14 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 73
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 74
 cast call 0xc407398d063f942feBbcC6F80a156b47F3f1BDA6 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (after the SystemConfig owner transfer)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/075-unichain-set-batcher-unsafe-signer
+cd src/tasks/eth/077-unichain-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
@@ -118,7 +118,7 @@ The slot `0x33` owner value is a state override standing in for the SystemConfig
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `73` → **After:** `74`
+  - **Before:** `74` → **After:** `75`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 
