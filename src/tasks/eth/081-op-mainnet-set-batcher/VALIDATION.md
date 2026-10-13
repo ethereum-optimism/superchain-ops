@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-82), with eth/079 executed first, and move only if those inputs move.
+78) and move only if that nonce moves.
 
 > [!CAUTION]
 >
@@ -16,17 +16,17 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x67729a82f2ef4c35cc6822009ab9c9d06e4750c31c35bcef7d5306e39e8a064a`
+> - Message Hash: `0x8e74e6013021dd2f84aed34b8fe85a77cf5f253b10447e25f909260038a21419`
 
-Safe transaction hash: `0xccd5dc052df56aec7ac11a73c040e13b1d53e6bbee64ec6b1f2092ccd2c98b07`
+Safe transaction hash: `0x390ed39c44e943b95e54cecbe03d8abad059488d1b19c34fd749c8004c050d61`
 
 ## For Signers
 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/085-op-mainnet-set-unsafe-signer
-just simulate-stack eth 085-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/081-op-mainnet-set-batcher
+just simulate-stack eth 081-op-mainnet-set-batcher
 ```
 
 Check:
@@ -39,7 +39,7 @@ Check:
    [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
    storage writes must match [Task State Changes](#task-state-changes), which also explains the
    simulation's nonce override and sender nonce bump.
-3. The call trace shows `setUnsafeBlockSigner` on `0x229047fed2591dbec1eF1118d64F7aF3dB9EB290` with the values in the [Understanding Task Calldata](#understanding-task-calldata) table, and one `ConfigUpdate` event (`updateType` 3 `UNSAFE_BLOCK_SIGNER`).
+3. The call trace shows `setBatcherHash` on `0x229047fed2591dbec1eF1118d64F7aF3dB9EB290` with the values in the [Understanding Task Calldata](#understanding-task-calldata) table, and one `ConfigUpdate` event (`updateType` 0 `BATCHER`).
 
 ## For Facilitators and Reviewers
 
@@ -53,7 +53,7 @@ delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the o
 `execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
 
 ```
-0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000002418d13918000000000000000000000000dead00000000000000000000000000002002dead00000000000000000000000000000000000000000000000000000000
+0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024c9b26f61000000000000000000000000dead00000000000000000000000000002001dead00000000000000000000000000000000000000000000000000000000
 ```
 
 ### Understanding Task Calldata
@@ -64,13 +64,13 @@ The task is a single `Multicall3DelegateCall.aggregate3Value` from the Foundatio
 
 | # | Target | Function | Arguments |
 |---|---|---|---|
-| 1 | `0x229047fed2591dbec1eF1118d64F7aF3dB9EB290` (SystemConfigProxy) | `setUnsafeBlockSigner(address)` | `_unsafeBlockSigner = 0xdead00000000000000000000000000002002dead` |
+| 1 | `0x229047fed2591dbec1eF1118d64F7aF3dB9EB290` (SystemConfigProxy) | `setBatcherHash(bytes32)` | `_batcherHash = 0xdead00000000000000000000000000002001dead` (left-padded) |
 
 To verify the payload fingerprints:
 
 ```bash
-cast calldata "setUnsafeBlockSigner(address)" 0xdead00000000000000000000000000002002dead
-# Expected: 0x18d13918000000000000000000000000dead00000000000000000000000000002002dead
+cast calldata "setBatcherHash(bytes32)" 0x000000000000000000000000dead00000000000000000000000000002001dead
+# Expected: 0xc9b26f61000000000000000000000000dead00000000000000000000000000002001dead
 ```
 
 The payload and the target each appear exactly once. To decode the full calldata:
@@ -84,15 +84,14 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 82
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 78
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
-cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r $RPC   # 0x000000000000000000000000dead00000000000000000000000000002001dead (eth/079 executed)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/085-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/081-op-mainnet-set-batcher
 
 SIGNATURES=0x... just execute
 ```
@@ -101,15 +100,15 @@ SIGNATURES=0x... just execute
 
 #### `0x229047fed2591dbec1eF1118d64F7aF3dB9EB290` (OP Mainnet SystemConfigProxy)
 
-- **Key:** `0x65a7ed542fb37fe237fdfbdd70b31598523fe5b32879e307bae27a0bd9581c08`
-  - **Before:** `0x000000000000000000000000aaaa45d9549eda09e70937013520214382ffc4a2`
-  - **After:**  `0x000000000000000000000000dead00000000000000000000000000002002dead`
-  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner")`, `UNSAFE_BLOCK_SIGNER_SLOT()`).
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000067`
+  - **Before:** `0x0000000000000000000000006887246668a3b87f54deb3b94ba47a6f63f32985`
+  - **After:**  `0x000000000000000000000000dead00000000000000000000000000002001dead`
+  - **Summary:** `batcherHash`.
 
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `82` → **After:** `83`
+  - **Before:** `78` → **After:** `79`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 
@@ -121,7 +120,7 @@ sender. Its protocol account nonce, unrelated to the Safe's signing nonce.
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)"       -r $RPC   # 0x000000000000000000000000dead00000000000000000000000000002001dead (unchanged)
-cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "unsafeBlockSigner()(address)" -r $RPC   # 0xdead00000000000000000000000000002002dead
+cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)"       -r $RPC   # 0x000000000000000000000000dead00000000000000000000000000002001dead
+cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "unsafeBlockSigner()(address)" -r $RPC   # 0xAAAA45d9549EDA09E70937013520214382Ffc4A2 (unchanged)
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)"             -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (unchanged)
 ```
