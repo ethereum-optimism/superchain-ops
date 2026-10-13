@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-79), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+80), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,17 +16,17 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x6b80de9fc0cf9c06d608d1091157d3c9664207d4cd100db51af936acdbc13bdf`
+> - Message Hash: `0xb889fc78b18ec05c4811685a8946ad574d018b83f6538ce32e850f8561ae583d`
 
-Safe transaction hash: `0x75b7ba476b2444a6b20502b5bfa6116c165c5726d7825244baf7f5e03f53c6ae`
+Safe transaction hash: `0xd8870a61d55a72bcb93516c18c115f39ad3e3e4dcfcd48639fd5b6840e9c8f3f`
 
 ## For Signers
 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/082-soneium-set-batcher-unsafe-signer
-just simulate-stack eth 082-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/084-soneium-set-batcher-unsafe-signer
+just simulate-stack eth 084-soneium-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -88,14 +88,14 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 79
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 80
 cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (after 075)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/082-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/084-soneium-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
@@ -118,7 +118,7 @@ The slot `0x33` owner value is a state override standing in for 075, not a chang
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `79` → **After:** `80`
+  - **Before:** `80` → **After:** `81`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 

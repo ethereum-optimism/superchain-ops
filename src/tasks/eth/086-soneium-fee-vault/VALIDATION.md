@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 49,
-FoundationUpgradeSafe 81, SecurityCouncil 76) and move
+FoundationUpgradeSafe 82, SecurityCouncil 76) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -17,7 +17,7 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x3c903f83d067c7feb0221ba387150d4999563472f2a7b033d827b280f6595a1d`
+> - Message Hash: `0xa2f149602f85557ea8c5366d59c1ff9b6872c147528101361c8e6bf5c3e0fbc6`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/084-soneium-fee-vault
-just simulate-stack eth 084-soneium-fee-vault council   # or foundation
+cd src/tasks/eth/086-soneium-fee-vault
+just simulate-stack eth 086-soneium-fee-vault council   # or foundation
 ```
 
 Check:
@@ -103,7 +103,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-rpc.publicnode.com
 
 cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 49
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 81
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 82
 cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 76
 cast call 0x4200000000000000000000000000000000000018 "owner()(address)" -r https://rpc.soneium.org   # aliased L1PAO
 ```
@@ -111,7 +111,7 @@ cast call 0x4200000000000000000000000000000000000018 "owner()(address)" -r https
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/084-soneium-fee-vault
+cd src/tasks/eth/086-soneium-fee-vault
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -143,7 +143,7 @@ On L2, once relayed, each vault's `recipient` / `withdrawalNetwork` (slot `2`) a
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `81` → **After:** `82`
+  - **Before:** `82` → **After:** `83`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil), council path
