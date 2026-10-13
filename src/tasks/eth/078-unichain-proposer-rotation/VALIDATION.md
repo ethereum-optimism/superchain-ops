@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 44,
-FoundationUpgradeSafe 74, SecurityCouncil 71) and move
+FoundationUpgradeSafe 75, SecurityCouncil 71) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -17,7 +17,7 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xda35472c5bb870e091a76c9726d13b3c813a1c61d57d8da3941a28790539245c`
+> - Message Hash: `0x50cfc5bb15afa97ec10c1ee2c36f9a74825445456c3ceddef799d90e5a45be52`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/076-unichain-proposer-rotation
-just simulate-stack eth 076-unichain-proposer-rotation council   # or foundation
+cd src/tasks/eth/078-unichain-proposer-rotation
+just simulate-stack eth 078-unichain-proposer-rotation council   # or foundation
 ```
 
 Check:
@@ -92,7 +92,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-rpc.publicnode.com
 
 cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 44
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 74
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 75
 cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 71
 cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 5 -r $RPC   # 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691
 cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameArgs(uint32)(bytes)" 5 -r $RPC    # 0x27cf508e4e3aa8d30b3226ac3b5ea0e8bcacaff9d5f0e2912c70771c589cd8bb087ede0dab4afa9a
@@ -101,7 +101,7 @@ cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameArgs(uint32)(bytes)" 5
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/076-unichain-proposer-rotation
+cd src/tasks/eth/078-unichain-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -136,7 +136,7 @@ just execute
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `74` → **After:** `75`
+  - **Before:** `75` → **After:** `76`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil), council path

@@ -25,8 +25,8 @@ Safe transaction hash: `0xb4a882286b347f92ddf59b8abf724a0cff63380c170c1543a60357
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/074-unichain-l1splitter-transfer-ownership
-just simulate-stack eth 074-unichain-l1splitter-transfer-ownership
+cd src/tasks/eth/076-unichain-l1splitter-transfer-ownership
+just simulate-stack eth 076-unichain-l1splitter-transfer-ownership
 ```
 
 Check:
@@ -92,7 +92,7 @@ cast call 0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003 "pendingOwner()(address)" -
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/074-unichain-l1splitter-transfer-ownership
+cd src/tasks/eth/076-unichain-l1splitter-transfer-ownership
 
 SIGNATURES=0x... just execute
 ```
