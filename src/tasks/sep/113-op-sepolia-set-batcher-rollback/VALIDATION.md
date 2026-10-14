@@ -23,7 +23,7 @@ Safe transaction hash: `0x49790ca6da233ef40a59767f7d12ac9f76989c8b27722d7408c8c4
 ## For Signers
 
 ```bash
-cd src/tasks/sep/115-op-sepolia-set-batcher-rollback
+cd src/tasks/sep/113-op-sepolia-set-batcher-rollback
 just --dotenv-path $(pwd)/.env simulate
 ```
 
@@ -83,7 +83,7 @@ cast call 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "owner()(address)" -r $RPC 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/sep/115-op-sepolia-set-batcher-rollback
+cd src/tasks/sep/113-op-sepolia-set-batcher-rollback
 
 SIGNATURES=0x... just execute
 ```
