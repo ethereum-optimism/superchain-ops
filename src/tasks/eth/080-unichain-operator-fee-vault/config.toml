@@ -8,7 +8,7 @@ vaultProxies = [
     "0x420000000000000000000000000000000000001b", # OperatorFeeVault
 ]
 
-recipients = ["0xdead00000000000000000000000000000004dead"] # PLACEHOLDER: OPE cost recipient
+recipients = ["0x7d324ADedacddc6A284245279C6856eFAcEAA915"]
 networks = [0]
 minWithdrawalAmounts = [150000000000000000]
 
