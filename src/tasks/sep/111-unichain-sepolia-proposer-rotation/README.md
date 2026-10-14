@@ -1,6 +1,6 @@
 # 111-unichain-sepolia-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xbe0781994e53eb501d434f92d1fdf828476b482601e35b809ec8581a835b20f9)
 
 ## Objective
 
