@@ -1,6 +1,6 @@
 # 113-op-sepolia-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x09ddd356f37fef92897a577074d0e5766c417e00036aefb80d32b400db76e571)
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # 075-fos-signer-rotation
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
