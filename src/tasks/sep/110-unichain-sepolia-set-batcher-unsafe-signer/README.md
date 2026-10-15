@@ -1,6 +1,6 @@
 # 110-unichain-sepolia-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x234ac0f35a70e50a7d9f2833765e91fe745b3f2ca549b36b527eb4e428a3ac94)
 
 ## Objective
 
