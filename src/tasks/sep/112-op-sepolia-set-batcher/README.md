@@ -1,6 +1,6 @@
 # 112-op-sepolia-set-batcher
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -13,8 +13,8 @@ the SystemConfig owner, the [FoundationUpgradeSafe](../../../addresses.toml#L18)
 
 The unsafe block signer is unchanged here and rotated in sep/114.
 
-> [!IMPORTANT]
-> The SystemConfig owner today is the EOA `0xfd1D2e729aE8eEe2E146c033bf4400fE75284301`, not the FoundationUpgradeSafe. The EOA must `transferOwnership` to the FoundationUpgradeSafe, outside this repo, before this task can execute. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
+The batcher public key is the OP Enterprise signer config: [`op-signer` manifest](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/e296ff03b303882fc764b658c8c1f18cbec7c67e/manifests/op-sepolia-0/tn-op-sepolia-0-op-signer/tn-op-sepolia-0-op-signer.yaml#L51-L54).
+
 
 ## Simulation & Signing
 
@@ -31,7 +31,7 @@ SKIP_DECODE_AND_PRINT=1 just sign-stack sep 112-op-sepolia-set-batcher
 ## Execution
 
 For facilitators, once the Safe has collected its signatures. Run the pre-execution checks in
-[VALIDATION.md](./VALIDATION.md) first. `just execute` refuses to run without `SIGNATURES`.
+[VALIDATION.md](./VALIDATION.md) first. `just execute` without `SIGNATURES` will revert at the Safe.
 
 ```bash
 cd src/tasks/sep/112-op-sepolia-set-batcher

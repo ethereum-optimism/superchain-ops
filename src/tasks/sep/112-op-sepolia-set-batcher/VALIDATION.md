@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-79), with the SystemConfig owner set to the FoundationUpgradeSafe, and move only if those inputs move.
+79) and move only if that nonce moves.
 
 > [!CAUTION]
 >
@@ -22,24 +22,13 @@ Safe transaction hash: `0xe4535f56c2f255f641e205fbdc908440fd96179f11cbd4e1e10d57
 
 ## For Signers
 
-Simulate the task and check the output against this file before signing.
-
 ```bash
 cd src/tasks/sep/112-op-sepolia-set-batcher
 just simulate-stack sep 112-op-sepolia-set-batcher
 ```
 
-Check:
-
-1. The domain and message hashes printed to the terminal match the ones at the top of this
-   file.
-2. In the Tenderly link printed by the simulation: paste the **execution calldata printed
-   beneath the link** (it starts with `0x6a761202`, the outer
-   `execTransaction`, and wraps the
-   [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
-   storage writes must match [Task State Changes](#task-state-changes), which also explains the
-   simulation's nonce override and sender nonce bump.
-3. The call trace shows `setBatcherHash` on `0x034edD2A225f7f429A63E0f1D2084B9E0A93b538` with the values in the [Understanding Task Calldata](#understanding-task-calldata) table, and one `ConfigUpdate` event (`updateType` 0 `BATCHER`).
+The domain and message hashes printed to the terminal must match the ones above
+and the ones on your ledger.
 
 ## For Facilitators and Reviewers
 
@@ -50,7 +39,7 @@ need the two sections above.
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the FoundationUpgradeSafe
 delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
-`execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
+`execTransaction` wrapper printed by `just simulate-stack`.
 
 ```
 0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b5380000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024c9b26f6100000000000000000000000064eda4f93314ecd619bd4f79d8d1f8112a4e6e1600000000000000000000000000000000000000000000000000000000
@@ -85,7 +74,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
 cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 79
-cast call 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B (after the SystemConfig owner transfer)
+cast call 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
 ```
 
 Then execute with the collected signatures:

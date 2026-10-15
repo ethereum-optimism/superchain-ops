@@ -1,6 +1,6 @@
 # 113-op-sepolia-proposer-rotation
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -15,6 +15,8 @@ are `anchorStateRegistry | proposer` with no challenger. The respected game type
 
 The impl (`0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, SuperPermissionedDisputeGame v1.1.0), the anchorStateRegistry and the zero init
 bond are read live and kept.
+
+The proposer public key is the OP Enterprise signer config: [`op-signer` manifest](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/e296ff03b303882fc764b658c8c1f18cbec7c67e/manifests/op-sepolia-0/tn-op-sepolia-0-op-signer/tn-op-sepolia-0-op-signer.yaml#L55-L58).
 
 ## Simulation & Signing
 

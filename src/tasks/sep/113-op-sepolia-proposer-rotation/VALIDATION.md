@@ -29,24 +29,13 @@ Root L1PAO (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) safe transaction hash 
 
 ## For Signers
 
-Simulate the task and check the output against this file before signing.
-
 ```bash
 cd src/tasks/sep/113-op-sepolia-proposer-rotation
 just simulate-stack sep 113-op-sepolia-proposer-rotation council   # or foundation
 ```
 
-Check:
-
-1. The domain and message hashes printed to the terminal match the ones at the top of this
-   file.
-2. In the Tenderly link printed by the simulation: paste the **execution calldata printed
-   beneath the link** (it starts with `0x6a761202`, the outer
-   `execTransaction` that the child safe sends to the L1PAO, and wraps the
-   [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
-   storage writes must match [Task State Changes](#task-state-changes), which also explains the
-   simulation's nonce overrides and sender nonce bump.
-3. The call trace shows one `setImplementation` on `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1` with `_gameType = 5`, `_impl = 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` and the 40-byte `_args` in the [Understanding Task Calldata](#understanding-task-calldata) table, and no other call.
+The domain and message hashes printed to the terminal must match the ones above
+and the ones on your ledger.
 
 ## For Facilitators and Reviewers
 
@@ -57,7 +46,7 @@ need the two sections above.
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the L1PAO
 delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
-`execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
+`execTransaction` wrapper printed by `just simulate-stack`.
 
 ```
 0x174dea7100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c4b107095700000000000000000000000000000000000000000000000000000000000000050000000000000000000000005c3eb47cb0174aea522a2a9ae79487139a53d69100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000028a1cec548926eb5d69aa3b7b57d371edbdd03e64b9884c33c65111da7bbed0e63cd2392f503b135f500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

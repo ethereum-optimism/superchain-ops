@@ -6,7 +6,7 @@ SAFE_NAME="$2"
 
 if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
     echo "Error (get-safe.sh): Invalid safe name: ${SAFE_NAME}" >&2
-    echo "Valid safe names: foundation, council, chain-governor, foundation-operations, <custom-safe-name>" >&2
+    echo "Valid safe names: foundation, council, foundation-operations, <custom-safe-name>" >&2
     exit 1
 fi
 
@@ -19,7 +19,6 @@ canonicalize_safe_name() {
     case "$input_name" in
         foundation) echo "FoundationUpgradeSafe" ;;
         council) echo "SecurityCouncil" ;;
-        chain-governor) echo "ChainGovernorSafe" ;;
         foundation-operations) echo "FoundationOperationsSafe" ;;
         test-rehearsal-council) echo "TestRehearsalCouncil" ;;
         test-rehearsal-foundation) echo "TestRehearsalFoundation" ;;
@@ -59,11 +58,6 @@ case "$TASK_PATH" in
         exit 1
         ;;
 esac
-
-if [[ "$network" == "sep" && "$SAFE_NAME" == "ChainGovernorSafe" ]]; then
-    echo "Error (get-safe.sh): chain-governor does not exist on sepolia" >&2
-    exit 1
-fi
 
 safe=$(lookup_safe_address "$network" "$SAFE_NAME")
 
