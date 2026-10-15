@@ -12,11 +12,13 @@ authorize against). The Sequencer and Base fee vaults are not touched.
 
 | Vault | Field | Change |
 |---|---|---|
-| L1FeeVault `0x420000000000000000000000000000000000001a` | `recipient()` | `0x7CE93e2bEa4D52e7d7C6870F294874ef034C31Cd` → `0xdead00000000000000000000000000001004dead` |
+| L1FeeVault `0x420000000000000000000000000000000000001a` | `recipient()` | `0x7CE93e2bEa4D52e7d7C6870F294874ef034C31Cd` → `0xC15a3F44A02cE16677fB74Ef3A5E79B9e14B9234` |
 | L1FeeVault `0x420000000000000000000000000000000000001a` | `minWithdrawalAmount()` | 1 ETH → 0.15 ETH |
-| OperatorFeeVault `0x420000000000000000000000000000000000001b` | `recipient()` | `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0xdead00000000000000000000000000001004dead` |
+| OperatorFeeVault `0x420000000000000000000000000000000000001b` | `recipient()` | `0x4200000000000000000000000000000000000019` (BaseFeeVault) → `0xC15a3F44A02cE16677fB74Ef3A5E79B9e14B9234` |
 | OperatorFeeVault `0x420000000000000000000000000000000000001b` | `withdrawalNetwork()` | 1 (L2) → 0 (L1) |
 | OperatorFeeVault `0x420000000000000000000000000000000000001b` | `minWithdrawalAmount()` | 0 → 0.15 ETH |
+
+The cost recipient public key is the OP Enterprise signer config: [`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/2b8b8d9469e8611ba7d3dbf3c0f0d6148690656c/kustomize/op-signer/oplabs-prod-ent-testnet-us/tn-soneium-minato-0-op-signer/configmap.yaml#L26-L29).
 
 > [!IMPORTANT]
 > The L1FeeVault already withdraws to L1, so its network is unchanged and no deposit is sent for it.

@@ -11,8 +11,10 @@ block signer on the **Soneium Minato** (chainId 1946) `SystemConfigProxy` with `
 
 | Chain | Chain ID | SystemConfigProxy | Field | Change |
 |---|---|---|---|---|
-| Soneium Minato | 1946 | [`0x4Ca9608Fef202216bc21D543798ec854539bAAd3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/soneium-minato.toml#L52) | `batcherHash()` | `0xF0AB0441c8f4B89b561aE685B98c6aD5175e0CAB` → `0xdead00000000000000000000000000001001dead` |
-| | | | `unsafeBlockSigner()` | `0x55930859CD7003F32A2ba171297408476532E535` → `0xdead00000000000000000000000000001002dead` |
+| Soneium Minato | 1946 | [`0x4Ca9608Fef202216bc21D543798ec854539bAAd3`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/soneium-minato.toml#L52) | `batcherHash()` | `0xF0AB0441c8f4B89b561aE685B98c6aD5175e0CAB` → `0x2fE55AA59D58e7c3cb333c652E0FDD9b6D4f3541` |
+| | | | `unsafeBlockSigner()` | `0x55930859CD7003F32A2ba171297408476532E535` → `0xA657d31425BC40068032Ec4433D781099Ed9EE3F` |
+
+The batcher and unsafe block signer public keys are the OP Enterprise signer config: [`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/2b8b8d9469e8611ba7d3dbf3c0f0d6148690656c/kustomize/op-signer/oplabs-prod-ent-testnet-us/tn-soneium-minato-0-op-signer/configmap.yaml#L10-L13) (batcher), [`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/2b8b8d9469e8611ba7d3dbf3c0f0d6148690656c/kustomize/op-signer/oplabs-prod-ent-testnet-us/tn-soneium-minato-0-op-signer/configmap.yaml#L22-L25) (sequencer).
 
 > [!IMPORTANT]
 > The FoundationUpgradeSafe becomes the SystemConfig owner through a `transferOwnership` the current owner executes from its own Safe, outside this repo. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
