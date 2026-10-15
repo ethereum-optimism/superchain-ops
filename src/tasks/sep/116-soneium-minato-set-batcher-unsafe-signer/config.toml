@@ -1,0 +1,19 @@
+templateName = "SetBatcherAndOrSigner"
+
+l2chains = [
+    {name = "Soneium Testnet Minato", chainId = 1946}
+]
+
+safeAddressString = "FoundationUpgradeSafe"
+
+[sequencerConfig]
+batcherAddress = "0x2fE55AA59D58e7c3cb333c652E0FDD9b6D4f3541"
+unsafeBlockSigner = "0xA657d31425BC40068032Ec4433D781099Ed9EE3F"
+
+[stateOverrides]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe nonce
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 82}
+]
+0x4Ca9608Fef202216bc21D543798ec854539bAAd3 = [ # SystemConfig owner = FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x000000000000000000000000DEe57160aAfCF04c34C887B5962D0a69676d3C8B"}
+]
