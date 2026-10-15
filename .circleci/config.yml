@@ -74,6 +74,9 @@ jobs:
     parameters:
       network:
         type: string
+      mentions:
+        type: string
+        default: "<!subteam^S07K486JEH4>"
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     resource_class: xlarge
@@ -92,7 +95,7 @@ jobs:
       - store_artifacts:
           path: src/stack-simulation-output.txt
       - notify-failures-on-main:
-          mentions: "<!subteam^S07K486JEH4>"
+          mentions: "<< parameters.mentions >>"
 
   forge_build:
     docker:
@@ -374,6 +377,7 @@ workflows:
       - stacked_simulation:
           name: stacked_simulation_sep
           network: "sep"
+          mentions: "<!subteam^S07F1JJ80BW>"
           context:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
