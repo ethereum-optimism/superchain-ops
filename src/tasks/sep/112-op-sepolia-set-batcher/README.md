@@ -1,6 +1,6 @@
 # 112-op-sepolia-set-batcher
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x3685ea82fda7ab9294dfa7552334f8524e8780a2916ee31968d68661d3e2d418)
 
 ## Objective
 
