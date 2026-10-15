@@ -14,6 +14,7 @@ interface IOptimismPortal2 {
     function minProofMaturityDelaySeconds() external view returns (uint256);
     function maxProofMaturityDelaySeconds() external view returns (uint256);
     function ethLockbox() external view returns (address);
+    function paused() external view returns (bool);
 }
 
 interface IAnchorStateRegistry {
@@ -84,7 +85,7 @@ contract SetReviewPeriodDelays is L2TaskBase {
     }
 
     /// @notice Reads `[delays]`, checks each configured value against the contract's bounds and collects
-    /// the targets whose on-chain value differs.
+    /// the targets whose on-chain value differs. Rejects the task when a portal is paused.
     function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
         super._templateSetup(_taskConfigFilePath, _rootSafe);
 
@@ -97,6 +98,10 @@ contract SetReviewPeriodDelays is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+
+            // Delays must not change during a pause as shortening one could make pending withdrawals
+            // eligible the moment the chain unpauses.
+            require(!_portal(chainId).paused(), string.concat("SetReviewPeriodDelays: ", chains[i].name, " is paused"));
 
             // SystemConfig.delayedWETH() is the canonical DelayedWETH pointer (StandardValidator DWETH-70).
             // The registry has no key for it, so register one to allow-list its storage writes.
