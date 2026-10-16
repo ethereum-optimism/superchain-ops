@@ -1093,7 +1093,7 @@ contract RegressionTest is Test {
     /// @notice Expected call data and data to sign from simulating SetReviewPeriodDelays against the
     /// test deployment on Sepolia with chainId 420130099 and a 1-of-1 Safe at block 11927256. One call per contract.
     /// Simulate from the task directory (test/tasks/example/sep/044-set-review-period-delays) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 OVERRIDE_RPC_URL=<archive sepolia rpc> \
+    /// SIMULATE_WITHOUT_LEDGER=1 OVERRIDE_RPC_URL=<RPC> \
     ///   just --dotenv-path "$(pwd)/.env" --justfile ../../../../../src/justfile simulate
     /// TODO(optimism-private#794): re-capture against a real deployment once a registry-listed
     /// chain carries the setters.
@@ -1119,7 +1119,6 @@ contract RegressionTest is Test {
         _assertDataToSignSingleMultisig(
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
         );
-    }
 
     /// @notice SetL1SplitterConfig leg B on Unichain at mainnet block 26096434 (L2 fork pinned below).
     ///         Simulate from task directory (test/tasks/example/eth/050-set-l1-splitter-config/) with:
