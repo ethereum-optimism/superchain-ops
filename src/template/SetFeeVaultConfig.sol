@@ -242,12 +242,11 @@ contract SetFeeVaultConfig is L2TaskBase {
         vm.selectFork(originalFork);
     }
 
-    /// @notice Creates and selects the L2 pre-flight fork for one chain. Production tasks ALWAYS
-    ///         fork latest (minus `L2_FORK_HEAD_LAG`) — the ProxyAdmin-owner assertion, version gate,
-    ///         and skip-unchanged decisions must see live sign-time state, and fork selection is
-    ///         deliberately NOT configurable from the task config. Virtual ONLY so test harnesses (see
-    ///         the pinned subclass in test/tasks/Regression.t.sol) can pin the fork for deterministic
-    ///         fixtures; the second parameter is the `l2chains` index for multi-chain harnesses.
+    /// @notice Creates and selects the L2 fork used by the pre-flight checks for one chain.
+    ///         Forks `L2_FORK_HEAD_LAG` blocks behind the latest block: the checks see current L2
+    ///         state, on a block every RPC node already has. The fork block cannot be set from the
+    ///         task config. Virtual only so tests (see test/tasks/Regression.t.sol) can fork at a
+    ///         fixed block. The second parameter is the chain's index in `l2chains`.
     function _createL2Fork(string memory _l2RpcUrl, uint256) internal virtual {
         vm.createSelectFork(_l2RpcUrl, _l2Head(_l2RpcUrl) - L2_FORK_HEAD_LAG);
     }
