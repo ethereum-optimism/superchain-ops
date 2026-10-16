@@ -1116,7 +1116,7 @@ contract RegressionTest is Test {
 
 /// @notice Test-only SetFeeVaultConfig that pins the L2 pre-flight fork so the pinned-bytes
 ///         regression fixture above stays deterministic. Production tasks cannot pin the fork:
-///         the base template always forks latest and fork selection is not config-driven.
+///         they fork latest, or `l2ForkHeadLag` blocks behind it.
 contract SetFeeVaultConfigPinnedL2Fork is SetFeeVaultConfig {
     uint256 internal constant OP_SEPOLIA_PINNED_BLOCK = 48340828;
 
