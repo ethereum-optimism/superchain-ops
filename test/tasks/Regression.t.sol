@@ -1119,6 +1119,7 @@ contract RegressionTest is Test {
         _assertDataToSignSingleMultisig(
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
         );
+    }
 
     /// @notice SetL1SplitterConfig leg B on Unichain at mainnet block 26096434 (L2 fork pinned below).
     ///         Simulate from task directory (test/tasks/example/eth/050-set-l1-splitter-config/) with:
