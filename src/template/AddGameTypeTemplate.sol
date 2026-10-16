@@ -66,6 +66,18 @@ contract AddGameTypeTemplate is OPCMTaskBase {
             cfg[configs[i].chainId] = configs[i];
         }
 
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            require(cfg[chainId].chainId != 0, "AddGameType: Config not found for chain");
+            address registryFactory = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
+            address systemConfigFactory = cfg[chainId].systemConfig.disputeGameFactory();
+            _requireMatchingDisputeGameFactory(systemConfigFactory, registryFactory);
+            _requireGameTypeUnregistered(
+                IDisputeGameFactoryU18(systemConfigFactory).gameImpls(cfg[chainId].disputeGameType)
+            );
+        }
+
         // Load OPCM address.
         OPCM = tomlContent.readAddress(".addresses.OPCM");
         require(OPCM != address(0), "OPCM not set");
@@ -83,9 +95,6 @@ contract AddGameTypeTemplate is OPCMTaskBase {
         IOPContractsManagerU18.AddGameInput[] memory configs = new IOPContractsManagerU18.AddGameInput[](chains.length);
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-
-            // Validate that configuration exists for this chain
-            require(cfg[chainId].chainId != 0, "AddGameType: Config not found for chain");
 
             // Validate critical addresses are non-zero
             require(address(cfg[chainId].delayedWETH) != address(0), "AddGameType: delayedWETH is zero address");
@@ -155,6 +164,14 @@ contract AddGameTypeTemplate is OPCMTaskBase {
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+
+    function _requireGameTypeUnregistered(address implementation) internal pure {
+        require(implementation == address(0), "AddGameType: Game type already registered");
+    }
+
+    function _requireMatchingDisputeGameFactory(address actual, address expected) internal pure {
+        require(actual == expected, "AddGameType: DisputeGameFactory mismatch");
+    }
 
     /// @notice Converts the AddGameInputWithChainId struct to the AddGameInput struct.
     function _toAddGameInput(AddGameInputWithChainId memory _input)
