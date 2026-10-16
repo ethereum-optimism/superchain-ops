@@ -4,6 +4,8 @@ templateName = "SetReviewPeriodDelays"
 # absent from the superchain-registry, so its addresses come from addresses.json.
 # In production, list every chain of an interop set in one task so shared contracts
 # are written once and the uniformity check sees all members.
+# TODO(optimism-private#794): point this task at a real deployment once a
+# registry-listed chain carries the setters, and drop addresses.json.
 l2chains = [
     {name = "review-period-test-deployment", chainId = 420130099}
 ]

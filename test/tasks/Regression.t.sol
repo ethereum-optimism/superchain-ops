@@ -1022,6 +1022,8 @@ contract RegressionTest is Test {
     /// Simulate from the task directory (test/tasks/example/sep/044-set-review-period-delays) with:
     /// SIMULATE_WITHOUT_LEDGER=1 OVERRIDE_RPC_URL=<archive sepolia rpc> \
     ///   just --dotenv-path "$(pwd)/.env" --justfile ../../../../../src/justfile simulate
+    /// TODO(optimism-private#794): re-capture against a real deployment once a registry-listed
+    /// chain carries the setters.
     function testRegressionCallDataMatches_SetReviewPeriodDelays() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/044-set-review-period-delays/config.toml";
 
