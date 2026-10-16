@@ -30,6 +30,7 @@ import {AddGameTypeTemplate} from "src/template/AddGameTypeTemplate.sol";
 import {RevShareUpgradeAndSetup} from "src/template/RevShareUpgradeAndSetup.sol";
 import {FeeVaultUpgradeTemplate} from "src/template/FeeVaultUpgradeTemplate.sol";
 import {SetFeeVaultConfig} from "src/template/SetFeeVaultConfig.sol";
+import {SetL1SplitterConfig} from "src/template/SetL1SplitterConfig.sol";
 import {SetBatcherAndOrSigner} from "src/template/SetBatcherAndOrSigner.sol";
 import {TransferSystemConfigOwnership} from "src/template/TransferSystemConfigOwnership.sol";
 import {SetReviewPeriodDelays} from "src/template/SetReviewPeriodDelays.sol";
@@ -479,6 +480,78 @@ contract RegressionTest is Test {
         _assertDataToSignSingleMultisig(
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
         );
+    }
+
+    /// @notice SetDisputeGameArgs, SUPER_PERMISSIONED (5): Soneium proposer rotation at mainnet block 26096434.
+    ///         Simulate from task directory (test/tasks/example/eth/049-set-dispute-game-args-super-permissioned/) with:
+    ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
+    function testRegressionCallDataMatches_SetDisputeGameArgsSuperPermissioned() public {
+        string memory taskConfigFilePath =
+            "test/tasks/example/eth/049-set-dispute-game-args-super-permissioned/config.toml";
+        string memory expectedCallData =
+            "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c4b107095700000000000000000000000000000000000000000000000000000000000000050000000000000000000000005c3eb47cb0174aea522a2a9ae79487139a53d691000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000284890928941e62e273da359374b105f803329f473dead00000000000000000000000000000000dead00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address rootSafe = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // L1PAO
+        address nestedSafe = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 26096434, "mainnet", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        expectedDataToSign[0] =
+            "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b7326724e61b850792072a94517b38b77a6c8d38a48b4d9593f22a9c9b7fd33bfd15012"; // Foundation
+        expectedDataToSign[1] =
+            "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967da11f7a64c3c5770ad1739bd904a23cd240ef5f977a42e9e18afd8d256e7895b"; // Security Council
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+    }
+
+    /// @notice SetDisputeGameArgs must reject an impl override on types 5 and 9: their impls return 0 from
+    ///         gameType(), so type 9's impl in slot 5 would otherwise pass and break game creation.
+    function testRegressionSetDisputeGameArgs_RejectsSuperGameImplOverride() public {
+        string memory toml = string.concat(
+            'templateName = "SetDisputeGameArgs"\n',
+            'l2chains = [{name = "Unichain", chainId = 130}]\n',
+            "[[gameConfig]]\n",
+            "chainId = 130\n",
+            "gameType = 5\n",
+            'impl = "0x19AF533Cc2A2A55786DCB8672aA5717e64213208"\n' // Unichain type-9 impl
+        );
+        string memory configPath =
+            MultisigTaskTestHelper.createTempTomlFile(toml, "SetDisputeGameArgs", "superGameImplOverride");
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address[] memory childSafes = new address[](1);
+        childSafes[0] = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        vm.createSelectFork("mainnet", 26096434);
+        vm.expectRevert("SetDisputeGameArgs: impl cannot be changed for types 5 and 9");
+        multisigTask.simulate(configPath, childSafes);
+        MultisigTaskTestHelper.removeFile(configPath);
+    }
+
+    /// @notice SetDisputeGameArgs, SUPER_CANNON_KONA (9): Unichain prestate bump at mainnet block 26096434.
+    ///         Simulate from task directory (test/tasks/example/eth/051-set-dispute-game-args-super-cannon-kona/) with:
+    ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
+    function testRegressionCallDataMatches_SetDisputeGameArgsSuperCannonKona() public {
+        string memory taskConfigFilePath =
+            "test/tasks/example/eth/051-set-dispute-game-args-super-cannon-kona/config.toml";
+        string memory expectedCallData =
+            "0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000002f12d621a16e2d3285929c9996f478508951dfe40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104b1070957000000000000000000000000000000000000000000000000000000000000000900000000000000000000000019af533cc2a2a55786dcb8672aa5717e642132080000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000007c03dead000000000000000000000000000000000000000000000000000000deadacc005dcd857b401e4732e6f7837135a22825cfa27cf508e4e3aa8d30b3226ac3b5ea0e8bcacaff974ad145ac900f1dd5551f0c9e143314dc4022fcf00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address rootSafe = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // L1PAO
+        address nestedSafe = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 26096434, "mainnet", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        expectedDataToSign[0] =
+            "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672c79f1f45e01f1f9665972670ffdf4f47790aa33ea6a2e3f2743f670e25056ce2"; // Foundation
+        expectedDataToSign[1] =
+            "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce9673efd87e4eda116232488299405da20389bd4c534d4b61e0fd264f9ac12463de4"; // Security Council
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
     /// @notice expected call data and data to sign generated by manually running the WelcomeToSuperchainOps at block 22884610 on mainnet using script:
@@ -1046,6 +1119,29 @@ contract RegressionTest is Test {
         _assertDataToSignSingleMultisig(
             rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
         );
+
+    /// @notice SetL1SplitterConfig leg B on Unichain at mainnet block 26096434 (L2 fork pinned below).
+    ///         Simulate from task directory (test/tasks/example/eth/050-set-l1-splitter-config/) with:
+    ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
+    function testRegressionCallDataMatches_SetL1SplitterConfig() public {
+        string memory taskConfigFilePath = "test/tasks/example/eth/050-set-l1-splitter-config/config.toml";
+        string memory expectedCallData =
+            "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003c00000000000000000000000000bd48f6b86a26d3a217d0fa6ffe2b491b956a7a200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000e4e9e05c420000000000000000000000004300c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30003000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000249f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000479ba509700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bd48f6b86a26d3a217d0fa6ffe2b491b956a7a20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c420000000000000000000000004300c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30003000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000249f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f62b6105000000000000000000000000dead00000000000000000000000000000000dead00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bd48f6b86a26d3a217d0fa6ffe2b491b956a7a20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c420000000000000000000000004300c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30003000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000249f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024c1c4ed2c0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetL1SplitterConfigPinnedL2Fork();
+        address rootSafe = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // L1PAO
+        address nestedSafe = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 26096434, "mainnet", multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        expectedDataToSign[0] =
+            "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b73267247ed97c57024c78306830623404b4e8bb2653cde4b219f228db643de95082b0d"; // Foundation
+        expectedDataToSign[1] =
+            "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce9679a0396bb1b5f960665bf560b04c3f8a2d9c6cad6264a39d2e8786a99b7c72ec2"; // Security Council
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 }
 
@@ -1057,5 +1153,14 @@ contract SetFeeVaultConfigPinnedL2Fork is SetFeeVaultConfig {
 
     function _createL2Fork(string memory _l2RpcUrl, uint256) internal override {
         vm.createSelectFork(_l2RpcUrl, OP_SEPOLIA_PINNED_BLOCK);
+    }
+}
+
+/// @notice Test-only SetL1SplitterConfig with a pinned L2 fork.
+contract SetL1SplitterConfigPinnedL2Fork is SetL1SplitterConfig {
+    uint256 internal constant UNICHAIN_PINNED_BLOCK = 60099000;
+
+    function _createL2Fork(string memory _l2RpcUrl) internal override {
+        vm.createSelectFork(_l2RpcUrl, UNICHAIN_PINNED_BLOCK);
     }
 }
