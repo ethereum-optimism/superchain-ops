@@ -12,10 +12,12 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for migrating a set of chains onto shared dispute contracts with OPCM.migrate.
-/// Supports: op-contracts/v9.0.0 (OPContractsManagerV2 9.0.x)
+/// Supports: op-contracts/v9.0.0 (OPContractsManagerV2 9.x)
 /// @dev Migration is one-way. A single delegatecall deploys a shared ETHLockbox, DisputeGameFactory and
 /// AnchorStateRegistry, moves every chain's ETH into the shared lockbox, points every portal at the shared
 /// dispute contracts and enables INTEROP on every chain. It invalidates all prior withdrawal proofs.
+/// The OPCM must enable the OPTIMISM_PORTAL_INTEROP dev feature, or migrate() reverts. The OPCM container rejects
+/// dev features on Ethereum mainnet, so until that gate is lifted upstream this template can only run off mainnet.
 contract OPCMMigrateV900 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -23,9 +25,12 @@ contract OPCMMigrateV900 is OPCMTaskBase {
     using AccountAccessParser for VmSafe.AccountAccess[];
 
     /// @notice Migrate inputs shared by every chain in the set.
-    /// @dev Fields must remain in alphabetical order for TOML decoding.
+    /// @dev Fields must remain in alphabetical order for TOML decoding. `expectedValidationErrors` is the expected
+    /// output of the migration validator. `expectedChainValidationErrors` holds the expected output of the standard
+    /// validator for each chain, in `l2chains` order.
     struct OPCMMigrate {
         bytes32 cannonKonaPrestate;
+        string[] expectedChainValidationErrors;
         string expectedValidationErrors;
         address proposer;
         uint256 startingAnchorRootL2SequenceNumber;
@@ -92,45 +97,28 @@ contract OPCMMigrateV900 is OPCMTaskBase {
             "OPCMMigrateV900: startingRespectedGameType must be a super game type (5 or 9)"
         );
         require(migrateConfig.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV900: startingAnchorRootRoot is zero");
+        // No game can be created at or before the anchor, so a future anchor (e.g. milliseconds instead of seconds)
+        // would block withdrawals for the whole set. A lower bound is checked per chain in `_snapshotChains`.
         require(
-            migrateConfig.startingAnchorRootL2SequenceNumber < type(uint64).max,
-            "OPCMMigrateV900: startingAnchorRootL2SequenceNumber must leave room for a uint64 successor"
+            migrateConfig.startingAnchorRootL2SequenceNumber <= block.timestamp,
+            "OPCMMigrateV900: startingAnchorRootL2SequenceNumber is in the future"
+        );
+        require(
+            migrateConfig.expectedChainValidationErrors.length == chains.length,
+            "OPCMMigrateV900: expectedChainValidationErrors must have one entry per chain"
         );
 
-        address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
-        uint256 prevChainId;
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            // migrate() requires strictly ascending L2 chain IDs. Requiring the same order in `l2chains` instead of
-            // sorting keeps the validator's per-chain error codes (MIG-CHAIN-<i>-*) aligned with the config.
-            require(chainId > prevChainId, "OPCMMigrateV900: l2chains must be in strictly ascending chainId order");
-            prevChainId = chainId;
-            require(
-                superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
-                "OPCMMigrateV900: all chains must share the same SuperchainConfig"
-            );
+        _snapshotChains(chains);
 
-            IOptimismPortalV900 portal =
-                IOptimismPortalV900(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId));
-            legacyChainContracts.push(
-                IOPContractsManagerMigrationValidatorV900.LegacyChainContracts({
-                    disputeGameFactory: portal.disputeGameFactory(),
-                    ethLockbox: portal.ethLockbox(),
-                    delayedWETH: ISystemConfigV900(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId))
-                        .delayedWETH(),
-                    anchorStateRegistry: portal.anchorStateRegistry()
-                })
-            );
-        }
-
-        // OPCM from TOML; must be the op-contracts/v9.0.0 release (version 9.0.x).
+        // OPCM from TOML; must be an op-contracts/v9 OPCM. Any 9.x is accepted: isPermittedMigrateSequence below
+        // enforces the minor ordering, and allows a replacement OPCM for the same release.
         opcm = IOPContractsManagerV900(tomlContent.readAddress(".addresses.OPCM"));
         require(address(opcm).code.length > 0, "OPCMMigrateV900: OPCM has no code");
         OPCM_TARGETS.push(address(opcm));
         skipOPCMVersionCheck =
             tomlContent.keyExists(".skipOPCMVersionCheck") && tomlContent.readBool(".skipOPCMVersionCheck");
         if (!skipOPCMVersionCheck) {
-            require(opcm.version().startsWith("9.0."), "OPCMMigrateV900: incorrect OPCM major/minor version");
+            require(opcm.version().startsWith("9."), "OPCMMigrateV900: incorrect OPCM major version");
         }
         vm.label(address(opcm), "OPCM");
 
@@ -146,6 +134,62 @@ contract OPCMMigrateV900 is OPCMTaskBase {
                     superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)
                 ),
                 "OPCMMigrateV900: chain must be upgraded with this OPCM's release before migrating"
+            );
+        }
+    }
+
+    /// @notice Checks each chain against the set-wide requirements of migrate() and snapshots its pre-migration
+    /// contracts into `legacyChainContracts`.
+    function _snapshotChains(SuperchainAddressRegistry.ChainInfo[] memory chains) internal {
+        address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
+        uint256 prevChainId;
+        uint256 finalityDelay;
+        uint256 withdrawalDelay;
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            // migrate() requires strictly ascending L2 chain IDs. Requiring the same order in `l2chains` instead of
+            // sorting keeps the validator's per-chain error codes (MIG-CHAIN-<i>-*) aligned with the config.
+            require(chainId > prevChainId, "OPCMMigrateV900: l2chains must be in strictly ascending chainId order");
+            prevChainId = chainId;
+            require(
+                superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
+                "OPCMMigrateV900: all chains must share the same SuperchainConfig"
+            );
+
+            IOptimismPortalV900 portal =
+                IOptimismPortalV900(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId));
+            IAnchorStateRegistryV900 asr = IAnchorStateRegistryV900(portal.anchorStateRegistry());
+            IDelayedWETHV900 delayedWETH = IDelayedWETHV900(
+                ISystemConfigV900(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)).delayedWETH()
+            );
+            legacyChainContracts.push(
+                IOPContractsManagerMigrationValidatorV900.LegacyChainContracts({
+                    disputeGameFactory: portal.disputeGameFactory(),
+                    ethLockbox: portal.ethLockbox(),
+                    delayedWETH: address(delayedWETH),
+                    anchorStateRegistry: address(asr)
+                })
+            );
+
+            (, uint256 anchorL2SequenceNumber) = asr.getAnchorRoot();
+            require(
+                migrateConfig.startingAnchorRootL2SequenceNumber >= anchorL2SequenceNumber,
+                "OPCMMigrateV900: startingAnchorRootL2SequenceNumber is older than a chain's current anchor"
+            );
+
+            // The shared AnchorStateRegistry and DelayedWETH hold one delay each, so migrate() requires every chain to
+            // have the same ones.
+            if (i == 0) {
+                finalityDelay = asr.disputeGameFinalityDelaySeconds();
+                withdrawalDelay = delayedWETH.delay();
+            }
+            require(
+                asr.disputeGameFinalityDelaySeconds() == finalityDelay,
+                "OPCMMigrateV900: all chains must have the same dispute game finality delay"
+            );
+            require(
+                delayedWETH.delay() == withdrawalDelay,
+                "OPCMMigrateV900: all chains must have the same DelayedWETH delay"
             );
         }
     }
@@ -188,6 +232,9 @@ contract OPCMMigrateV900 is OPCMTaskBase {
         (bool success, bytes memory returnData) =
             address(opcm).delegatecall(abi.encodeCall(IOPContractsManagerV900.migrate, (input)));
         if (!success) {
+            if (bytes4(returnData) == IOPContractsManagerV900.OPContractsManagerMigrator_InteropNotEnabled.selector) {
+                revert("OPCMMigrateV900: OPCM does not enable the OPTIMISM_PORTAL_INTEROP dev feature");
+            }
             if (returnData.length > 0) {
                 assembly {
                     revert(add(returnData, 32), mload(returnData))
@@ -261,6 +308,57 @@ contract OPCMMigrateV900 is OPCMTaskBase {
             errors.eq(expErrors),
             string.concat("OPCMMigrateV900: unexpected validation errors: ", errors, "; expected: ", expErrors)
         );
+
+        _validateChains(rootSafe);
+    }
+
+    /// @notice Runs the standard validator on every chain after migration.
+    /// @dev The migration validator checks the shared contracts and each chain's routing to them, but not the rest of
+    /// the chain that migrate() reinitialized (portal, SystemConfig, ProxyAdmin). The L1 PAO override, when the root
+    /// safe is not the standard one, shows up as OVERRIDES-L1PAOMULTISIG in each chain's errors.
+    function _validateChains(address rootSafe) internal view {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        bool overrideL1PAO = rootSafe != standardValidator.l1PAOMultisig();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IOPContractsManagerStandardValidatorV900.ValidationInputDev memory input =
+            IOPContractsManagerStandardValidatorV900.ValidationInputDev({
+                sysCfg: superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
+                // The validator only reads cannonPrestate on its non-super path. Migrated chains respect a super game
+                // type, so the value is unused.
+                cannonPrestate: bytes32(0),
+                cannonKonaPrestate: migrateConfig.cannonKonaPrestate,
+                l2ChainID: chainId,
+                proposer: migrateConfig.proposer
+            });
+
+            string memory errors;
+            if (overrideL1PAO) {
+                errors = standardValidator.validateWithOverrides({
+                    _input: input,
+                    _allowFailure: true,
+                    _overrides: IOPContractsManagerStandardValidatorV900.ValidationOverrides({
+                        l1PAOMultisig: rootSafe,
+                        challenger: address(0)
+                    })
+                });
+            } else {
+                errors = standardValidator.validate({_input: input, _allowFailure: true});
+            }
+
+            string memory expErrors = migrateConfig.expectedChainValidationErrors[i];
+            require(
+                errors.eq(expErrors),
+                string.concat(
+                    "OPCMMigrateV900: unexpected validation errors for chain ",
+                    vm.toString(chainId),
+                    ": ",
+                    errors,
+                    "; expected: ",
+                    expErrors
+                )
+            );
+        }
     }
 
     /// @notice Returns every chain's SystemConfig in `l2chains` order, which `_templateSetup` requires to be
@@ -322,6 +420,9 @@ interface IOPContractsManagerV900 {
         uint32 startingRespectedGameType; // GameType
     }
 
+    /// @notice Thrown by migrate() when the OPCM does not enable the OPTIMISM_PORTAL_INTEROP dev feature.
+    error OPContractsManagerMigrator_InteropNotEnabled();
+
     function version() external view returns (string memory);
 
     function migrate(MigrateInput calldata _input) external;
@@ -364,14 +465,30 @@ interface IOPContractsManagerMigrationValidatorV900 {
     }
 }
 
-/// @notice Standard validator interface for the migration entry points (op-contracts/v9.0.0).
+/// @notice Standard validator interface for the migration and per-chain entry points (op-contracts/v9.0.0).
 interface IOPContractsManagerStandardValidatorV900 {
+    struct ValidationInputDev {
+        address sysCfg; // ISystemConfig
+        bytes32 cannonPrestate;
+        bytes32 cannonKonaPrestate;
+        uint256 l2ChainID;
+        address proposer;
+    }
+
     struct ValidationOverrides {
         address l1PAOMultisig;
         address challenger;
     }
 
     function l1PAOMultisig() external view returns (address);
+
+    function validate(ValidationInputDev memory _input, bool _allowFailure) external view returns (string memory);
+
+    function validateWithOverrides(
+        ValidationInputDev memory _input,
+        bool _allowFailure,
+        ValidationOverrides memory _overrides
+    ) external view returns (string memory);
 
     function validateMigratedChain(
         IOPContractsManagerMigrationValidatorV900.MigrationValidationInput memory _input,
@@ -389,6 +506,15 @@ interface IOptimismPortalV900 {
     function anchorStateRegistry() external view returns (address);
     function disputeGameFactory() external view returns (address);
     function ethLockbox() external view returns (address);
+}
+
+interface IAnchorStateRegistryV900 {
+    function getAnchorRoot() external view returns (bytes32, uint256);
+    function disputeGameFinalityDelaySeconds() external view returns (uint256);
+}
+
+interface IDelayedWETHV900 {
+    function delay() external view returns (uint256);
 }
 
 interface ISystemConfigV900 {
