@@ -40,13 +40,28 @@ interface ISystemConfig {
 /// `AnchorStateRegistry.setDisputeGameFinalityDelaySeconds` / `DelayedWETH.setDelay` on the chain's
 /// AnchorStateRegistry and DelayedWETH, which the chains of an interop set share.
 ///
-/// Every `[delays]` key is optional and one value applies to all chains in the task. A setter is only
-/// called where the on-chain value differs, and a shared contract is called once. All three setters
-/// are restricted to the ProxyAdminOwner.
+/// Usage:
+/// - Every `[delays]` key is optional and an absent key leaves that delay untouched.
+/// - One value applies to all chains in the task.
+/// - A setter is only called where the on-chain value differs and a shared interop contract is called once.
+/// - List every chain of an interop set in the same task, so shared contracts are written once and the
+///   proof maturity uniformity check in `_validate` sees all members.
 ///
-/// List every chain of an interop set in the same task: shared contracts are then written once and the
-/// proof maturity uniformity check in `_validate` sees all members.
-/// Supports: OptimismPortal2 >= 6.0.0, AnchorStateRegistry >= 5.0.0, DelayedWETH >= 3.0.0.
+/// Requirements:
+/// - The Root safe is the chain's ProxyAdminOwner. All three setters are restricted to it.
+/// - Each value must sit within the contract's [min, max] bounds.
+/// - No included portal may be paused.
+/// - Supported versions: OptimismPortal2 >= 6.0.0, AnchorStateRegistry >= 5.0.0, DelayedWETH >= 3.0.0.
+///
+/// Pre-task Verifications:
+/// - No portal in the task is paused. The contracts accept a delay change during a pause, but this
+///   task refuses it. If a delay is shortened while the chain is paused, withdrawals that were waiting
+///   could become finalizable the moment the chain unpauses, which reduces reaction time.
+/// - No open security alerts exist for any chain in the task when lowering a delay, such as an invalid
+///   game in flight. A new delay applies to games that have already resolved and to withdrawals that
+///   have already been proven, so lowering it shortens finalization. If an invalid game has
+///   resolved and is waiting out the finality delay, a shorter delay gives the guardian less time to
+///   blacklist it. This task cannot detect that situation, so manual confirmation is needed.
 contract SetReviewPeriodDelays is L2TaskBase {
     using stdToml for string;
 
@@ -199,10 +214,10 @@ contract SetReviewPeriodDelays is L2TaskBase {
         _checkSetUniformity(chains);
     }
 
-    /// @notice POLICY (unconfirmed): portals that share an ETHLockbox form one interop set and must carry
+    /// @notice POLICY: portals that share an ETHLockbox from one interop set and must carry
     /// the same proof maturity delay, because the pooled liquidity exits after the shortest one.
     /// Only the chains in the task are visible, since set membership is not enumerable on-chain, so the
-    /// task must list every chain of the set. Delete this function and its call to drop the check.
+    /// task must list every chain of the set.
     function _checkSetUniformity(SuperchainAddressRegistry.ChainInfo[] memory chains) internal view {
         for (uint256 i = 0; i < chains.length; i++) {
             IOptimismPortal2 portalA = _portal(chains[i].chainId);
