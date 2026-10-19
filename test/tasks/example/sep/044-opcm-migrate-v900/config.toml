@@ -11,6 +11,8 @@
 #   - No op-contracts/v9.0.0 OPCM is deployed on Sepolia.
 #   - migrate() requires every chain to be on the OPCM's release. All three chains report
 #     lastUsedOPCMVersion 8.0.1 at FORK_BLOCK_NUMBER, so they need a v9 upgrade first.
+#   - migrate() also requires the OPCM to enable the OPTIMISM_PORTAL_INTEROP dev feature. The OPCM container
+#     rejects dev features on Ethereum mainnet, so a mainnet task needs that gate lifted upstream first.
 #
 # l2chains must be in strictly ascending chainId order (migrate reverts otherwise). The first chain's
 # ProxyAdmin administers the shared proxies and its DelayedWETH becomes the shared DelayedWETH.
@@ -30,7 +32,10 @@ skipOPCMVersionCheck = false
 # cannon64-kona-interop (sep/108). A real task MUST use the interop prestate built with this set
 # declared as one interop cluster in the superchain-registry.
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# Placeholder: the validator output has not been captured, because the task cannot be simulated yet.
+# Placeholders: the validator output has not been captured, because the task cannot be simulated yet.
+# expectedValidationErrors is the migration validator's output for the set. expectedChainValidationErrors is the
+# standard validator's output for each chain, in l2chains order.
+expectedChainValidationErrors = ["", "", ""]
 expectedValidationErrors = ""
 # Placeholder: OP Sepolia's current SUPER_PERMISSIONED proposer. The shared game takes a single
 # proposer, but the chains have different ones today (Unichain 0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800,

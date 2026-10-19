@@ -53,8 +53,8 @@ simulate-all-templates:
             task_name=$(basename "$task")
             task_path="$root_dir/test/tasks/example/$network/$task_name"
 
-            # OPCMMigrateV900 needs an op-contracts/v9.0.0 OPCM and chains already upgraded with that
-            # release. Neither exists on Sepolia yet.
+            # OPCMMigrateV900 needs an op-contracts/v9.0.0 OPCM that enables the OPTIMISM_PORTAL_INTEROP
+            # dev feature, and chains already upgraded with that release. Neither exists on Sepolia yet.
             if [ "$task_name" = "044-opcm-migrate-v900" ]; then
                 echo "Skipping $task_name (no v9 OPCM or v9-upgraded chains on Sepolia)"
                 continue
