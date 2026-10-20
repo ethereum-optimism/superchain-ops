@@ -11,8 +11,6 @@
 #   - No op-contracts/v9.0.0 OPCM is deployed on Sepolia.
 #   - migrate() requires every chain to be on the OPCM's release. All three chains report
 #     lastUsedOPCMVersion 8.0.1 at FORK_BLOCK_NUMBER, so they need a v9 upgrade first.
-#   - migrate() also requires the OPCM to enable the OPTIMISM_PORTAL_INTEROP dev feature. The OPCM container
-#     rejects dev features on Ethereum mainnet, so a mainnet task needs that gate lifted upstream first.
 #
 # l2chains must be in strictly ascending chainId order (migrate reverts otherwise). The first chain's
 # ProxyAdmin administers the shared proxies and its DelayedWETH becomes the shared DelayedWETH.
@@ -37,9 +35,10 @@ cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6
 # standard validator's output for each chain, in l2chains order.
 expectedChainValidationErrors = ["", "", ""]
 expectedValidationErrors = ""
-# Placeholder: OP Sepolia's current SUPER_PERMISSIONED proposer. The shared game takes a single
-# proposer, but the chains have different ones today (Unichain 0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800,
-# Ink 0x2282d49d805333D8cd6ddda52B32aC07d6e4e51B). A real task MUST use the set's super proposer.
+# Placeholder: OP Sepolia's SUPER_PERMISSIONED proposer at FORK_BLOCK_NUMBER; sep/113 has since rotated it.
+# The shared game takes a single proposer, but the chains have different ones (Unichain
+# 0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800, Ink 0x2282d49d805333D8cd6ddda52B32aC07d6e4e51B).
+# A real task MUST use the set's super proposer.
 proposer = "0x49277EE36A024120Ee218127354c4a3591dc90A9"
 # Placeholder super root. A real task MUST supply the honest super root of the whole set, generated with
 # op-chain-ops/cmd/check-super-root over every chain, and its timestamp.

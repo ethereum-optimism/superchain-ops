@@ -16,8 +16,6 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// @dev Migration is one-way. A single delegatecall deploys a shared ETHLockbox, DisputeGameFactory and
 /// AnchorStateRegistry, moves every chain's ETH into the shared lockbox, points every portal at the shared
 /// dispute contracts and enables INTEROP on every chain. It invalidates all prior withdrawal proofs.
-/// The OPCM must enable the OPTIMISM_PORTAL_INTEROP dev feature, or migrate() reverts. The OPCM container rejects
-/// dev features on Ethereum mainnet, so until that gate is lifted upstream this template can only run off mainnet.
 contract OPCMMigrateV900 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -98,7 +96,9 @@ contract OPCMMigrateV900 is OPCMTaskBase {
         );
         require(migrateConfig.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV900: startingAnchorRootRoot is zero");
         // No game can be created at or before the anchor, so a future anchor (e.g. milliseconds instead of seconds)
-        // would block withdrawals for the whole set. A lower bound is checked per chain in `_snapshotChains`.
+        // would block withdrawals for the whole set. There is deliberately no lower bound: each chain's current
+        // anchor moves forward as games finalize, so a check against it would start failing once the anchors pass
+        // this timestamp, which can happen before the task is approved or executed.
         require(
             migrateConfig.startingAnchorRootL2SequenceNumber <= block.timestamp,
             "OPCMMigrateV900: startingAnchorRootL2SequenceNumber is in the future"
@@ -171,12 +171,6 @@ contract OPCMMigrateV900 is OPCMTaskBase {
                 })
             );
 
-            (, uint256 anchorL2SequenceNumber) = asr.getAnchorRoot();
-            require(
-                migrateConfig.startingAnchorRootL2SequenceNumber >= anchorL2SequenceNumber,
-                "OPCMMigrateV900: startingAnchorRootL2SequenceNumber is older than a chain's current anchor"
-            );
-
             // The shared AnchorStateRegistry and DelayedWETH hold one delay each, so migrate() requires every chain to
             // have the same ones.
             if (i == 0) {
@@ -232,9 +226,6 @@ contract OPCMMigrateV900 is OPCMTaskBase {
         (bool success, bytes memory returnData) =
             address(opcm).delegatecall(abi.encodeCall(IOPContractsManagerV900.migrate, (input)));
         if (!success) {
-            if (bytes4(returnData) == IOPContractsManagerV900.OPContractsManagerMigrator_InteropNotEnabled.selector) {
-                revert("OPCMMigrateV900: OPCM does not enable the OPTIMISM_PORTAL_INTEROP dev feature");
-            }
             if (returnData.length > 0) {
                 assembly {
                     revert(add(returnData, 32), mload(returnData))
@@ -247,8 +238,9 @@ contract OPCMMigrateV900 is OPCMTaskBase {
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     /// @dev migrate() deploys exactly three proxies, in this order: ETHLockbox, DisputeGameFactory,
     /// AnchorStateRegistry. Their CREATE2 salt includes block.timestamp, so they cannot be configured up front. They
-    /// are taken from the recorded contract creations rather than from the portals, because the validator requires
-    /// the expected shared contracts to be sourced independently of the state migrate() produced.
+    /// are taken from the recorded contract creations rather than from the portals, so the validator compares each
+    /// portal's pointers with a separate record of what was deployed. Both come from this migrate() call, so a wrong
+    /// creation count or order fails validation rather than passing it.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory, address rootSafe)
         internal
         view
@@ -420,9 +412,6 @@ interface IOPContractsManagerV900 {
         uint32 startingRespectedGameType; // GameType
     }
 
-    /// @notice Thrown by migrate() when the OPCM does not enable the OPTIMISM_PORTAL_INTEROP dev feature.
-    error OPContractsManagerMigrator_InteropNotEnabled();
-
     function version() external view returns (string memory);
 
     function migrate(MigrateInput calldata _input) external;
@@ -509,7 +498,6 @@ interface IOptimismPortalV900 {
 }
 
 interface IAnchorStateRegistryV900 {
-    function getAnchorRoot() external view returns (bytes32, uint256);
     function disputeGameFinalityDelaySeconds() external view returns (uint256);
 }
 
