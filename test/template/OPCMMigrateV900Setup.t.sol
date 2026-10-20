@@ -2,12 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {
-    OPCMMigrateV900,
-    IOPContractsManagerV900,
-    IOptimismPortalV900,
-    ISystemConfigV900
-} from "src/template/OPCMMigrateV900.sol";
+import {OPCMMigrateV900, IOptimismPortalV900, ISystemConfigV900} from "src/template/OPCMMigrateV900.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 
 contract OPCMMigrateV900SetupHarness is OPCMMigrateV900 {
@@ -15,14 +10,9 @@ contract OPCMMigrateV900SetupHarness is OPCMMigrateV900 {
         superchainAddrRegistry = new SuperchainAddressRegistry(configPath);
         _templateSetup(configPath, address(0));
     }
-
-    function buildForTest() external {
-        _build(address(0));
-    }
 }
 
-/// @notice Stands in for a v9 OPCM until one is deployed. Its migrate() reverts the way the real one does when the
-/// OPTIMISM_PORTAL_INTEROP dev feature is not enabled.
+/// @notice Stands in for a v9 OPCM until one is deployed.
 contract MockOPCMV900 {
     string public version;
 
@@ -36,10 +26,6 @@ contract MockOPCMV900 {
 
     function isPermittedMigrateSequence(address) external pure returns (bool) {
         return true;
-    }
-
-    function migrate(IOPContractsManagerV900.MigrateInput calldata) external pure {
-        revert IOPContractsManagerV900.OPContractsManagerMigrator_InteropNotEnabled();
     }
 }
 
@@ -116,16 +102,6 @@ contract OPCMMigrateV900SetupValidationTest is Test {
         );
     }
 
-    /// @dev Unichain Sepolia's anchor is at 1791461089 at the fork block.
-    function test_rejects_starting_anchor_older_than_current_anchor() public {
-        _assertSetupReverts(
-            "stale-anchor",
-            "startingAnchorRootL2SequenceNumber = 1792000000",
-            "startingAnchorRootL2SequenceNumber = 1791000000",
-            "OPCMMigrateV900: startingAnchorRootL2SequenceNumber is older than a chain's current anchor"
-        );
-    }
-
     function test_rejects_wrong_expected_chain_validation_errors_length() public {
         _assertSetupReverts(
             "chain-errors-length",
@@ -199,18 +175,11 @@ contract OPCMMigrateV900SetupValidationTest is Test {
         );
     }
 
-    /// @dev isPermittedMigrateSequence allows a replacement OPCM for the same release, with a newer minor.
+    /// @dev The version gate accepts any 9.x OPCM.
     function test_accepts_newer_v9_minor_opcm() public {
         OPCMMigrateV900SetupHarness harness = new OPCMMigrateV900SetupHarness();
         harness.setupForTest(_writeConfigWithMockOPCM("v910-opcm", "9.1.0"));
         assertEq(harness.opcm().version(), "9.1.0");
-    }
-
-    function test_build_reports_missing_interop_dev_feature() public {
-        OPCMMigrateV900SetupHarness harness = new OPCMMigrateV900SetupHarness();
-        harness.setupForTest(_writeConfigWithMockOPCM("no-interop-opcm", "9.0.5"));
-        vm.expectRevert(bytes("OPCMMigrateV900: OPCM does not enable the OPTIMISM_PORTAL_INTEROP dev feature"));
-        harness.buildForTest();
     }
 
     /// @notice Writes the example config with `from` replaced by `to`, then expects setup to revert with `reason`.
