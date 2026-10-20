@@ -25,20 +25,6 @@ parameters:
     default: "__not_set__"
 
 commands:
-  just-install:
-    description: "Run just install, caching Go modules to avoid flaky proxy.golang.org/sum.golang.org fetches"
-    steps:
-      - restore_cache:
-          keys:
-            - go-mod-v1-{{ arch }}-{{ checksum "justfile" }}
-      - run:
-          name: just install
-          command: just install
-      - save_cache:
-          key: go-mod-v1-{{ arch }}-{{ checksum "justfile" }}
-          paths:
-            - ~/go/pkg/mod
-
   notify-failures-on-main:
     description: "Notify Slack"
     parameters:
@@ -75,10 +61,10 @@ jobs:
       - utils/checkout-with-mise
       - attach_workspace:
           at: .
-      - just-install
       - run:
           name: Check superchain registry
           command: |
+            just install
             (cd src/ && just --justfile ci.just check-superchain-registry-latest)
       - notify-failures-on-main:
           mentions: "<!subteam^S07K486JEH4>"
@@ -98,12 +84,12 @@ jobs:
       FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
-      - just-install
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
           # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
           no_output_timeout: 30m
           command: |
+            just install
             cd src/
             just simulate-stack <<parameters.network>> > stack-simulation-output.txt
       - store_artifacts:
@@ -116,10 +102,10 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
-      - just-install
       - run:
           name: forge build
           command: |
+            just install
             forge --version
             forge build --deny-warnings
 
@@ -128,10 +114,10 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
-      - just-install
       - run:
           name: forge fmt
           command: |
+            just install
             forge --version
             forge fmt --check
 
@@ -143,12 +129,12 @@ jobs:
       FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
-      - just-install
       - run:
           name: forge test
           max_auto_reruns: 3
           auto_rerun_delay: 10s
           command: |
+            just install
             forge --version
             # Skip integration tests - they require RPC endpoints for L1/L2 fork simulation, and for now the unique
             # test we have is for revenue sharing and is not the standard way of testing, for now we are excluding it
