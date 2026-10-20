@@ -40,12 +40,13 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the top of this
    file.
-2. In the Tenderly link printed by the simulation: paste the **execution calldata printed
-   beneath the link** (it starts with `0x6a761202`, the outer
-   `execTransaction` that the child safe sends to the L1PAO, and wraps the
-   [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
-   contracts touched must be the ones listed in [Task State Changes](#task-state-changes), and
-   nothing else.
+2. In the Tenderly link printed by the simulation: paste the **entire execution calldata printed
+   beneath the link** into the **Raw input data** field and simulate. It starts with `0x174dea71`
+   (`aggregate3Value` on Multicall3 `0xcA11bde05977b3631167028862bE2a173976CA11`) and bundles two
+   `execTransaction` calls: the child safe approving the L1PAO transaction hash, then the L1PAO
+   executing the task. It is longer than the [task calldata](#task-calldata) below, which also
+   starts with `0x174dea71`. The contracts touched must be the ones listed in
+   [Task State Changes](#task-state-changes), and nothing else.
 3. The call trace shows one `setImplementation` on `0x2F12d621a16e2d3285929C9996f478508951dFe4` with `_gameType = 5`, `_impl = 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` and the 40-byte `_args` in the [Understanding Task Calldata](#understanding-task-calldata) table, and nothing else.
 
 ## For Facilitators and Reviewers
@@ -56,8 +57,10 @@ need the two sections above.
 ### Task Calldata
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the L1PAO
-delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
-`execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
+delegatecalls into `Multicall3DelegateCall`. It is not the Tenderly input: the full simulation
+payload printed by `just simulate-stack` (see step 2 above) also starts with `0x174dea71`, but is
+the outer Multicall3 bundle of the child safe approval and the L1PAO `execTransaction`, which
+wraps this payload.
 
 ```
 0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000002f12d621a16e2d3285929c9996f478508951dfe400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c4b107095700000000000000000000000000000000000000000000000000000000000000050000000000000000000000005c3eb47cb0174aea522a2a9ae79487139a53d6910000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000002827cf508e4e3aa8d30b3226ac3b5ea0e8bcacaff986b392ca30ad7453c8d88b56eb5a04fd0e2175b700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

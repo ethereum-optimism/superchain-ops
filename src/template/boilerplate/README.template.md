@@ -9,7 +9,7 @@ Todo: Describe the objective of the task
 ## Simulation & Signing
 
 Replace `<network>` (`eth` or `sep`) and `<council|foundation>` (the safe you
-are signing for; `council` or `foundation`, Unichain also has `chain-governor`)
+are signing for; `council` or `foundation`)
 in the commands below. For a nested task, run each command once per safe. For a
 task signed by a single safe, drop the `<council|foundation>` selector entirely.
 
