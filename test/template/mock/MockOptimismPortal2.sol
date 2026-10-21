@@ -22,4 +22,8 @@ contract MockOptimismPortal2 {
     function setPaused(bool value) external {
         paused = value;
     }
+
+    function setEthLockbox(address value) external {
+        ethLockbox = value;
+    }
 }

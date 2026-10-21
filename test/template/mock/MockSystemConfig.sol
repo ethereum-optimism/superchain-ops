@@ -8,4 +8,8 @@ contract MockSystemConfig {
     constructor(address weth) {
         delayedWETH = weth;
     }
+
+    function setDelayedWETH(address weth) external {
+        delayedWETH = weth;
+    }
 }

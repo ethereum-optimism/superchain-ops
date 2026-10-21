@@ -124,6 +124,13 @@ contract SetReviewPeriodDelaysTest is Test {
         assertEq(action.value, 0);
     }
 
+    /// @notice Puts both portals behind one ETHLockbox, as the portals of an interop set are.
+    function _shareLockbox() internal {
+        address lockbox = makeAddr("lockbox");
+        portalA.setEthLockbox(lockbox);
+        portalB.setEthLockbox(lockbox);
+    }
+
     ///////////////////// Parser and bounds //////////////////////
 
     /// @notice All three keys present: every flag is set and every value parsed.
@@ -190,6 +197,25 @@ contract SetReviewPeriodDelaysTest is Test {
         string memory path = _config("");
 
         vm.expectRevert(bytes("SetReviewPeriodDelays: no key set under [delays]"));
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+    }
+
+    /// @notice A configured value outside the contract's bounds is rejected at setup, before any build.
+    function test_templateSetup_outOfBoundsReverts() public {
+        string memory path = _config("proofMaturityDelaySeconds = 604801");
+
+        vm.expectRevert(bytes("SetReviewPeriodDelays: proofMaturityDelaySeconds outside the contract's [min, max]"));
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+    }
+
+    /// @notice The DelayedWETH delay cannot be set on a chain whose SystemConfig has no DelayedWETH pointer.
+    function test_templateSetup_noDelayedWETHReverts() public {
+        MockSystemConfig(registry.getAddress("SystemConfigProxy", CHAIN_A)).setDelayedWETH(address(0));
+        string memory path = _config("withdrawalDelaySeconds = 259200");
+
+        vm.expectRevert(bytes("SetReviewPeriodDelays: SystemConfig.delayedWETH() is zero"));
         harness.templateSetup(path);
         MultisigTaskTestHelper.removeFile(path);
     }
@@ -304,5 +330,50 @@ contract SetReviewPeriodDelaysTest is Test {
 
         vm.expectRevert(bytes("SetReviewPeriodDelays: withdrawalDelaySeconds mismatch"));
         harness.validateTemplate();
+    }
+
+    /// @notice Portals that share an ETHLockbox must hold the same proof maturity. The key is configured,
+    ///         so both portals end at the same value and the set check passes.
+    function test_validate_sharedLockboxUniformPasses() public {
+        _shareLockbox();
+        _execute(_setupAndBuild(ALL_KEYS));
+        harness.validateTemplate();
+    }
+
+    /// @notice Proof maturity is not configured, so the per-chain check skips it, but the portals share a
+    ///         lockbox and hold different values: the set check rejects the task.
+    function test_validate_sharedLockboxMismatchReverts() public {
+        _shareLockbox();
+        portalA.setProofMaturityDelaySeconds(PROOF_MATURITY);
+        _execute(_setupAndBuild("disputeGameFinalityDelaySeconds = 86400"));
+
+        vm.expectRevert(
+            bytes("SetReviewPeriodDelays: portals in the same set have different proofMaturityDelaySeconds")
+        );
+        harness.validateTemplate();
+    }
+
+    /// @notice The set check also runs when the task only touches the DelayedWETH delay.
+    function test_validate_sharedLockboxMismatchWithdrawalDelayOnlyReverts() public {
+        _shareLockbox();
+        portalA.setProofMaturityDelaySeconds(PROOF_MATURITY);
+        _execute(_setupAndBuild("withdrawalDelaySeconds = 259200"));
+
+        vm.expectRevert(
+            bytes("SetReviewPeriodDelays: portals in the same set have different proofMaturityDelaySeconds")
+        );
+        harness.validateTemplate();
+    }
+
+    /// @notice Portals behind different lockboxes belong to different sets, so they may keep different
+    ///         proof maturities.
+    function test_validate_differentLockboxesKeepDifferentProofMaturity() public {
+        portalA.setEthLockbox(makeAddr("lockboxA"));
+        portalB.setEthLockbox(makeAddr("lockboxB"));
+        portalA.setProofMaturityDelaySeconds(PROOF_MATURITY);
+        _execute(_setupAndBuild("disputeGameFinalityDelaySeconds = 86400"));
+
+        harness.validateTemplate();
+        assertTrue(portalA.proofMaturityDelaySeconds() != portalB.proofMaturityDelaySeconds());
     }
 }
