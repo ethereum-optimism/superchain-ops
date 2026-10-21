@@ -178,7 +178,7 @@ contract SetL1SplitterConfig is L2TaskBase {
 
     /// @notice Virtual only so test harnesses can pin the L2 fork.
     function _createL2Fork(string memory _l2RpcUrl) internal virtual {
-        vm.createSelectFork(_l2RpcUrl);
+        _createL2PreflightFork(_l2RpcUrl);
     }
 
     function _build(address) internal override {

@@ -12,7 +12,12 @@ install-eip712sign:
   PATH="$REPO_ROOT/bin:$PATH"
   cd $REPO_ROOT
   mkdir -p bin || true
-  GOBIN="$REPO_ROOT/bin" go install github.com/base/eip712sign@v0.0.11
+  # Retry to ride out transient proxy.golang.org / sum.golang.org errors.
+  for attempt in 1 2 3; do
+    GOBIN="$REPO_ROOT/bin" go install github.com/base/eip712sign@v0.0.11 && exit 0
+    [ "$attempt" -lt 3 ] && echo "go install eip712sign failed (attempt $attempt/3), retrying in 10s..." >&2 && sleep 10
+  done
+  exit 1
 
 clean:
   forge clean
