@@ -1,10 +1,11 @@
-# 084-soneium-set-batcher-unsafe-signer
+# 085-soneium-set-batcher-unsafe-signer
 
 Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-Soneium Mainnet migration, cutover steps 2 and 3: registers the OP Enterprise batcher and unsafe
+Soneium Mainnet migration, second cutover step (after the proposer rotation in
+[084](../084-soneium-proposer-rotation)): registers the OP Enterprise batcher and unsafe
 block signer on the **Soneium** (chainId 1868) `SystemConfigProxy` with `setBatcherHash(bytes32)` and
 `setUnsafeBlockSigner(address)`, executed by the SystemConfig owner, the
 [FoundationUpgradeSafe](../../../addresses.toml#L6) (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`).
@@ -22,11 +23,11 @@ block signer on the **Soneium** (chainId 1868) `SystemConfigProxy` with `setBatc
 This is a **single-safe** task executed directly by the FoundationUpgradeSafe.
 
 ```bash
-cd src/tasks/eth/084-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/085-soneium-set-batcher-unsafe-signer
 
-just simulate-stack eth 084-soneium-set-batcher-unsafe-signer
+just simulate-stack eth 085-soneium-set-batcher-unsafe-signer
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 084-soneium-set-batcher-unsafe-signer
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 085-soneium-set-batcher-unsafe-signer
 ```
 
 ## Execution
@@ -35,7 +36,7 @@ For facilitators, once the Safe has collected its signatures. Run the pre-execut
 [VALIDATION.md](./VALIDATION.md) first. `just execute` refuses to run without `SIGNATURES`.
 
 ```bash
-cd src/tasks/eth/084-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/085-soneium-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```

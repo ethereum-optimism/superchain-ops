@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 48,
-FoundationUpgradeSafe 81, SecurityCouncil 75) and move
+FoundationUpgradeSafe 80, SecurityCouncil 75) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -17,7 +17,7 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x49b36336129bfb99eccb2010c8b204a8347083e6380f34761bd260ac05780055`
+> - Message Hash: `0x6c695657bb613bedb8c80e281d2044025c8bed47eb857a67372163ed24b26457`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
@@ -32,8 +32,8 @@ Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/085-soneium-proposer-rotation
-just simulate-stack eth 085-soneium-proposer-rotation council   # or foundation
+cd src/tasks/eth/084-soneium-proposer-rotation
+just simulate-stack eth 084-soneium-proposer-rotation council   # or foundation
 ```
 
 Check:
@@ -92,7 +92,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-rpc.publicnode.com
 
 cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 48
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 81
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 80
 cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 75
 cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameImpls(uint32)(address)" 5 -r $RPC   # 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691
 cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameArgs(uint32)(bytes)" 5 -r $RPC    # 0x4890928941e62e273da359374b105f803329f473400c164c4a8ca84385b70eed6eb03ea847c8e1b8
@@ -101,7 +101,7 @@ cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameArgs(uint32)(bytes)" 5
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/085-soneium-proposer-rotation
+cd src/tasks/eth/084-soneium-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -136,7 +136,7 @@ just execute
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `81` → **After:** `82`
+  - **Before:** `80` → **After:** `81`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil), council path
