@@ -1,10 +1,11 @@
-# 116-soneium-minato-set-batcher-unsafe-signer
+# 117-soneium-minato-set-batcher-unsafe-signer
 
 Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-Soneium Minato migration, cutover steps 2 and 3: registers the OP Enterprise batcher and unsafe
+Soneium Minato migration, second cutover step (after the proposer rotation in
+[116](../116-soneium-minato-proposer-rotation)): registers the OP Enterprise batcher and unsafe
 block signer on the **Soneium Minato** (chainId 1946) `SystemConfigProxy` with `setBatcherHash(bytes32)` and
 `setUnsafeBlockSigner(address)`, executed by the SystemConfig owner, the
 [FoundationUpgradeSafe](../../../addresses.toml#L18) (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`).
@@ -24,11 +25,11 @@ The batcher and unsafe block signer public keys are the OP Enterprise signer con
 This is a **single-safe** task executed directly by the FoundationUpgradeSafe.
 
 ```bash
-cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/117-soneium-minato-set-batcher-unsafe-signer
 
-just simulate-stack sep 116-soneium-minato-set-batcher-unsafe-signer
+just simulate-stack sep 117-soneium-minato-set-batcher-unsafe-signer
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 116-soneium-minato-set-batcher-unsafe-signer
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 117-soneium-minato-set-batcher-unsafe-signer
 ```
 
 ## Execution
@@ -37,7 +38,7 @@ For facilitators, once the Safe has collected its signatures. Run the pre-execut
 [VALIDATION.md](./VALIDATION.md) first. `just execute` refuses to run without `SIGNATURES`.
 
 ```bash
-cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/117-soneium-minato-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```

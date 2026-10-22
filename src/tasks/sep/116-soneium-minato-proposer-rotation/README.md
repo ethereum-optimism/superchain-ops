@@ -1,10 +1,11 @@
-# 117-soneium-minato-proposer-rotation
+# 116-soneium-minato-proposer-rotation
 
 Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-Soneium Minato migration, cutover step 4: rotates the proposer of the `SUPER_PERMISSIONED` (5)
+Soneium Minato migration, first cutover step (before the sequencer and batcher in
+[117](../117-soneium-minato-set-batcher-unsafe-signer)): rotates the proposer of the `SUPER_PERMISSIONED` (5)
 dispute game on the **Soneium Minato** (chainId 1946) `DisputeGameFactoryProxy` to the OP Enterprise
 proposer, via `setImplementation(5, impl, gameArgs)` from the L1PAO. Since U20 the type-5 `gameArgs`
 are `anchorStateRegistry | proposer` with no challenger. The respected game type stays `SUPER_CANNON_KONA` (9), which is permissionless, so type 5 is the Guardian fallback.
@@ -24,11 +25,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/117-soneium-minato-proposer-rotation
+cd src/tasks/sep/116-soneium-minato-proposer-rotation
 
-just simulate-stack sep 117-soneium-minato-proposer-rotation council   # or foundation
+just simulate-stack sep 116-soneium-minato-proposer-rotation council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 117-soneium-minato-proposer-rotation council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 116-soneium-minato-proposer-rotation council   # or foundation
 ```
 
 ## Execution
@@ -37,7 +38,7 @@ For facilitators, once both child safes have collected their signatures: approve
 then execute. Run the pre-execution checks in [VALIDATION.md](./VALIDATION.md) first.
 
 ```bash
-cd src/tasks/sep/117-soneium-minato-proposer-rotation
+cd src/tasks/sep/116-soneium-minato-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation

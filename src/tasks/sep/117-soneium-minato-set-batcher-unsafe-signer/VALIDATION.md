@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-82), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+83), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,17 +16,17 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0xebaf4376b44a1ef6dee0f86372a25865a9ae57febd058ff83b40f82d4d48ce42`
+> - Message Hash: `0x10b50dc575abf266f0aca10b1a9a491c7b76edc3c936db36f5b928de9a05b5b3`
 
-Safe transaction hash: `0x9e762e3f549ead2960dcc2ab0854160605eb87c8c28dd4ffd7570b48ac5fd15f`
+Safe transaction hash: `0x811e50c94f51ca07cae7ac4ba36fb5bd197af0ea96fba5631b1c0352aa525858`
 
 ## For Signers
 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
-just simulate-stack sep 116-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/117-soneium-minato-set-batcher-unsafe-signer
+just simulate-stack sep 117-soneium-minato-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -88,14 +88,14 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
-cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 82
-cast call 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B (after 111)
+cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 83
+cast call 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B (after the Safe UI transfer)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/sep/116-soneium-minato-set-batcher-unsafe-signer
+cd src/tasks/sep/117-soneium-minato-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
@@ -113,12 +113,12 @@ SIGNATURES=0x... just execute
   - **After:**  `0x000000000000000000000000a657d31425bc40068032ec4433d781099ed9ee3f`
   - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner") - 1`).
 
-The slot `0x33` owner value is a state override standing in for 111, not a change made by this task.
+The slot `0x33` owner value is a state override standing in for the Safe UI transfer, not a change made by this task.
 
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `82` → **After:** `83`
+  - **Before:** `83` → **After:** `84`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 

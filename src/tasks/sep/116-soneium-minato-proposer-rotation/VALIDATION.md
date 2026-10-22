@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 59,
-FoundationUpgradeSafe 83, SecurityCouncil 73) and move
+FoundationUpgradeSafe 82, SecurityCouncil 73) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -17,7 +17,7 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
 >
 > - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x86fb0d8ac6b09322ebfec51ab80c7261e0914e21570b13383a9ec4752fe5e06a`
+> - Message Hash: `0x45875a1cbc3b25bc850bc021ab639ed154668f2b3ba56c51ae041b68012666f6`
 >
 > ### SecurityCouncil (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
 >
@@ -32,8 +32,8 @@ Root L1PAO (`0x1Eb2fFc903729a0F03966B917003800b145F56E2`) safe transaction hash 
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/117-soneium-minato-proposer-rotation
-just simulate-stack sep 117-soneium-minato-proposer-rotation council   # or foundation
+cd src/tasks/sep/116-soneium-minato-proposer-rotation
+just simulate-stack sep 116-soneium-minato-proposer-rotation council   # or foundation
 ```
 
 Check:
@@ -92,7 +92,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
 cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" -r $RPC   # 59
-cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 83
+cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 82
 cast call 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 "nonce()(uint256)" -r $RPC   # 73
 cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameImpls(uint32)(address)" 5 -r $RPC   # 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691
 cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameArgs(uint32)(bytes)" 5 -r $RPC    # 0x90066735ee774b405c4f54bfec05b07f16d67188a759a2c80ec4c6421829862da30dd34436114502
@@ -101,7 +101,7 @@ cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameArgs(uint32)(bytes)" 5
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/sep/117-soneium-minato-proposer-rotation
+cd src/tasks/sep/116-soneium-minato-proposer-rotation
 
 SIGNATURES=0x... just approve council
 SIGNATURES=0x... just approve foundation
@@ -136,7 +136,7 @@ just execute
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `83` → **After:** `84`
+  - **Before:** `82` → **After:** `83`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (SecurityCouncil), council path
