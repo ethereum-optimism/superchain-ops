@@ -43,6 +43,10 @@ contract SetReviewPeriodDelaysHarness is SetReviewPeriodDelays {
     function requireInBounds(uint256 value, uint256 min, uint256 max, string memory name) external pure {
         _requireInBounds(value, min, max, name);
     }
+
+    function taskStorageWrites() external view returns (string[] memory) {
+        return _taskStorageWrites();
+    }
 }
 
 /// @title SetReviewPeriodDelaysTest
@@ -237,6 +241,28 @@ contract SetReviewPeriodDelaysTest is Test {
         Action[] memory actions = _setupAndBuild("withdrawalDelaySeconds = 259200");
 
         assertEq(actions.length, 1);
+    }
+
+    /// @notice Only the contracts the configured keys touch are allow-listed for storage writes.
+    function test_taskStorageWrites_onlyConfiguredKeys() public {
+        string memory path = _config("proofMaturityDelaySeconds = 172800\nwithdrawalDelaySeconds = 259200");
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+
+        string[] memory writes = harness.taskStorageWrites();
+        assertEq(writes.length, 2);
+        assertEq(writes[0], "OptimismPortalProxy");
+        assertEq(writes[1], "DelayedWETH");
+    }
+
+    function test_taskStorageWrites_finalityDelayOnly() public {
+        string memory path = _config("disputeGameFinalityDelaySeconds = 86400");
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+
+        string[] memory writes = harness.taskStorageWrites();
+        assertEq(writes.length, 1);
+        assertEq(writes[0], "AnchorStateRegistryProxy");
     }
 
     /// @notice A configured value outside the contract's bounds is rejected at setup, before any build.

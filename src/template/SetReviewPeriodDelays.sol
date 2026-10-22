@@ -61,7 +61,9 @@ interface ISystemConfig {
 /// Pre-task Verifications:
 /// - No portal in the task is paused. The contracts accept a delay change during a pause, but this
 ///   task refuses it. If a delay is shortened while the chain is paused, withdrawals that were waiting
-///   could become finalizable the moment the chain unpauses, which reduces reaction time.
+///   could become finalizable the moment the chain unpauses, which reduces reaction time. The check
+///   only runs at simulation time, so recheck the pause state right before execution: a portal paused
+///   after signing does not stop the transaction.
 /// - No open security alerts exist for any chain in the task when lowering a delay, such as an invalid
 ///   game in flight. A new delay applies to games that have already resolved and to withdrawals that
 ///   have already been proven, so lowering it shortens finalization. If an invalid game has
@@ -94,19 +96,17 @@ contract SetReviewPeriodDelays is L2TaskBase {
     address[] public asrsToSet;
     address[] public wethsToSet;
 
+    /// @notice Registry keys of the contracts the configured keys touch, the only ones allowed to be written.
+    string[] public storageKeys;
+
     /// @notice Returns the safe address string identifier. All three setters are ProxyAdminOwner-only.
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
     }
 
-    /// @notice Returns the storage write permissions required for this task.
-    /// `DelayedWETH` is registered in `_templateSetup` from `SystemConfig.delayedWETH()`.
-    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](3);
-        storageWrites[0] = "OptimismPortalProxy";
-        storageWrites[1] = "AnchorStateRegistryProxy";
-        storageWrites[2] = "DelayedWETH";
-        return storageWrites;
+    /// @notice Returns the storage write permissions required for this task, collected in `_templateSetup`.
+    function _taskStorageWrites() internal view virtual override returns (string[] memory) {
+        return storageKeys;
     }
 
     /// @notice Reads `[delays]`, checks each configured value against the contract's version and bounds and
@@ -119,6 +119,11 @@ contract SetReviewPeriodDelays is L2TaskBase {
             cfg.setProofMaturity || cfg.setFinalityDelay || cfg.setWithdrawalDelay,
             "SetReviewPeriodDelays: no key set under [delays]"
         );
+
+        // Register contracts to write depending on flags set in config
+        if (cfg.setProofMaturity) storageKeys.push("OptimismPortalProxy");
+        if (cfg.setFinalityDelay) storageKeys.push("AnchorStateRegistryProxy");
+        if (cfg.setWithdrawalDelay) storageKeys.push("DelayedWETH");
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
