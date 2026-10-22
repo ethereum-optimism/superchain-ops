@@ -201,6 +201,44 @@ contract SetReviewPeriodDelaysTest is Test {
         MultisigTaskTestHelper.removeFile(path);
     }
 
+    /// @notice A contract from before its setter shipped is rejected at setup, naming the chain, contract
+    ///         and version. Only the contracts the configured keys touch are checked.
+    function test_templateSetup_oldPortalVersionReverts() public {
+        portalB.setVersion("5.11.0");
+        string memory path = _config("proofMaturityDelaySeconds = 172800");
+
+        vm.expectRevert(bytes("SetReviewPeriodDelays: chain-b OptimismPortal2 5.11.0 is below 6.0.0"));
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+    }
+
+    function test_templateSetup_oldAnchorStateRegistryVersionReverts() public {
+        asr.setVersion("4.0.0");
+        string memory path = _config("disputeGameFinalityDelaySeconds = 86400");
+
+        vm.expectRevert(bytes("SetReviewPeriodDelays: chain-a AnchorStateRegistry 4.0.0 is below 5.0.0"));
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+    }
+
+    function test_templateSetup_oldDelayedWETHVersionReverts() public {
+        weth.setVersion("2.0.0");
+        string memory path = _config("withdrawalDelaySeconds = 259200");
+
+        vm.expectRevert(bytes("SetReviewPeriodDelays: chain-a DelayedWETH 2.0.0 is below 3.0.0"));
+        harness.templateSetup(path);
+        MultisigTaskTestHelper.removeFile(path);
+    }
+
+    /// @notice An old contract is ignored when its key is not configured.
+    function test_templateSetup_oldVersionUnconfiguredKeyIgnored() public {
+        portalA.setVersion("5.11.0");
+        portalB.setVersion("5.11.0");
+        Action[] memory actions = _setupAndBuild("withdrawalDelaySeconds = 259200");
+
+        assertEq(actions.length, 1);
+    }
+
     /// @notice A configured value outside the contract's bounds is rejected at setup, before any build.
     function test_templateSetup_outOfBoundsReverts() public {
         string memory path = _config("proofMaturityDelaySeconds = 604801");
