@@ -6,6 +6,7 @@ l2chains = [
 
 l1Splitter = "0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003"
 l2RpcUrl = "https://mainnet.unichain.org"
+l2ForkHeadLag = 5 # mainnet.unichain.org backends can lag the head they report
 
 acceptOwnership = true
 simulatePendingOwnerTransfer = true
