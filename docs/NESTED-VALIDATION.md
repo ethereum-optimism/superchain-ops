@@ -11,7 +11,6 @@ The simulated role will also be called the **ProxyAdminSafe** in the remaining d
 The `ProxyAdminOwner` has the following address:
 - Mainnet: 
     - Superchain (L1PAO): [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
-    - Base/OP (BL1PAO): [0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
     - Uni/OP (U3): [0x6d5B183F538ABB8572F5cD17109c617b994D5833](https://etherscan.io/address/0x6d5B183F538ABB8572F5cD17109c617b994D5833)
 - Sepolia:
   - Superchain(FakeL1PAO): [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://sepolia.etherscan.io/address/0x1Eb2fFc903729a0F03966B917003800b145F56E2)
@@ -35,8 +34,6 @@ you must see the following overrides for the following address:
 - Mainnet
     - Security Council Safe: [`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03)
     - Foundation Upgrade Safe: [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
-    - Foundation Operations Safe: [`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A)
-    - Base Operations Safe: [`0x9855054731540A48b28990B63DcF4f33d8AE46A1`](https://etherscan.io/address/0x9855054731540A48b28990B63DcF4f33d8AE46A1)
     - Uni Operation Safe: [`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`](https://etherscan.io/address/0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC)
 - Sepolia
     - Fake Security Council Safe: [`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`](https://sepolia.etherscan.io/address/0xf64bc17485f0B4Ea5F06A96514182FC4cB561977)
