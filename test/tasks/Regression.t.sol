@@ -33,6 +33,7 @@ import {SetFeeVaultConfig} from "src/template/SetFeeVaultConfig.sol";
 import {SetL1SplitterConfig} from "src/template/SetL1SplitterConfig.sol";
 import {SetBatcherAndOrSigner} from "src/template/SetBatcherAndOrSigner.sol";
 import {TransferSystemConfigOwnership} from "src/template/TransferSystemConfigOwnership.sol";
+import {SetReviewPeriodDelays} from "src/template/SetReviewPeriodDelays.sol";
 
 /// @notice Ensures that simulating the task consistently produces the same call data and data to sign.
 /// This guarantees determinism if a bug is introduced in the task logic, the call data or data to sign
@@ -1089,6 +1090,37 @@ contract RegressionTest is Test {
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
+    /// @notice Expected call data and data to sign from simulating SetReviewPeriodDelays against the
+    /// test deployment on Sepolia with chainId 420130099 and a 1-of-1 Safe at block 11927256. One call per contract.
+    /// Simulate from the task directory (test/tasks/example/sep/044-set-review-period-delays) with:
+    /// SIMULATE_WITHOUT_LEDGER=1 OVERRIDE_RPC_URL=<RPC> \
+    ///   just --dotenv-path "$(pwd)/.env" --justfile ../../../../../src/justfile simulate
+    /// TODO(optimism-private#794): re-capture against a real deployment once a registry-listed
+    /// chain carries the setters.
+    function testRegressionCallDataMatches_SetReviewPeriodDelays() public {
+        string memory taskConfigFilePath = "test/tasks/example/sep/044-set-review-period-delays/config.toml";
+
+        string memory expectedCallData =
+            "0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000022000000000000000000000000061aed73dc401cd61764ff052b20fdcfc5842fcca00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000242e529294000000000000000000000000000000000000000000000000000000000002a300000000000000000000000000000000000000000000000000000000000000000000000000000000008f83eb774d467e880f1f0c46695affac702d3f8800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000241974aa0d000000000000000000000000000000000000000000000000000000000001518000000000000000000000000000000000000000000000000000000000000000000000000000000000ebab5d91212316a4c476ed92d88f806f4094c02f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024e177246e000000000000000000000000000000000000000000000000000000000002a30000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetReviewPeriodDelays();
+        address rootSafe = address(0x840D058A5638321772E06025945ce466FA0Cca90); // review-period-test-deployment ProxyAdminOwner
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe);
+
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 11927256, "sepolia", multisigTask, allSafes);
+
+        bytes memory rootSafeCalldata =
+            _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
+
+        string memory expectedDataToSign =
+            "0x1901f4c2746c314483b3540f19ff80a6a799f43e3e92f04b7a024afd4e77a4cb25d650e2398589e15d992e308008d6ee4a44033f4abfa0d26fd74b45df82eabac891";
+
+        _assertDataToSignSingleMultisig(
+            rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
+        );
+    }
+
     /// @notice SetL1SplitterConfig leg B on Unichain at mainnet block 26096434 (L2 fork pinned below).
     ///         Simulate from task directory (test/tasks/example/eth/050-set-l1-splitter-config/) with:
     ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate foundation
@@ -1116,7 +1148,7 @@ contract RegressionTest is Test {
 
 /// @notice Test-only SetFeeVaultConfig that pins the L2 pre-flight fork so the pinned-bytes
 ///         regression fixture above stays deterministic. Production tasks cannot pin the fork:
-///         the base template always forks latest and fork selection is not config-driven.
+///         they fork latest, or `l2ForkHeadLag` blocks behind it.
 contract SetFeeVaultConfigPinnedL2Fork is SetFeeVaultConfig {
     uint256 internal constant OP_SEPOLIA_PINNED_BLOCK = 48340828;
 

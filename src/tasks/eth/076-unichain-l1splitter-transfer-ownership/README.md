@@ -1,6 +1,6 @@
 # 076-unichain-l1splitter-transfer-ownership
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -13,7 +13,7 @@ L1PAO with one `OptimismPortal2.depositTransaction` carrying `transferOwnership(
 
 | Chain | Chain ID | L1Splitter (L2) | `pendingOwner()` |
 |---|---|---|---|
-| Unichain | 130 | `0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003` | `0x0000000000000000000000000000000000000000` → `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` (alias of [L1PAO](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/unichain.toml#L58)) |
+| Unichain | 130 | `0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003` | `0x0000000000000000000000000000000000000000` → `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` (alias of the OP [L1PAO](https://github.com/ethereum-optimism/superchain-registry/blob/3d974558a971cf997bb54a80eb39b92e1f48fb1b/superchain/configs/mainnet/op.toml#L46), Unichain's ProxyAdmin owner since eth/069) |
 
 `owner()` stays `0xa356d5D10aA8A842B31530dE71EA86c0760CB2C2` until 079 executes.
 
