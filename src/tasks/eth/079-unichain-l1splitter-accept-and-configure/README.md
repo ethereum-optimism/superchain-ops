@@ -1,6 +1,6 @@
 # 079-unichain-l1splitter-accept-and-configure
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
