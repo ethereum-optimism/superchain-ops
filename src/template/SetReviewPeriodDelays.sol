@@ -7,7 +7,6 @@ import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {L2TaskBase} from "src/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {SemverComp} from "src/libraries/SemverComp.sol";
 
 interface IOptimismPortal2 {
     function setProofMaturityDelaySeconds(uint256 _proofMaturityDelaySeconds) external;
@@ -16,7 +15,6 @@ interface IOptimismPortal2 {
     function maxProofMaturityDelaySeconds() external view returns (uint256);
     function ethLockbox() external view returns (address);
     function paused() external view returns (bool);
-    function version() external view returns (string memory);
 }
 
 interface IAnchorStateRegistry {
@@ -24,7 +22,6 @@ interface IAnchorStateRegistry {
     function disputeGameFinalityDelaySeconds() external view returns (uint256);
     function minDisputeGameFinalityDelaySeconds() external view returns (uint256);
     function maxDisputeGameFinalityDelaySeconds() external view returns (uint256);
-    function version() external view returns (string memory);
 }
 
 interface IDelayedWETH {
@@ -32,7 +29,6 @@ interface IDelayedWETH {
     function delay() external view returns (uint256);
     function minDelay() external view returns (uint256);
     function maxDelay() external view returns (uint256);
-    function version() external view returns (string memory);
 }
 
 interface ISystemConfig {
@@ -56,7 +52,6 @@ interface ISystemConfig {
 /// - Each value must sit within the contract's [min, max] bounds.
 /// - No included portal may be paused.
 /// - Supported versions: OptimismPortal2 >= 6.0.0, AnchorStateRegistry >= 5.0.0, DelayedWETH >= 3.0.0.
-///   Checked at setup for the contracts the configured keys touch.
 ///
 /// Pre-task Verifications:
 /// - No portal in the task is paused. The contracts accept a delay change during a pause, but this
@@ -82,11 +77,6 @@ contract SetReviewPeriodDelays is L2TaskBase {
         bool setWithdrawalDelay;
     }
 
-    /// @notice Version of each contract that introduced its setter.
-    string internal constant MIN_PORTAL_VERSION = "6.0.0";
-    string internal constant MIN_ASR_VERSION = "5.0.0";
-    string internal constant MIN_WETH_VERSION = "3.0.0";
-
     /// @notice Configuration for the task. One value applies to every chain.
     Delays public cfg;
 
@@ -109,8 +99,8 @@ contract SetReviewPeriodDelays is L2TaskBase {
         return storageKeys;
     }
 
-    /// @notice Reads `[delays]`, checks each configured value against the contract's version and bounds and
-    /// collects the targets whose on-chain value differs. Rejects the task when a portal is paused.
+    /// @notice Reads `[delays]`, checks each configured value against the contract's bounds and collects
+    /// the targets whose on-chain value differs. Rejects the task when a portal is paused.
     function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
         super._templateSetup(_taskConfigFilePath, _rootSafe);
 
@@ -142,7 +132,6 @@ contract SetReviewPeriodDelays is L2TaskBase {
 
             if (cfg.setProofMaturity) {
                 IOptimismPortal2 portal = _portal(chainId);
-                _requireVersion(portal.version(), MIN_PORTAL_VERSION, "OptimismPortal2", chains[i].name);
                 _requireInBounds(
                     cfg.proofMaturityDelaySeconds,
                     portal.minProofMaturityDelaySeconds(),
@@ -156,7 +145,6 @@ contract SetReviewPeriodDelays is L2TaskBase {
 
             if (cfg.setFinalityDelay) {
                 IAnchorStateRegistry asr = _asr(chainId);
-                _requireVersion(asr.version(), MIN_ASR_VERSION, "AnchorStateRegistry", chains[i].name);
                 _requireInBounds(
                     cfg.disputeGameFinalityDelaySeconds,
                     asr.minDisputeGameFinalityDelaySeconds(),
@@ -171,7 +159,6 @@ contract SetReviewPeriodDelays is L2TaskBase {
 
             if (cfg.setWithdrawalDelay) {
                 require(weth != address(0), "SetReviewPeriodDelays: SystemConfig.delayedWETH() is zero");
-                _requireVersion(IDelayedWETH(weth).version(), MIN_WETH_VERSION, "DelayedWETH", chains[i].name);
                 _requireInBounds(
                     cfg.withdrawalDelaySeconds,
                     IDelayedWETH(weth).minDelay(),
@@ -275,22 +262,6 @@ contract SetReviewPeriodDelays is L2TaskBase {
         require(
             value >= min && value <= max,
             string.concat("SetReviewPeriodDelays: ", name, " outside the contract's [min, max]")
-        );
-    }
-
-    /// @notice Reverts unless `version` is at least `minVersion`, so the task fails with a readable message
-    /// when pointed at a contract that predates the setter.
-    function _requireVersion(
-        string memory version,
-        string memory minVersion,
-        string memory contractName,
-        string memory chainName
-    ) internal pure {
-        require(
-            SemverComp.gte(version, minVersion),
-            string.concat(
-                "SetReviewPeriodDelays: ", chainName, " ", contractName, " ", version, " is below ", minVersion
-            )
         );
     }
 

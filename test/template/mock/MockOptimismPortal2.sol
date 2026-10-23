@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 /// @notice OptimismPortal2 stand-in with the getters and setter the template uses, plus a pause switch.
 contract MockOptimismPortal2 {
-    string internal _version = "6.0.0";
     uint256 public proofMaturityDelaySeconds = 604800;
     address public ethLockbox;
     bool public paused;
@@ -26,13 +25,5 @@ contract MockOptimismPortal2 {
 
     function setEthLockbox(address value) external {
         ethLockbox = value;
-    }
-
-    function version() public view returns (string memory) {
-        return _version;
-    }
-
-    function setVersion(string memory value) external {
-        _version = value;
     }
 }
