@@ -40,12 +40,14 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the top of this
    file.
-2. In the Tenderly link printed by the simulation: paste the **execution calldata printed
-   beneath the link** (it starts with `0x6a761202`, the outer
-   `execTransaction` that the child safe sends to the L1PAO, and wraps the
-   [task calldata](#task-calldata) below) into the **Raw input data** field and simulate; the
-   storage writes must match [Task State Changes](#task-state-changes), which also explains the
-   simulation's nonce overrides and sender nonce bump.
+2. In the Tenderly link printed by the simulation: paste the **entire execution calldata printed
+   beneath the link** into the **Raw input data** field and simulate. It starts with `0x174dea71`
+   (`aggregate3Value` on Multicall3 `0xcA11bde05977b3631167028862bE2a173976CA11`) and bundles two
+   `execTransaction` calls: the child safe approving the L1PAO transaction hash, then the L1PAO
+   executing the task. It is longer than the [task calldata](#task-calldata) below, which also
+   starts with `0x174dea71`. The storage writes must match
+   [Task State Changes](#task-state-changes), which also explains the simulation's nonce overrides
+   and sender nonce bump.
 3. The call trace shows one `setImplementation` on `0xe5965Ab5962eDc7477C8520243A95517CD252fA9` with `_gameType = 5`, `_impl = 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691` and the 40-byte `_args` in the [Understanding Task Calldata](#understanding-task-calldata) table, and no other call.
 
 ## For Facilitators and Reviewers
@@ -56,8 +58,10 @@ need the two sections above.
 ### Task Calldata
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the L1PAO
-delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
-`execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
+delegatecalls into `Multicall3DelegateCall`. It is not the Tenderly input: the full simulation
+payload printed by `just simulate-stack` (see step 2 above) also starts with `0x174dea71`, but is
+the outer Multicall3 bundle of the child safe approval and the L1PAO `execTransaction`, which
+wraps this payload.
 
 ```
 0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c4b107095700000000000000000000000000000000000000000000000000000000000000050000000000000000000000005c3eb47cb0174aea522a2a9ae79487139a53d6910000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000002823b2c62946350f4246f9f9d027e071f0264fd113dead00000000000000000000000000002003dead00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
