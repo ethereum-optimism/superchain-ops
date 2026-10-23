@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (Unichain SystemConfig owner Safe
-12), i.e. after the Safe's own SystemConfig owner transfer, and move only if those inputs move.
+13), i.e. two transactions after its current nonce 11 (its SystemConfig owner transfer, then one more Safe transaction), and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,9 +16,9 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### Unichain SystemConfig owner Safe (`0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1`)
 >
 > - Domain Hash:  `0xbea15583997db2831ec7dea58be331771c073bea8444c2b48ded663621f2260e`
-> - Message Hash: `0xaed80f8dc048ff53ad4abdd071843125224afd6d36e35655debc2b4c5fef94a4`
+> - Message Hash: `0x7b35989283e9278a2ca84f573838fa453a22cd8445390afd5e2e270c422ccb08`
 
-Safe transaction hash: `0xb4a882286b347f92ddf59b8abf724a0cff63380c170c1543a60357dbda0422a7`
+Safe transaction hash: `0x7e9f90d993b2842f88266b3ce04550460f8c8b9c28be1537e4c6f7307bcefb9d`
 
 ## For Signers
 
@@ -84,7 +84,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1 "nonce()(uint256)" -r $RPC   # 12
+cast call 0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1 "nonce()(uint256)" -r $RPC   # 13
 cast call 0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003 "owner()(address)" -r https://mainnet.unichain.org          # 0xa356d5D10aA8A842B31530dE71EA86c0760CB2C2
 cast call 0x4300c0d3c0d3c0D3c0d3C0D3c0d3C0D3C0D30003 "pendingOwner()(address)" -r https://mainnet.unichain.org   # 0x0000000000000000000000000000000000000000
 ```
@@ -109,7 +109,7 @@ On L2, once relayed, the L1Splitter's `pendingOwner` (slot `1`) becomes `0x6B1BA
 #### `0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1` (Unichain SystemConfig owner Safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `12` → **After:** `13`
+  - **Before:** `13` → **After:** `14`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 

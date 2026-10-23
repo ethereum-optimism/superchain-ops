@@ -1,6 +1,6 @@
 # 074-fus-signer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x2ff5d469ee07415929af357055995e88aeaa6d48b157c5b9d7434a4576c7b58f)
 
 ## Objective
 
