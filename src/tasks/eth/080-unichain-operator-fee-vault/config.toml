@@ -13,6 +13,7 @@ networks = [0]
 minWithdrawalAmounts = [150000000000000000]
 
 l2RpcUrls = ["https://mainnet.unichain.org"]
+l2ForkHeadLag = 5 # mainnet.unichain.org backends can lag the head they report
 
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO nonce

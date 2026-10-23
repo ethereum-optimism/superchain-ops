@@ -150,6 +150,7 @@ contract SetL1SplitterConfig is L2TaskBase {
         _liveL1Recipient = splitter.l1Recipient();
         _liveMinWithdrawalAmount = splitter.minWithdrawalAmount();
 
+        address pendingOwnerBefore = splitter.pendingOwner();
         bytes[] memory calls = _calls();
         require(calls.length > 0, "SetL1SplitterConfig: every configured value already matches live state");
         vm.startPrank(aliasedRoot);
@@ -160,8 +161,12 @@ contract SetL1SplitterConfig is L2TaskBase {
         vm.stopPrank();
 
         require(splitter.owner() == aliasedRoot, "SetL1SplitterConfig: dry-run owner mismatch");
-        address expectedPending =
-            newOwnerToAlias != address(0) ? AddressAliasHelper.applyL1ToL2Alias(newOwnerToAlias) : address(0);
+        address expectedPending = pendingOwnerBefore;
+        if (acceptOwnership) {
+            expectedPending = address(0);
+        } else if (newOwnerToAlias != address(0)) {
+            expectedPending = AddressAliasHelper.applyL1ToL2Alias(newOwnerToAlias);
+        }
         require(splitter.pendingOwner() == expectedPending, "SetL1SplitterConfig: dry-run pendingOwner mismatch");
         if (setL1Recipient) require(splitter.l1Recipient() == l1Recipient, "SetL1SplitterConfig: dry-run l1Recipient");
         if (setMinWithdrawalAmount) {
@@ -173,7 +178,7 @@ contract SetL1SplitterConfig is L2TaskBase {
 
     /// @notice Virtual only so test harnesses can pin the L2 fork.
     function _createL2Fork(string memory _l2RpcUrl) internal virtual {
-        vm.createSelectFork(_l2RpcUrl);
+        _createL2PreflightFork(_l2RpcUrl);
     }
 
     function _build(address) internal override {

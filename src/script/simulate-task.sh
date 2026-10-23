@@ -53,7 +53,7 @@ simulate_task() {
     if [ "$is_nested" = "true" ]; then
         echo "Simulating nested task: $task"
         if [ -z "$nested_safe_name_depth_1" ]; then
-            echo "Error: this task requires a nested safe name e.g. foundation, council, chain-governor."
+            echo "Error: this task requires a nested safe name e.g. foundation, council."
             exit 1
         fi
         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$just_file" simulate "$nested_safe_name_depth_1" "$nested_safe_name_depth_2"
