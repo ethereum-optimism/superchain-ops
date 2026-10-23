@@ -1,6 +1,6 @@
 # 075-fos-signer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xeae40fcdb8a5bec493a2615bc80bfe92506ed6f61a6a17ef77347ee45e22d6a5)
 
 ## Objective
 
