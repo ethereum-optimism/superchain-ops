@@ -204,7 +204,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
             // (startingRespectedGameType == PERMISSIONED_CANNON) skip game type 8 entirely, so their
             // kona prestate is unused and MUST be left at the zero address — not a 0xdead placeholder.
             // Permissionless chains MUST supply a real (non-zero) kona prestate.
-            if (parsed[i].startingRespectedGameType == PERMISSIONED_CANNON) {
+            if (!_isKonaEnabledForRespectedGameType(parsed[i].startingRespectedGameType)) {
                 require(
                     Claim.unwrap(parsed[i].cannonKonaPrestate) == bytes32(0),
                     "OPCMUpgradeV700: cannonKonaPrestate must be zero for permissioned chains"
@@ -243,6 +243,19 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
         vm.label(address(STANDARD_VALIDATOR), "OPCMStandardValidator");
     }
 
+    /// @notice Whether the template policy enables CANNON_KONA for a given ending respected type.
+    /// @dev Kept as a hook so narrowly-scoped OPCMv2 configuration templates can reuse the
+    ///      version checks, full-stack validation, and calldata construction without changing
+    ///      the U19 policy used by existing tasks.
+    function _isKonaEnabledForRespectedGameType(uint32 startingRespectedGameType)
+        internal
+        pure
+        virtual
+        returns (bool)
+    {
+        return startingRespectedGameType != PERMISSIONED_CANNON;
+    }
+
     /* ---------- DisputeGameConfig builders ---------- */
 
     /// @notice U19-specific enabled-flag policy for each of the 7 OPCMv2 game-type slots.
@@ -276,7 +289,7 @@ contract OPCMUpgradeV700 is OPCMTaskBase {
     ///   - `SUPER_CANNON`, `SUPER_PERMISSIONED_CANNON`, `SUPER_CANNON_KONA`,
     ///     `ZK_DISPUTE_GAME`: always disabled. The v7.1.17 OPCM container ships
     ///     `address(0)` for these impls; they belong to a later release, not U19.
-    function _isEnabled(uint32 gt, bool permissioned) internal pure returns (bool) {
+    function _isEnabled(uint32 gt, bool permissioned) internal pure virtual returns (bool) {
         if (gt == CANNON_KONA) return !permissioned;
         if (gt == PERMISSIONED_CANNON) return true;
         // CANNON: explicitly disabled (per U19 spec). SUPER_*, ZK: not in U19.
