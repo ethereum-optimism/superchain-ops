@@ -1,0 +1,13 @@
+templateName = "WelcomeToSuperchainOps"
+
+name = "NoncelessFreshNested"
+
+allowOverwrite = ["SecurityCouncil"]
+
+# Nonceless (hash-once) nested task on fresh safes with the verified module.
+hashOnceInput = "sep/nonceless-nested-fresh: verified module nested test"
+hashOnceModule = "0xADcbCff796a47D468fE8C0252FBe8d856d4e63D7"
+
+[addresses]
+TargetContract = "0x5c6623738B2a3a54edF1d46B2A85f959fe6b1f6b"
+SecurityCouncil = "0x957b13AF196CE0fF6866Be0a9aE7232e264ce2bA" # Fresh Safe v1.5.0 owned by fresh child 0x770272C87Fb655E42ddF5026d2cfC6C3036CED4E.
