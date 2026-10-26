@@ -1,6 +1,6 @@
 # 080-unichain-operator-fee-vault
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
