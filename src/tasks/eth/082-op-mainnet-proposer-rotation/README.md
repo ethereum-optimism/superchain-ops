@@ -11,7 +11,9 @@ are `anchorStateRegistry | proposer` with no challenger. The respected game type
 
 | Chain | Chain ID | DisputeGameFactoryProxy | `gameArgs(5)` proposer |
 |---|---|---|---|
-| OP Mainnet | 10 | [`0xe5965Ab5962eDc7477C8520243A95517CD252fA9`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/op.toml#L52) | `0x473300df21D047806A082244b417f96b32f13A33` → `0xdead00000000000000000000000000002003dead` |
+| OP Mainnet | 10 | [`0xe5965Ab5962eDc7477C8520243A95517CD252fA9`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/op.toml#L52) | `0x473300df21D047806A082244b417f96b32f13A33` → `0xc27ba3E0Fc01567a5E57Ae0c391AA98cECBA5bE0` |
+
+The proposer public key is the OP Enterprise signer config: [`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/6862432f96e9fe4891d2b728dfc38a9b3a3417e3/kustomize/op-signer/oplabs-prod-ent-mainnet-eu/mn-op-mainnet-0-op-signer/configmap.yaml#L14-L17).
 
 The impl (`0x5C3eb47cB0174aea522a2a9Ae79487139A53D691`, SuperPermissionedDisputeGame v1.1.0), the anchorStateRegistry and the zero init
 bond are read live and kept.
