@@ -86,7 +86,7 @@ RPC=https://ethereum-rpc.publicnode.com
 
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 83
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
-cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r $RPC   # 0x000000000000000000000000dead00000000000000000000000000002001dead (eth/081 executed)
+cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r $RPC   # 0x000000000000000000000000cdf8af38e013fcc1b2d0b7d00fb7671523d4b825 (eth/081 executed)
 ```
 
 Then execute with the collected signatures:
@@ -121,7 +121,7 @@ sender. Its protocol account nonce, unrelated to the Safe's signing nonce.
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)"       -r $RPC   # 0x000000000000000000000000dead00000000000000000000000000002001dead (unchanged)
+cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)"       -r $RPC   # 0x000000000000000000000000cdf8af38e013fcc1b2d0b7d00fb7671523d4b825 (unchanged)
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "unsafeBlockSigner()(address)" -r $RPC   # 0xdead00000000000000000000000000002002dead
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)"             -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (unchanged)
 ```
