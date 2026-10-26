@@ -9,7 +9,7 @@ the SystemConfig owner, the [FoundationUpgradeSafe](../../../addresses.toml#L18)
 
 | Chain | Chain ID | SystemConfigProxy | Field | Change |
 |---|---|---|---|---|
-| OP Sepolia | 11155420 | [`0x034edD2A225f7f429A63E0f1D2084B9E0A93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/op.toml#L52) | `unsafeBlockSigner()` | `0x57CACBB0d30b01eb2462e5dC940c161aff3230D3` → `0xdead00000000000000000000000000002002dead` |
+| OP Sepolia | 11155420 | [`0x034edD2A225f7f429A63E0f1D2084B9E0A93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/op.toml#L52) | `unsafeBlockSigner()` | `0x57CACBB0d30b01eb2462e5dC940c161aff3230D3` → `0xF881BF0FFC2B77adBf0cA2784aE038D78dc1853f` |
 
 The batcher was rotated in sep/112; this task only moves the unsafe block signer. A standalone `just simulate` (without sep/112 applied) would also rotate the batcher, so sign only from `just simulate-stack`.
 
