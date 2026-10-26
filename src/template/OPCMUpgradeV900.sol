@@ -21,7 +21,9 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice Struct to store inputs data for each L2 chain.
-    /// @dev Fields must remain in alphabetical order for TOML decoding.
+    /// @dev Read field by field in `_loadUpgrade`. `chainId` and `expectedValidationErrors` are
+    /// required; `cannonKonaPrestate` is required when SUPER_CANNON_KONA is enabled. `initBond`
+    /// and `startingRespectedGameType` default to the chain's live values.
     /// @dev No anchor-root input: the v9 OPCM only permits the `startingRespectedGameType`
     /// override, and chains arriving from v8 already anchor on a super root, which the
     /// upgrade carries forward from the AnchorStateRegistry.
@@ -33,9 +35,18 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         uint32 startingRespectedGameType;
     }
 
+    /// @notice Pre-upgrade AnchorStateRegistry starting anchor, asserted unchanged in `_validate`.
+    struct AnchorSnapshot {
+        bytes32 root;
+        uint256 l2SequenceNumber;
+    }
+
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
+    /// @notice Whether `startingRespectedGameType` differs from the live value, so the override is sent.
+    mapping(uint256 => bool) public overridesRespectedGameType;
+    mapping(uint256 => AnchorSnapshot) public preUpgradeAnchor;
 
     IOPContractsManagerV900 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
@@ -49,6 +60,9 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     uint32 internal constant CANNON_KONA = 8;
     uint32 internal constant SUPER_CANNON_KONA = 9;
     uint32 internal constant ZK_DISPUTE_GAME = 10;
+
+    /// @notice SystemConfig feature flag for the ETHLockbox (`Features.ETH_LOCKBOX`).
+    bytes32 internal constant ETH_LOCKBOX_FEATURE = "ETH_LOCKBOX";
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
@@ -99,25 +113,12 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         require(chains.length > 0, "OPCMUpgradeV900: no chains configured");
 
         // Load upgrades from TOML
-        OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
-        require(_upgrades.length == chains.length, "OPCMUpgradeV900: opcmUpgrades length mismatch");
-        for (uint256 i = 0; i < _upgrades.length; i++) {
-            require(_upgrades[i].chainId != 0, "OPCMUpgradeV900: chainId cannot be zero");
-            require(upgrades[_upgrades[i].chainId].chainId == 0, "OPCMUpgradeV900: duplicate chain config");
-            require(
-                Claim.unwrap(_upgrades[i].cannonKonaPrestate) != bytes32(0),
-                "OPCMUpgradeV900: cannonKonaPrestate is zero"
-            );
-            // Base game types (0/1/8) are always disabled and ZK requires a dev-feature-enabled
-            // OPCM, so only the two super game types can ever satisfy the OPCM's
-            // enabled-respected-game-type check.
-            require(
-                _upgrades[i].startingRespectedGameType == SUPER_PERMISSIONED
-                    || _upgrades[i].startingRespectedGameType == SUPER_CANNON_KONA,
-                "OPCMUpgradeV900: startingRespectedGameType must be a super game type (5 or 9)"
-            );
-            chainsToUpgrade.push(_upgrades[i].chainId);
-            upgrades[_upgrades[i].chainId] = _upgrades[i];
+        require(
+            !tomlContent.keyExists(string.concat(".opcmUpgrades[", vm.toString(chains.length), "]")),
+            "OPCMUpgradeV900: opcmUpgrades length mismatch"
+        );
+        for (uint256 i = 0; i < chains.length; i++) {
+            _loadUpgrade(tomlContent, i);
         }
 
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
@@ -132,21 +133,23 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             );
         }
 
-        // Register EthLockboxProxy for each chain. The upgrade writes to EthLockboxProxy storage.
-        // Onchain discovery already registers it via `portal.ethLockbox()` for chains whose
-        // portal has a wired lockbox; `saveAddress` reverts on duplicate keys, so only fall
-        // back to the superchain-registry addresses.json when discovery found nothing.
-        string memory addrJson = vm.readFile(superchainAddrRegistry.SUPERCHAIN_REGISTRY_ADDRESSES_PATH());
+        // The template does not send `PermittedProxyDeployment=ETHLockbox`, so every chain must
+        // already use a lockbox. Otherwise the OPCM would revert, or run `migrateLiquidity()`
+        // and move the portal's ETH. Onchain discovery registers EthLockboxProxy from
+        // `portal.ethLockbox()`, so the storage-write allowlist covers it.
         for (uint256 i = 0; i < chains.length; i++) {
-            try superchainAddrRegistry.getAddress("EthLockboxProxy", chains[i].chainId) returns (address) {
-                continue;
-            } catch {}
-            string memory key = string.concat("$.", vm.toString(chains[i].chainId), ".EthLockboxProxy");
-            if (vm.keyExistsJson(addrJson, key)) {
-                address ethLockbox = vm.parseJsonAddress(addrJson, key);
-                superchainAddrRegistry.saveAddress("EthLockboxProxy", chains[i], ethLockbox);
-                vm.label(ethLockbox, "EthLockboxProxy");
-            }
+            uint256 chainId = chains[i].chainId;
+            require(
+                IOptimismPortalView(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId)).ethLockbox()
+                    != address(0),
+                "OPCMUpgradeV900: chain has no ETHLockbox"
+            );
+            require(
+                ISystemConfigV900(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)).isFeatureEnabled(
+                    ETH_LOCKBOX_FEATURE
+                ),
+                "OPCMUpgradeV900: ETH_LOCKBOX feature is not enabled"
+            );
         }
 
         // The OPCM gates enabling ZK_DISPUTE_GAME behind a dev feature (disabled on
@@ -188,6 +191,53 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         require(address(standardValidator) != address(0), "OPCM returned zero validator");
         require(address(standardValidator).code.length > 0, "Validator has no code");
         vm.label(address(standardValidator), "OPCMStandardValidator");
+    }
+
+    /// @notice Loads `opcmUpgrades[i]` from the TOML, defaulting optional fields to live chain state,
+    /// and snapshots the chain's starting anchor for `_validate`.
+    function _loadUpgrade(string memory tomlContent, uint256 i) internal {
+        string memory p = string.concat(".opcmUpgrades[", vm.toString(i), "]");
+        OPCMUpgrade memory u;
+        u.chainId = tomlContent.readUint(string.concat(p, ".chainId"));
+        require(u.chainId != 0, "OPCMUpgradeV900: chainId cannot be zero");
+        require(upgrades[u.chainId].chainId == 0, "OPCMUpgradeV900: duplicate chain config");
+        u.expectedValidationErrors = tomlContent.readString(string.concat(p, ".expectedValidationErrors"));
+
+        IDisputeGameFactory factory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", u.chainId));
+        IAnchorStateRegistryView asr =
+            IAnchorStateRegistryView(superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", u.chainId));
+
+        // The respected game type is carried forward; the override is only sent when the TOML sets
+        // a different one, so an upgrade never silently undoes a Guardian change.
+        uint32 liveRespected = asr.respectedGameType();
+        uint256 respected = tomlContent.readUintOr(string.concat(p, ".startingRespectedGameType"), liveRespected);
+        // Base game types (0/1/8) are always disabled and ZK requires a dev-feature-enabled
+        // OPCM, so only the two super game types can ever satisfy the OPCM's
+        // enabled-respected-game-type check.
+        require(
+            respected == SUPER_PERMISSIONED || respected == SUPER_CANNON_KONA,
+            "OPCMUpgradeV900: startingRespectedGameType must be a super game type (5 or 9)"
+        );
+        u.startingRespectedGameType = uint32(respected);
+        overridesRespectedGameType[u.chainId] = u.startingRespectedGameType != liveRespected;
+
+        // The prestate and bond only apply to SUPER_CANNON_KONA, the one bonded game type.
+        if (_isGameTypeEnabled(factory, SUPER_CANNON_KONA, u.startingRespectedGameType)) {
+            u.cannonKonaPrestate = Claim.wrap(tomlContent.readBytes32(string.concat(p, ".cannonKonaPrestate")));
+            require(Claim.unwrap(u.cannonKonaPrestate) != bytes32(0), "OPCMUpgradeV900: cannonKonaPrestate is zero");
+            u.initBond = tomlContent.readUintOr(
+                string.concat(p, ".initBond"), factory.initBonds(GameType.wrap(SUPER_CANNON_KONA))
+            );
+            require(u.initBond != 0, "OPCMUpgradeV900: initBond is zero");
+        }
+
+        (bytes32 root, uint256 l2SequenceNumber) = asr.getStartingAnchorRoot();
+        require(root != bytes32(0), "OPCMUpgradeV900: starting anchor root is zero");
+        preUpgradeAnchor[u.chainId] = AnchorSnapshot({root: root, l2SequenceNumber: l2SequenceNumber});
+
+        chainsToUpgrade.push(u.chainId);
+        upgrades[u.chainId] = u;
     }
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
@@ -271,22 +321,21 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
     /// @dev The v9 OPCM permits exactly two upgrade instructions: the
     /// `startingRespectedGameType` override and `PermittedProxyDeployment=ETHLockbox`. The
-    /// override pins the respected game type to an enabled game config; the anchor root is
-    /// carried forward from the AnchorStateRegistry (v9 rejects the `startingAnchorRoot`
-    /// override). Chains arriving from v8 already have an ETHLockbox, so no proxy deployment
-    /// is permitted.
+    /// override is sent only when the configured respected game type differs from the live one;
+    /// otherwise the OPCM carries the live value forward. The anchor root is always carried
+    /// forward (v9 rejects the `startingAnchorRoot` override). `_templateSetup` requires every
+    /// chain to already use an ETHLockbox, so no proxy deployment is permitted.
     function _buildExtraInstructions(uint256 chainId)
         internal
         view
-        returns (IOPContractsManagerV900.ExtraInstruction[] memory)
+        returns (IOPContractsManagerV900.ExtraInstruction[] memory extraInstructions)
     {
-        IOPContractsManagerV900.ExtraInstruction[] memory extraInstructions =
-            new IOPContractsManagerV900.ExtraInstruction[](1);
+        if (!overridesRespectedGameType[chainId]) return new IOPContractsManagerV900.ExtraInstruction[](0);
+        extraInstructions = new IOPContractsManagerV900.ExtraInstruction[](1);
         extraInstructions[0] = IOPContractsManagerV900.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
             data: abi.encode(upgrades[chainId].startingRespectedGameType)
         });
-        return extraInstructions;
     }
 
     /// @notice Builds the actions for executing the operations.
@@ -339,16 +388,21 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
-            // The upgrade re-initializes the AnchorStateRegistry; assert the respected game
-            // type override landed and the anchor root was carried forward, not cleared.
+            // The upgrade re-initializes the AnchorStateRegistry; assert the respected game type
+            // is the configured one and the starting anchor is exactly the pre-upgrade one (an
+            // unchanged starting anchor also keeps the current anchor game).
             IAnchorStateRegistryView asr =
                 IAnchorStateRegistryView(superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId));
             require(
                 asr.respectedGameType() == upgrades[chainId].startingRespectedGameType,
                 "OPCMUpgradeV900: startingRespectedGameType not applied"
             );
-            (bytes32 anchorRoot,) = asr.getStartingAnchorRoot();
-            require(anchorRoot != bytes32(0), "OPCMUpgradeV900: anchor root was cleared");
+            (bytes32 anchorRoot, uint256 anchorL2SequenceNumber) = asr.getStartingAnchorRoot();
+            require(
+                anchorRoot == preUpgradeAnchor[chainId].root
+                    && anchorL2SequenceNumber == preUpgradeAnchor[chainId].l2SequenceNumber,
+                "OPCMUpgradeV900: starting anchor root changed"
+            );
 
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
                 .ValidationInputDev({
@@ -494,6 +548,11 @@ interface ISuperchainConfig {}
 
 interface IDisputeGameFactory {
     function gameImpls(GameType gameType) external view returns (address);
+    function initBonds(GameType gameType) external view returns (uint256);
+}
+
+interface IOptimismPortalView {
+    function ethLockbox() external view returns (address);
 }
 
 /// @notice Read-only AnchorStateRegistry accessors. `getStartingAnchorRoot` returns a
@@ -517,9 +576,10 @@ interface ISystemConfig {
     function getAddresses() external view returns (Addresses memory);
 }
 
-/// @notice Read-only SystemConfig accessors used to populate `_getCodeExceptions`.
+/// @notice Read-only SystemConfig accessors used by `_templateSetup` and `_getCodeExceptions`.
 interface ISystemConfigV900 {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
     function batcherHash() external view returns (bytes32);
+    function isFeatureEnabled(bytes32 _feature) external view returns (bool);
 }
