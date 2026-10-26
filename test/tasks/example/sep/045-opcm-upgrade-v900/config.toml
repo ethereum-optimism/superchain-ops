@@ -1,5 +1,18 @@
-# OPCM.upgrade example: Unichain Sepolia and OP Sepolia (both on op-contracts/v8) onto a v9 OPCM.
-# initBond and startingRespectedGameType are omitted, so the live values are carried forward.
+# OPCM.upgrade example task: Unichain Sepolia and OP Sepolia (Sepolia L1) onto an op-contracts/v9 OPCM.
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for each chain, using a v9 OPCM.
+#   - Both chains arrive from op-contracts/v8.0.0 (lastUsedOPCMVersion 8.0.1, sep/108) already
+#     respecting SUPER_CANNON_KONA (9) with a super-root anchor, which the upgrade carries forward.
+#   - Runs BEFORE the OPCMMigrateV900 task (044): migrate() requires every chain to be on the v9 OPCM.
+#
+# The OPCM below is the throwaway v9 OPCM Andrea deployed on Sepolia on 2026-10-22 for template
+# testing: built from monorepo develop @ e7819f5ca0, dev feature bitmap 0, wired to the Sepolia
+# Standard SuperchainConfig. It is not an rc, has no tag and no superchain-registry entry; a real
+# task MUST use the released op-contracts/v9.0.0 OPCM from standard-versions-sepolia.toml.
+#
+# Both chains share SuperchainConfig 0xC2Be75506d5724086DEB7245bd260Cc9753911Be and resolve to the
+# L1PAO root safe through the ProxyAdminOwner pin below.
 
 l2chains = [
     {name = "Unichain Sepolia Testnet", chainId = 1301},
@@ -11,33 +24,43 @@ skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 1301
-# Placeholder: the chains' current kona-client/v1.7.0-rc.2 prestate (sep/108), not a v9 release prestate.
+# Placeholder: the chains' current SUPER_CANNON_KONA prestate, kona-client/v1.7.0-rc.2
+# cannon64-kona-interop (sep/108). A real task MUST use the prestate of the op-contracts/v9.0.0 release.
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
+# Live validator output captured during simulation against the throwaway v9 OPCM.
 expectedValidationErrors = ""
+initBond = 80000000000000000 # 0.08 ETH, the chain's current SUPER_CANNON_KONA bond
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 
 [[opcmUpgrades]]
 chainId = 11155420
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
 expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 
 [addresses]
-# Test-only v9 OPCM (9.0.5) built from monorepo develop @ e7819f5ca0, deployed on Sepolia 2026-10-22.
-# Not a release: a real task MUST use the op-contracts/v9.0.0 OPCM from standard-versions-sepolia.toml.
+# Throwaway v9 OPCM (see header). `OPCM.version()` returns "9.0.5"; `OPCM.opcmStandardValidator()`
+# returns 0xcc703fA48fF08d3f97B5AdB858953bD7EEeB04fd (OPContractsManagerStandardValidator 5.0.0).
 OPCM = "0xe09c417496c786abffefa676da9e11aab2c32ea9"
-# The registry still records Unichain Sepolia's pre-transfer ProxyAdminOwner.
+# Root-safe pin: the registry still records Unichain Sepolia's pre-transfer ProxyAdminOwner
+# (0xd363…9dbf); the pin resolves the same L1PAO root safe for both chains. Same pin as sep/108 and 044.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
-# Unichain Sepolia SystemConfig slot 0x6c packs superchainConfig with a non-zero minBaseFee.
+# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee (500000) in slot 0x6c,
+# which the code-presence check would misread as an address. upgrade() reinitializes SystemConfig, so the
+# slot is rewritten. Same exception as sep/108 and 044.
 [storageCodeExceptions]
 "0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
+# Safe nonces at FORK_BLOCK_NUMBER. Slot 5 is the Gnosis Safe `nonce` slot.
 [stateOverrides]
-0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
 ]
-0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 81}
 ]
-0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 73}
 ]
