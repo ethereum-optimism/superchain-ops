@@ -20,8 +20,9 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
     string constant TEST_CONFIG_DIR = "test-config-files";
     uint256 internal constant FORK_BLOCK_NUMBER = 11_999_987;
 
-    // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108): the release the chains are on.
+    string constant UNICHAIN_ENTRY = "chainId = 1301\n";
     string constant EXAMPLE_OPCM = 'OPCM = "0xe09c417496c786abffefa676da9e11aab2c32ea9"';
+    // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108): the release the chains are on.
     string constant SEPOLIA_OPCM_V801 = 'OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"';
 
     function setUp() public {
@@ -36,6 +37,47 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
         assertEq(address(harness.opcm()), 0xe09c417496C786ABFFefA676dA9e11aaB2c32eA9);
     }
 
+    /// @dev The example omits initBond and startingRespectedGameType, so both come from the chain.
+    function test_defaults_to_live_values() public {
+        OPCMUpgradeV900SetupHarness harness = new OPCMUpgradeV900SetupHarness();
+        harness.setupForTest(CONFIG);
+        (,,, uint256 initBond, uint32 startingRespectedGameType) = harness.upgrades(1301);
+        assertEq(initBond, 0.08 ether);
+        assertEq(startingRespectedGameType, 9);
+        assertFalse(harness.overridesRespectedGameType(1301));
+        (bytes32 root,) = harness.preUpgradeAnchor(1301);
+        assertTrue(root != bytes32(0));
+    }
+
+    function test_sends_override_only_when_respected_type_changes() public {
+        OPCMUpgradeV900SetupHarness harness = new OPCMUpgradeV900SetupHarness();
+        harness.setupForTest(
+            _write(
+                "respected-unchanged",
+                _edit(
+                    vm.readFile(CONFIG),
+                    UNICHAIN_ENTRY,
+                    string.concat(UNICHAIN_ENTRY, "startingRespectedGameType = 9\n")
+                )
+            )
+        );
+        assertFalse(harness.overridesRespectedGameType(1301));
+
+        harness = new OPCMUpgradeV900SetupHarness();
+        harness.setupForTest(
+            _write(
+                "respected-changed",
+                _edit(
+                    vm.readFile(CONFIG),
+                    UNICHAIN_ENTRY,
+                    string.concat(UNICHAIN_ENTRY, "startingRespectedGameType = 5\n")
+                )
+            )
+        );
+        assertTrue(harness.overridesRespectedGameType(1301));
+        assertFalse(harness.overridesRespectedGameType(11155420));
+    }
+
     function test_rejects_zero_cannon_kona_prestate() public {
         _assertSetupReverts(
             "zero-prestate",
@@ -48,8 +90,8 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
     function test_rejects_non_super_starting_respected_game_type() public {
         _assertSetupReverts(
             "cannon-kona-respected",
-            "startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged",
-            "startingRespectedGameType = 8",
+            UNICHAIN_ENTRY,
+            string.concat(UNICHAIN_ENTRY, "startingRespectedGameType = 8\n"),
             "OPCMUpgradeV900: startingRespectedGameType must be a super game type (5 or 9)"
         );
     }
