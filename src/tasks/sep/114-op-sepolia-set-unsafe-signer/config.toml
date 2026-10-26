@@ -8,7 +8,7 @@ safeAddressString = "FoundationUpgradeSafe"
 
 [sequencerConfig]
 batcherAddress = "0x64EDa4F93314ECd619bd4f79D8d1F8112A4E6e16" # set in sep/112
-unsafeBlockSigner = "0xdead00000000000000000000000000002002dead" # PLACEHOLDER: OPE sequencer
+unsafeBlockSigner = "0xF881BF0FFC2B77adBf0cA2784aE038D78dc1853f"
 
 [stateOverrides]
 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe nonce
