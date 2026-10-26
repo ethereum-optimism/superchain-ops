@@ -1,6 +1,6 @@
 # 114-op-sepolia-set-unsafe-signer
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
