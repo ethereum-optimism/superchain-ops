@@ -1,24 +1,23 @@
-# OPCM.migrate example task: Unichain Sepolia, Ink Sepolia and OP Sepolia (Sepolia L1).
+# OPCM.migrate example task: Unichain Sepolia and OP Sepolia (Sepolia L1).
 #
 # What this task does:
-#   - Delegatecalls OPCMv2.migrate once for the whole set, using an op-contracts/v9.0.0 OPCM.
+#   - Delegatecalls OPCMv2.migrate once for the whole set, using an op-contracts/v9 OPCM.
 #   - Deploys a shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry, moves every portal's and
 #     old lockbox's ETH into the shared lockbox, points every portal at the shared dispute contracts and
 #     enables INTEROP on every chain. One-way: all prior withdrawal proofs are invalidated.
 #   - Registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9) on the shared DisputeGameFactory.
 #
-# Not simulatable yet, and skipped in `simulate-all-templates` (src/ci.just):
-#   - No op-contracts/v9.0.0 OPCM is deployed on Sepolia.
-#   - migrate() requires every chain to be on the OPCM's release. All three chains report
-#     lastUsedOPCMVersion 8.0.1 at FORK_BLOCK_NUMBER, so they need a v9 upgrade first.
+# migrate() requires both chains and the SuperchainConfig to be on the OPCM's release. Both chains report
+# lastUsedOPCMVersion 8.0.1 at FORK_BLOCK_NUMBER, so this fixture only makes sense on the state left by
+# 045-opcm-upgrade-v900, which upgrades them with the same OPCM. It is always simulated stacked on it
+# (DEPENDS_ON in the .env), mirroring production.
 #
 # l2chains must be in strictly ascending chainId order (migrate reverts otherwise). The first chain's
 # ProxyAdmin administers the shared proxies and its DelayedWETH becomes the shared DelayedWETH.
-# All three chains share SuperchainConfig 0xC2Be75506d5724086DEB7245bd260Cc9753911Be.
+# Both chains share SuperchainConfig 0xC2Be75506d5724086DEB7245bd260Cc9753911Be.
 
 l2chains = [
     {name = "Unichain Sepolia Testnet", chainId = 1301},
-    {name = "Ink Sepolia", chainId = 763373},
     {name = "OP Sepolia Testnet", chainId = 11155420}
 ]
 
@@ -30,16 +29,14 @@ skipOPCMVersionCheck = false
 # cannon64-kona-interop (sep/108). A real task MUST use the interop prestate built with this set
 # declared as one interop cluster in the superchain-registry.
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# Placeholders: the validator output has not been captured, because the task cannot be simulated yet.
 # expectedValidationErrors is the migration validator's output for the set. expectedChainValidationErrors is the
 # standard validator's output for each chain, in l2chains order.
-expectedChainValidationErrors = ["", "", ""]
+expectedChainValidationErrors = ["", ""]
 expectedValidationErrors = ""
-# Placeholder: OP Sepolia's SUPER_PERMISSIONED proposer at FORK_BLOCK_NUMBER; sep/113 has since rotated it.
-# The shared game takes a single proposer, but the chains have different ones (Unichain
-# 0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800, Ink 0x2282d49d805333D8cd6ddda52B32aC07d6e4e51B).
+# Placeholder: OP Sepolia's SUPER_PERMISSIONED proposer at FORK_BLOCK_NUMBER. The shared game takes a single
+# proposer, but the chains have different ones (Unichain 0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800).
 # A real task MUST use the set's super proposer.
-proposer = "0x49277EE36A024120Ee218127354c4a3591dc90A9"
+proposer = "0x9884C33C65111DA7Bbed0e63cD2392F503b135F5"
 # Placeholder super root. A real task MUST supply the honest super root of the whole set, generated with
 # op-chain-ops/cmd/check-super-root over every chain, and its timestamp.
 startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
@@ -48,11 +45,15 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, same as the chains' current SUPER_CANNON_KONA bond
 
 [addresses]
-# Placeholder (see header). Non-zero because the address registry rejects zero addresses, so setup
-# reverts with "OPCMMigrateV900: OPCM has no code".
-OPCM = "0x000000000000000000000000000000000000dEaD"
+# Throwaway OPCM 9.0.5 built from monorepo develop e7819f5ca0; its standard validator expects the standard Sepolia
+# SuperchainConfig and L1PAO. It has no release tag and no superchain-registry entry.
+# Must be the OPCM 045-opcm-upgrade-v900 upgrades the chains with.
+# TODO: replace with a release v9 OPCM whose migrate() has no interop dev-feature gate, together with 045, then
+# re-pin FORK_BLOCK_NUMBER (.env and both test/template/OPCMMigrateV900*.t.sol), the OPCM constants in those tests,
+# the Regression.t.sol entry and the expected validation errors.
+OPCM = "0xe09c417496C786ABFFefA676dA9e11aaB2c32eA9"
 # Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
-# (0xd363…9dbf); the pin resolves the same root safe for all three chains. Same pin as sep/108.
+# (0xd363…9dbf); the pin resolves the same root safe for both chains. Same pin as sep/108.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 # Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee (500000) in slot 0x6c,
@@ -60,15 +61,3 @@ ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 # slot is rewritten. Same exception as sep/108.
 [storageCodeExceptions]
 "0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
-
-# Safe nonces at FORK_BLOCK_NUMBER. Slot 5 is the Gnosis Safe `nonce` slot.
-[stateOverrides]
-0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 58}
-]
-0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 79}
-]
-0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 72}
-]
