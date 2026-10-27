@@ -34,6 +34,8 @@ import {SetL1SplitterConfig} from "src/template/SetL1SplitterConfig.sol";
 import {SetBatcherAndOrSigner} from "src/template/SetBatcherAndOrSigner.sol";
 import {TransferSystemConfigOwnership} from "src/template/TransferSystemConfigOwnership.sol";
 import {SetReviewPeriodDelays} from "src/template/SetReviewPeriodDelays.sol";
+import {OPCMUpgradeV900} from "src/template/OPCMUpgradeV900.sol";
+import {OPCMMigrateV900} from "src/template/OPCMMigrateV900.sol";
 
 /// @notice Ensures that simulating the task consistently produces the same call data and data to sign.
 /// This guarantees determinism if a bug is introduced in the task logic, the call data or data to sign
@@ -419,6 +421,42 @@ contract RegressionTest is Test {
         // Security Council
         expectedDataToSign[1] =
             "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b853308a33ceb1cc04d5b602ac2ca6d7decc17a1d85f82931bfd528cd63dfa10c8efb";
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+    }
+
+    /// @notice Expected call data and data to sign for the OPCMMigrateV900 template at block 11999987 on sepolia,
+    /// migrating Unichain Sepolia and OP Sepolia onto a shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry
+    /// with the v9 OPCM 0xe09c417496C786ABFFefA676dA9e11aaB2c32eA9.
+    /// The test stacks the tasks in production order: the v9 upgrade (045) executes first and this task is built on
+    /// the resulting state. CI's simulate-all-templates simulates the fixture the same way, stacked on 045
+    /// (DEPENDS_ON in the fixture's .env). The data-to-sign values reflect the safe nonces after the upgrade executed.
+    function testRegressionCallDataMatches_OPCMMigrateV900_Sepolia() public {
+        string memory taskConfigFilePath = "test/tasks/example/sep/046-opcm-migrate-v900/config.toml";
+        string memory expectedCallData =
+            "0x82ad56cb000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000e09c417496c786abffefa676da9e11aab2c32ea9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000304ba55287c000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000100dead000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006acfc00000000000000000000000000000000000000000000000000000000000000000090000000000000000000000000000000000000000000000000000000000000002000000000000000000000000aee94b9ab7752d3f7704bde212c0c6a0b701571d000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000009884c33c65111da7bbed0e63cd2392f503b135f50000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000011c37937e080000000000000000000000000000000000000000000000000000000000000000000900000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000020031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df00000000000000000000000000000000000000000000000000000000";
+        address rootSafe = address(0x1Eb2fFc903729a0F03966B917003800b145F56E2); // OP Sepolia L1 ProxyAdminOwner
+        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
+
+        // Execute the v9 upgrade first, as production will.
+        vm.createSelectFork("sepolia", 11999987);
+        _simulateOnCurrentFork(
+            "test/tasks/example/sep/045-opcm-upgrade-v900/config.toml", new OPCMUpgradeV900(), allSafes
+        );
+
+        MultisigTask multisigTask = new OPCMMigrateV900();
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _simulateOnCurrentFork(taskConfigFilePath, multisigTask, allSafes);
+
+        _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+
+        string[] memory expectedDataToSign = new string[](2);
+        // Foundation
+        expectedDataToSign[0] =
+            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb63433bb8dfa9fd7ab2390b42002cf570c87f7464063d5c70c3cc3f4a7cb2f01a";
+        // Security Council
+        expectedDataToSign[1] =
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533226005da8eed0a719573cf14e814f146d8c95643a96109509f6e1cc9a4b93a07";
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
