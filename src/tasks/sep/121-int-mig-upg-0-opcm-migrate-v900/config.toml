@@ -1,0 +1,46 @@
+# OPCM.migrate: int-mig-upg-0 (devnets-private dev/int-mig-upg-0) onto shared dispute contracts.
+#
+# What this task does:
+#   - Delegatecalls OPCMv2.migrate once for both chains, using an op-contracts/v9 OPCM.
+#   - Deploys a shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry, moves each portal's and lockbox's
+#     ETH into the shared lockbox, points both portals at the shared dispute contracts and enables INTEROP on
+#     both chains. One-way: all prior withdrawal proofs are invalidated.
+#   - Registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9) on the shared DisputeGameFactory.
+#
+# Requires 120-int-mig-upg-0-opcm-upgrade-v900 first (migrate requires every chain on the v9 OPCM). Simulate the
+# pair with `just simulate-stack sep 121-int-mig-upg-0-opcm-migrate-v900`.
+#
+# Both chains share SuperchainConfig 0x9067…df5d, dispute game finality delay 302400s and DelayedWETH delay 302400s.
+
+l2chains = [
+    {name = "int-mig-upg-0-0", chainId = 420120270},
+    {name = "int-mig-upg-0-1", chainId = 420120271}
+]
+
+templateName = "OPCMMigrateV900"
+fallbackAddressesJsonPath = "src/tasks/sep/120-int-mig-upg-0-opcm-upgrade-v900/addresses.json"
+skipOPCMVersionCheck = false
+
+[opcmMigrate]
+# Kona interop prestate (cannon64-kona-interop) for int-mig-upg-0-0/-1 as one interop cluster, built with
+# `netchef fault-proofs generate-prestates --prestate-type konaInterop` at kona-node/v1.9.0 (d6620202) using
+# infrastructure-services#1430. Only consumed by SUPER_CANNON_KONA, which is not the respected game type below.
+cannonKonaPrestate = "0x03723b533794030339258b73b76597dedf0b145b14ba94c229197e56ac53b041"
+# Per chain (l2chains order): devnet PAO Safe and devnet SuperchainConfig, as in task 120. SCKDG-* clear
+# because SUPER_CANNON_KONA is now registered on the shared DisputeGameFactory.
+expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG,SYSCON-130", "OVERRIDES-L1PAOMULTISIG,SYSCON-130"]
+# MIG-SLOCKBOX-40, MIG-CHAIN-{0,1}-130: shared lockbox / SystemConfigs use the devnet's own SuperchainConfig,
+# not the one the OPCM was deployed against (same cause as SYSCON-130 in task 120).
+expectedValidationErrors = "MIG-SLOCKBOX-40,MIG-CHAIN-0-130,MIG-CHAIN-1-130"
+# Chain 0's proposer. Chain 1's op-proposer (0x4ec8…5d7a) must be repointed/stopped after migration.
+proposer = "0xee85f3967ee999fc7db2a50beb798bd2f8daee3f"
+# The super root both chains' AnchorStateRegistries already anchor on (getAnchorRoot at the time of writing).
+# Refresh to a recent honest super root (op-chain-ops/cmd/check-super-root) before execution if desired.
+startingAnchorRootRoot = "0x871160c9baf7f37389516176e6d80ad857a35e42ece7a12f5f392218f9d8681d"
+startingAnchorRootL2SequenceNumber = 1792826698
+startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged; switch to 9 once the real Kona prestate is set
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
+
+[addresses]
+# TODO: replace with the released op-contracts/v9.0.0 OPCM. Throwaway v9 OPCM (9.0.5), same as task 120.
+OPCM = "0xe09c417496c786abffefa676da9e11aab2c32ea9"

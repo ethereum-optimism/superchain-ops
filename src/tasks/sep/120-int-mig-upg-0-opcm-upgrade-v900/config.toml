@@ -1,0 +1,45 @@
+# OPCM.upgrade: int-mig-upg-0 (devnets-private dev/int-mig-upg-0) onto an op-contracts/v9 OPCM.
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once on the devnet's own SuperchainConfig, then OPCMv2.upgrade(...)
+#     for each chain.
+#   - Both chains were deployed by netchef (op-deployer 0.8.1) and report lastUsedOPCMVersion 8.0.1. Each
+#     respects SUPER_PERMISSIONED (5) and has its own DisputeGameFactory/AnchorStateRegistry; SUPER_CANNON_KONA
+#     (9) is not registered, so the upgrade leaves it disabled and the Kona prestate below is unused.
+#   - Runs BEFORE 121-int-mig-upg-0-opcm-migrate-v900: migrate() requires every chain on the v9 OPCM.
+#
+# Root safe: ProxyAdminOwner 0xe934…40ff, a 1-of-1 devnet Safe (also SuperchainProxyAdminOwner and Guardian).
+
+l2chains = [
+    {name = "int-mig-upg-0-0", chainId = 420120270},
+    {name = "int-mig-upg-0-1", chainId = 420120271}
+]
+
+templateName = "OPCMUpgradeV900"
+fallbackAddressesJsonPath = "src/tasks/sep/120-int-mig-upg-0-opcm-upgrade-v900/addresses.json"
+skipOPCMVersionCheck = false
+# Both portals have no ETHLockbox wired (ethLockbox() == 0, ETH_LOCKBOX feature off): netchef deployed the
+# EthLockboxProxy contracts but never attached them. v9 requires one, so permit the OPCM to deploy it.
+permitEthLockboxDeployment = [420120270, 420120271]
+
+[[opcmUpgrades]]
+chainId = 420120270
+# Unused: SUPER_CANNON_KONA is not registered on this chain, so its game config is disabled. Must be non-zero.
+cannonKonaPrestate = "0x03dead0000000000000000000000000000000000000000000000000000000000"
+# OVERRIDES-L1PAOMULTISIG: devnet PAO Safe. SYSCON-130: devnet's own SuperchainConfig, not the OPCM's.
+# SCKDG-SHAPE/SCKDG-10: SUPER_CANNON_KONA never registered on this devnet (migrate registers it on the shared DGF).
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+initBond = 80000000000000000
+startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
+
+[[opcmUpgrades]]
+chainId = 420120271
+cannonKonaPrestate = "0x03dead0000000000000000000000000000000000000000000000000000000000"
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+initBond = 80000000000000000
+startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
+
+[addresses]
+# TODO: replace with the released op-contracts/v9.0.0 OPCM. This is the throwaway v9 OPCM (9.0.5) deployed on
+# Sepolia 2026-10-22 for template testing (see sep/045 example); isPermittedUpgradeSequence is true for both chains.
+OPCM = "0xe09c417496c786abffefa676da9e11aab2c32ea9"

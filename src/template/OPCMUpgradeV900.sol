@@ -37,6 +37,9 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
+    /// @notice Chains whose portal has no ETHLockbox wired, for which the OPCM may deploy one.
+    mapping(uint256 => bool) public permitEthLockboxDeployment;
+
     IOPContractsManagerV900 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
     bool public skipOPCMVersionCheck;
@@ -118,6 +121,24 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             );
             chainsToUpgrade.push(_upgrades[i].chainId);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
+        }
+
+        // Optional: chains (e.g. netchef devnets) whose portal has no ETHLockbox. The OPCM reverts
+        // when it would deploy one without the `PermittedProxyDeployment=ETHLockbox` instruction.
+        if (tomlContent.keyExists(".permitEthLockboxDeployment")) {
+            uint256[] memory lockboxChainIds = tomlContent.readUintArray(".permitEthLockboxDeployment");
+            for (uint256 i = 0; i < lockboxChainIds.length; i++) {
+                uint256 chainId = lockboxChainIds[i];
+                require(
+                    upgrades[chainId].chainId != 0, "OPCMUpgradeV900: permitEthLockboxDeployment chain not configured"
+                );
+                require(
+                    IOptimismPortalV900(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId)).ethLockbox()
+                        == address(0),
+                    "OPCMUpgradeV900: permitEthLockboxDeployment chain already has an ETHLockbox"
+                );
+                permitEthLockboxDeployment[chainId] = true;
+            }
         }
 
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
@@ -273,19 +294,23 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     /// `startingRespectedGameType` override and `PermittedProxyDeployment=ETHLockbox`. The
     /// override pins the respected game type to an enabled game config; the anchor root is
     /// carried forward from the AnchorStateRegistry (v9 rejects the `startingAnchorRoot`
-    /// override). Chains arriving from v8 already have an ETHLockbox, so no proxy deployment
-    /// is permitted.
+    /// override). Chains arriving from v8 normally already have an ETHLockbox; the proxy
+    /// deployment is only permitted for chains listed in `permitEthLockboxDeployment`.
     function _buildExtraInstructions(uint256 chainId)
         internal
         view
         returns (IOPContractsManagerV900.ExtraInstruction[] memory)
     {
         IOPContractsManagerV900.ExtraInstruction[] memory extraInstructions =
-            new IOPContractsManagerV900.ExtraInstruction[](1);
+            new IOPContractsManagerV900.ExtraInstruction[](permitEthLockboxDeployment[chainId] ? 2 : 1);
         extraInstructions[0] = IOPContractsManagerV900.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
             data: abi.encode(upgrades[chainId].startingRespectedGameType)
         });
+        if (permitEthLockboxDeployment[chainId]) {
+            extraInstructions[1] =
+                IOPContractsManagerV900.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("ETHLockbox")});
+        }
         return extraInstructions;
     }
 
@@ -491,6 +516,10 @@ interface IOPContractsManagerStandardValidator {
 }
 
 interface ISuperchainConfig {}
+
+interface IOptimismPortalV900 {
+    function ethLockbox() external view returns (address);
+}
 
 interface IDisputeGameFactory {
     function gameImpls(GameType gameType) external view returns (address);
