@@ -1,6 +1,6 @@
 # 077-unichain-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x33426280adce8bce41f1096487de3806d02d8b01347cb49b198ff12cc1960983)
 
 ## Objective
 
