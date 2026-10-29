@@ -1,6 +1,6 @@
 # 079-unichain-l1splitter-accept-and-configure
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xafae3ba7862db7cfa3e74842cab6b35e67b30e0fcf3afff30916d3ca0d100372)
 
 ## Objective
 
