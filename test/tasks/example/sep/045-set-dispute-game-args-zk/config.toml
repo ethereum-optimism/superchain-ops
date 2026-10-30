@@ -1,0 +1,26 @@
+# Example task for the SetDisputeGameArgs template — ZK_DISPUTE_GAME (10) field coverage.
+#
+# Overrides every ZK gameArgs field on zk-proofs-2-0 except the impl, which the template keeps for
+# type 10. Synthetic values — this is a test, not a real upgrade.
+
+templateName = "SetDisputeGameArgs"
+fallbackAddressesJsonPath = "test/tasks/example/sep/045-set-dispute-game-args-zk/addresses.json"
+
+l2chains = [
+    {name = "zk-proofs-2-0", chainId = 420120259}
+]
+
+# ZK layout (140 bytes):
+#   prestate(32) | verifier(20) | maxChallengeDuration(8) | maxProveDuration(8) | challengerBond(32)
+#   | anchorStateRegistry(20) | delayedWETH(20)
+[[gameConfig]]
+chainId = 420120259
+gameType = 10                                                                  # ZK_DISPUTE_GAME
+prestate = "0x00000000000000000000000000000000000000000000000000000000deadbeef" # changed (synthetic)
+verifier = "0x27af7710890fea51698ab6d52ca534aa5753674a"                       # explicit (live SP1 verifier)
+maxChallengeDuration = 7200                                                    # changed (4h -> 2h)
+maxProveDuration = 86400                                                       # changed (3.5d -> 1d)
+challengerBond = 20000000000000000                                             # changed (0.01 -> 0.02 ETH)
+anchorStateRegistry = "0xF2f71595c1580F1937bf488926ebB05B91250170"            # explicit (must equal registered ASR)
+delayedWETH = "0x550298f6ed4f161f5aeac3cab05c79892e9d1e1d"                    # explicit (live DelayedWETH)
+bond = 30000000000000000                                                       # changed (0.021 -> 0.03 ETH)
