@@ -1,6 +1,6 @@
 # 114-op-sepolia-set-unsafe-signer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x9d636047b9afb5e08de3d3d2793b235c377abb3ce36e1ba501aa5e3730fb05c1)
 
 ## Objective
 
