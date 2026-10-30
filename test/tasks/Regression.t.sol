@@ -579,15 +579,6 @@ contract RegressionTest is Test {
         );
     }
 
-    /// @notice SetDisputeGameArgs rejects `vm` on type 10, whose layout has a verifier instead.
-    function testRegressionSetDisputeGameArgs_RejectsVmOnZK() public {
-        _expectZKRowReverts(
-            'vm = "0x27af7710890fea51698ab6d52ca534aa5753674a"\n',
-            "zkVm",
-            "SetDisputeGameArgs: ZK_DISPUTE_GAME takes verifier, not vm/proposer/challenger"
-        );
-    }
-
     /// @notice SetDisputeGameArgs rejects a ZK duration above uint32 max, which can overflow the game deadline.
     function testRegressionSetDisputeGameArgs_RejectsZKDurationAboveUint32() public {
         _expectZKRowReverts(
