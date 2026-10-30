@@ -1,0 +1,14 @@
+templateName = "TransferSystemConfigOwnership"
+
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+safeAddressString = "SystemConfigOwner"
+
+newOwner = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+
+[stateOverrides]
+0x9245d5D10AA8a842B31530De71EA86c0760Ca1b1 = [ # SystemConfigOwner nonce
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11}
+]
