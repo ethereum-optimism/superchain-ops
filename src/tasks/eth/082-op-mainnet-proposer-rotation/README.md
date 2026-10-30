@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-OP Mainnet OP Enterprise key rotation, part 1: sets the OP Enterprise proposer in the `SUPER_PERMISSIONED` (5) game args on the OP Mainnet `DisputeGameFactoryProxy`, signed by the L1PAO. The respected game type stays `SUPER_CANNON_KONA` (9), so type 5 is the Guardian fallback.
+OP Mainnet OP Enterprise key rotation, part 2 of 3: sets the OP Enterprise proposer in the `SUPER_PERMISSIONED` (5) game args on the OP Mainnet `DisputeGameFactoryProxy`, signed by the L1PAO. The respected game type stays `SUPER_CANNON_KONA` (9), so type 5 is the Guardian fallback.
 
 | Chain | Chain ID | DisputeGameFactoryProxy | `gameArgs(5)` proposer |
 |---|---|---|---|

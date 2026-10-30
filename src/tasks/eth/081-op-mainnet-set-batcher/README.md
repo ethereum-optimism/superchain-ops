@@ -4,7 +4,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-OP Mainnet OP Enterprise key rotation, part 1: sets the OP Enterprise batcher on the OP Mainnet `SystemConfigProxy`, signed by the [FoundationUpgradeSafe](../../../addresses.toml#L6).
+OP Mainnet OP Enterprise key rotation, part 1 of 3: sets the OP Enterprise batcher on the OP Mainnet `SystemConfigProxy`, signed by the [FoundationUpgradeSafe](../../../addresses.toml#L6).
 
 | Chain | Chain ID | SystemConfigProxy | Field | Change |
 |---|---|---|---|---|
