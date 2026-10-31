@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-78) and move only if that nonce moves.
+79) and move only if that nonce moves.
 
 > [!CAUTION]
 >
@@ -16,9 +16,9 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xa92492ba676533cd86ac16ca5a3d896f87d3ce3ee101487bdcfa708b0cd3171a`
+> - Message Hash: `0x575db48519fed45e55f17855ce55d90f6611c0a37cb5e9917c58602e9f39e16c`
 
-Safe transaction hash: `0x8748fd5e23d8de3fe4772fa34ffd8ec2e080fa5e1883ac225a4e741a3d737bca`
+Safe transaction hash: `0x1590cc98bb6474a30b3066c421e538f498509ea51ab9865c5654777ab88bfde1`
 
 ## For Signers
 
@@ -84,7 +84,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 78
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 79
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 ```
 
@@ -108,7 +108,7 @@ SIGNATURES=0x... just execute
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `78` → **After:** `79`
+  - **Before:** `79` → **After:** `80`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 
