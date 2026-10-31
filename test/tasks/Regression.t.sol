@@ -507,7 +507,7 @@ contract RegressionTest is Test {
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
     }
 
-    /// @notice SetDisputeGameArgs must reject an impl override on types 5 and 9: their impls return 0 from
+    /// @notice SetDisputeGameArgs must reject an impl override on types 5, 9 and 10: their impls return 0 from
     ///         gameType(), so type 9's impl in slot 5 would otherwise pass and break game creation.
     function testRegressionSetDisputeGameArgs_RejectsSuperGameImplOverride() public {
         string memory toml = string.concat(
@@ -524,7 +524,7 @@ contract RegressionTest is Test {
         address[] memory childSafes = new address[](1);
         childSafes[0] = address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92); // FoundationUpgradeSafe
         vm.createSelectFork("mainnet", 26096434);
-        vm.expectRevert("SetDisputeGameArgs: impl cannot be changed for types 5 and 9");
+        vm.expectRevert("SetDisputeGameArgs: impl cannot be changed for types 5, 9 and 10");
         multisigTask.simulate(configPath, childSafes);
         MultisigTaskTestHelper.removeFile(configPath);
     }
@@ -552,6 +552,83 @@ contract RegressionTest is Test {
         expectedDataToSign[1] =
             "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce9673efd87e4eda116232488299405da20389bd4c534d4b61e0fd264f9ac12463de4"; // Security Council
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+    }
+
+    /// @notice SetDisputeGameArgs, ZK_DISPUTE_GAME (10): every ZK gameArgs field plus the init bond on
+    ///         zk-proofs-2-0 at sepolia block 12027420.
+    ///         Simulate from task directory (test/tasks/example/sep/045-set-dispute-game-args-zk/) with:
+    ///         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate
+    function testRegressionCallDataMatches_SetDisputeGameArgsZK() public {
+        string memory taskConfigFilePath = "test/tasks/example/sep/045-set-dispute-game-args-zk/config.toml";
+        string memory expectedCallData =
+            "0x174dea7100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002200000000000000000000000002bc713c345109b95c7cff034d7f60b2ac86d0a750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000124b1070957000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000ffa68f7b1eba68be67e8d0cbdd6a0ebecae934c0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008c00000000000000000000000000000000000000000000000000000000deadbeef27af7710890fea51698ab6d52ca534aa5753674a0000000000001c20000000000001518000000000000000000000000000000000000000000000000000470de4df820000f2f71595c1580f1937bf488926ebb05b91250170550298f6ed4f161f5aeac3cab05c79892e9d1e1d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bc713c345109b95c7cff034d7f60b2ac86d0a7500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000441e334240000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000006a94d74f43000000000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        address rootSafe = address(0xe934Dc97E347C6aCef74364B50125bb8689c40ff); // zk-proofs-2 ProxyAdminOwner (1/1)
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe);
+        (Action[] memory actions, uint256[] memory allOriginalNonces) =
+            _setupAndSimulate(taskConfigFilePath, 12027420, "sepolia", multisigTask, allSafes);
+
+        bytes memory rootSafeCalldata =
+            _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
+
+        string memory expectedDataToSign =
+            "0x190107e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e63105c65e99496ce2c366b74573eced1501df570ef2a541dcd1db4be5a041877";
+        _assertDataToSignSingleMultisig(
+            rootSafe, rootSafeCalldata, expectedDataToSign, rootSafeNonce, MULTICALL3_ADDRESS
+        );
+    }
+
+    /// @notice SetDisputeGameArgs rejects a ZK duration above uint32 max, which can overflow the game deadline.
+    function testRegressionSetDisputeGameArgs_RejectsZKDurationAboveUint32() public {
+        _expectZKRowReverts(
+            "maxChallengeDuration = 4294967296\n", "zkDuration", "SetDisputeGameArgs: maxChallengeDuration out of range"
+        );
+    }
+
+    /// @notice SetDisputeGameArgs keeps every type-10 field that the TOML does not set.
+    function testRegressionSetDisputeGameArgs_ZKKeepsUnsetFields() public {
+        bytes32 newPrestate = bytes32(uint256(0xdeadbeef));
+        string memory configPath =
+            _zkRowConfig(string.concat('prestate = "', vm.toString(newPrestate), '"\n'), "zkPrestateOnly");
+        vm.createSelectFork("sepolia", 12027420);
+        (bool ok, bytes memory ret) = address(0x2bc713C345109b95C7cFF034d7f60B2ac86D0A75).staticcall(
+            abi.encodeWithSignature("gameArgs(uint32)", uint32(10))
+        );
+        require(ok, "gameArgs call failed");
+        bytes memory expected = bytes.concat(abi.decode(ret, (bytes)));
+        assertEq(expected.length, 140);
+        assembly {
+            mstore(add(expected, 0x20), newPrestate)
+        }
+
+        SetDisputeGameArgs multisigTask = new SetDisputeGameArgs();
+        multisigTask.simulate(configPath, new address[](0));
+        (,,, bytes memory written,,) = multisigTask.resolvedGames(0);
+        assertEq(written, expected);
+        MultisigTaskTestHelper.removeFile(configPath);
+    }
+
+    function _expectZKRowReverts(string memory extraField, string memory fileTag, string memory revertMsg) internal {
+        string memory configPath = _zkRowConfig(extraField, fileTag);
+        MultisigTask multisigTask = new SetDisputeGameArgs();
+        vm.createSelectFork("sepolia", 12027420);
+        vm.expectRevert(bytes(revertMsg));
+        multisigTask.simulate(configPath, new address[](0));
+        MultisigTaskTestHelper.removeFile(configPath);
+    }
+
+    function _zkRowConfig(string memory extraField, string memory fileTag) internal returns (string memory) {
+        string memory toml = string.concat(
+            'templateName = "SetDisputeGameArgs"\n',
+            'fallbackAddressesJsonPath = "test/tasks/example/sep/045-set-dispute-game-args-zk/addresses.json"\n',
+            'l2chains = [{name = "zk-proofs-2-0", chainId = 420120259}]\n',
+            "[[gameConfig]]\n",
+            "chainId = 420120259\n",
+            "gameType = 10\n",
+            extraField
+        );
+        return MultisigTaskTestHelper.createTempTomlFile(toml, "SetDisputeGameArgs", fileTag);
     }
 
     /// @notice expected call data and data to sign generated by manually running the WelcomeToSuperchainOps at block 22884610 on mainnet using script:
