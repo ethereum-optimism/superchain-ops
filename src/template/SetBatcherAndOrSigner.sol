@@ -13,10 +13,11 @@ interface ISystemConfig {
     function setUnsafeBlockSigner(address _unsafeBlockSigner) external;
     function batcherHash() external view returns (bytes32);
     function unsafeBlockSigner() external view returns (address);
+    function owner() external view returns (address);
 }
 
 /// @notice Template for updating the batcher hash and unsafe block signer on SystemConfig.
-/// Both calls are batched into a single Multicall3 transaction from the SystemConfig owner.
+/// Requested calls are batched into a single Multicall3 transaction from the SystemConfig owner.
 contract SetBatcherAndOrSigner is L2TaskBase {
     using stdToml for string;
 
@@ -25,7 +26,7 @@ contract SetBatcherAndOrSigner is L2TaskBase {
         bytes32 batcherHash;
         address unsafeBlockSigner;
         bool updateBatcher;
-        bool updateSigner;
+        bool updateUnsafeBlockSigner;
     }
 
     /// @notice Mapping of chain ID to configuration for the task.
@@ -51,30 +52,54 @@ contract SetBatcherAndOrSigner is L2TaskBase {
         string memory tomlContent = vm.readFile(_taskConfigFilePath);
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
 
-        address batcherAddress = tomlContent.readAddress(".sequencerConfig.batcherAddress");
-        address unsafeBlockSigner = tomlContent.readAddress(".sequencerConfig.unsafeBlockSigner");
-        require(batcherAddress != address(0), "SetBatcherAndOrSigner: batcherAddress is zero address");
-        require(unsafeBlockSigner != address(0), "SetBatcherAndOrSigner: unsafeBlockSigner is zero address");
-        bytes32 batcherHash = bytes32(uint256(uint160(batcherAddress)));
+        address requestedBatcher = tomlContent.readAddress(".sequencerConfig.batcherAddress");
+        address requestedUnsafeBlockSigner = tomlContent.readAddress(".sequencerConfig.unsafeBlockSigner");
+        bool hasUpdateBatcher = tomlContent.keyExists(".sequencerConfig.updateBatcher");
+        bool hasUpdateUnsafeBlockSigner = tomlContent.keyExists(".sequencerConfig.updateUnsafeBlockSigner");
+        require(
+            hasUpdateBatcher == hasUpdateUnsafeBlockSigner, "SetBatcherAndOrSigner: both update flags must be provided"
+        );
+        bool configuredUpdateBatcher = hasUpdateBatcher && tomlContent.readBool(".sequencerConfig.updateBatcher");
+        bool configuredUpdateUnsafeBlockSigner =
+            hasUpdateUnsafeBlockSigner && tomlContent.readBool(".sequencerConfig.updateUnsafeBlockSigner");
+        if (hasUpdateBatcher) {
+            _requireRequestedUpdate(configuredUpdateBatcher, configuredUpdateUnsafeBlockSigner);
+        }
 
         for (uint256 i = 0; i < _chains.length; i++) {
             uint256 chainId = _chains[i].chainId;
             ISystemConfig systemConfig = ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
-            bool updateBatcher = batcherHash != systemConfig.batcherHash();
-            bool updateSigner = unsafeBlockSigner != systemConfig.unsafeBlockSigner();
+            _requireRootSafe(_rootSafe, systemConfig.owner());
+
+            address currentBatcher = _decodeBatcherAddress(systemConfig.batcherHash());
+            address currentUnsafeBlockSigner = systemConfig.unsafeBlockSigner();
+            address batcherAddress =
+                _resolveTarget(requestedBatcher, hasUpdateBatcher ? configuredUpdateBatcher : true, currentBatcher);
+            address unsafeBlockSigner = _resolveTarget(
+                requestedUnsafeBlockSigner,
+                hasUpdateUnsafeBlockSigner ? configuredUpdateUnsafeBlockSigner : true,
+                currentUnsafeBlockSigner
+            );
+            bool updateBatcher = hasUpdateBatcher ? configuredUpdateBatcher : batcherAddress != currentBatcher;
+            bool updateUnsafeBlockSigner = hasUpdateUnsafeBlockSigner
+                ? configuredUpdateUnsafeBlockSigner
+                : unsafeBlockSigner != currentUnsafeBlockSigner;
+            bytes32 batcherHash = bytes32(uint256(uint160(batcherAddress)));
             require(
-                updateBatcher || updateSigner, "SetBatcherAndOrSigner: no-op (both fields already match current values)"
+                (updateBatcher && batcherAddress != currentBatcher)
+                    || (updateUnsafeBlockSigner && unsafeBlockSigner != currentUnsafeBlockSigner),
+                "SetBatcherAndOrSigner: no-op (requested fields already match current values)"
             );
             cfg[chainId] = TaskInputs({
                 batcherHash: batcherHash,
                 unsafeBlockSigner: unsafeBlockSigner,
                 updateBatcher: updateBatcher,
-                updateSigner: updateSigner
+                updateUnsafeBlockSigner: updateUnsafeBlockSigner
             });
         }
     }
 
-    /// @notice Builds the batched transaction, calling only the setters for fields that actually change.
+    /// @notice Builds the batched transaction, calling only the requested setters.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
@@ -84,7 +109,7 @@ contract SetBatcherAndOrSigner is L2TaskBase {
             if (taskInput.updateBatcher) {
                 ISystemConfig(systemConfigProxy).setBatcherHash(taskInput.batcherHash);
             }
-            if (taskInput.updateSigner) {
+            if (taskInput.updateUnsafeBlockSigner) {
                 ISystemConfig(systemConfigProxy).setUnsafeBlockSigner(taskInput.unsafeBlockSigner);
             }
         }
@@ -119,5 +144,26 @@ contract SetBatcherAndOrSigner is L2TaskBase {
             exceptions[i * 2 + 1] = taskInput.unsafeBlockSigner;
         }
         return exceptions;
+    }
+
+    function _resolveTarget(address requested, bool updateRequested, address current) internal pure returns (address) {
+        if (!updateRequested) return current;
+        require(requested != address(0), "SetBatcherAndOrSigner: requested target is zero address");
+        return requested;
+    }
+
+    function _requireRequestedUpdate(bool updateBatcher, bool updateUnsafeBlockSigner) internal pure {
+        require(updateBatcher || updateUnsafeBlockSigner, "SetBatcherAndOrSigner: no update requested");
+    }
+
+    function _requireRootSafe(address rootSafe, address owner) internal pure {
+        require(rootSafe == owner, "SetBatcherAndOrSigner: root safe is not SystemConfig owner");
+    }
+
+    function _decodeBatcherAddress(bytes32 batcherHash) internal pure returns (address) {
+        require(uint256(batcherHash) >> 160 == 0, "SetBatcherAndOrSigner: batcher hash is not an address");
+        address batcher = address(uint160(uint256(batcherHash)));
+        require(batcher != address(0), "SetBatcherAndOrSigner: current batcher is zero address");
+        return batcher;
     }
 }
