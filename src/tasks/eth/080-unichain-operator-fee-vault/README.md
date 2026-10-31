@@ -1,6 +1,6 @@
 # 080-unichain-operator-fee-vault
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x2a2755b35a2cceb0f142a264c81df0e28de1608ab1f4ed90be3fbeddc0d7ff81)
 
 ## Objective
 

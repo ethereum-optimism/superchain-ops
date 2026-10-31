@@ -6,8 +6,8 @@ transaction which you are signing.
 ## Expected Domain and Message Hashes
 
 Validate the domain and message hashes. These values should match both the values on your
-ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 47,
-FoundationUpgradeSafe 79, SecurityCouncil 74) and move
+ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 48,
+FoundationUpgradeSafe 80, SecurityCouncil 75) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -17,15 +17,15 @@ only if those inputs move.
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xb0c359db517a58404d8c18c662321af49cf6195559d1af0382a300a98a80edd3`
+> - Message Hash: `0xa798c2865cf3cb2fc5b41a26672eb0a12e8b3b847947ebae430e2ef7c982be8f`
 >
 > ### SecurityCouncil (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x58e7b8335c4a06c792a5aaf4cf5787c2e8b9714ed2c3e4f4e3a1947f21e73d76`
+> - Message Hash: `0x6c620f09411044481b233a3812885b280dae0dbccf3a9923cc5b24d45e27ec91`
 
 Root L1PAO (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) safe transaction hash (identical on both signing paths):
-`0xfb26fe289cda3eab8a6ff5cd61014cc2d7b25eb41457ecf51b19263ed6a85064`
+`0x97dc2f234607ba494af753493f1c7d2740ac9b84826a2436a1568473a13bfbd6`
 
 ## For Signers
 
@@ -95,9 +95,9 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 47
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 79
-cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 74
+cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # 48
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 80
+cast call 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 "nonce()(uint256)" -r $RPC   # 75
 cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 5 -r $RPC   # 0x5C3eb47cB0174aea522a2a9Ae79487139A53D691
 cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameArgs(uint32)(bytes)" 5 -r $RPC    # 0x23b2c62946350f4246f9f9d027e071f0264fd113473300df21d047806a082244b417f96b32f13a33
 ```
@@ -127,26 +127,26 @@ just execute
 #### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO, root safe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `47` → **After:** `48`
+  - **Before:** `48` → **After:** `49`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
-- **Key (foundation path):** `0x66564d68842bf11d4a543a1b6c300c2c86fec49f921c756373925fe55b607883`
-- **Key (council path):** `0x1da629e931b75657bc1d820b6be13692054135c9b068a442517e4634416109b4`
+- **Key (foundation path):** `0xb29240af3a63af3492f52a80c2b07bd6d192550d1380d75c3e3458fa963967ff`
+- **Key (council path):** `0xf6c300399dfe4c9b8553735ae35ee58f152c8ee378dace7fb5b0d6e7fbdf6fc7`
   - **Before:** `0` → **After:** `1`
-  - **Summary:** `approvedHashes[<child safe>][0xfb26fe28…]`, the child safe's approval. Only the
+  - **Summary:** `approvedHashes[<child safe>][0x97dc2f23…]`, the child safe's approval. Only the
     key of the path being simulated is written. Derive with
-    `cast index bytes32 0xfb26fe289cda3eab8a6ff5cd61014cc2d7b25eb41457ecf51b19263ed6a85064 $(cast index address <child> 8)`.
+    `cast index bytes32 0x97dc2f234607ba494af753493f1c7d2740ac9b84826a2436a1568473a13bfbd6 $(cast index address <child> 8)`.
 
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe), foundation path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `79` → **After:** `80`
+  - **Before:** `80` → **After:** `81`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (SecurityCouncil), council path
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `74` → **After:** `75`
+  - **Before:** `75` → **After:** `76`
   - **Summary:** nonce increment of the approving child safe.
 
 #### `0x24424336F04440b1c28685a38303aC33C9D14a25` (SecurityCouncil LivenessGuard), council path
