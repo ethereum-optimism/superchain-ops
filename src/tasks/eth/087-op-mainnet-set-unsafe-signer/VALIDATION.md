@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-83), with eth/081 executed first, and move only if those inputs move.
+84), with eth/081 executed first, and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,9 +16,9 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x88a05fba76ec5d63afe7859941942b5c4077eb07f9b0ac2c670e037630c953ca`
+> - Message Hash: `0xe001da1e50217f5a3733d211f53b8c4f0531048b5a2c8a5aaea6e8bbf2f0414b`
 
-Safe transaction hash: `0x4f4419a950075c3c2d5c92f600953c6f901d4d73938805c2fc26a24bf4750f42`
+Safe transaction hash: `0xc3016383a6e66f589f965b83a328c2fb7d75468b1c0d3f58413ba184d4f38987`
 
 ## For Signers
 
@@ -84,7 +84,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 83
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 84
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r $RPC   # 0x000000000000000000000000cdf8af38e013fcc1b2d0b7d00fb7671523d4b825 (eth/081 executed)
 ```
@@ -109,7 +109,7 @@ SIGNATURES=0x... just execute
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `83` → **After:** `84`
+  - **Before:** `84` → **After:** `85`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 
