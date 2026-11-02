@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-83, shared with the foundation approval of 086), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+83, shared with the foundation approval of 087), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -25,7 +25,7 @@ Safe transaction hash: `0x19689fed416732d349fcb481ca6534826cf146273116a0ed51fc31
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/088-soneium-revert-batcher-unsafe-signer
+cd src/tasks/eth/089-soneium-revert-batcher-unsafe-signer
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 ```
 
@@ -77,7 +77,7 @@ cast calldata "setUnsafeBlockSigner(address)" 0x7c2Bd59ee2a2C7391c9A240132f26071
 # Expected: 0x18d139180000000000000000000000007c2bd59ee2a2c7391c9a240132f26071e9546262
 ```
 
-Each payload appears exactly once and the target twice. The calldata is the one of 085 with
+Each payload appears exactly once and the target twice. The calldata is the one of 086 with
 Sony's batcher and unsafe block signer in place of the OP Enterprise ones. To decode the full
 calldata:
 
@@ -90,16 +90,16 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 83 (086 not executed)
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 83 (087 not executed)
 cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
-cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "batcherHash()(bytes32)" -r $RPC        # 0x0000000000000000000000001c7566fe8fae38a93bdcb1fbf7d746fd08c11545 (after 085)
-cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "unsafeBlockSigner()(address)" -r $RPC   # 0x3cDacd9da979ab023a9f2D16C42AFA062CCF33F5 (after 085)
+cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "batcherHash()(bytes32)" -r $RPC        # 0x0000000000000000000000001c7566fe8fae38a93bdcb1fbf7d746fd08c11545 (after 086)
+cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "unsafeBlockSigner()(address)" -r $RPC   # 0x3cDacd9da979ab023a9f2D16C42AFA062CCF33F5 (after 086)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/088-soneium-revert-batcher-unsafe-signer
+cd src/tasks/eth/089-soneium-revert-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
@@ -118,7 +118,7 @@ SIGNATURES=0x... just execute
   - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner") - 1`).
 
 The before-values and the slot `0x33` owner are state overrides standing in for the Safe UI
-transfer and 085, not changes made by this task.
+transfer and 086, not changes made by this task.
 
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
