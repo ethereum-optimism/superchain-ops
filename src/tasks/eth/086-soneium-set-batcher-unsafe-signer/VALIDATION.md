@@ -25,8 +25,8 @@ Safe transaction hash: `0xf4e39e659eeb6b84aa996bfbfb53c6dc58526a3ae766ac85375329
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/085-soneium-set-batcher-unsafe-signer
-just simulate-stack eth 085-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/086-soneium-set-batcher-unsafe-signer
+just simulate-stack eth 086-soneium-set-batcher-unsafe-signer
 ```
 
 Check:
@@ -95,7 +95,7 @@ cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "owner()(address)" -r $RPC 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/085-soneium-set-batcher-unsafe-signer
+cd src/tasks/eth/086-soneium-set-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
