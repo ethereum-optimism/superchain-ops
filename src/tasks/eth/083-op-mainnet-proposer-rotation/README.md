@@ -1,6 +1,6 @@
-# 082-op-mainnet-proposer-rotation
+# 083-op-mainnet-proposer-rotation
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
@@ -17,9 +17,9 @@ Proposer key source: [`op-signer` configmap](https://github.com/ethereum-optimis
 Nested task: pass `council` or `foundation` for your child safe. Check the output against [VALIDATION.md](./VALIDATION.md) before signing.
 
 ```bash
-cd src/tasks/eth/082-op-mainnet-proposer-rotation
+cd src/tasks/eth/083-op-mainnet-proposer-rotation
 
-just simulate-stack eth 082-op-mainnet-proposer-rotation council   # or foundation
+just simulate-stack eth 083-op-mainnet-proposer-rotation council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 082-op-mainnet-proposer-rotation council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 083-op-mainnet-proposer-rotation council   # or foundation
 ```

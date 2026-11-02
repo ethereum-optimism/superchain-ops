@@ -25,8 +25,8 @@ Safe transaction hash: `0x1590cc98bb6474a30b3066c421e538f498509ea51ab9865c565477
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/081-op-mainnet-set-batcher
-just simulate-stack eth 081-op-mainnet-set-batcher
+cd src/tasks/eth/082-op-mainnet-set-batcher
+just simulate-stack eth 082-op-mainnet-set-batcher
 ```
 
 Check:
@@ -91,7 +91,7 @@ cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/081-op-mainnet-set-batcher
+cd src/tasks/eth/082-op-mainnet-set-batcher
 
 SIGNATURES=0x... just execute
 ```

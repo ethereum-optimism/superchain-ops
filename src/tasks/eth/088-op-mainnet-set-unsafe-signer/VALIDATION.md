@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-84), with eth/081 executed first, and move only if those inputs move.
+84), with eth/082 executed first, and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -25,8 +25,8 @@ Safe transaction hash: `0xc3016383a6e66f589f965b83a328c2fb7d75468b1c0d3f58413ba1
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/087-op-mainnet-set-unsafe-signer
-just simulate-stack eth 087-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/088-op-mainnet-set-unsafe-signer
+just simulate-stack eth 088-op-mainnet-set-unsafe-signer
 ```
 
 Check:
@@ -86,13 +86,13 @@ RPC=https://ethereum-rpc.publicnode.com
 
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 84
 cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
-cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r $RPC   # 0x000000000000000000000000cdf8af38e013fcc1b2d0b7d00fb7671523d4b825 (eth/081 executed)
+cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r $RPC   # 0x000000000000000000000000cdf8af38e013fcc1b2d0b7d00fb7671523d4b825 (eth/082 executed)
 ```
 
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/087-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/088-op-mainnet-set-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
