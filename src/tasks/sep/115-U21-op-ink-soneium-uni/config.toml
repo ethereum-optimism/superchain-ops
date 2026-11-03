@@ -35,16 +35,16 @@ startingRespectedGameType = 9
 [[opcmUpgrades]]
 chainId = 1946
 cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
-# Soneium Minato uses a registry challenger override (informational).
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
+# No challenger override: super-game-only chains register no Challenger, so the validator's
+# default is used (unlike sep/108, which ran before the permissioned game was cleared).
+expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
 [[opcmUpgrades]]
 chainId = 1301
 cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
-# Unichain Sepolia uses a registry challenger override (informational).
-expectedValidationErrors = "OVERRIDES-CHALLENGER"
+expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
@@ -56,10 +56,12 @@ OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
 # (0xd363…9dbf); the pin resolves the same L1PAO root safe for all four chains. Same pin as sep/108.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
-# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee (500000) in slot
-# 0x6c, which the code-presence check would misread as an address. Same exception as sep/108.
+# Unichain Sepolia's and Soneium Minato's SystemConfigs pack superchainConfig with a non-zero
+# minBaseFee in slot 0x6c, which the code-presence check would misread as an address. Unichain is
+# the same exception as sep/108; Minato set its minBaseFee (14000000) after U20.
 [storageCodeExceptions]
 "0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+"0x4Ca9608Fef202216bc21D543798ec854539bAAd3" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
 # Safe nonces pinned to the live values on 2026-11-03 (L1PAO 59, FoundationUpgradeSafe 82,
 # SecurityCouncil 73); no pending task ahead of this one uses these safes. Re-verify with

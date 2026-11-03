@@ -7,8 +7,8 @@ Status: DRAFT, NOT READY TO SIGN
 Executes Upgrade 21 (`op-contracts/v9.0.0`) on the four OP-governed Sepolia chains in a
 single transaction from the standard Sepolia L1 ProxyAdminOwner
 ([`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/op.toml#L47),
-2-of-2 of the [Foundation Upgrade Safe](../../../addresses.toml#L18) and the
-[Security Council](../../../addresses.toml#L19)): one `OPCM.upgradeSuperchain` followed by
+2-of-2 of the [Foundation Upgrade Safe](../../../addresses.toml#L17) and the
+[Security Council](../../../addresses.toml#L18)): one `OPCM.upgradeSuperchain` followed by
 one `OPCM.upgrade` per chain, through the v9.0.0-rc.1
 [OPCM `0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc`](https://github.com/ethereum-optimism/superchain-registry/blob/41553edca76a4d67d7be0b57f857ffc978295153/validation/standard/standard-versions-sepolia.toml)
 (version 9.0.3).
