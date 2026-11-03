@@ -22,9 +22,9 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
     /// @notice Struct to store inputs data for each L2 chain.
     /// @dev Fields must remain in alphabetical order for TOML decoding.
-    /// @dev No anchor-root input: the v9 OPCM only permits the `startingRespectedGameType`
-    /// override, and chains arriving from v8 already anchor on a super root, which the
-    /// upgrade carries forward from the AnchorStateRegistry.
+    /// @dev No anchor-root input: the only v9 override is `startingRespectedGameType`, and chains
+    /// arriving from v8 already anchor on a super root, which the upgrade carries forward from
+    /// the AnchorStateRegistry.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
         uint256 chainId;
@@ -49,6 +49,15 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     uint32 internal constant CANNON_KONA = 8;
     uint32 internal constant SUPER_CANNON_KONA = 9;
     uint32 internal constant ZK_DISPUTE_GAME = 10;
+
+    // Feature keys (from the Features library in op-contracts v9.0.0).
+    bytes32 internal constant ETH_LOCKBOX = "ETH_LOCKBOX";
+    bytes32 internal constant CUSTOM_GAS_TOKEN = "CUSTOM_GAS_TOKEN";
+
+    /// @notice Per-chain lockbox and portal ETH balance recorded in `_templateSetup`, before the
+    /// upgrade. A zero lockbox means the chain had none and the upgrade deploys one.
+    mapping(uint256 => address) public preUpgradeLockbox;
+    mapping(uint256 => uint256) public preUpgradePortalBalance;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
@@ -132,23 +141,6 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             );
         }
 
-        // Register EthLockboxProxy for each chain. The upgrade writes to EthLockboxProxy storage.
-        // Onchain discovery already registers it via `portal.ethLockbox()` for chains whose
-        // portal has a wired lockbox; `saveAddress` reverts on duplicate keys, so only fall
-        // back to the superchain-registry addresses.json when discovery found nothing.
-        string memory addrJson = vm.readFile(superchainAddrRegistry.SUPERCHAIN_REGISTRY_ADDRESSES_PATH());
-        for (uint256 i = 0; i < chains.length; i++) {
-            try superchainAddrRegistry.getAddress("EthLockboxProxy", chains[i].chainId) returns (address) {
-                continue;
-            } catch {}
-            string memory key = string.concat("$.", vm.toString(chains[i].chainId), ".EthLockboxProxy");
-            if (vm.keyExistsJson(addrJson, key)) {
-                address ethLockbox = vm.parseJsonAddress(addrJson, key);
-                superchainAddrRegistry.saveAddress("EthLockboxProxy", chains[i], ethLockbox);
-                vm.label(ethLockbox, "EthLockboxProxy");
-            }
-        }
-
         // The OPCM gates enabling ZK_DISPUTE_GAME behind a dev feature (disabled on
         // production deployments) and its game args require a full ZKDisputeGameConfig
         // (verifier, durations, challenger bond) that this template does not carry. Fail
@@ -188,6 +180,17 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         require(address(standardValidator) != address(0), "OPCM returned zero validator");
         require(address(standardValidator).code.length > 0, "Validator has no code");
         vm.label(address(standardValidator), "OPCMStandardValidator");
+
+        // Record each chain's lockbox and portal ETH so `_validateLockbox` can tell a reused
+        // lockbox from a freshly deployed one. Discovery registers `EthLockboxProxy` from
+        // `portal.ethLockbox()`; a chain without one gets a new proxy, which the storage-write
+        // check exempts as a newly created contract.
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
+            preUpgradeLockbox[chainId] = IOptimismPortalView(portal).ethLockbox();
+            preUpgradePortalBalance[chainId] = portal.balance;
+        }
     }
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
@@ -269,23 +272,26 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         return cfgs;
     }
 
-    /// @dev The v9 OPCM permits exactly two upgrade instructions: the
-    /// `startingRespectedGameType` override and `PermittedProxyDeployment=ETHLockbox`. The
-    /// override pins the respected game type to an enabled game config; the anchor root is
-    /// carried forward from the AnchorStateRegistry (v9 rejects the `startingAnchorRoot`
-    /// override). Chains arriving from v8 already have an ETHLockbox, so no proxy deployment
-    /// is permitted.
+    /// @dev The v9 OPCM permits exactly two upgrade instructions, both sent for every chain. The
+    /// `startingRespectedGameType` override pins the respected game type to an enabled game
+    /// config; the anchor root is carried forward from the AnchorStateRegistry (v9 rejects the
+    /// `startingAnchorRoot` override). `PermittedProxyDeployment=ETHLockbox` lets the OPCM deploy
+    /// a lockbox for a chain whose portal has none, which v9 requires; a chain that already has
+    /// one keeps it.
     function _buildExtraInstructions(uint256 chainId)
         internal
         view
         returns (IOPContractsManagerV900.ExtraInstruction[] memory)
     {
         IOPContractsManagerV900.ExtraInstruction[] memory extraInstructions =
-            new IOPContractsManagerV900.ExtraInstruction[](1);
+            new IOPContractsManagerV900.ExtraInstruction[](2);
         extraInstructions[0] = IOPContractsManagerV900.ExtraInstruction({
             key: "overrides.cfg.startingRespectedGameType",
             data: abi.encode(upgrades[chainId].startingRespectedGameType)
         });
+        // The OPCM matches the contract name as a raw string, not ABI-encoded.
+        extraInstructions[1] =
+            IOPContractsManagerV900.ExtraInstruction({key: "PermittedProxyDeployment", data: bytes("ETHLockbox")});
         return extraInstructions;
     }
 
@@ -350,6 +356,8 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             (bytes32 anchorRoot,) = asr.getStartingAnchorRoot();
             require(anchorRoot != bytes32(0), "OPCMUpgradeV900: anchor root was cleared");
 
+            _validateLockbox(chainId);
+
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
                 .ValidationInputDev({
                 sysCfg: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
@@ -386,6 +394,30 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
+        }
+    }
+
+    /// @notice Pins a chain's lockbox wiring after the upgrade. A chain that had a lockbox keeps it;
+    /// a chain without one gets a fresh proxy and, unless it runs a custom gas token, its portal
+    /// ETH moves into it.
+    function _validateLockbox(uint256 chainId) internal view {
+        address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
+        ISystemConfigV900 sysCfg = ISystemConfigV900(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
+        address lockbox = IOptimismPortalView(portal).ethLockbox();
+        require(lockbox != address(0) && lockbox.code.length > 0, "OPCMUpgradeV900: portal has no lockbox");
+        require(IETHLockboxView(lockbox).authorizedPortals(portal), "OPCMUpgradeV900: portal not authorized on lockbox");
+        require(sysCfg.isFeatureEnabled(ETH_LOCKBOX), "OPCMUpgradeV900: ETH_LOCKBOX feature not enabled");
+
+        address before = preUpgradeLockbox[chainId];
+        uint256 portalBalanceBefore = preUpgradePortalBalance[chainId];
+        if (before != address(0)) {
+            require(lockbox == before, "OPCMUpgradeV900: existing lockbox was replaced");
+        } else if (sysCfg.isFeatureEnabled(CUSTOM_GAS_TOKEN)) {
+            require(portal.balance == portalBalanceBefore, "OPCMUpgradeV900: custom gas token portal balance changed");
+        } else {
+            require(portal.balance == 0, "OPCMUpgradeV900: portal ETH not migrated");
+            // `>=`: dust sent to the predictable CREATE2 address beforehand must not block the task.
+            require(lockbox.balance >= portalBalanceBefore, "OPCMUpgradeV900: lockbox did not receive the portal ETH");
         }
     }
 
@@ -517,9 +549,18 @@ interface ISystemConfig {
     function getAddresses() external view returns (Addresses memory);
 }
 
-/// @notice Read-only SystemConfig accessors used to populate `_getCodeExceptions`.
+/// @notice Read-only SystemConfig accessors used by `_getCodeExceptions` and `_validateLockbox`.
 interface ISystemConfigV900 {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
     function batcherHash() external view returns (bytes32);
+    function isFeatureEnabled(bytes32) external view returns (bool);
+}
+
+interface IOptimismPortalView {
+    function ethLockbox() external view returns (address);
+}
+
+interface IETHLockboxView {
+    function authorizedPortals(address) external view returns (bool);
 }
