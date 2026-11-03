@@ -13,15 +13,15 @@ contract OPCMUpgradeV900SetupHarness is OPCMUpgradeV900 {
 }
 
 /// @notice Exercises the `_templateSetup` checks of OPCMUpgradeV900 against the 045 example task.
-/// @dev Forks Sepolia at the task's pinned block, where the throwaway v9 OPCM in the example config exists.
+/// @dev Forks Sepolia at the task's pinned block, where the rc1 v9 OPCM in the example config exists.
 contract OPCMUpgradeV900SetupValidationTest is Test {
     string constant CONFIG = "test/tasks/example/sep/045-opcm-upgrade-v900/config.toml";
     // This directory is in the .gitignore file.
     string constant TEST_CONFIG_DIR = "test-config-files";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_999_987;
+    uint256 internal constant FORK_BLOCK_NUMBER = 12_057_300;
 
     // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108): the release the chains are on.
-    string constant EXAMPLE_OPCM = 'OPCM = "0xe09c417496c786abffefa676da9e11aab2c32ea9"';
+    string constant EXAMPLE_OPCM = 'OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"';
     string constant SEPOLIA_OPCM_V801 = 'OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"';
 
     function setUp() public {
@@ -33,7 +33,7 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
         harness.setupForTest(CONFIG);
         assertEq(harness.chainsToUpgrade(0), 1301);
         assertEq(harness.chainsToUpgrade(1), 11155420);
-        assertEq(address(harness.opcm()), 0xe09c417496C786ABFFefA676dA9e11aaB2c32eA9);
+        assertEq(address(harness.opcm()), 0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc);
     }
 
     function test_rejects_zero_cannon_kona_prestate() public {
