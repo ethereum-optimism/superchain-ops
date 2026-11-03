@@ -2,8 +2,8 @@
 # 0x289d…1DBb: one OPCM.upgradeSuperchain, then one OPCM.upgrade per chain. sepolia-devnet-2, -4 and -5 stay
 # on SUPER_CANNON_KONA (9); sepolia-devnet-3 is permissioned-only and stays on SUPER_PERMISSIONED (5). The
 # upgrade carries every chain's super-root anchor forward and wires an ETHLockbox to each portal (none has one
-# at v8), moving the portal ETH into it. Executed by the staging ProxyAdminOwner Safe (1-of-1). Runs BEFORE
-# 124-U21-sepolia-devnet-4-5-opcm-migrate-v900, which migrates devnet-4 and -5 only.
+# at v8), moving the portal ETH into it. Executed by the staging ProxyAdminOwner Safe (1-of-1). U21 is upgrade only: the
+# devnet-4 + -5 OPCM.migrate follows the U22 / op-contracts v10.0.0 upgrade as a separate task.
 #
 # sepolia-devnet-2 and -3 are in the superchain-registry; devnet-4 and -5 are read from addresses.json.
 #

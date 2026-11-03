@@ -35,9 +35,9 @@ implementation, so it stays permissioned. No portal has an `ETHLockbox` at v8 (`
 zero, `ETH_LOCKBOX` off), so the upgrade deploys one per chain, authorizes the portal on it and
 moves the portal's ETH into it.
 
-sepolia-devnet-4 and -5 are the interop staging pair: this task must execute before
-[124-U21-sepolia-devnet-4-5-opcm-migrate-v900](../124-U21-sepolia-devnet-4-5-opcm-migrate-v900/README.md),
-which migrates those two only. sepolia-devnet-2 and -3 are not migrated.
+sepolia-devnet-4 and -5 are the interop staging pair. U21 is upgrade only (decided 3 Nov 2026):
+their `OPCM.migrate` follows the U22 / op-contracts v10.0.0 upgrade as a separate task, and
+sepolia-devnet-2 and -3 are never migrated.
 
 ## Simulation & Signing
 
