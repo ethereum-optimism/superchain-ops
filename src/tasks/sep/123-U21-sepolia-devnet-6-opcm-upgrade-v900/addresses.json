@@ -1,0 +1,25 @@
+{
+  "420130021": {
+    "AddressManager": "0xdead00000000000000000000000000000000dead",
+    "AnchorStateRegistryProxy": "0xdead00000000000000000000000000000000dead",
+    "BatchSubmitter": "0xdead00000000000000000000000000000000dead",
+    "Challenger": "0xdead00000000000000000000000000000000dead",
+    "DisputeGameFactoryProxy": "0xdead00000000000000000000000000000000dead",
+    "EthLockboxProxy": "0xdead00000000000000000000000000000000dead",
+    "Guardian": "0xe934dc97e347c6acef74364b50125bb8689c40ff",
+    "L1CrossDomainMessengerProxy": "0xdead00000000000000000000000000000000dead",
+    "L1ERC721BridgeProxy": "0xdead00000000000000000000000000000000dead",
+    "L1StandardBridgeProxy": "0xdead00000000000000000000000000000000dead",
+    "OptimismMintableERC20FactoryProxy": "0xdead00000000000000000000000000000000dead",
+    "OptimismPortalProxy": "0xdead00000000000000000000000000000000dead",
+    "PermissionedWETH": "0xdead00000000000000000000000000000000dead",
+    "PermissionlessWETH": "0xdead00000000000000000000000000000000dead",
+    "Proposer": "0xdead00000000000000000000000000000000dead",
+    "ProxyAdmin": "0xdead00000000000000000000000000000000dead",
+    "ProxyAdminOwner": "0xe934dc97e347c6acef74364b50125bb8689c40ff",
+    "SuperchainConfig": "0xdead00000000000000000000000000000000dead",
+    "SystemConfigOwner": "0xe934dc97e347c6acef74364b50125bb8689c40ff",
+    "SystemConfigProxy": "0xdead00000000000000000000000000000000dead",
+    "UnsafeBlockSigner": "0xdead00000000000000000000000000000000dead"
+  }
+}
