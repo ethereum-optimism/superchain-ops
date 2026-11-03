@@ -1,0 +1,76 @@
+# Upgrade 21 interop migration of Unichain Sepolia and OP Sepolia: one OPCM.migrate for the pair. Deploys a
+# shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry, moves each portal's and lockbox's ETH into the
+# shared lockbox, points both portals at the shared dispute contracts and enables INTEROP on both chains.
+# One-way: all prior withdrawal proofs are invalidated. Registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA
+# (9) on the shared DisputeGameFactory. Executed by the standard Sepolia L1PAO (2-of-2 of the Foundation Upgrade
+# Safe and the Security Council).
+#
+# Requires 115-U21-op-ink-soneium-uni first (migrate requires every chain on the v9 OPCM). Ink Sepolia and
+# Soneium Minato are upgraded by 115 but never migrated: they stay single-chain.
+# Simulate the pair with `just simulate-stack sep 125-U21-op-uni-opcm-migrate-v900 council` (or foundation).
+#
+# l2chains must be in strictly ascending chainId order (migrate reverts otherwise), so Unichain Sepolia (1301)
+# comes first: its ProxyAdmin (0x2bf4…3ea4) administers the shared proxies and its DelayedWETH becomes the
+# shared DelayedWETH. Both ProxyAdmins are owned by the same L1PAO.
+#
+# PLACEHOLDERS: the super root of the pair (0xdead…dead) is generated with op-chain-ops/cmd/check-super-root
+# over both chains shortly before signing, and the expected validation errors are confirmed by the stacked
+# simulation. Both chains are at v8 today (SystemConfig 4.0.0, lastUsedOPCMVersion 8.0.1, respected game 9).
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMMigrateV900"
+skipOPCMVersionCheck = false
+
+[opcmMigrate]
+# kona-client/v1.9.0 cannon64-kona-interop (superchain-registry standard-prestates.toml), the prestate task 115
+# registers on every chain and the Upgrade 21 notice page lists. Part of the signed calldata.
+cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+# Per chain (l2chains order). Standard chains on the standard L1PAO and SuperchainConfig: empty, as in task 115.
+# Confirmed by the stacked simulation on 2026-11-03 (Sepolia block ~12058200). Assert-only.
+expectedChainValidationErrors = ["", ""]
+expectedValidationErrors = ""
+# The pair's super proposer: OP Sepolia's OP Enterprise proposer, the one sep/113 rotated in and the one
+# DisputeGameFactory.gameArgs(5) carries today. The shared game takes one proposer, so Unichain Sepolia's
+# op-proposer (0x97e74f93df7fb8eb2542d0cc42dfb21aabb40800) must be stopped or repointed in its inventory
+# after migration.
+proposer = "0x9884c33c65111da7bbed0e63cd2392f503b135f5"
+# Honest super root of the pair and its timestamp: op-chain-ops/cmd/check-super-root over https://sepolia.unichain.org
+# and https://sepolia.optimism.io at the latest common finalized timestamp on 2026-11-03 (Unichain block 66889758,
+# OP Sepolia block 50969823). Part of the signed calldata; regenerate shortly before signing.
+startingAnchorRootRoot = "0x382d95f5ca3fa7d44971c9f0b39b0f5b6e931c81b7d5d4ceac4e2e73aa829a08"
+startingAnchorRootL2SequenceNumber = 1793742186
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, what both chains run today
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, both chains' current SUPER_CANNON_KONA bond
+
+[addresses]
+# op-contracts/v9.0.0-rc.1 OPCM on Sepolia, version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
+# commit 41553edc). Must be the OPCM task 115 upgrades the chains with; replace both if the final v9.0.0
+# release redeploys it.
+OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
+# Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner (0xd363…9dbf);
+# the pin resolves the same L1PAO root safe for both chains. Same pin as sep/108 and sep/115.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee in slot 0x6c, which the
+# code-presence check would misread as an address. Same exception as sep/108 and sep/115.
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+# Safe nonces: the live values on 2026-11-03 (L1PAO 59, FoundationUpgradeSafe 82, SecurityCouncil 73) plus one
+# each for task 115, which executes first. sep/116 and sep/118 pin the same safes and move if this executes
+# before them. Re-verify with `cast call <safe> "nonce()(uint256)" -r sepolia` and regenerate the
+# VALIDATION.md hashes if drifted.
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 60}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 83}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 74}
+]
