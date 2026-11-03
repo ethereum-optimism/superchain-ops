@@ -171,8 +171,8 @@ contract OPCMMigrateV900 is OPCMTaskBase {
                 })
             );
 
-            // The shared AnchorStateRegistry and DelayedWETH hold one delay each, so migrate() requires every chain to
-            // have the same ones.
+            // The shared AnchorStateRegistry and DelayedWETH hold one delay each, so the template requires every chain
+            // to have the same ones before migrating.
             if (i == 0) {
                 finalityDelay = asr.disputeGameFinalityDelaySeconds();
                 withdrawalDelay = delayedWETH.delay();
