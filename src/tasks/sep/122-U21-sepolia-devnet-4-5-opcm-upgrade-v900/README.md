@@ -9,8 +9,9 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-Executes Upgrade 21 (`op-contracts/v9.0.0`) on sepolia-devnet-4 and sepolia-devnet-5 in a single
-transaction from the staging ProxyAdminOwner Safe
+Executes Upgrade 21 (`op-contracts/v9.0.0`) on the four OP Labs staging networks that share the
+devnet SuperchainConfig (sepolia-devnet-2, -3, -4 and -5) in a single transaction from the
+staging ProxyAdminOwner Safe
 ([`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`](https://sepolia.etherscan.io/address/0xe934Dc97E347C6aCef74364B50125bb8689c40ff),
 1-of-1): one `OPCM.upgradeSuperchain` on the shared devnet SuperchainConfig
 [`0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb`](https://sepolia.etherscan.io/address/0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb)
@@ -20,22 +21,23 @@ followed by one `OPCM.upgrade` per chain, through the v9.0.0-rc.1
 
 | Chain | Chain ID | Respected game type | SystemConfigProxy |
 |---|---|---|---|
+| sepolia-devnet-2 | 420130015 | SUPER_CANNON_KONA (9), unchanged | [`0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937`](https://sepolia.etherscan.io/address/0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937) |
+| sepolia-devnet-3 | 420130018 | SUPER_PERMISSIONED (5), unchanged | [`0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF`](https://sepolia.etherscan.io/address/0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF) |
 | sepolia-devnet-4 | 420130019 | SUPER_CANNON_KONA (9), unchanged | [`0xa15b902f86a60cafe43034eee86a5c19db931e59`](https://sepolia.etherscan.io/address/0xa15b902f86a60cafe43034eee86a5c19db931e59) |
 | sepolia-devnet-5 | 420130020 | SUPER_CANNON_KONA (9), unchanged | `0xdead…dead` (not deployed yet) |
 
-On both chains the upgrade moves `SystemConfig` to 4.3.0 and `OptimismPortal2` to 6.1.0, keeps
-SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9, 0.08 ETH bond) registered with the U21 kona
-interop prestate, and carries the current super-root anchor forward. Neither portal has an
-`ETHLockbox` at v8 (`ethLockbox()` is zero, `ETH_LOCKBOX` off), so the upgrade deploys one per
-chain, authorizes the portal on it and moves the portal's ETH into it.
+On every chain the upgrade moves `SystemConfig` to 4.3.0 and `OptimismPortal2` to 6.1.0, keeps
+SUPER_PERMISSIONED (5) registered and carries the current super-root anchor forward. On
+sepolia-devnet-2, -4 and -5 it re-registers SUPER_CANNON_KONA (9, 0.08 ETH bond): devnet-2 with
+the kona-client/v1.9.0 `cannon64-kona-interop` prestate (it stays a standalone chain), devnet-4
+and -5 with the U21 prestate of their interop cluster. sepolia-devnet-3 has no SUPER_CANNON_KONA
+implementation, so it stays permissioned. No portal has an `ETHLockbox` at v8 (`ethLockbox()` is
+zero, `ETH_LOCKBOX` off), so the upgrade deploys one per chain, authorizes the portal on it and
+moves the portal's ETH into it.
 
-This is the first half of the U21 rollout on the interop staging pair. It must execute before
+sepolia-devnet-4 and -5 are the interop staging pair: this task must execute before
 [124-U21-sepolia-devnet-4-5-opcm-migrate-v900](../124-U21-sepolia-devnet-4-5-opcm-migrate-v900/README.md),
-which requires every chain to be on the v9 OPCM.
-
-The shared SuperchainConfig also serves sepolia-devnet-2 and -3, which stay on v8 until their own
-U21 task; the v9 OPCM only requires the SuperchainConfig to be at or above its own implementation
-version, so upgrading it first does not block them.
+which migrates those two only. sepolia-devnet-2 and -3 are not migrated.
 
 ## Simulation & Signing
 
