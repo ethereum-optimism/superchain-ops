@@ -1,0 +1,81 @@
+templateName = "OPCMUpgradeV900"
+
+# Upgrade 21 (op-contracts/v9.0.0): one OPCM.upgradeSuperchain, then one OPCM.upgrade per chain
+# below. OP Mainnet, Ink and Unichain stay on SUPER_CANNON_KONA (9); Soneium is permissioned-only
+# and stays on SUPER_PERMISSIONED (5) with SUPER_CANNON_KONA disabled. Every chain keeps its
+# current super-root anchor and its existing ETHLockbox (all four already have one, so no ETH
+# moves). Executed by the standard Mainnet L1PAO.
+#
+# Sequencing: stacked after eth/082 (one FoundationUpgradeSafe nonce) and eth/083 (one L1PAO,
+# FoundationUpgradeSafe and SecurityCouncil nonce each).
+
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Ink", chainId = 57073},
+    {name = "Soneium", chainId = 1868},
+    {name = "Unichain", chainId = 130}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 10
+# kona-client/v1.9.0 cannon64-kona-interop (superchain-registry standard-prestates.toml, the
+# prestate the Upgrade 21 notice page lists). Part of the signed calldata.
+cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+# Validator output at authoring time; assert-only, does not affect the calldata.
+expectedValidationErrors = ""
+initBond = 80000000000000000 # 0.08 ETH, the current SUPER_CANNON_KONA bond
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
+
+[[opcmUpgrades]]
+chainId = 57073
+cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[[opcmUpgrades]]
+chainId = 1868
+# Same prestate. The template requires a non-zero value, but Soneium has no SUPER_CANNON_KONA
+# impl registered, so the game stays disabled and the prestate is never encoded for this chain.
+cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+# SCKDG-SHAPE / SCKDG-10 report that no SUPER_CANNON_KONA game is registered: expected here.
+expectedValidationErrors = "SCKDG-SHAPE,SCKDG-10"
+initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled (as in eth/071)
+startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
+
+[[opcmUpgrades]]
+chainId = 130
+cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[addresses]
+# op-contracts/v9.0.0-rc.1 OPCM, version 9.0.3 (superchain-registry standard-versions-mainnet.toml,
+# commit 41553edc). Replace if the final v9.0.0 release redeploys the OPCM.
+OPCM = "0x2d91e6f2bcf6cd1df90e1faf9714e18705ea331f"
+# Root-safe pin: the registry pin still records Unichain's pre-transfer ProxyAdminOwner; the pin
+# resolves the same L1PAO root safe for all four chains. Same pin as eth/071.
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+# Unichain's SystemConfig packs superchainConfig with a non-zero minBaseFee in slot 0x6c, which
+# the code-presence check would misread as an address. Same exception as eth/071.
+[storageCodeExceptions]
+"0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+# Safe nonces pinned to the live values on 2026-11-03 (L1PAO 48, FoundationUpgradeSafe 79,
+# SecurityCouncil 75) plus the pending stack (eth/082: +1 FoundationUpgradeSafe; eth/083: +1 on
+# all three). Re-verify with `cast call <safe> "nonce()(uint256)" -r mainnet` and regenerate the
+# VALIDATION.md hashes if drifted.
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 49}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 81}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+]
