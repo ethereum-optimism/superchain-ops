@@ -59,11 +59,18 @@ OPCM = "0x2d91e6f2bcf6cd1df90e1faf9714e18705ea331f"
 # Root-safe pin: the registry pin still records Unichain's pre-transfer ProxyAdminOwner; the pin
 # resolves the same L1PAO root safe for all four chains. Same pin as eth/071.
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+# Soneium's DelayedWETH (registry `DelayedWETHProxy`, `SystemConfig.delayedWETH()`). The upgrade
+# re-initializes every chain's DelayedWETH, but discovery only registers one through a game's args:
+# Soneium runs SUPER_PERMISSIONED alone since U20, which carries no WETH, so no chain-level entry
+# exists and the write would be rejected. The other three chains register theirs as PermissionlessWETH.
+PermissionedWETH = "0x18fBb58C366e21F395DdEc7cBa0510a2D9116B47"
 
-# Unichain's SystemConfig packs superchainConfig with a non-zero minBaseFee in slot 0x6c, which
-# the code-presence check would misread as an address. Same exception as eth/071.
+# Unichain's and Soneium's SystemConfigs pack superchainConfig with a non-zero minBaseFee in slot
+# 0x6c, which the code-presence check would misread as an address. Unichain is the same exception
+# as eth/071; Soneium set its minBaseFee (12000000) after U20.
 [storageCodeExceptions]
 "0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+"0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
 # Safe nonces pinned to the live values on 2026-11-03 (L1PAO 48, FoundationUpgradeSafe 79,
 # SecurityCouncil 75) plus the pending stack (eth/082: +1 FoundationUpgradeSafe; eth/083: +1 on
