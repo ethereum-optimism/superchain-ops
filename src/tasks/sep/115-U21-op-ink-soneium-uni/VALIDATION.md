@@ -1,0 +1,173 @@
+# Validation
+
+This document can be used to validate the inputs and result of the execution of the
+transaction which you are signing.
+
+## Expected Domain and Message Hashes
+
+Validate the domain and message hashes. These values should match both the values on your
+ledger and the values printed to the terminal when you run the task. The hashes assume the
+pinned nonces in [config.toml](./config.toml) (L1PAO 59, FoundationUpgradeSafe 82,
+SecurityCouncil 73) and move only if those nonces move.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Foundation Upgrade Safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`)
+>
+> - Domain Hash:  `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `TODO`
+>
+> ### Security Council (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`)
+>
+> - Domain Hash:  `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `TODO`
+
+Safe transaction hash (root safe): `TODO`
+
+## For Signers
+
+Simulate the task and check the output against this file before signing.
+
+```bash
+cd src/tasks/sep/115-U21-op-ink-soneium-uni
+just simulate-stack sep 115-U21-op-ink-soneium-uni council   # or foundation
+```
+
+Check:
+
+1. The domain and message hashes printed to the terminal match the ones for your safe at the
+   top of this file.
+2. In the Tenderly link printed by the simulation: paste the
+   [task calldata](#task-calldata) into the **Raw input data** field and simulate; the
+   contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
+   and nothing else.
+3. The decoded `upgrade` inputs show `startingRespectedGameType = 9` and the prestate
+   `0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59` for all four chains,
+   and `PermittedProxyDeployment = ETHLockbox` on each.
+
+## For Facilitators and Reviewers
+
+Everything from here on is for facilitators executing the task and for reviewers: the raw
+calldata and its breakdown, the pre-execution checks and execution commands, the expected
+state changes and the post-execution checks. Signers only need the two sections above.
+
+### Task Calldata
+
+```
+TODO
+```
+
+### Understanding Task Calldata
+
+The task is a single `Multicall3DelegateCall.aggregate3` from the L1PAO (selector
+`0x82ad56cb`) containing **5** delegatecalls, all to the OPCM
+`0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc` with `allowFailure = false`:
+
+| # | Function | Selector | Payload |
+|---|---|---|---|
+| 1 | `upgradeSuperchain((address,(string,bytes)[]))` | `0x86fe1c66` | SuperchainConfig `0xC2Be75506d5724086DEB7245bd260Cc9753911Be`, no extra instructions |
+| 2 | `upgrade((address,(bool,uint256,uint32,bytes)[],(string,bytes)[]))` | `0x8a847e2e` | OP Sepolia Testnet |
+| 3 | `upgrade(...)` | `0x8a847e2e` | Ink Sepolia |
+| 4 | `upgrade(...)` | `0x8a847e2e` | Soneium Testnet Minato |
+| 5 | `upgrade(...)` | `0x8a847e2e` | Unichain Sepolia Testnet |
+
+Each `upgrade` call carries the chain's `SystemConfigProxy`, six game configs in the fixed
+order 0, 1, 8, 5, 9, 10 and two extra instructions: `overrides.cfg.startingRespectedGameType`
+(ABI-encoded `9`) and `PermittedProxyDeployment` (raw `ETHLockbox`; a no-op here, every chain
+already has a lockbox). Game types 0, 1, 8 and 10 are disabled (`enabled = false`, zero bond,
+empty args). Game 5 is enabled with the chain's registry `Proposer` as its only argument and no
+bond; game 9 is enabled with the prestate and a 0.08 ETH bond.
+
+| Chain | SystemConfigProxy | Game 5 args (proposer) |
+|---|---|---|
+| OP Sepolia Testnet | `0x034edD2A225f7f429A63E0f1D2084B9E0A93b538` | `TODO` |
+| Ink Sepolia | `0x05C993e60179f28bF649a2Bb5b00b5F4283bD525` | `TODO` |
+| Soneium Testnet Minato | `0x4Ca9608Fef202216bc21D543798ec854539bAAd3` | `TODO` |
+| Unichain Sepolia Testnet | `0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D` | `TODO` |
+
+To verify the fingerprint of call 1:
+
+```bash
+cast calldata "upgradeSuperchain((address,(string,bytes)[]))" "(0xC2Be75506d5724086DEB7245bd260Cc9753911Be,[])"
+# Expected: 0x86fe1c660000000000000000000000000000000000000000000000000000000000000020000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000
+```
+
+Every byte not belonging to the payloads above is standard ABI encoding. The OPCM address
+appears exactly 5 times (as target), the `upgrade` selector `8a847e2e` exactly 4 times and the
+prestate exactly 4 times. To decode the calldata back into the five calls and each `upgrade`
+input:
+
+```bash
+cast calldata-decode "aggregate3((address,bool,bytes)[])" <task calldata>
+# then, for each 0x8a847e2e... payload returned above:
+cast calldata-decode "upgrade((address,(bool,uint256,uint32,bytes)[],(string,bytes)[]))" <payload>
+```
+
+### Pre-execution checks and execution
+
+Before approving, confirm the live state still matches the assumptions in
+[config.toml](./config.toml):
+
+```bash
+RPC=https://ethereum-sepolia-rpc.publicnode.com
+
+# Nonces must equal the pins (59 / 82 / 73); if not, re-simulate and regenerate the hashes.
+cast call 0x1Eb2fFc903729a0F03966B917003800b145F56E2 "nonce()(uint256)" -r $RPC   # L1PAO
+cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # FoundationUpgradeSafe
+cast call 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 "nonce()(uint256)" -r $RPC   # SecurityCouncil
+
+# Every chain must still be on the v8 OPCM (8.0.1) and have its lockbox wired.
+for sc in 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 0x05C993e60179f28bF649a2Bb5b00b5F4283bD525 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D; do
+  cast call $sc "lastUsedOPCMVersion()(string)" -r $RPC   # 8.0.1
+  cast call $(cast call $sc "optimismPortal()(address)" -r $RPC) "ethLockbox()(address)" -r $RPC   # non-zero
+done
+```
+
+Then approve once per child safe with the collected signatures and execute:
+
+```bash
+cd src/tasks/sep/115-U21-op-ink-soneium-uni
+
+SIGNATURES=0x... just approve council
+SIGNATURES=0x... just approve foundation
+just execute
+```
+
+### Task State Changes
+
+TODO: regenerate from the Tenderly state diff once the hashes are final. Expected, on each
+chain: `SystemConfigProxy` (implementation 4.0.0 → 4.3.0, `lastUsedOPCMVersion` 8.0.1 → 9.0.3),
+`OptimismPortalProxy` (implementation 5.8.0 → 6.1.0, re-initialized with the same
+AnchorStateRegistry and ETHLockbox), `L1CrossDomainMessengerProxy` (implementation 2.11.1 →
+2.13.0), `AnchorStateRegistryProxy` (implementation 3.9.0 → 4.0.0, re-initialized with the
+carried-forward anchor and respected game type 9), `DisputeGameFactoryProxy` (game 5 and 9
+args re-set, implementation unchanged), the DelayedWETH proxy (implementation 1.5.1 → 2.0.0)
+and `EthLockboxProxy` (implementation 1.3.1 → 2.0.0, re-initialized with the same portal).
+`L1StandardBridgeProxy`, `L1ERC721BridgeProxy` and `OptimismMintableERC20FactoryProxy` keep
+their implementations (unchanged between v8.0.0 and v9.0.0). Shared: `SuperchainConfig`
+`0xC2Be75506d5724086DEB7245bd260Cc9753911Be` (implementation 2.4.3 → 2.5.0), the L1PAO nonce
+and `approvedHashes` entry, the approving child safe's nonce, and (council path) the
+SecurityCouncil LivenessGuard `lastLive` simulation artifact.
+
+### Post-execution verification calls
+
+```bash
+RPC=https://ethereum-sepolia-rpc.publicnode.com
+
+for sc in 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 0x05C993e60179f28bF649a2Bb5b00b5F4283bD525 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D; do
+  echo "== $sc"
+  cast call $sc "version()(string)" -r $RPC                     # 4.3.0
+  cast call $sc "lastUsedOPCMVersion()(string)" -r $RPC         # 9.0.3
+  portal=$(cast call $sc "optimismPortal()(address)" -r $RPC)
+  cast call $portal "version()(string)" -r $RPC                 # 6.1.0
+  asr=$(cast call $portal "anchorStateRegistry()(address)" -r $RPC)
+  cast call $asr "respectedGameType()(uint32)" -r $RPC          # 9
+  dgf=$(cast call $portal "disputeGameFactory()(address)" -r $RPC)
+  cast call $dgf "gameImpls(uint32)(address)" 9 -r $RPC         # non-zero
+  cast call $dgf "initBonds(uint32)(uint256)" 9 -r $RPC         # 80000000000000000
+done
+
+cast call 0xC2Be75506d5724086DEB7245bd260Cc9753911Be "version()(string)" -r $RPC   # 2.5.0
+```
