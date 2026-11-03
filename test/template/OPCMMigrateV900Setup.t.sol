@@ -30,14 +30,14 @@ contract MockOPCMV900 {
     }
 }
 
-/// @notice Exercises the `_templateSetup` checks of OPCMMigrateV900 against the 046 example task.
+/// @notice Exercises the `_templateSetup` checks of OPCMMigrateV900 against the 047 example task.
 /// @dev The example's chains are not upgraded to v9 at FORK_BLOCK_NUMBER, so setup only completes with a mock OPCM.
 /// OPCMMigrateV900.t.sol runs the 045 upgrade example first and then the whole task.
 contract OPCMMigrateV900SetupValidationTest is Test {
-    string constant CONFIG = "test/tasks/example/sep/046-opcm-migrate-v900/config.toml";
+    string constant CONFIG = "test/tasks/example/sep/047-opcm-migrate-v900/config.toml";
     string constant TESTING_DIRECTORY = "opcm-migrate-v900";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_999_987;
-    string constant EXAMPLE_OPCM = 'OPCM = "0xe09c417496C786ABFFefA676dA9e11aaB2c32eA9"';
+    uint256 internal constant FORK_BLOCK_NUMBER = 12_057_300;
+    string constant EXAMPLE_OPCM = 'OPCM = "0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc"';
 
     // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108).
     address internal constant SEPOLIA_OPCM_V801 = 0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca;

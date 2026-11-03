@@ -45,13 +45,12 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, same as the chains' current SUPER_CANNON_KONA bond
 
 [addresses]
-# Throwaway OPCM 9.0.5 built from monorepo develop e7819f5ca0; its standard validator expects the standard Sepolia
-# SuperchainConfig and L1PAO. It has no release tag and no superchain-registry entry.
-# Must be the OPCM 045-opcm-upgrade-v900 upgrades the chains with.
-# TODO: replace with a release v9 OPCM whose migrate() has no interop dev-feature gate, together with 045, then
-# re-pin FORK_BLOCK_NUMBER (.env and both test/template/OPCMMigrateV900*.t.sol), the OPCM constants in those tests,
-# the Regression.t.sol entry and the expected validation errors.
-OPCM = "0xe09c417496C786ABFFefA676dA9e11aaB2c32eA9"
+# op-contracts/v9.0.0-rc.1 OPCM listed in superchain-registry validation/standard/standard-versions-sepolia.toml.
+# `OPCM.version()` returns "9.0.3"; `OPCM.opcmStandardValidator()` returns
+# 0x960b74063a735720315F1238F2e1E27437d936a7 (OPContractsManagerStandardValidator 4.1.1).
+# Must be the OPCM 045-opcm-upgrade-v900 upgrades the chains with. A real task must use the OPCM listed for the
+# final op-contracts/v9.0.0 release.
+OPCM = "0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc"
 # Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
 # (0xd363…9dbf); the pin resolves the same root safe for both chains. Same pin as sep/108.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
