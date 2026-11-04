@@ -1,0 +1,12 @@
+{
+  "_comment": "review-period-test-deployment (chainId 420130099): isolated Sepolia op-deployer deployment of OptimismPortal2 6.0.0, AnchorStateRegistry 5.0.0 and DelayedWETH 3.0.0, absent from the superchain-registry",
+  "420130099": {
+    "OptimismPortalProxy": "0x61aed73dc401cd61764ff052b20fdcfc5842fcca",
+    "SystemConfigProxy": "0xdf34e1d799a344eb0bcc251a0ae53901e9a1f2cb",
+    "AnchorStateRegistryProxy": "0x8f83eb774d467e880f1f0c46695affac702d3f88",
+    "EthLockboxProxy": "0x96dd46ad46001fbb856c2283716b2c5f6e48bd13",
+    "DisputeGameFactoryProxy": "0x96ecf1c2ac93bc368c33b7a995ff8c3532cd6c3e",
+    "ProxyAdmin": "0x05ec6b16b2c31021dd7663683ef955dd58fed2df",
+    "ProxyAdminOwner": "0x840D058A5638321772E06025945ce466FA0Cca90"
+  }
+}

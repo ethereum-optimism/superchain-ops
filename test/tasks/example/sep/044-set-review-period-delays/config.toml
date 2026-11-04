@@ -1,0 +1,21 @@
+templateName = "SetReviewPeriodDelays"
+
+# review-period-test-deployment: isolated Sepolia deployment of the review period contracts,
+# absent from the superchain-registry, so its addresses come from addresses.json.
+# In production, list every chain of an interop set in one task so shared contracts
+# are written once and the uniformity check sees all members.
+# TODO(optimism-private#794): point this task at a real deployment once a
+# registry-listed chain carries the setters, and drop addresses.json.
+l2chains = [
+    {name = "review-period-test-deployment", chainId = 420130099}
+]
+
+fallbackAddressesJsonPath = "test/tasks/example/sep/044-set-review-period-delays/addresses.json"
+
+# Every key is optional; omit one to leave that delay untouched. Values are seconds and must sit
+# within each contract's [min, max] (standard bounds: proof maturity [86400, 604800], finality delay
+# [43200, 302400], DelayedWETH delay [43200, 604800]).
+[delays]
+proofMaturityDelaySeconds = 172800
+disputeGameFinalityDelaySeconds = 86400
+withdrawalDelaySeconds = 172800

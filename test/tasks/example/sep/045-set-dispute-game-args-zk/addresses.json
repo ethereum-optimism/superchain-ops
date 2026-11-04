@@ -1,0 +1,17 @@
+{
+  "_comment": "zk-proofs-2-0 (420120259) fallback addresses for the SetDisputeGameArgs ZK example task. The DisputeGameFactory, AnchorStateRegistry and EthLockbox are shared by the zk-proofs-2 dependency set.",
+  "420120259": {
+    "ProxyAdmin": "0x3bDFd55b6899aAfC8b5c3f73D3E11c8aD6bDed92",
+    "ProxyAdminOwner": "0xe934Dc97E347C6aCef74364B50125bb8689c40ff",
+    "SuperchainConfig": "0xB1019D3DA1667d7E34f49f745E7C713E6b0B4c3B",
+    "SystemConfigProxy": "0xb9078bbce44c2ee89f17ef1746c25b4f2b9e4f32",
+    "OptimismPortalProxy": "0x52BfC59270cCF7C2137122fC458BffBBF1e4389d",
+    "L1ERC721BridgeProxy": "0xe06A810564Ec8152f696F71A45b742e57Abe67fE",
+    "OptimismMintableERC20FactoryProxy": "0xAEB397bEd6F6DF1E9Ee45748c8Ab6782dBd0397a",
+    "L1StandardBridgeProxy": "0xe959484Ae36f675859aBA43da4489BcbB28A4C0e",
+    "L1CrossDomainMessengerProxy": "0x1580951e3609D8d5dC5C0B2081eb96Eb14374349",
+    "EthLockboxProxy": "0x3b701224cD86E5D26ee41f61b56681e6d5F3E85b",
+    "DisputeGameFactoryProxy": "0x2bc713C345109b95C7cFF034d7f60B2ac86D0A75",
+    "AnchorStateRegistryProxy": "0xF2f71595c1580F1937bf488926ebB05B91250170"
+  }
+}

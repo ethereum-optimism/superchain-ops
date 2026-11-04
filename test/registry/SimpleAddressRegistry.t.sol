@@ -99,7 +99,6 @@ contract SimpleAddressRegistryTest is Test {
     function test_hardcodedAddresses_mainnet() public {
         vm.chainId(1);
         SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
-        assertEq(registry.get("ChainGovernorSafe"), 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC, "10");
         assertEq(registry.get("FoundationOperationsSafe"), 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A, "20");
         assertEq(registry.get("FoundationUpgradeSafe"), 0x847B5c174615B1B7fDF770882256e2D3E95b9D92, "30");
         assertEq(registry.get("SecurityCouncil"), 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03, "40");

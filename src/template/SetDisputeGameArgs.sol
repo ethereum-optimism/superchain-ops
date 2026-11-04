@@ -21,13 +21,12 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///         impl/bond) and kept unchanged — so a prestate bump is just `prestate = 0x…`. A field that
 ///         IS present overrides that part; an `impl` of address(0) disables the game type entirely
 ///         (empty gameArgs). A live game (impl != 0) must end up fully hydrated — its core fields
-///         (prestate, vm, anchorStateRegistry, delayedWETH, plus proposer/challenger when permissioned)
-///         must all be non-zero, so introducing a game type for the first time (empty on-chain args)
-///         requires the TOML to supply every field.
+///         (prestate, vm, anchorStateRegistry, delayedWETH, plus proposer/challenger when permissioned,
+///         or the ZK fields for type 10) must all be non-zero, so introducing a game type for the first
+///         time (empty on-chain args) requires the TOML to supply every field.
 ///
-///         SUPPORTED GAME TYPES: only CANNON (0), PERMISSIONED_CANNON (1), and CANNON_KONA (8). Any
-///         other game type reverts, so this template can't accidentally write args for a type whose
-///         layout/semantics it does not model (e.g. SUPER_CANNON_KONA).
+///         SUPPORTED GAME TYPES: only 0, 1, 5, 8, 9 and 10. Any other game type reverts, so this template
+///         can't accidentally write args for a type whose layout/semantics it does not model.
 ///
 ///         gameArgs packing (mirrors OPContractsManagerUtils._makeGameArgs) — big-endian, tightly
 ///         packed, addresses are 20 bytes, prestate/chainId are 32 bytes:
@@ -35,11 +34,26 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 ///           permissionless (CANNON=0, CANNON_KONA=8)  → 124 bytes:
 ///               prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
 ///
+///           SUPER_CANNON_KONA=9                        → same 124 bytes, chainId = 0
+///
 ///           permissioned (PERMISSIONED_CANNON=1)      → 164 bytes:
 ///               prestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | chainId(32)
 ///                                                              ... | proposer(20) | challenger(20)
 ///
-///         Whether a slot is permissioned is fixed by the game type (only PERMISSIONED_CANNON=1 is) —
+///           SUPER_PERMISSIONED=5                       → 40 bytes, bond 0 (as the v8.0.0 OPCM sets it):
+///               anchorStateRegistry(20) | proposer(20)
+///
+///           ZK_DISPUTE_GAME=10                         → 140 bytes, TOML uses `verifier` instead of `vm`:
+///               prestate(32) | verifier(20) | maxChallengeDuration(8) | maxProveDuration(8)
+///                                  ... | challengerBond(32) | anchorStateRegistry(20) | delayedWETH(20)
+///
+///         Types 5, 9 and 10 always keep their live impl (it cannot be checked against the game type).
+///
+///         Super games (5, 9, 10) are not bound to one chain: the chain ID lives in the super root proof,
+///         so their impls have no l2ChainId(). Types 5 and 9 carry chainId = 0 in gameArgs; type 10's
+///         layout has no chainId field.
+///
+///         Whether a slot is permissioned is fixed by the game type (only 1 and 5 are) —
 ///         it is never inferred from the on-chain args length.
 contract SetDisputeGameArgs is L2TaskBase {
     using stdToml for string;
@@ -58,6 +72,14 @@ contract SetDisputeGameArgs is L2TaskBase {
 
     /// @notice Resolved actions, in declaration order.
     ResolvedGame[] public resolvedGames;
+
+    /* ---------- GameType IDs (op-contracts/v8.0.0 GameTypes.sol) ---------- */
+    uint32 internal constant CANNON = 0;
+    uint32 internal constant PERMISSIONED_CANNON = 1;
+    uint32 internal constant SUPER_PERMISSIONED = 5;
+    uint32 internal constant CANNON_KONA = 8;
+    uint32 internal constant SUPER_CANNON_KONA = 9;
+    uint32 internal constant ZK_DISPUTE_GAME = 10;
 
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
@@ -94,11 +116,48 @@ contract SetDisputeGameArgs is L2TaskBase {
         require(chainId != 0, "SetDisputeGameArgs: chainId zero");
         require(gtRaw <= type(uint32).max, "SetDisputeGameArgs: gameType out of range");
         uint32 gameType = uint32(gtRaw);
-        // Only support CANNON (0), PERMISSIONED_CANNON (1), and CANNON_KONA (8). Revert on anything
-        // else so we never write gameArgs for a type whose layout/semantics this template does not
-        // model (e.g. SUPER_CANNON_KONA), which would silently set bad args.
+        // Revert on any type whose gameArgs layout this template does not model.
         require(
-            gameType == 0 || gameType == 1 || gameType == 8, "SetDisputeGameArgs: unsupported gameType (only 0, 1, 8)"
+            gameType == CANNON || gameType == PERMISSIONED_CANNON || gameType == SUPER_PERMISSIONED
+                || gameType == CANNON_KONA || gameType == SUPER_CANNON_KONA || gameType == ZK_DISPUTE_GAME,
+            "SetDisputeGameArgs: unsupported gameType (only 0, 1, 5, 8, 9, 10)"
+        );
+        // Reject fields the type-5 layout would silently drop.
+        require(
+            gameType != SUPER_PERMISSIONED
+                || !(
+                    toml.keyExists(string.concat(base, ".prestate")) || toml.keyExists(string.concat(base, ".vm"))
+                        || toml.keyExists(string.concat(base, ".delayedWETH"))
+                        || toml.keyExists(string.concat(base, ".challenger"))
+                ),
+            "SetDisputeGameArgs: SUPER_PERMISSIONED only takes anchorStateRegistry, proposer, bond"
+        );
+        // Reject fields the type-10 layout would silently drop.
+        require(
+            gameType != ZK_DISPUTE_GAME
+                || !(
+                    toml.keyExists(string.concat(base, ".vm")) || toml.keyExists(string.concat(base, ".proposer"))
+                        || toml.keyExists(string.concat(base, ".challenger"))
+                ),
+            "SetDisputeGameArgs: ZK_DISPUTE_GAME takes verifier, not vm/proposer/challenger"
+        );
+        // Reject ZK-only fields on every other type.
+        require(
+            gameType == ZK_DISPUTE_GAME
+                || !(
+                    toml.keyExists(string.concat(base, ".verifier"))
+                        || toml.keyExists(string.concat(base, ".maxChallengeDuration"))
+                        || toml.keyExists(string.concat(base, ".maxProveDuration"))
+                        || toml.keyExists(string.concat(base, ".challengerBond"))
+                ),
+            "SetDisputeGameArgs: ZK fields are only valid for ZK_DISPUTE_GAME"
+        );
+        // Super game impls return 0 from gameType(), so a wrong impl (e.g. type 9's in slot 5) would
+        // pass every check here. Keep the live impl.
+        require(
+            !(gameType == SUPER_PERMISSIONED || gameType == SUPER_CANNON_KONA || gameType == ZK_DISPUTE_GAME)
+                || !toml.keyExists(string.concat(base, ".impl")),
+            "SetDisputeGameArgs: impl cannot be changed for types 5, 9 and 10"
         );
 
         // No two rows may target the same (chainId, gameType): the later one would silently win.
@@ -125,9 +184,16 @@ contract SetDisputeGameArgs is L2TaskBase {
         m.delayedWETH = _optAddress(toml, base, "delayedWETH", m.delayedWETH);
         m.proposer = _optAddress(toml, base, "proposer", m.proposer);
         m.challenger = _optAddress(toml, base, "challenger", m.challenger);
+        m.verifier = _optAddress(toml, base, "verifier", m.verifier);
+        m.maxChallengeDuration = _optUint64(toml, base, "maxChallengeDuration", m.maxChallengeDuration);
+        m.maxProveDuration = _optUint64(toml, base, "maxProveDuration", m.maxProveDuration);
+        if (toml.keyExists(string.concat(base, ".challengerBond"))) {
+            m.challengerBond = toml.readUint(string.concat(base, ".challengerBond"));
+        }
 
         bool setBond = toml.keyExists(string.concat(base, ".bond"));
         uint256 bond = setBond ? toml.readUint(string.concat(base, ".bond")) : factory.initBonds(gameType);
+        require(gameType != SUPER_PERMISSIONED || bond == 0, "SetDisputeGameArgs: SUPER_PERMISSIONED bond must be 0");
 
         _checkRow(impl, gameType, chainId, m);
 
@@ -154,15 +220,32 @@ contract SetDisputeGameArgs is L2TaskBase {
         // time the on-chain gameArgs is empty, so every field is sourced from the TOML; assert the merged
         // result has no zero core field, otherwise we'd write an all-zero (invalid) gameArgs that the
         // _validate function would still happily accept.
-        require(m.prestate != bytes32(0), "SetDisputeGameArgs: zero prestate on live game");
-        require(m.vm != address(0), "SetDisputeGameArgs: zero vm on live game");
         require(m.anchorStateRegistry != address(0), "SetDisputeGameArgs: zero anchorStateRegistry on live game");
-        require(m.delayedWETH != address(0), "SetDisputeGameArgs: zero delayedWETH on live game");
+        if (m.zk) {
+            require(m.prestate != bytes32(0), "SetDisputeGameArgs: zero prestate on live game");
+            require(m.verifier.code.length > 0, "SetDisputeGameArgs: verifier has no code");
+            require(m.delayedWETH != address(0), "SetDisputeGameArgs: zero delayedWETH on live game");
+            // Same bounds as the OPCM StandardValidator: a duration above uint32 max can overflow the
+            // game's uint64 deadline.
+            require(
+                m.maxChallengeDuration > 0 && m.maxChallengeDuration <= type(uint32).max,
+                "SetDisputeGameArgs: maxChallengeDuration out of range"
+            );
+            require(
+                m.maxProveDuration > 0 && m.maxProveDuration <= type(uint32).max,
+                "SetDisputeGameArgs: maxProveDuration out of range"
+            );
+            require(m.challengerBond != 0, "SetDisputeGameArgs: zero challengerBond on live game");
+        } else if (!m.superPermissioned) {
+            require(m.prestate != bytes32(0), "SetDisputeGameArgs: zero prestate on live game");
+            require(m.vm != address(0), "SetDisputeGameArgs: zero vm on live game");
+            require(m.delayedWETH != address(0), "SetDisputeGameArgs: zero delayedWETH on live game");
+        }
 
         if (m.permissioned) {
-            // Permissioned games carry a proposer and challenger; both must be set.
+            // Permissioned games need a proposer; PERMISSIONED_CANNON also needs a challenger.
             require(
-                m.proposer != address(0) && m.challenger != address(0),
+                m.proposer != address(0) && (m.superPermissioned || m.challenger != address(0)),
                 "SetDisputeGameArgs: proposer/challenger unset on permissioned game"
             );
         } else {
@@ -247,12 +330,19 @@ contract SetDisputeGameArgs is L2TaskBase {
     ///         (not the blob length); an empty blob (new/disabled slot) decodes to all-zero fields.
     struct GameArgsFields {
         bool permissioned;
+        bool superPermissioned;
+        bool superGame;
+        bool zk;
         bytes32 prestate;
         address vm;
         address anchorStateRegistry;
         address delayedWETH;
         address proposer;
         address challenger;
+        address verifier;
+        uint64 maxChallengeDuration;
+        uint64 maxProveDuration;
+        uint256 challengerBond;
     }
 
     /// @notice Count `[[gameConfig]]` rows by probing successive indices for a `.chainId` key.
@@ -272,10 +362,23 @@ contract SetDisputeGameArgs is L2TaskBase {
         return toml.keyExists(key) ? toml.readAddress(key) : dflt;
     }
 
+    /// @notice Read an optional uint64 field; fall back to `dflt` when the key is absent.
+    function _optUint64(string memory toml, string memory base, string memory field, uint64 dflt)
+        internal
+        view
+        returns (uint64)
+    {
+        string memory key = string.concat(base, ".", field);
+        if (!toml.keyExists(key)) return dflt;
+        uint256 value = toml.readUint(key);
+        require(value <= type(uint64).max, string.concat("SetDisputeGameArgs: ", field, " exceeds uint64"));
+        return uint64(value);
+    }
+
     /// @notice Whether a (supported) game type is permissioned. Among the types this template supports
-    ///         (0, 1, 8) only PERMISSIONED_CANNON (1) is permissioned.
+    ///         (0, 1, 5, 8, 9, 10) only 1 and 5 are permissioned.
     function _isPermissioned(uint32 gameType) internal pure returns (bool) {
-        return gameType == 1;
+        return gameType == PERMISSIONED_CANNON || gameType == SUPER_PERMISSIONED;
     }
 
     /// @notice Decode an on-chain gameArgs blob into its fields. `permissioned` is taken from the game
@@ -283,7 +386,23 @@ contract SetDisputeGameArgs is L2TaskBase {
     ///         on an unexpected length.
     function _decodeArgs(bytes memory args, uint32 gameType) internal pure returns (GameArgsFields memory f) {
         f.permissioned = _isPermissioned(gameType);
+        f.superPermissioned = gameType == SUPER_PERMISSIONED;
+        f.superGame = gameType == SUPER_PERMISSIONED || gameType == SUPER_CANNON_KONA;
+        f.zk = gameType == ZK_DISPUTE_GAME;
         if (args.length == 0) return f; // new or disabled slot — nothing to keep.
+        if (f.zk) return _decodeZKArgs(args, f);
+        if (f.superPermissioned) {
+            require(args.length == 40, "SetDisputeGameArgs: unexpected on-chain gameArgs length");
+            address superAsr;
+            address superProposer;
+            assembly {
+                superAsr := shr(96, mload(add(args, 0x20))) // data offset 0
+                superProposer := shr(96, mload(add(args, 0x34))) // data offset 20
+            }
+            f.anchorStateRegistry = superAsr;
+            f.proposer = superProposer;
+            return f;
+        }
         require(args.length == (f.permissioned ? 164 : 124), "SetDisputeGameArgs: unexpected on-chain gameArgs length");
         bytes32 prestate;
         address vm_;
@@ -294,6 +413,13 @@ contract SetDisputeGameArgs is L2TaskBase {
             vm_ := shr(96, mload(add(args, 0x40))) // data offset 32
             asr := shr(96, mload(add(args, 0x54))) // data offset 52
             weth := shr(96, mload(add(args, 0x68))) // data offset 72
+        }
+        if (f.superGame) {
+            uint256 argsChainId;
+            assembly {
+                argsChainId := mload(add(args, 0x7c)) // data offset 92
+            }
+            require(argsChainId == 0, "SetDisputeGameArgs: super game gameArgs chainId must be 0");
         }
         f.prestate = prestate;
         f.vm = vm_;
@@ -311,6 +437,35 @@ contract SetDisputeGameArgs is L2TaskBase {
         }
     }
 
+    /// @notice Decode the 140-byte ZK_DISPUTE_GAME gameArgs layout (mirrors LibGameArgs.decodeZK).
+    function _decodeZKArgs(bytes memory args, GameArgsFields memory f) internal pure returns (GameArgsFields memory) {
+        require(args.length == 140, "SetDisputeGameArgs: unexpected on-chain gameArgs length");
+        bytes32 prestate;
+        address verifier;
+        uint64 maxChallengeDuration;
+        uint64 maxProveDuration;
+        uint256 challengerBond;
+        address asr;
+        address weth;
+        assembly {
+            prestate := mload(add(args, 0x20)) // data offset 0
+            verifier := shr(96, mload(add(args, 0x40))) // data offset 32
+            maxChallengeDuration := shr(192, mload(add(args, 0x54))) // data offset 52
+            maxProveDuration := shr(192, mload(add(args, 0x5c))) // data offset 60
+            challengerBond := mload(add(args, 0x64)) // data offset 68
+            asr := shr(96, mload(add(args, 0x84))) // data offset 100
+            weth := shr(96, mload(add(args, 0x98))) // data offset 120
+        }
+        f.prestate = prestate;
+        f.verifier = verifier;
+        f.maxChallengeDuration = maxChallengeDuration;
+        f.maxProveDuration = maxProveDuration;
+        f.challengerBond = challengerBond;
+        f.anchorStateRegistry = asr;
+        f.delayedWETH = weth;
+        return f;
+    }
+
     /// @notice Pack the resolved fields into the DisputeGameFactory `gameArgs` blob. Returns empty
     ///         bytes when the slot is being disabled (impl == address(0)).
     function _encodeGameArgs(address impl, GameArgsFields memory m, uint256 chainId)
@@ -319,12 +474,24 @@ contract SetDisputeGameArgs is L2TaskBase {
         returns (bytes memory)
     {
         if (impl == address(0)) return bytes("");
+        if (m.zk) {
+            return abi.encodePacked(
+                m.prestate,
+                m.verifier,
+                m.maxChallengeDuration,
+                m.maxProveDuration,
+                m.challengerBond,
+                m.anchorStateRegistry,
+                m.delayedWETH
+            );
+        }
+        if (m.superPermissioned) return abi.encodePacked(m.anchorStateRegistry, m.proposer);
         if (m.permissioned) {
             return abi.encodePacked(
                 m.prestate, m.vm, m.anchorStateRegistry, m.delayedWETH, chainId, m.proposer, m.challenger
             );
         }
-        return abi.encodePacked(m.prestate, m.vm, m.anchorStateRegistry, m.delayedWETH, chainId);
+        return abi.encodePacked(m.prestate, m.vm, m.anchorStateRegistry, m.delayedWETH, m.superGame ? 0 : chainId);
     }
 
     /// @notice Assert `impl` is a real dispute game whose declared game type and chain are consistent
@@ -337,6 +504,7 @@ contract SetDisputeGameArgs is L2TaskBase {
         } catch {
             revert("SetDisputeGameArgs: impl is not a dispute game (gameType reverted)");
         }
+        if (gameType == SUPER_PERMISSIONED || gameType == SUPER_CANNON_KONA || gameType == ZK_DISPUTE_GAME) return; // no l2ChainId() on super games.
         try IDisputeGameImpl(impl).l2ChainId() returns (uint256 implChainId) {
             require(implChainId == 0 || implChainId == chainId, "SetDisputeGameArgs: impl l2ChainId mismatch");
         } catch {
