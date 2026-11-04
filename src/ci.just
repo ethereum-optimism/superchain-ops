@@ -12,78 +12,47 @@ simulate-all-templates:
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     forge build
-    simulation_count=0
     # When we spawn too many concurrent processes, the simulation fails with 'solc exited with signal: 9 (SIGKILL)'.
-    # The batch size should be low enough to not cause issues, but high enough to not make the simulation too slow.
-    batch_size=7
-    current_batch=0
+    # The limit should be low enough to not cause issues, but high enough to not make the simulation too slow.
+    max_parallel=7
 
-    # Collect PIDs of each background simulation.
-    declare -a pids=()
-
-    for task in "${root_dir}/test/tasks/example/"*/*; do
-        if [ -d "$task" ]; then
-            echo "Task: $task"
-            nested_safe_name_depth_1=""
-            nested_safe_name_depth_2=""
-            if [ -f "$task/.env" ]; then
-                echo "Found an env file"
-                # Check if NESTED_SAFE_NAME_DEPTH_1 exists in the file and extract it
-                if grep -q "NESTED_SAFE_NAME_DEPTH_1" "$task/.env"; then
-                    echo "Found depth 1 name"
-                    extracted_value=$(grep "NESTED_SAFE_NAME_DEPTH_1" "$task/.env" | cut -d '=' -f 2)
-                    echo "Extracted depth 1 name: $extracted_value"
-                    # Only use the extracted value if its not empty and not null
-                    if [ -n "$extracted_value" ] && [ "$extracted_value" != "null" ]; then
-                        nested_safe_name_depth_1="$extracted_value"
-                    fi
-                fi
-                if grep -q "NESTED_SAFE_NAME_DEPTH_2" "$task/.env"; then
-                    echo "Found depth 2 name"
-                    extracted_value=$(grep "NESTED_SAFE_NAME_DEPTH_2" "$task/.env" | cut -d '=' -f 2)
-                    echo "Extracted depth 2 name: $extracted_value"
-                    if [ -n "$extracted_value" ] && [ "$extracted_value" != "null" ]; then
-                        nested_safe_name_depth_2="$extracted_value"
-                    fi
-                fi
-            fi
-
-            # Extract network from the task path (first asterisk in the pattern)
-            network=$(basename "$(dirname "$task")")
-            task_name=$(basename "$task")
-            task_path="$root_dir/test/tasks/example/$network/$task_name"
-
-            # Launch each simulation in background.
-            "${root_dir}/src/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
-            current_batch=$((current_batch + 1))
-
-            # If we have reached the batch size, wait for this batch to complete
-            if [ $current_batch -eq $batch_size ]; then
-                echo "Waiting for batch of $batch_size simulations to complete..."
-                # Wait for current batch to finish
-                for pid in "${pids[@]}"; do
-                    wait "$pid"
-                    simulation_count=$((simulation_count + 1))
-                done
-
-                # Reset for next batch
-                pids=()
-                current_batch=0
-                echo "Batch completed. Starting next batch..."
-            fi
+    # Prints the value of KEY in ENV_FILE, or nothing when it is absent, empty or "null".
+    read_nested_safe_name() {
+        local value
+        value=$(grep "$2" "$1" | cut -d '=' -f 2 || true)
+        if [ -n "$value" ] && [ "$value" != "null" ]; then
+            echo "$value"
         fi
-    done
+    }
 
-    # Wait for any remaining simulations in the final batch
-    if [ ${#pids[@]} -gt 0 ]; then
-        echo "Waiting for final batch of ${#pids[@]} simulations to complete..."
-        for pid in "${pids[@]}"; do
-            wait "$pid"
-            simulation_count=$((simulation_count + 1))
-        done
-    fi
+    simulate_example_task() {
+        set -euo pipefail
+        local task=${1%/}
+        local start=$SECONDS
+        local nested_safe_name_depth_1="" nested_safe_name_depth_2="" network
+        if [ -f "$task/.env" ]; then
+            nested_safe_name_depth_1=$(read_nested_safe_name "$task/.env" NESTED_SAFE_NAME_DEPTH_1)
+            nested_safe_name_depth_2=$(read_nested_safe_name "$task/.env" NESTED_SAFE_NAME_DEPTH_2)
+        fi
+        network=$(basename "$(dirname "$task")")
+        echo "Task: $task (network: $network, nested safes: '$nested_safe_name_depth_1' '$nested_safe_name_depth_2')"
+        if ! "${root_dir}/src/script/simulate-task.sh" "$task" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network"; then
+            echo "FAILED: $task after $((SECONDS - start))s" >&2
+            return 1
+        fi
+        echo "Simulated $task in $((SECONDS - start))s"
+    }
+    export root_dir
+    export -f read_nested_safe_name simulate_example_task
 
-    echo "$simulation_count simulations run."
+    # A rolling pool rather than fixed batches: the next simulation starts as soon as any one
+    # finishes, so a slow task never leaves the other slots idle. The trailing slash on the glob
+    # matches directories only.
+    tasks=("${root_dir}/test/tasks/example/"*/*/)
+    # shellcheck disable=SC2016  # $1 must expand in the child bash, not here.
+    printf '%s\0' "${tasks[@]}" | xargs -0 -n 1 -P "$max_parallel" bash -c 'simulate_example_task "$1"' _
+
+    echo "${#tasks[@]} simulations run."
 
     # These templates intentionally no longer require example-task regression
     # fixtures. The templates stay in src/template so historical tasks and

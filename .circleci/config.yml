@@ -183,6 +183,38 @@ commands:
           mise_cache_checksum: << parameters.mise-cache-checksum >>
           fresh_install: << parameters.fresh-install >>
 
+  init-submodules-shallow:
+    description: >-
+      Check out submodules at depth 1, in parallel. Without this, forge build auto-runs forge install, which clones
+      every submodule's full history (lib/optimism is the entire monorepo).
+    steps:
+      - run:
+          name: Init submodules (shallow)
+          command: git submodule update --init --recursive --depth 1 --jobs 8
+
+  restore-forge-artifacts:
+    description: >-
+      Restore out/ and cache/ from an earlier build. Foundry's cache is content-hashed, so unchanged sources skip
+      compilation even after a fresh checkout; on a partial (prefix) hit only changed files and their dependents are
+      recompiled. forge_build still compiles from scratch, so a clean build stays covered.
+    steps:
+      - run:
+          name: Compute forge artifact cache key
+          # Blob hashes of every tracked Solidity file and compiler/toolchain config, plus the submodule commits.
+          command: git ls-files -s -- '*.sol' foundry.toml mise.toml lib > /tmp/forge-artifacts-key
+      - restore_cache:
+          keys:
+            - forge-artifacts-v1-{{ checksum "/tmp/forge-artifacts-key" }}
+            - forge-artifacts-v1-
+
+  save-forge-artifacts:
+    steps:
+      - save_cache:
+          key: forge-artifacts-v1-{{ checksum "/tmp/forge-artifacts-key" }}
+          paths:
+            - out
+            - cache
+
 jobs:
   check_task_statuses:
     docker:
@@ -292,6 +324,13 @@ jobs:
       FOUNDRY_PROFILE: ci
     steps:
       - checkout-with-mise
+      - init-submodules-shallow
+      - restore-forge-artifacts
+      - run:
+          name: forge build
+          command: forge build
+      # Saved before simulating so a flaky simulation doesn't discard a warm build.
+      - save-forge-artifacts
       - run:
           name: Make sure all templates can be simulated.
           max_auto_reruns: 3
