@@ -25,6 +25,8 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     /// @dev No anchor-root input: the only v9 override is `startingRespectedGameType`, and chains
     /// arriving from v8 already anchor on a super root, which the upgrade carries forward from
     /// the AnchorStateRegistry.
+    /// @dev `startingRespectedGameType` must equal the chain's current respected game type: this
+    /// template carries it forward and never rotates it. Rotate in a SetRespectedGameType task.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
         uint256 chainId;
@@ -146,6 +148,13 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                 superchainAddrRegistry.getAddress("SuperchainConfig", chainId) == superchainConfig,
                 "OPCMUpgradeV900: all chains must share the same SuperchainConfig"
             );
+            // The OPCM loads the respected game type from the portal's AnchorStateRegistry.
+            address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
+            IAnchorStateRegistryView asr = IAnchorStateRegistryView(IOptimismPortalView(portal).anchorStateRegistry());
+            require(
+                asr.respectedGameType() == upgrades[chainId].startingRespectedGameType,
+                "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type"
+            );
         }
 
         // The OPCM gates enabling ZK_DISPUTE_GAME behind a dev feature (disabled on
@@ -201,17 +210,14 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     }
 
     /// @notice Returns whether a dispute game should be enabled based on the existing factory state.
-    /// @dev ZK_DISPUTE_GAME is never enabled: `_templateSetup` rejects chains with a registered
+    /// @dev SUPER_PERMISSIONED is always enabled; SUPER_CANNON_KONA only when the chain already
+    /// registers it, so the template never enables a game the chain does not run.
+    /// ZK_DISPUTE_GAME is never enabled: `_templateSetup` rejects chains with a registered
     /// ZK game, and the OPCM gates enabling it behind a dev feature anyway.
-    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt, uint32 startingRespectedGameType)
-        internal
-        view
-        returns (bool)
-    {
+    function _isGameTypeEnabled(IDisputeGameFactory disputeGameFactory, uint32 gt) internal view returns (bool) {
         if (gt == CANNON) return false;
         if (gt == PERMISSIONED_CANNON) return false;
         if (gt == CANNON_KONA) return false;
-        if (gt == startingRespectedGameType) return true;
         if (gt == SUPER_PERMISSIONED) {
             return true;
         }
@@ -234,14 +240,12 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     /// SUPER_CANNON_KONA (gt=9) is the only other game type this template can enable, so
     /// the Kona prestate is the only prestate ever encoded. The OPCM ignores the game args
     /// of a disabled config, so the retired Cannon game types need no prestate at all.
-    function _buildOneGameConfig(
-        GameConfigAddrs memory a,
-        uint32 gt,
-        bytes32 cannonKonaPre,
-        uint256 bond,
-        uint32 startingRespectedGameType
-    ) internal view returns (IOPContractsManagerV900.DisputeGameConfig memory) {
-        bool enabled = _isGameTypeEnabled(a.factory, gt, startingRespectedGameType);
+    function _buildOneGameConfig(GameConfigAddrs memory a, uint32 gt, bytes32 cannonKonaPre, uint256 bond)
+        internal
+        view
+        returns (IOPContractsManagerV900.DisputeGameConfig memory)
+    {
+        bool enabled = _isGameTypeEnabled(a.factory, gt);
         bytes memory gameArgs;
         if (enabled) {
             gameArgs = gt == SUPER_PERMISSIONED ? abi.encode(a.proposer) : abi.encode(cannonKonaPre);
@@ -268,23 +272,22 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
         uint256 bond = upgrades[chainId].initBond;
-        uint32 startingRespectedGameType = upgrades[chainId].startingRespectedGameType;
 
         IOPContractsManagerV900.DisputeGameConfig[] memory cfgs = new IOPContractsManagerV900.DisputeGameConfig[](6);
         uint32[6] memory gts =
             [CANNON, PERMISSIONED_CANNON, CANNON_KONA, SUPER_PERMISSIONED, SUPER_CANNON_KONA, ZK_DISPUTE_GAME];
         for (uint256 i = 0; i < 6; i++) {
-            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonKonaPre, bond, startingRespectedGameType);
+            cfgs[i] = _buildOneGameConfig(a, gts[i], cannonKonaPre, bond);
         }
         return cfgs;
     }
 
     /// @dev The v9 OPCM permits exactly two upgrade instructions, both sent for every chain. The
-    /// `startingRespectedGameType` override pins the respected game type to an enabled game
-    /// config; the anchor root is carried forward from the AnchorStateRegistry (v9 rejects the
-    /// `startingAnchorRoot` override). `PermittedProxyDeployment=ETHLockbox` lets the OPCM deploy
-    /// a lockbox for a chain whose portal has none, which v9 requires; a chain that already has
-    /// one keeps it.
+    /// `startingRespectedGameType` override re-states the chain's current respected game type
+    /// (`_templateSetup` checks it); the anchor root is carried forward from the
+    /// AnchorStateRegistry (v9 rejects the `startingAnchorRoot` override).
+    /// `PermittedProxyDeployment=ETHLockbox` lets the OPCM deploy a lockbox for a chain whose
+    /// portal has none, which v9 requires; a chain that already has one keeps it.
     function _buildExtraInstructions(uint256 chainId)
         internal
         view
@@ -563,6 +566,7 @@ interface ISystemConfigV900 {
 }
 
 interface IOptimismPortalView {
+    function anchorStateRegistry() external view returns (address);
     function ethLockbox() external view returns (address);
 }
 

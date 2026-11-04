@@ -5,6 +5,18 @@ import {Test} from "forge-std/Test.sol";
 import {OPCMUpgradeV900} from "src/template/OPCMUpgradeV900.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 
+interface IOptimismPortalAnchorStateRegistry {
+    function anchorStateRegistry() external view returns (address);
+}
+
+interface ISystemConfigGuardian {
+    function guardian() external view returns (address);
+}
+
+interface IAnchorStateRegistryRotate {
+    function setRespectedGameType(uint32) external;
+}
+
 contract OPCMUpgradeV900SetupHarness is OPCMUpgradeV900 {
     function setupForTest(string memory configPath) external {
         superchainAddrRegistry = new SuperchainAddressRegistry(configPath);
@@ -23,6 +35,19 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
     // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108): the release the chains are on.
     string constant EXAMPLE_OPCM = 'OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"';
     string constant SEPOLIA_OPCM_V801 = 'OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"';
+    string constant RESPECTED_GAME_TYPE_MISMATCH =
+        "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type";
+
+    // Unichain Sepolia.
+    address internal constant UNICHAIN_PORTAL = 0x0d83dab629f0e0F9d36c0Cbc89B69a489f0751bD;
+    address internal constant UNICHAIN_SYSTEM_CONFIG = 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D;
+    address internal constant UNICHAIN_DISPUTE_GAME_FACTORY = 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b;
+    address internal constant UNICHAIN_SUPER_CANNON_KONA_IMPL = 0x19AF533Cc2A2A55786DCB8672aA5717e64213208;
+
+    // DisputeGameFactory `gameImpls` mapping slot.
+    uint256 internal constant GAME_IMPLS_SLOT = 101;
+    uint32 internal constant SUPER_PERMISSIONED = 5;
+    uint32 internal constant SUPER_CANNON_KONA = 9;
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), FORK_BLOCK_NUMBER);
@@ -52,6 +77,37 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
             "startingRespectedGameType = 8",
             "OPCMUpgradeV900: startingRespectedGameType must be a super game type (5 or 9)"
         );
+    }
+
+    /// @dev The upgrade carries the respected game type forward: a config that differs from the
+    /// chain's current value is rejected, not applied.
+    function test_rejects_starting_respected_game_type_that_differs_from_chain() public {
+        _assertSetupReverts(
+            "rotated-respected",
+            "startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged",
+            "startingRespectedGameType = 5",
+            RESPECTED_GAME_TYPE_MISMATCH
+        );
+    }
+
+    /// @dev Shapes Unichain Sepolia like a SUPER_PERMISSIONED-only chain (no SUPER_CANNON_KONA game,
+    /// AnchorStateRegistry respecting 5). The unmodified example config says 9, which would enable a
+    /// permissionless game the chain does not have and rotate onto it with a clean validator run.
+    function test_rejects_super_cannon_kona_config_on_super_permissioned_only_chain() public {
+        bytes32 slot = keccak256(abi.encode(uint256(SUPER_CANNON_KONA), GAME_IMPLS_SLOT));
+        assertEq(
+            address(uint160(uint256(vm.load(UNICHAIN_DISPUTE_GAME_FACTORY, slot)))),
+            UNICHAIN_SUPER_CANNON_KONA_IMPL,
+            "impl slot"
+        );
+        vm.store(UNICHAIN_DISPUTE_GAME_FACTORY, slot, bytes32(0));
+        address asr = IOptimismPortalAnchorStateRegistry(UNICHAIN_PORTAL).anchorStateRegistry();
+        vm.prank(ISystemConfigGuardian(UNICHAIN_SYSTEM_CONFIG).guardian());
+        IAnchorStateRegistryRotate(asr).setRespectedGameType(SUPER_PERMISSIONED);
+
+        OPCMUpgradeV900SetupHarness harness = new OPCMUpgradeV900SetupHarness();
+        vm.expectRevert(bytes(RESPECTED_GAME_TYPE_MISMATCH));
+        harness.setupForTest(CONFIG);
     }
 
     /// @dev The v8 OPCM is a real contract on Sepolia, so the version gate is what rejects it.

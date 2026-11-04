@@ -6,19 +6,22 @@ import {OPCMUpgradeV900} from "src/template/OPCMUpgradeV900.sol";
 
 interface IAnchorStateRegistryRespected {
     function respectedGameType() external view returns (uint32);
+    function setRespectedGameType(uint32) external;
 }
 
-interface ISystemConfigDelayedWETH {
+interface ISystemConfigView {
     function delayedWETH() external view returns (address);
+    function guardian() external view returns (address);
 }
 
 interface IOptimismPortalAnchorStateRegistry {
     function anchorStateRegistry() external view returns (address);
 }
 
-/// @notice Runs the 046 example task after clearing Unichain Sepolia's SUPER_CANNON_KONA game, so the chain runs
-/// only SUPER_PERMISSIONED and the registry finds no WETH entry for it. Pins that the upgrade's DelayedWETH
-/// re-initialization is still allowlisted, from the SystemConfig rather than from a game type.
+/// @notice Runs the 046 example task after clearing Unichain Sepolia's SUPER_CANNON_KONA game and rotating its
+/// AnchorStateRegistry to SUPER_PERMISSIONED, so the chain runs only SUPER_PERMISSIONED and the registry finds no
+/// WETH entry for it. Pins that the upgrade's DelayedWETH re-initialization is still allowlisted, from the
+/// SystemConfig rather than from a game type.
 contract OPCMUpgradeV900DelayedWETHTest is Test {
     string constant CONFIG = "test/tasks/example/sep/046-opcm-upgrade-v900/config.toml";
     string constant TEST_CONFIG = "test-config-files/opcm-upgrade-v900-super-permissioned-only.toml";
@@ -41,6 +44,9 @@ contract OPCMUpgradeV900DelayedWETHTest is Test {
         bytes32 slot = keccak256(abi.encode(uint256(SUPER_CANNON_KONA), GAME_IMPLS_SLOT));
         assertEq(address(uint160(uint256(vm.load(DISPUTE_GAME_FACTORY, slot)))), SUPER_CANNON_KONA_IMPL, "impl slot");
         vm.store(DISPUTE_GAME_FACTORY, slot, bytes32(0));
+        address asr = IOptimismPortalAnchorStateRegistry(PORTAL).anchorStateRegistry();
+        vm.prank(ISystemConfigView(SYSTEM_CONFIG).guardian());
+        IAnchorStateRegistryRespected(asr).setRespectedGameType(SUPER_PERMISSIONED);
 
         // Unichain Sepolia respects SUPER_PERMISSIONED; OP Sepolia is unchanged.
         string memory config = vm.readFile(CONFIG);
@@ -69,7 +75,7 @@ contract OPCMUpgradeV900DelayedWETHTest is Test {
         address asr = IOptimismPortalAnchorStateRegistry(PORTAL).anchorStateRegistry();
         assertEq(IAnchorStateRegistryRespected(asr).respectedGameType(), SUPER_PERMISSIONED, "respected game type");
 
-        address delayedWETH = ISystemConfigDelayedWETH(SYSTEM_CONFIG).delayedWETH();
+        address delayedWETH = ISystemConfigView(SYSTEM_CONFIG).delayedWETH();
         address[] memory allowed = task.getAllowedStorageAccess();
         bool allowlisted;
         for (uint256 i = 0; i < allowed.length; i++) {
