@@ -81,7 +81,7 @@ commands:
               payload=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' "$((now - 60))" "$((now + 540))" "$GITHUB_CHECKOUT_APP_ID" | b64url)
               signature=$(printf '%s.%s' "$header" "$payload" | openssl dgst -sha256 -sign "$key_file" -binary | b64url)
               jwt="$header.$payload.$signature"
-              installation_id=$(curl -fsSL \
+              installation_id=$(curl -fsSL --retry 3 \
                 -H "Authorization: Bearer $jwt" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/${repo_slug}/installation" | jq -r '.id')
@@ -90,7 +90,7 @@ commands:
                 exit 1
               fi
               token_body=$(jq -n --arg repo "$CIRCLE_PROJECT_REPONAME" '{repositories: [$repo], permissions: {contents: "read"}}')
-              token=$(curl -fsSL -X POST \
+              token=$(curl -fsSL --retry 3 -X POST \
                 -H "Authorization: Bearer $jwt" \
                 -H "Accept: application/vnd.github+json" \
                 -H "Content-Type: application/json" \
@@ -101,21 +101,18 @@ commands:
                 exit 1
               fi
               basic=$(printf 'x-access-token:%s' "$token" | base64 | tr -d '\n')
+              export GIT_CONFIG_COUNT=1
+              export GIT_CONFIG_KEY_0="http.${repo_url}.extraheader"
+              export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${basic}"
+            elif [ -n "${GITHUB_CHECKOUT_APP_ID:-}" ] || [ -n "${GITHUB_CHECKOUT_APP_PRIVATE_KEY_B64:-}" ]; then
+              echo "GitHub App checkout credentials are incomplete or openssl, curl and jq are missing, checking out anonymously" >&2
             fi
-
-            git_fetch() {
-              if [ -n "$token" ]; then
-                git -c "http.https://github.com/${repo_slug}.git.extraheader=AUTHORIZATION: basic ${basic}" fetch "$@"
-              else
-                git fetch "$@"
-              fi
-            }
 
             fetch_repo() {
               if [ "$CHECKOUT_METHOD" = "blobless" ]; then
-                git_fetch --filter=blob:none "$@"
+                git fetch --filter=blob:none "$@"
               else
-                git_fetch "$@"
+                git fetch "$@"
               fi
             }
 
@@ -135,8 +132,8 @@ commands:
               echo "Checking out anonymously"
             fi
 
-            fetch_repo --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
-            fetch_repo origin "$CIRCLE_SHA1"
+            fetch_repo --quiet --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
+            fetch_repo --quiet origin "$CIRCLE_SHA1"
 
             if [ -n "${CIRCLE_BRANCH:-}" ]; then
               git checkout --force -B "$CIRCLE_BRANCH" "$CIRCLE_SHA1"
@@ -155,8 +152,6 @@ commands:
                 exit 1
               fi
             fi
-
-            git config --global --get-regexp '^url\.' || true
   checkout-with-mise:
     description: "Checkout then initialize the mise environment."
     parameters:
@@ -502,19 +497,13 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
             - github-checkout-app-superchain-ops
-      - just_new_recipe_tests:
-          context:
-            - github-checkout-app-superchain-ops
+      - just_new_recipe_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
             - github-checkout-app-superchain-ops
-      - check_task_names:
-          context:
-            - github-checkout-app-superchain-ops
-      - check_struct_order:
-          context:
-            - github-checkout-app-superchain-ops
+      - check_task_names
+      - check_struct_order
       - check_task_statuses:
           context:
             - circleci-repo-readonly-authenticated-github-token
