@@ -12,10 +12,10 @@ contract OPCMUpgradeV900SetupHarness is OPCMUpgradeV900 {
     }
 }
 
-/// @notice Exercises the `_templateSetup` checks of OPCMUpgradeV900 against the 045 example task.
+/// @notice Exercises the `_templateSetup` checks of OPCMUpgradeV900 against the 046 example task.
 /// @dev Forks Sepolia at the task's pinned block, where the rc1 v9 OPCM in the example config exists.
 contract OPCMUpgradeV900SetupValidationTest is Test {
-    string constant CONFIG = "test/tasks/example/sep/045-opcm-upgrade-v900/config.toml";
+    string constant CONFIG = "test/tasks/example/sep/046-opcm-upgrade-v900/config.toml";
     // This directory is in the .gitignore file.
     string constant TEST_CONFIG_DIR = "test-config-files";
     uint256 internal constant FORK_BLOCK_NUMBER = 12_057_300;

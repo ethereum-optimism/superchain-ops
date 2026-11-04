@@ -61,10 +61,11 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
-    /// contract and its OPCM integration. SuperchainConfig is resolved per chain in
-    /// `_setAllowedStorageAccesses` instead of through the generic registry lookup.
+    /// contract and its OPCM integration. SuperchainConfig and each chain's DelayedWETH are
+    /// resolved per chain in `_setAllowedStorageAccesses`: the registry only derives a WETH
+    /// name from game types a chain may no longer run.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](12);
+        string[] memory storageWrites = new string[](10);
         storageWrites[0] = "DisputeGameFactoryProxy";
         storageWrites[1] = "SystemConfigProxy";
         storageWrites[2] = "OptimismPortalProxy";
@@ -74,9 +75,7 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         storageWrites[6] = "L1ERC721BridgeProxy";
         storageWrites[7] = "L1CrossDomainMessengerProxy";
         storageWrites[8] = "AnchorStateRegistryProxy";
-        storageWrites[9] = "PermissionedWETH";
-        storageWrites[10] = "PermissionlessWETH";
-        storageWrites[11] = "EthLockboxProxy";
+        storageWrites[9] = "EthLockboxProxy";
         return storageWrites;
     }
 
@@ -87,13 +86,21 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
     /// @notice Allowlist storage writes for the upgrade.
     /// @dev `SuperchainConfig` is resolved separately because the base implementation checks
-    /// global or sentinel addresses before per-chain discovery. Add only each configured chain's
-    /// discovered `SuperchainConfig`.
+    /// global or sentinel addresses before per-chain discovery. The DelayedWETH the upgrade
+    /// re-initializes is the one SystemConfig points at, whatever game types the chain runs.
     function _setAllowedStorageAccesses() internal virtual override {
         super._setAllowedStorageAccesses();
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
-            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chains[i].chainId));
+            uint256 chainId = chains[i].chainId;
+            _allowedStorageAccesses.add(superchainAddrRegistry.getAddress("SuperchainConfig", chainId));
+
+            address delayedWETH =
+                ISystemConfigV900(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)).delayedWETH();
+            require(delayedWETH != address(0), "OPCMUpgradeV900: SystemConfig has no DelayedWETH");
+            require(delayedWETH.code.length > 0, "OPCMUpgradeV900: DelayedWETH has no code");
+            _allowedStorageAccesses.add(delayedWETH);
+            vm.label(delayedWETH, string.concat("DelayedWETH-", vm.toString(chainId)));
         }
     }
 
@@ -304,7 +311,7 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
         // Upgrade superchain once (before per-chain upgrades)
         address sc = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
-        (bool scOk,) = address(opcm).delegatecall(
+        _delegatecallOPCM(
             abi.encodeCall(
                 IOPContractsManagerV900.upgradeSuperchain,
                 (
@@ -313,9 +320,9 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                         extraInstructions: new IOPContractsManagerV900.ExtraInstruction[](0)
                     })
                 )
-            )
+            ),
+            "upgradeSuperchain"
         );
-        require(scOk, "OPCMUpgradeV900: upgradeSuperchain delegatecall failed");
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -328,10 +335,20 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             });
 
             // Delegatecall the OPCM.upgrade() function once per chain
-            (bool ok,) =
-                address(opcm).delegatecall(abi.encodeWithSelector(IOPContractsManagerV900.upgrade.selector, inp));
-            require(ok, "OPCMUpgradeV900: Delegatecall failed in _build.");
+            _delegatecallOPCM(abi.encodeCall(IOPContractsManagerV900.upgrade, (inp)), "upgrade");
         }
+    }
+
+    /// @notice Delegatecalls the OPCM and re-raises its revert data, so an OPCM error surfaces as itself.
+    function _delegatecallOPCM(bytes memory data, string memory context) internal {
+        (bool ok, bytes memory returnData) = address(opcm).delegatecall(data);
+        if (ok) return;
+        if (returnData.length > 0) {
+            assembly {
+                revert(add(returnData, 32), mload(returnData))
+            }
+        }
+        revert(string.concat("OPCMUpgradeV900: ", context, " delegatecall failed"));
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
@@ -518,8 +535,6 @@ interface IOPContractsManagerStandardValidator {
         bool _allowFailure,
         ValidationOverrides memory _overrides
     ) external view returns (string memory);
-
-    function version() external view returns (string memory);
 }
 
 interface ISuperchainConfig {}
@@ -535,26 +550,16 @@ interface IAnchorStateRegistryView {
     function respectedGameType() external view returns (uint32);
 }
 
-interface ISystemConfig {
-    struct Addresses {
-        address l1CrossDomainMessenger;
-        address l1ERC721Bridge;
-        address l1StandardBridge;
-        address optimismPortal;
-        address optimismMintableERC20Factory;
-        address delayedWETH;
-        address opcm;
-    }
+interface ISystemConfig {}
 
-    function getAddresses() external view returns (Addresses memory);
-}
-
-/// @notice Read-only SystemConfig accessors used by `_getCodeExceptions` and `_validateLockbox`.
+/// @notice Read-only SystemConfig accessors used by `_setAllowedStorageAccesses`, `_getCodeExceptions`
+/// and `_validateLockbox`.
 interface ISystemConfigV900 {
     function owner() external view returns (address);
     function unsafeBlockSigner() external view returns (address);
     function batcherHash() external view returns (bytes32);
     function isFeatureEnabled(bytes32) external view returns (bool);
+    function delayedWETH() external view returns (address);
 }
 
 interface IOptimismPortalView {
