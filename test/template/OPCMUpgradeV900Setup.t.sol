@@ -32,9 +32,13 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
     string constant TEST_CONFIG_DIR = "test-config-files";
     uint256 internal constant FORK_BLOCK_NUMBER = 12_057_300;
 
-    // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108): the release the chains are on.
+    // op-contracts/v9.0.0-rc.1 OPCM on Sepolia, version 9.0.3: the OPCM the example task uses.
     string constant EXAMPLE_OPCM = 'OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"';
+    // op-contracts/v8.0.0-rc.3 OPCM on Sepolia, version 8.0.1 (sep/108): the release the chains are on.
     string constant SEPOLIA_OPCM_V801 = 'OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"';
+    // Throwaway 9.0.5 OPCM built from develop: passes the on-chain sequence gate, not the release.
+    string constant SEPOLIA_OPCM_DEV_905 = 'OPCM = "0xe09c417496c786abffefa676da9e11aab2c32ea9"';
+    string constant OPCM_VERSION_MISMATCH = "OPCMUpgradeV900: incorrect OPCM version";
     string constant RESPECTED_GAME_TYPE_MISMATCH =
         "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type";
     string constant INIT_BOND_MISMATCH =
@@ -125,7 +129,24 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
 
     /// @dev The v8 OPCM is a real contract on Sepolia, so the version gate is what rejects it.
     function test_rejects_non_v9_opcm() public {
-        _assertSetupReverts("v8-opcm", EXAMPLE_OPCM, SEPOLIA_OPCM_V801, "OPCMUpgradeV900: incorrect OPCM major version");
+        _assertSetupReverts("v8-opcm", EXAMPLE_OPCM, SEPOLIA_OPCM_V801, OPCM_VERSION_MISMATCH);
+    }
+
+    /// @dev A dev build with a higher patch version passes the on-chain sequence gate and would
+    /// lock the chain out of the release OPCM; only the exact release version is accepted.
+    function test_rejects_dev_build_opcm() public {
+        _assertSetupReverts("dev-opcm", EXAMPLE_OPCM, SEPOLIA_OPCM_DEV_905, OPCM_VERSION_MISMATCH);
+    }
+
+    function test_rejects_opcm_with_dev_features() public {
+        vm.mockCall(
+            0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc,
+            abi.encodeWithSignature("devFeatureBitmap()"),
+            abi.encode(bytes32(uint256(1)))
+        );
+        OPCMUpgradeV900SetupHarness harness = new OPCMUpgradeV900SetupHarness();
+        vm.expectRevert(bytes("OPCMUpgradeV900: OPCM has dev features enabled"));
+        harness.setupForTest(CONFIG);
     }
 
     function test_rejects_opcm_without_code() public {

@@ -12,7 +12,7 @@ import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: op-contracts/v9.0.0 (OPContractsManagerV2 9.x)
+/// Supports: op-contracts/v9.0.0 (OPContractsManagerV2 9.0.3)
 /// @dev Upgrades chains already on op-contracts/v8 to the v9 release. Runs before the
 /// OPCMMigrateV900 task: `migrate` requires every chain to be on the v9 OPCM.
 contract OPCMUpgradeV900 is OPCMTaskBase {
@@ -62,6 +62,10 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     /// upgrade. A zero lockbox means the chain had none and the upgrade deploys one.
     mapping(uint256 => address) public preUpgradeLockbox;
     mapping(uint256 => uint256) public preUpgradePortalBalance;
+
+    /// @notice Per-chain starting anchor root recorded in `_templateSetup`; the upgrade carries it forward.
+    mapping(uint256 => bytes32) public preUpgradeAnchorRoot;
+    mapping(uint256 => uint256) public preUpgradeAnchorL2SequenceNumber;
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
@@ -157,6 +161,7 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                 asr.respectedGameType() == upgrades[chainId].startingRespectedGameType,
                 "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type"
             );
+            (preUpgradeAnchorRoot[chainId], preUpgradeAnchorL2SequenceNumber[chainId]) = asr.getStartingAnchorRoot();
         }
 
         // The OPCM gates enabling ZK_DISPUTE_GAME behind a dev feature (disabled on
@@ -179,16 +184,17 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             }
         }
 
-        // OPCM from TOML; must be an op-contracts/v9 OPCM. Any 9.x is accepted: a minor bump is
-        // a replacement OPCM for the same upgrade, and isPermittedUpgradeSequence below is the
-        // on-chain gate that the chains can step onto this OPCM.
+        // OPCM from TOML; must be the op-contracts/v9.0.0 OPCM. A dev build with a higher patch
+        // version passes the on-chain sequence gate, and a chain upgraded with it is then refused
+        // by the release OPCM.
         opcm = IOPContractsManagerV900(tomlContent.readAddress(".addresses.OPCM"));
         OPCM_TARGETS.push(address(opcm));
         require(address(opcm).code.length > 0, "OPCMUpgradeV900: OPCM has no code");
         skipOPCMVersionCheck =
             tomlContent.keyExists(".skipOPCMVersionCheck") && tomlContent.readBool(".skipOPCMVersionCheck");
         if (!skipOPCMVersionCheck) {
-            require(opcm.version().startsWith("9."), "OPCMUpgradeV900: incorrect OPCM major version");
+            require(opcm.version().eq("9.0.3"), "OPCMUpgradeV900: incorrect OPCM version");
+            require(opcm.devFeatureBitmap() == bytes32(0), "OPCMUpgradeV900: OPCM has dev features enabled");
             for (uint256 i = 0; i < chains.length; i++) {
                 require(
                     opcm.isPermittedUpgradeSequence(
@@ -374,16 +380,22 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
-            // The upgrade re-initializes the AnchorStateRegistry; assert the respected game
-            // type override landed and the anchor root was carried forward, not cleared.
-            IAnchorStateRegistryView asr =
-                IAnchorStateRegistryView(superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId));
+            // The upgrade re-initializes the portal's AnchorStateRegistry; assert the respected
+            // game type and the starting anchor root were carried forward.
+            IAnchorStateRegistryView asr = IAnchorStateRegistryView(
+                IOptimismPortalView(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId))
+                    .anchorStateRegistry()
+            );
             require(
                 asr.respectedGameType() == upgrades[chainId].startingRespectedGameType,
                 "OPCMUpgradeV900: startingRespectedGameType not applied"
             );
-            (bytes32 anchorRoot,) = asr.getStartingAnchorRoot();
-            require(anchorRoot != bytes32(0), "OPCMUpgradeV900: anchor root was cleared");
+            (bytes32 anchorRoot, uint256 anchorL2SequenceNumber) = asr.getStartingAnchorRoot();
+            require(
+                anchorRoot == preUpgradeAnchorRoot[chainId]
+                    && anchorL2SequenceNumber == preUpgradeAnchorL2SequenceNumber[chainId],
+                "OPCMUpgradeV900: starting anchor root changed"
+            );
 
             _validateLockbox(chainId);
 
@@ -514,6 +526,8 @@ interface IOPContractsManagerV900 {
     }
 
     function version() external view returns (string memory);
+
+    function devFeatureBitmap() external view returns (bytes32);
 
     function upgrade(UpgradeInput memory _inp) external;
 
