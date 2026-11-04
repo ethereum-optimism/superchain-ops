@@ -2,11 +2,6 @@
 
 Status: DRAFT, NOT READY TO SIGN
 
-> [!NOTE]
-> Every chain address is a placeholder (`0xdead…dead`) until sepolia-devnet-6 is deployed
-> (devnets-private #2366) and brought from `op-contracts/v6.0.0` to `v8.0.0` by its own
-> `OPCMUpgradeV700` and `OPCMUpgradeV800` tasks. The task cannot be simulated until then.
-
 ## Objective
 
 Executes Upgrade 21 (`op-contracts/v9.0.0`) on sepolia-devnet-6 from the staging
@@ -19,7 +14,7 @@ ProxyAdminOwner Safe
 
 | Chain | Chain ID | Respected game type | SystemConfigProxy |
 |---|---|---|---|
-| sepolia-devnet-6 | 420130021 | SUPER_PERMISSIONED (5), unchanged | `0xdead…dead` (not deployed yet) |
+| sepolia-devnet-6 | 420130021 | SUPER_PERMISSIONED (5), unchanged | [`0xd1a07b6fD6F0dA2d89101aeF12FC1Dd0fe32b0f7`](https://sepolia.etherscan.io/address/0xd1a07b6fD6F0dA2d89101aeF12FC1Dd0fe32b0f7) |
 
 sepolia-devnet-6 mirrors a self-managed custom-gas-token chain on permissioned proofs, so it
 has its own SuperchainConfig and never joins an interop set. The upgrade moves `SystemConfig`

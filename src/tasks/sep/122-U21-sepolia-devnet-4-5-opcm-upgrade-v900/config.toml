@@ -5,10 +5,8 @@
 # at v8), moving the portal ETH into it. Executed by the staging ProxyAdminOwner Safe (1-of-1). U21 is upgrade only: the
 # devnet-4 + -5 OPCM.migrate follows the U22 / op-contracts v10.0.0 upgrade as a separate task.
 #
-# sepolia-devnet-2 and -3 are in the superchain-registry; devnet-4 and -5 are read from addresses.json.
-#
-# PLACEHOLDERS (0xdead…dead): sepolia-devnet-5 is not deployed yet (devnets-private #2365); its addresses in
-# addresses.json, the U21 kona interop prestate and the expected validation errors are filled in once it is.
+# sepolia-devnet-2 and -3 are in the superchain-registry; devnet-4 and -5 are read from addresses.json
+# (devnets-private stg/sepolia-devnet-{4,5}/sepolia-devnet-{4,5}/chain.yaml and op-deployer/intent.toml).
 
 l2chains = [
     {name = "sepolia-devnet-2", chainId = 420130015},
@@ -45,9 +43,12 @@ startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
 
 [[opcmUpgrades]]
 chainId = 420130019
-# U21 kona interop prestate for the devnet-4 + devnet-5 cluster (netchef fault-proofs generate-prestates
-# --prestate-type konaInterop). Encoded into the SUPER_CANNON_KONA game args: part of the signed calldata.
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead"
+# devnet-4 is not in the superchain-registry, so the standard prestate does not embed its chain config: it uses
+# its own netchef konaInterop prestate (devnets-private stg/sepolia-devnet-4/op-program/prestates.json, #2391),
+# built from kona v1.9.0 with only devnet-4's config and no dependency set. Until the U22 migrate each chain is a
+# standalone super-root chain, so this is the prestate already set on-chain; unchanged by U21. Part of the
+# signed calldata.
+cannonKonaPrestate = "0x03d2cf6c877ce9cfb4f9d810f2c922445cf9ae7bf8058319efae086f831e99cd"
 # Validator output at authoring time; assert-only. Expected: OVERRIDES-L1PAOMULTISIG and OVERRIDES-CHALLENGER
 # (staging Safe and devnet challenger), SYSCON-130 (devnet SuperchainConfig, not the OPCM validator's).
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
@@ -56,7 +57,9 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 
 [[opcmUpgrades]]
 chainId = 420130020
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead"
+# devnet-5's own netchef konaInterop prestate (stg/sepolia-devnet-5/op-program/prestates.json, #2404): kona v1.9.0
+# with only devnet-5's config, already set on-chain. The U22 migrate needs a prestate that embeds both chains.
+cannonKonaPrestate = "0x03c8876f95470f3e8fb429353951eef35d84c03f0c309cd2e0aace7ad51effd2"
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130"
 initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged

@@ -4,9 +4,8 @@
 # the ETHLockbox the upgrade wires to the portal receives no ETH (CGT chains keep custody in the portal).
 # Executed by the staging ProxyAdminOwner Safe (1-of-1). Never migrated: CGT chains cannot join an interop set.
 #
-# PLACEHOLDERS (0xdead…dead): sepolia-devnet-6 is not deployed yet (devnets-private #2366) and must first be
-# upgraded v6 -> v7 -> v8 by its own OPCMUpgradeV700 and OPCMUpgradeV800 tasks. Fill in addresses.json, the
-# expected validation errors and the nonce pin once it is on v8.
+# sepolia-devnet-6 was deployed straight at op-contracts/v8.0.0 (devnets-private #2366, #2447); the v6 -> v7 -> v8
+# rehearsal was dropped on 4 Nov 2026. Addresses are read from addresses.json (stg/sepolia-devnet-6 chain.yaml).
 
 l2chains = [
     {name = "sepolia-devnet-6", chainId = 420130021}
@@ -20,10 +19,11 @@ skipOPCMVersionCheck = false
 chainId = 420130021
 # Unused: SUPER_CANNON_KONA is not registered on this chain, so its game config is disabled and the prestate
 # is never encoded. The template requires a non-zero value.
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead"
-# Validator output at authoring time; assert-only. Expected: OVERRIDES-L1PAOMULTISIG (staging Safe), SYSCON-130
-# (own SuperchainConfig, not the OPCM validator's), SCKDG-SHAPE / SCKDG-10 (no SUPER_CANNON_KONA game).
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# Validator output from the 2026-11-04 simulation; assert-only. Expected: OVERRIDES-L1PAOMULTISIG and
+# OVERRIDES-CHALLENGER (staging Safe and devnet challenger, as on sepolia-devnet-4/5), SYSCON-130 (own
+# SuperchainConfig, not the OPCM validator's), SCKDG-SHAPE / SCKDG-10 (no SUPER_CANNON_KONA game).
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
 initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
 startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
 
@@ -32,10 +32,9 @@ startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
 # commit 41553edc).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
 
-# Safe nonce: 155 at authoring time (2026-11-03), +1 for task 122. The v7 and v8 tasks sepolia-devnet-6 needs
-# first will move it further; re-verify with
+# Safe nonce: 155 live on 2026-11-04, +1 for task 122, which executes first from the same Safe. Re-verify with
 # `cast call 0xe934Dc97E347C6aCef74364B50125bb8689c40ff "nonce()(uint256)" -r sepolia` and regenerate the
-# VALIDATION.md hash.
+# VALIDATION.md hash if drifted.
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [ # staging ProxyAdminOwner
     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 156}

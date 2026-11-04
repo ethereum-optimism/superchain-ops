@@ -2,11 +2,6 @@
 
 Status: DRAFT, NOT READY TO SIGN
 
-> [!NOTE]
-> Placeholder values (`0xdead…dead`) are in place for sepolia-devnet-5, the U21 kona interop
-> prestate and the expected validation errors until sepolia-devnet-5 is deployed
-> (devnets-private #2365). The task cannot be simulated until they are filled in.
-
 ## Objective
 
 Executes Upgrade 21 (`op-contracts/v9.0.0`) on the four OP Labs staging networks that share the
@@ -24,13 +19,14 @@ followed by one `OPCM.upgrade` per chain, through the `op-contracts/v9.0.0`
 | sepolia-devnet-2 | 420130015 | SUPER_CANNON_KONA (9), unchanged | [`0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937`](https://sepolia.etherscan.io/address/0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937) |
 | sepolia-devnet-3 | 420130018 | SUPER_PERMISSIONED (5), unchanged | [`0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF`](https://sepolia.etherscan.io/address/0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF) |
 | sepolia-devnet-4 | 420130019 | SUPER_CANNON_KONA (9), unchanged | [`0xa15b902f86a60cafe43034eee86a5c19db931e59`](https://sepolia.etherscan.io/address/0xa15b902f86a60cafe43034eee86a5c19db931e59) |
-| sepolia-devnet-5 | 420130020 | SUPER_CANNON_KONA (9), unchanged | `0xdead…dead` (not deployed yet) |
+| sepolia-devnet-5 | 420130020 | SUPER_CANNON_KONA (9), unchanged | [`0x1B68cDfDD4aE9985F21033169735e5C4A6200f2C`](https://sepolia.etherscan.io/address/0x1B68cDfDD4aE9985F21033169735e5C4A6200f2C) |
 
 On every chain the upgrade moves `SystemConfig` to 4.3.0 and `OptimismPortal2` to 6.1.0, keeps
 SUPER_PERMISSIONED (5) registered and carries the current super-root anchor forward. On
 sepolia-devnet-2, -4 and -5 it re-registers SUPER_CANNON_KONA (9, 0.08 ETH bond): devnet-2 with
 the kona-client/v1.9.0 `cannon64-kona-interop` prestate (it stays a standalone chain), devnet-4
-and -5 with the U21 prestate of their interop cluster. sepolia-devnet-3 has no SUPER_CANNON_KONA
+and -5 each with its own netchef `konaInterop` prestate (kona v1.9.0, one chain embedded, the value already
+on-chain), because they are not in the superchain-registry and are not migrated into an interop set until U22. sepolia-devnet-3 has no SUPER_CANNON_KONA
 implementation, so it stays permissioned. No portal has an `ETHLockbox` at v8 (`ethLockbox()` is
 zero, `ETH_LOCKBOX` off), so the upgrade deploys one per chain, authorizes the portal on it and
 moves the portal's ETH into it.
