@@ -16,12 +16,12 @@ interface ISystemConfigFeatures {
     function isFeatureEnabled(bytes32) external view returns (bool);
 }
 
-/// @notice Runs the 045 example task after stripping Unichain Sepolia's lockbox, pinning that the
+/// @notice Runs the 046 example task after stripping Unichain Sepolia's lockbox, pinning that the
 /// upgrade deploys a fresh one, wires the portal to it and migrates the portal's ETH into it.
 /// OP Sepolia keeps its lockbox in the same run, so both paths of the instruction are covered.
 contract OPCMUpgradeV900LockboxTest is Test {
-    string constant CONFIG = "test/tasks/example/sep/045-opcm-upgrade-v900/config.toml";
-    uint256 internal constant FORK_BLOCK_NUMBER = 11_999_987;
+    string constant CONFIG = "test/tasks/example/sep/046-opcm-upgrade-v900/config.toml";
+    uint256 internal constant FORK_BLOCK_NUMBER = 12_057_300;
     address internal constant FOUNDATION_UPGRADE_SAFE = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
 
     // Unichain Sepolia.
