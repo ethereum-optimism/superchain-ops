@@ -28,8 +28,8 @@ initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabl
 startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged
 
 [addresses]
-# op-contracts/v9.0.0-rc.1 OPCM on Sepolia, version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
-# commit 41553edc). Replace if the final v9.0.0 release redeploys the OPCM.
+# op-contracts/v9.0.0 OPCM on Sepolia (deployed from v9.0.0-rc.1, same commit, not redeployed), version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
+# commit 41553edc).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
 
 # Safe nonce: 155 at authoring time (2026-11-03), +1 for task 122. The v7 and v8 tasks sepolia-devnet-6 needs

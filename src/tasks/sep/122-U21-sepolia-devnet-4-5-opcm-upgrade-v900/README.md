@@ -15,7 +15,7 @@ staging ProxyAdminOwner Safe
 ([`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`](https://sepolia.etherscan.io/address/0xe934Dc97E347C6aCef74364B50125bb8689c40ff),
 1-of-1): one `OPCM.upgradeSuperchain` on the shared devnet SuperchainConfig
 [`0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb`](https://sepolia.etherscan.io/address/0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb)
-followed by one `OPCM.upgrade` per chain, through the v9.0.0-rc.1
+followed by one `OPCM.upgrade` per chain, through the `op-contracts/v9.0.0`
 [OPCM `0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc`](https://github.com/ethereum-optimism/superchain-registry/blob/41553edca76a4d67d7be0b57f857ffc978295153/validation/standard/standard-versions-sepolia.toml)
 (version 9.0.3).
 

@@ -25,7 +25,7 @@ skipOPCMVersionCheck = false
 chainId = 420130015
 # sepolia-devnet-2 stays a standalone chain: kona-client/v1.9.0 cannon64-kona-interop (superchain-registry
 # standard-prestates.toml), the prestate the Upgrade 21 notice page lists. Part of the signed calldata.
-cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
 # Validator output at authoring time; assert-only. Expected: OVERRIDES-L1PAOMULTISIG (staging Safe), SYSCON-130
 # (devnet SuperchainConfig, not the OPCM validator's). No challenger override: super-game-only chains register
 # no Challenger.
@@ -37,7 +37,7 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 chainId = 420130018
 # Unused: sepolia-devnet-3 has no SUPER_CANNON_KONA impl, so the game stays disabled and the prestate is never
 # encoded. The template requires a non-zero value.
-cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
 # SCKDG-SHAPE / SCKDG-10 report that no SUPER_CANNON_KONA game is registered: expected here.
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
 initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
@@ -62,8 +62,8 @@ initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 
 [addresses]
-# op-contracts/v9.0.0-rc.1 OPCM on Sepolia, version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
-# commit 41553edc). Replace if the final v9.0.0 release redeploys the OPCM.
+# op-contracts/v9.0.0 OPCM on Sepolia (deployed from v9.0.0-rc.1, same commit, not redeployed), version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
+# commit 41553edc).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
 # sepolia-devnet-3's DelayedWETH (SystemConfig.delayedWETH()). The upgrade re-initializes every chain's
 # DelayedWETH, but discovery only registers one through a game's args: devnet-3 runs SUPER_PERMISSIONED alone,

@@ -13,7 +13,7 @@ Executes Upgrade 21 (`op-contracts/v9.0.0`) on sepolia-devnet-6 from the staging
 ProxyAdminOwner Safe
 ([`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`](https://sepolia.etherscan.io/address/0xe934Dc97E347C6aCef74364B50125bb8689c40ff),
 1-of-1): one `OPCM.upgradeSuperchain` on the chain's own SuperchainConfig followed by one
-`OPCM.upgrade`, through the v9.0.0-rc.1
+`OPCM.upgrade`, through the `op-contracts/v9.0.0`
 [OPCM `0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc`](https://github.com/ethereum-optimism/superchain-registry/blob/41553edca76a4d67d7be0b57f857ffc978295153/validation/standard/standard-versions-sepolia.toml)
 (version 9.0.3).
 
