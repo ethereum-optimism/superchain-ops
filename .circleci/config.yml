@@ -183,6 +183,15 @@ commands:
           mise_cache_checksum: << parameters.mise-cache-checksum >>
           fresh_install: << parameters.fresh-install >>
 
+  init-submodules-shallow:
+    description: >-
+      Check out submodules at depth 1, in parallel. Without this, forge build auto-runs forge install, which clones
+      every submodule's full history (lib/optimism is the entire monorepo).
+    steps:
+      - run:
+          name: Init submodules (shallow)
+          command: git submodule update --init --recursive --depth 1 --jobs 8
+
 jobs:
   check_task_statuses:
     docker:
@@ -292,6 +301,7 @@ jobs:
       FOUNDRY_PROFILE: ci
     steps:
       - checkout-with-mise
+      - init-submodules-shallow
       - run:
           name: Make sure all templates can be simulated.
           max_auto_reruns: 3
