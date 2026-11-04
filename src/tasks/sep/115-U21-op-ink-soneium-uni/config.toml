@@ -19,7 +19,7 @@ skipOPCMVersionCheck = false
 chainId = 11155420
 # kona-client/v1.9.0 cannon64-kona-interop (superchain-registry standard-prestates.toml, the
 # prestate the Upgrade 21 notice page lists). Part of the signed calldata.
-cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
 # Validator output at authoring time; assert-only, does not affect the calldata.
 expectedValidationErrors = ""
 initBond = 80000000000000000 # 0.08 ETH, the current SUPER_CANNON_KONA bond
@@ -27,14 +27,14 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 
 [[opcmUpgrades]]
 chainId = 763373
-cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
 expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
 [[opcmUpgrades]]
 chainId = 1946
-cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
 # No challenger override: super-game-only chains register no Challenger, so the validator's
 # default is used (unlike sep/108, which ran before the permissioned game was cleared).
 expectedValidationErrors = ""
@@ -43,14 +43,15 @@ startingRespectedGameType = 9
 
 [[opcmUpgrades]]
 chainId = 1301
-cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
 expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
 [addresses]
-# op-contracts/v9.0.0-rc.1 OPCM, version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
-# commit 41553edc). Replace if the final v9.0.0 release redeploys the OPCM.
+# op-contracts/v9.0.0 OPCM, version 9.0.3 (deployed from v9.0.0-rc.1; the final tag is the same commit,
+# ba6fcad, so it was not redeployed) (superchain-registry standard-versions-sepolia.toml,
+# commit 41553edc).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
 # Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
 # (0xd363…9dbf); the pin resolves the same L1PAO root safe for all four chains. Same pin as sep/108.

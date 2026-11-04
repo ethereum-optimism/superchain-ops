@@ -9,7 +9,7 @@ single transaction from the standard Sepolia L1 ProxyAdminOwner
 ([`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/sepolia/op.toml#L47),
 2-of-2 of the [Foundation Upgrade Safe](../../../addresses.toml#L17) and the
 [Security Council](../../../addresses.toml#L18)): one `OPCM.upgradeSuperchain` followed by
-one `OPCM.upgrade` per chain, through the v9.0.0-rc.1
+one `OPCM.upgrade` per chain, through the `op-contracts/v9.0.0`
 [OPCM `0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc`](https://github.com/ethereum-optimism/superchain-registry/blob/41553edca76a4d67d7be0b57f857ffc978295153/validation/standard/standard-versions-sepolia.toml)
 (version 9.0.3).
 
@@ -29,7 +29,7 @@ already have an `ETHLockbox` wired to their portal, so no ETH moves and the chai
 pause identifier is unchanged.
 
 `SUPER_CANNON_KONA` uses the kona-client/v1.9.0 `cannon64-kona-interop` prestate
-[`0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml),
+[`0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9`](https://github.com/ethereum-optimism/superchain-registry/blob/7e1be4543c870ec5ac3353ab0ecf4deab100602c/validation/standard/standard-prestates.toml#L498),
 the prestate listed on the [Upgrade 21 notice page](https://docs.optimism.io/notices/upgrade-21).
 
 > [!NOTE]
