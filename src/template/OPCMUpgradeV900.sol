@@ -27,6 +27,8 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     /// the AnchorStateRegistry.
     /// @dev `startingRespectedGameType` must equal the chain's current respected game type: this
     /// template carries it forward and never rotates it. Rotate in a SetRespectedGameType task.
+    /// @dev `initBond` must equal the chain's current SUPER_CANNON_KONA bond; it is unused on a
+    /// chain that has no such game.
     struct OPCMUpgrade {
         Claim cannonKonaPrestate;
         uint256 chainId;
@@ -168,6 +170,13 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                 address(factory.gameImpls(GameType.wrap(ZK_DISPUTE_GAME))) == address(0),
                 "OPCMUpgradeV900: chains with a registered ZK_DISPUTE_GAME are not supported"
             );
+            // The upgrade re-sets the SUPER_CANNON_KONA bond from config.
+            if (address(factory.gameImpls(GameType.wrap(SUPER_CANNON_KONA))) != address(0)) {
+                require(
+                    factory.initBonds(GameType.wrap(SUPER_CANNON_KONA)) == upgrades[chains[i].chainId].initBond,
+                    "OPCMUpgradeV900: initBond must equal the chain's current SUPER_CANNON_KONA bond"
+                );
+            }
         }
 
         // OPCM from TOML; must be an op-contracts/v9 OPCM. Any 9.x is accepted: a minor bump is
@@ -544,6 +553,7 @@ interface ISuperchainConfig {}
 
 interface IDisputeGameFactory {
     function gameImpls(GameType gameType) external view returns (address);
+    function initBonds(GameType gameType) external view returns (uint256);
 }
 
 /// @notice Read-only AnchorStateRegistry accessors. `getStartingAnchorRoot` returns a

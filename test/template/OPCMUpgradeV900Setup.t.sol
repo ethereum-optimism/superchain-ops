@@ -37,6 +37,8 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
     string constant SEPOLIA_OPCM_V801 = 'OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"';
     string constant RESPECTED_GAME_TYPE_MISMATCH =
         "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type";
+    string constant INIT_BOND_MISMATCH =
+        "OPCMUpgradeV900: initBond must equal the chain's current SUPER_CANNON_KONA bond";
 
     // Unichain Sepolia.
     address internal constant UNICHAIN_PORTAL = 0x0d83dab629f0e0F9d36c0Cbc89B69a489f0751bD;
@@ -87,6 +89,17 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
             "startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged",
             "startingRespectedGameType = 5",
             RESPECTED_GAME_TYPE_MISMATCH
+        );
+    }
+
+    /// @dev The upgrade re-sets the SUPER_CANNON_KONA bond from config: a value that differs from
+    /// the chain's current bond is rejected, not applied.
+    function test_rejects_init_bond_that_differs_from_chain() public {
+        _assertSetupReverts(
+            "wrong-bond",
+            "initBond = 80000000000000000 # 0.08 ETH, the chain's current SUPER_CANNON_KONA bond",
+            "initBond = 8000000000000000",
+            INIT_BOND_MISMATCH
         );
     }
 
