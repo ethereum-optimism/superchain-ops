@@ -9,7 +9,7 @@ single transaction from the standard Mainnet L1 ProxyAdminOwner
 ([`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://github.com/ethereum-optimism/superchain-registry/blob/9dce5d25fb6a3d4fb372ce92dc8eed3a4a17175c/superchain/configs/mainnet/op.toml#L47),
 2-of-2 of the [Foundation Upgrade Safe](../../../addresses.toml#L6) and the
 [Security Council](../../../addresses.toml#L7)): one `OPCM.upgradeSuperchain` followed by
-one `OPCM.upgrade` per chain, through the v9.0.0-rc.1
+one `OPCM.upgrade` per chain, through the `op-contracts/v9.0.0`
 [OPCM `0x2d91e6f2bcf6cd1df90e1faf9714e18705ea331f`](https://github.com/ethereum-optimism/superchain-registry/blob/41553edca76a4d67d7be0b57f857ffc978295153/validation/standard/standard-versions-mainnet.toml)
 (version 9.0.3).
 
@@ -31,7 +31,7 @@ over, so it stays permissioned on SUPER_PERMISSIONED. All four chains already ha
 unchanged.
 
 `SUPER_CANNON_KONA` uses the kona-client/v1.9.0 `cannon64-kona-interop` prestate
-[`0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml),
+[`0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9`](https://github.com/ethereum-optimism/superchain-registry/blob/7e1be4543c870ec5ac3353ab0ecf4deab100602c/validation/standard/standard-prestates.toml#L498),
 the prestate listed on the [Upgrade 21 notice page](https://docs.optimism.io/notices/upgrade-21).
 
 > [!NOTE]
