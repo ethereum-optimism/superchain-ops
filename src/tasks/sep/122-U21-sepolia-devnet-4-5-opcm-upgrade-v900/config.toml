@@ -16,6 +16,9 @@ l2chains = [
 ]
 
 templateName = "OPCMUpgradeV900"
+# devnet-4 and -5 are not in the superchain-registry and use their own netchef konaInterop prestates, so the
+# template's registry prestate check is skipped for them. devnet-2 is still checked.
+skipPrestateRegistryCheckChainIds = [420130019, 420130020]
 fallbackAddressesJsonPath = "src/tasks/sep/122-U21-sepolia-devnet-4-5-opcm-upgrade-v900/addresses.json"
 skipOPCMVersionCheck = false
 
