@@ -76,6 +76,34 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
         );
     }
 
+    /// @dev 0x03b985a2… is the op-program 1.9.0 `interop` prestate, listed under the same "1.9.0"
+    /// version key as kona-client: not a `cannon64-kona-interop` entry, so setup must reject it.
+    function test_rejects_prestate_not_in_registry_as_cannon64_kona_interop() public {
+        _assertSetupReverts(
+            "op-program-prestate",
+            'cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"',
+            'cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"',
+            "OPCMUpgradeV900: cannonKonaPrestate is not a cannon64-kona-interop prestate in the registry for chain 1301"
+        );
+    }
+
+    /// @dev Chains listed in `skipPrestateRegistryCheckChainIds` (custom prestates) bypass the check.
+    function test_skip_list_bypasses_registry_prestate_check() public {
+        string memory config = _edit(
+            vm.readFile(CONFIG),
+            'cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"',
+            'cannonKonaPrestate = "0x03b985a286da46ca88c0a965a53942daade9ffe1ae6b854a8f2d083df1cfaf59"'
+        );
+        config = _edit(
+            config,
+            'templateName = "OPCMUpgradeV900"',
+            'templateName = "OPCMUpgradeV900"\nskipPrestateRegistryCheckChainIds = [1301, 11155420]'
+        );
+        OPCMUpgradeV900SetupHarness harness = new OPCMUpgradeV900SetupHarness();
+        harness.setupForTest(_write("skip-prestate-check", config));
+        assertEq(harness.chainsToUpgrade(0), 1301);
+    }
+
     function test_rejects_non_super_starting_respected_game_type() public {
         _assertSetupReverts(
             "cannon-kona-respected",

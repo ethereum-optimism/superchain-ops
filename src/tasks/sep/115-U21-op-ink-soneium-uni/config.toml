@@ -53,8 +53,6 @@ startingRespectedGameType = 9
 # ba6fcad, so it was not redeployed) (superchain-registry standard-versions-sepolia.toml,
 # commit 41553edc).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
-# Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
-# (0xd363…9dbf); the pin resolves the same L1PAO root safe for all four chains. Same pin as sep/108.
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 # Unichain Sepolia's and Soneium Minato's SystemConfigs pack superchainConfig with a non-zero
