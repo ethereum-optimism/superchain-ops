@@ -25,8 +25,8 @@ Safe transaction hash: `0x8642d25598e7291d993d3a212d035776b66bd5434c5688b752b626
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/088-op-mainnet-set-unsafe-signer
-just simulate-stack eth 088-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/089-op-mainnet-set-unsafe-signer
+just simulate-stack eth 089-op-mainnet-set-unsafe-signer
 ```
 
 Check:
@@ -92,7 +92,7 @@ cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "batcherHash()(bytes32)" -r
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/088-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/089-op-mainnet-set-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
