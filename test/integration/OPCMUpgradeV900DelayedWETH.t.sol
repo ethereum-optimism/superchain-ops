@@ -56,12 +56,11 @@ contract OPCMUpgradeV900DelayedWETHTest is Test {
             "startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged",
             "initBond = 80000000000000000\nstartingRespectedGameType = 5"
         );
-        // The rc1 validator reports the cleared SUPER_CANNON_KONA game on the stripped chain.
+        // The v9 validator reports the cleared SUPER_CANNON_KONA game on the stripped chain.
         config = _replace(
             config,
-            "# Live validator output captured during simulation against the rc1 v9 OPCM.\n"
-            'expectedValidationErrors = ""',
-            "# Live validator output captured during simulation against the rc1 v9 OPCM.\n"
+            "# Live validator output captured during simulation against the v9 OPCM.\n" 'expectedValidationErrors = ""',
+            "# Live validator output captured during simulation against the v9 OPCM.\n"
             'expectedValidationErrors = "SCKDG-SHAPE,SCKDG-10"'
         );
         vm.createDir("test-config-files", true);
