@@ -8,10 +8,10 @@
 #   - Sends `PermittedProxyDeployment=ETHLockbox` for every chain. Both chains here already have a
 #     lockbox, so it is a no-op; test/integration/OPCMUpgradeV900Lockbox.t.sol covers the deploy path.
 #
-# The OPCM below is the op-contracts/v9.0.0-rc.1 OPCM listed in superchain-registry
-# validation/standard/standard-versions-sepolia.toml at 41553edc: deployed 2026-10-30 from tag
-# op-contracts/v9.0.0-rc.1, version 9.0.3, empty dev-feature bitmap, wired to the Sepolia Standard
-# SuperchainConfig. A real task must use the OPCM listed for the final op-contracts/v9.0.0 release.
+# The OPCM below is the op-contracts/v9.0.0 OPCM listed in superchain-registry
+# validation/standard/standard-versions-sepolia.toml: deployed 2026-10-30 from the commit tagged
+# op-contracts/v9.0.0 (first tagged v9.0.0-rc.1; not redeployed), version 9.0.3, empty dev-feature
+# bitmap, wired to the Sepolia Standard SuperchainConfig.
 #
 # Both chains share SuperchainConfig 0xC2Be75506d5724086DEB7245bd260Cc9753911Be and resolve to the
 # L1PAO root safe through the ProxyAdminOwner pin below.
@@ -27,9 +27,9 @@ skipOPCMVersionCheck = false
 [[opcmUpgrades]]
 chainId = 1301
 # Placeholder: the chains' current SUPER_CANNON_KONA prestate, kona-client/v1.7.0-rc.2
-# cannon64-kona-interop (sep/108). A real task MUST use the prestate of the op-contracts/v9.0.0 release.
+# cannon64-kona-interop (sep/108). A real U21 task uses the kona-client/v1.9.0 cannon64-kona-interop prestate (0x03e5a548…).
 cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
-# Live validator output captured during simulation against the rc1 v9 OPCM.
+# Live validator output captured during simulation against the v9 OPCM.
 expectedValidationErrors = ""
 initBond = 80000000000000000 # 0.08 ETH, the chain's current SUPER_CANNON_KONA bond
 startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
@@ -42,7 +42,7 @@ initBond = 80000000000000000
 startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 
 [addresses]
-# op-contracts/v9.0.0-rc.1 OPCM (see header). `OPCM.version()` returns "9.0.3"; `OPCM.opcmStandardValidator()`
+# op-contracts/v9.0.0 OPCM (see header). `OPCM.version()` returns "9.0.3"; `OPCM.opcmStandardValidator()`
 # returns 0x960b74063a735720315F1238F2e1E27437d936a7 (OPContractsManagerStandardValidator 4.1.1).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
 # Root-safe pin: the registry still records Unichain Sepolia's pre-transfer ProxyAdminOwner
