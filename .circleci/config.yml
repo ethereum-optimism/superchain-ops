@@ -42,12 +42,103 @@ commands:
           branch_pattern: main
           mentions: "<< parameters.mentions >>"
 
+  github-checkout:
+    description: "Check out the repo over HTTPS, anonymously."
+    parameters:
+      method:
+        description: "Clone method: full or blobless (blob:none filter)."
+        type: enum
+        enum: ["full", "blobless"]
+        default: "full"
+    steps:
+      - run:
+          name: Check out code
+          environment:
+            CHECKOUT_METHOD: << parameters.method >>
+          command: |
+            set -euo pipefail
+
+            : "${CIRCLE_SHA1:?CIRCLE_SHA1 is not set}"
+
+            repo_url="https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+
+            fetch_repo() {
+              if [ "$CHECKOUT_METHOD" = "blobless" ]; then
+                git fetch --filter=blob:none "$@"
+              else
+                git fetch "$@"
+              fi
+            }
+
+            if [ ! -e .git ]; then
+              git init -q
+            fi
+
+            if git remote get-url origin >/dev/null 2>&1; then
+              git remote set-url origin "$repo_url"
+            else
+              git remote add origin "$repo_url"
+            fi
+
+            echo "Checking out anonymously"
+
+            fetch_repo --quiet --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
+            fetch_repo --quiet origin "$CIRCLE_SHA1"
+
+            if [ -n "${CIRCLE_BRANCH:-}" ]; then
+              git checkout --force -B "$CIRCLE_BRANCH" "$CIRCLE_SHA1"
+            else
+              git checkout --force "$CIRCLE_SHA1"
+            fi
+
+            if [ "$(git rev-parse HEAD)" != "$CIRCLE_SHA1" ]; then
+              echo "HEAD $(git rev-parse HEAD) does not match CIRCLE_SHA1 ${CIRCLE_SHA1}" >&2
+              exit 1
+            fi
+
+            if [ -n "${CIRCLE_TAG:-}" ]; then
+              if ! git rev-parse -q --verify "refs/tags/${CIRCLE_TAG}" >/dev/null; then
+                echo "Tag ${CIRCLE_TAG} not found" >&2
+                exit 1
+              fi
+            fi
+  checkout-with-mise:
+    description: "Checkout then initialize the mise environment."
+    parameters:
+      checkout-method:
+        type: enum
+        enum:
+          - blobless
+          - full
+        default: full
+      enable-mise-cache:
+        type: boolean
+        default: false
+      mise-cache-key-prefix:
+        type: string
+        default: "mise-cache"
+      mise-cache-checksum:
+        type: string
+        default: '{{ checksum "mise.toml" }}'
+      fresh-install:
+        description: Skip every mise cache and install mise and all tools fresh. See install-mise's fresh_install.
+        type: boolean
+        default: false
+    steps:
+      - github-checkout:
+          method: << parameters.checkout-method >>
+      - utils/install-mise:
+          enable_mise_cache: << parameters.enable-mise-cache >>
+          mise_cache_key_prefix: << parameters.mise-cache-key-prefix >>
+          mise_cache_checksum: << parameters.mise-cache-checksum >>
+          fresh_install: << parameters.fresh-install >>
+
 jobs:
   check_task_statuses:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -58,7 +149,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -83,7 +174,7 @@ jobs:
     environment:
       FOUNDRY_PROFILE: ci
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
           # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
@@ -101,7 +192,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: forge build
           command: |
@@ -113,7 +204,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: forge fmt
           command: |
@@ -128,7 +219,7 @@ jobs:
     environment:
       FOUNDRY_PROFILE: ci
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: forge test
           max_auto_reruns: 3
@@ -150,7 +241,7 @@ jobs:
     environment:
       FOUNDRY_PROFILE: ci
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: Make sure all templates can be simulated.
           max_auto_reruns: 3
@@ -164,7 +255,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: just new recipe tests
           command: (cd src/ && bash ../test/script/test-just-new.sh)
@@ -173,7 +264,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: print versions
           command: |
@@ -185,7 +276,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: shellcheck
           command:
@@ -196,7 +287,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: check task names
           command: (cd src/script && ./check-task-names.sh)
@@ -208,7 +299,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
+      - checkout-with-mise
       - run:
           name: check struct field ordering
           command: (cd src/script && ./check-struct-order.sh)
@@ -216,7 +307,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - github-checkout
       - github-cli/install
       - run:
           name: Check task PR simulation confirmation
