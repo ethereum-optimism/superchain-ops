@@ -11,7 +11,7 @@ import {OPCMTaskBase} from "src/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice A template contract for configuring OPCMTaskBase templates.
+/// @notice Upgrades OP Stack chains from op-contracts/v8.0.0 to v9.0.0 (Upgrade 21) through the OPCM.
 /// Supports: op-contracts/v9.0.0 (OPContractsManagerV2 9.0.3)
 /// @dev Upgrades chains already on op-contracts/v8 to the v9 release. Runs before the
 /// OPCMMigrateV900 task: `migrate` requires every chain to be on the v9 OPCM.
@@ -43,6 +43,9 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
     IOPContractsManagerV900 public opcm;
     IOPContractsManagerStandardValidator public standardValidator;
+    /// @notice Set by `skipOPCMVersionCheck = true` in the task config. Disables three OPCM gates, not
+    /// one: the 9.0.3 version pin, the empty dev-feature bitmap and `isPermittedUpgradeSequence`.
+    /// Only for dev OPCM builds; never set it on a governed chain.
     bool public skipOPCMVersionCheck;
 
     // Game type constants (from GameTypes library in op-contracts v9.0.0).
@@ -97,7 +100,10 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
-    /// By default returns an empty array. Override this function if your task expects balance changes.
+    /// @dev Empty on purpose, although a chain without a lockbox moves all of its portal ETH into
+    /// the new `ETHLockbox` (non-custom-gas-token chains only). The new proxy is not in the registry
+    /// before the upgrade, so it can't be listed here; `_validateLockbox` asserts the move instead
+    /// (portal balance 0, lockbox balance >= the portal's balance before the upgrade).
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
 
     /// @notice Allowlist storage writes for the upgrade.
@@ -193,6 +199,7 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                     factory.initBonds(GameType.wrap(SUPER_CANNON_KONA)) == upgrades[chains[i].chainId].initBond,
                     "OPCMUpgradeV900: initBond must equal the chain's current SUPER_CANNON_KONA bond"
                 );
+                _checkPrestateInRegistry(chains[i].chainId, tomlContent);
             }
         }
 
@@ -460,6 +467,33 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
+    }
+
+    /// @notice Requires the SUPER_CANNON_KONA prestate to be a `cannon64-kona-interop` entry in the
+    /// pinned superchain-registry `standard-prestates.toml`. op-program and kona-client share version
+    /// keys there, so a hash from the wrong variant is easy to pick and nothing else catches it: the
+    /// validator compares the on-chain args against this same input. Chains outside the registry
+    /// (custom prestates) are exempted by listing them in `skipPrestateRegistryCheckChainIds`.
+    function _checkPrestateInRegistry(uint256 chainId, string memory tomlContent) internal view {
+        if (tomlContent.keyExists(".skipPrestateRegistryCheckChainIds")) {
+            uint256[] memory skip = tomlContent.readUintArray(".skipPrestateRegistryCheckChainIds");
+            for (uint256 j = 0; j < skip.length; j++) {
+                if (skip[j] == chainId) return;
+            }
+        }
+        string memory prestates = vm.readFile("lib/superchain-registry/validation/standard/standard-prestates.toml");
+        string memory entry = string.concat(
+            "type=\"cannon64-kona-interop\"\nhash=\"",
+            vm.toString(Claim.unwrap(upgrades[chainId].cannonKonaPrestate)),
+            "\""
+        );
+        require(
+            prestates.contains(entry),
+            string.concat(
+                "OPCMUpgradeV900: cannonKonaPrestate is not a cannon64-kona-interop prestate in the registry for chain ",
+                vm.toString(chainId)
+            )
+        );
     }
 
     /// @notice Pins a chain's DelayedWETH after the upgrade: v9 implementation, wired to the chain's
