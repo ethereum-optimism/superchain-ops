@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-85), with eth/082 to eth/087 executed first, and move only if those inputs move.
+85, after eth/082-084 and the Soneium Mainnet tasks eth/085-087 in #1566 use nonces 79-84), and move only if those inputs move.
 
 > [!CAUTION]
 >
