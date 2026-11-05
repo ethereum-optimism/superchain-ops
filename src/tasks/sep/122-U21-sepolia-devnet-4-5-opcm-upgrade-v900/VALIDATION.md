@@ -7,8 +7,8 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
-pinned nonce in [config.toml](./config.toml) (staging ProxyAdminOwner 155) and move only if
-that nonce moves.
+pinned nonce in [config.toml](./config.toml) (staging ProxyAdminOwner 155) and move if that
+nonce or the calldata changes.
 
 > [!CAUTION]
 >
@@ -34,8 +34,9 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the top of this
    file.
-2. In the Tenderly link printed by the simulation: paste the
-   [task calldata](#task-calldata) into the **Raw input data** field and simulate; the
+2. In the Tenderly link printed by the simulation: paste the `0x6a761202…` hex the simulation
+   prints under "Insert the following hex into the 'Raw input data' field" (the Safe
+   `execTransaction`, not the task calldata) into the **Raw input data** field and simulate; the
    contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
    and nothing else.
 3. The decoded `upgrade` inputs show `startingRespectedGameType = 9` with a prestate for
@@ -128,17 +129,35 @@ re-initialized with the carried-forward anchor and respected game type 9),
 `OptimismMintableERC20FactoryProxy`, `AddressManager`, the DelayedWETH proxy
 (implementation), plus the shared `SuperchainConfig` proxy (implementation) and the Safe nonce.
 
+The `AddressManager` changes because it holds the `L1CrossDomainMessenger` implementation entry:
+
+| Chain | AddressManager |
+|---|---|
+| sepolia-devnet-2 | `0x753bD1D197184975389FF6703b18b0cBB9a6EA23` |
+| sepolia-devnet-3 | `0x7a88385F326646344E1E9e17Ec92600a352E0e57` |
+| sepolia-devnet-4 | `0xEEf4A60aC5769358C73F1278be939c8Dde5D77c1` |
+| sepolia-devnet-5 | `0xCde80C57fcE4eA9eC96926B70301581770C9b0E5` |
+
 ### Post-execution checks
 
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 OPCM=0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc
-for SC in 0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937 0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF 0xa15b902f86a60cafe43034eee86a5c19db931e59 0x1b68cdfdd4ae9985f21033169735e5c4a6200f2c; do
+# SystemConfigProxy:proposer:expected game 9 prestate (devnet-3 has no game 9)
+for row in \
+  0x5F91Ea5EEA70E505b457A442Dc7A8e5D9641b937:0xc7273748d8fffccb2e64c547c333f9ccbd2c668d:0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9 \
+  0x66dac055c7cD3B3a043760521dCa840cB3E8F3FF:0x7824594364cdd4ee178d19894685bbfc1e61604a:0x \
+  0xa15b902f86a60cafe43034eee86a5c19db931e59:0xb48bc615daf5e62ea4069adfaba17dc8c766f511:0x03d2cf6c877ce9cfb4f9d810f2c922445cf9ae7bf8058319efae086f831e99cd \
+  0x1b68cdfdd4ae9985f21033169735e5c4a6200f2c:0xefa9a82fa18c54abfc6ce92c7c1706b0be8610a4:0x03c8876f95470f3e8fb429353951eef35d84c03f0c309cd2e0aace7ad51effd2; do
+  IFS=: read SC PROPOSER PRESTATE <<< "$row"
   cast call $SC "lastUsedOPCMVersion()(string)" -r $RPC          # 9.0.3
   cast call $SC "version()(string)" -r $RPC                      # 4.3.0
   P=$(cast call $SC "optimismPortal()(address)" -r $RPC)
   cast call $P "ethLockbox()(address)" -r $RPC                   # non-zero
   cast balance $P -r $RPC                                        # 0
+  DGF=$(cast call $SC "disputeGameFactory()(address)" -r $RPC)
+  [ "$(cast call $DGF "gameArgs(uint32)(bytes)" 9 -r $RPC | cut -c1-66)" = "$PRESTATE" ] && echo "prestate OK" || echo "prestate MISMATCH"
+  [ "$(cast call $DGF "gameArgs(uint32)(bytes)" 5 -r $RPC | tail -c 41)" = "${PROPOSER#0x}" ] && echo "proposer OK" || echo "proposer MISMATCH"
 done
 cast call 0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb "version()(string)" -r $RPC   # 2.5.0
 ```

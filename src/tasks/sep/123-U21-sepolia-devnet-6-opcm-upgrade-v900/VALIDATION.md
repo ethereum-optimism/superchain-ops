@@ -7,8 +7,8 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
-pinned nonce in [config.toml](./config.toml) (staging ProxyAdminOwner 156) and move only if
-that nonce moves.
+pinned nonce in [config.toml](./config.toml) (staging ProxyAdminOwner 156) and move if that
+nonce or the calldata changes.
 
 > [!CAUTION]
 >
@@ -34,8 +34,9 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones at the top of this
    file.
-2. In the Tenderly link printed by the simulation: paste the
-   [task calldata](#task-calldata) into the **Raw input data** field and simulate; the
+2. In the Tenderly link printed by the simulation: paste the `0x6a761202…` hex the simulation
+   prints under "Insert the following hex into the 'Raw input data' field" (the Safe
+   `execTransaction`, not the task calldata) into the **Raw input data** field and simulate; the
    contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
    and nothing else.
 3. The decoded `upgrade` input shows `startingRespectedGameType = 5`, game 9 disabled, and
@@ -108,6 +109,9 @@ the carried-forward anchor and respected game type 5), `L1CrossDomainMessengerPr
 `AddressManager`, the DelayedWETH proxy (implementation), the chain's `SuperchainConfig` proxy
 (implementation) and the Safe nonce.
 
+The `AddressManager` (`0x7CCB3d6f856767b571Ed82Ad5Df8a7E94f09aEC0`) changes because it holds the
+`L1CrossDomainMessenger` implementation entry.
+
 ### Post-execution checks
 
 ```bash
@@ -118,4 +122,7 @@ cast call $SC "isCustomGasToken()(bool)" -r $RPC               # true
 P=$(cast call $SC "optimismPortal()(address)" -r $RPC)
 cast call $P "ethLockbox()(address)" -r $RPC                   # non-zero
 cast call $(cast call $P "anchorStateRegistry()(address)" -r $RPC) "respectedGameType()(uint32)" -r $RPC   # 5
+DGF=$(cast call $SC "disputeGameFactory()(address)" -r $RPC)
+cast call $DGF "gameArgs(uint32)(bytes)" 9 -r $RPC                                                    # 0x (game 9 disabled)
+[ "$(cast call $DGF "gameArgs(uint32)(bytes)" 5 -r $RPC | tail -c 41)" = "c471d5d8c942fbadfea1b7f57438cbf1597f08a9" ] && echo "proposer OK" || echo "proposer MISMATCH"
 ```
