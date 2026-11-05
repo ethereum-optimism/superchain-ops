@@ -1,6 +1,6 @@
 # 115-U21-op-ink-soneium-uni
 
-Status: [READY TO EXECUTE]
+Status: [READY TO SIGN]
 
 ## Objective
 
