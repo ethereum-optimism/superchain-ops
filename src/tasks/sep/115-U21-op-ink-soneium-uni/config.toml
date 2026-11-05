@@ -1,0 +1,77 @@
+templateName = "OPCMUpgradeV900"
+
+# Upgrade 21 (op-contracts/v9.0.0): one OPCM.upgradeSuperchain, then one OPCM.upgrade per chain
+# below. Every chain stays on SUPER_CANNON_KONA (9) and keeps its current super-root anchor;
+# the upgrade re-registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9) with the U21 kona
+# prestate and leaves each chain's existing ETHLockbox in place (all four already have one, so
+# no ETH moves). Executed by the standard Sepolia L1PAO.
+
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Ink Sepolia", chainId = 763373},
+    {name = "Soneium Testnet Minato", chainId = 1946},
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 11155420
+# kona-client/v1.9.0 cannon64-kona-interop (superchain-registry standard-prestates.toml, the
+# prestate the Upgrade 21 notice page lists). Part of the signed calldata.
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# Validator output at authoring time; assert-only, does not affect the calldata.
+expectedValidationErrors = ""
+initBond = 80000000000000000 # 0.08 ETH, the current SUPER_CANNON_KONA bond
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
+
+[[opcmUpgrades]]
+chainId = 763373
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[[opcmUpgrades]]
+chainId = 1946
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# No challenger override: super-game-only chains register no Challenger, so the validator's
+# default is used (unlike sep/108, which ran before the permissioned game was cleared).
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[[opcmUpgrades]]
+chainId = 1301
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+expectedValidationErrors = ""
+initBond = 80000000000000000
+startingRespectedGameType = 9
+
+[addresses]
+# op-contracts/v9.0.0 OPCM, version 9.0.3 (deployed from v9.0.0-rc.1; the final tag is the same commit,
+# ba6fcad, so it was not redeployed) (superchain-registry standard-versions-sepolia.toml,
+# commit 41553edc).
+OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's and Soneium Minato's SystemConfigs pack superchainConfig with a non-zero
+# minBaseFee in slot 0x6c, which the code-presence check would misread as an address. Unichain is
+# the same exception as sep/108; Minato set its minBaseFee (14000000) after U20.
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+"0x4Ca9608Fef202216bc21D543798ec854539bAAd3" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+# Safe nonces pinned to the live values on 2026-11-03 (L1PAO 59, FoundationUpgradeSafe 82,
+# SecurityCouncil 73); no pending task ahead of this one uses these safes. Re-verify with
+# `cast call <safe> "nonce()(uint256)" -r sepolia` and regenerate the VALIDATION.md hashes if drifted.
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 59}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 82}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 73}
+]
