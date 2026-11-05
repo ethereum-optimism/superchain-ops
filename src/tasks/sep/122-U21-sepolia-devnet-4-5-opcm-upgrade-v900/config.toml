@@ -68,11 +68,6 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 # op-contracts/v9.0.0 OPCM on Sepolia (deployed from v9.0.0-rc.1, same commit, not redeployed), version 9.0.3 (superchain-registry standard-versions-sepolia.toml,
 # commit 41553edc).
 OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
-# sepolia-devnet-3's DelayedWETH (SystemConfig.delayedWETH()). The upgrade re-initializes every chain's
-# DelayedWETH, but discovery only registers one through a game's args: devnet-3 runs SUPER_PERMISSIONED alone,
-# which carries no WETH, so no chain-level entry exists and the write would be rejected. The other chains
-# register theirs as PermissionlessWETH (devnet-2 via its SUPER_CANNON_KONA args, devnet-4/5 via addresses.json).
-PermissionedWETH = "0x611aE94B75110fc1675DDc9DCB1A53CB8279f3Da"
 
 # Safe nonce pinned to the value at authoring time (2026-11-03). Re-verify with
 # `cast call 0xe934Dc97E347C6aCef74364B50125bb8689c40ff "nonce()(uint256)" -r sepolia` and
