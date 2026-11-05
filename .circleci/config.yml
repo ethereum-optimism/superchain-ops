@@ -43,7 +43,7 @@ commands:
           mentions: "<< parameters.mentions >>"
 
   github-checkout:
-    description: "Check out the repo over HTTPS. Uses a read-only GitHub App installation token when the github-checkout-app-superchain-ops context is set, otherwise clones anonymously."
+    description: "Check out the repo over HTTPS, anonymously."
     parameters:
       method:
         description: "Clone method: full or blobless (blob:none filter)."
@@ -60,53 +60,7 @@ commands:
 
             : "${CIRCLE_SHA1:?CIRCLE_SHA1 is not set}"
 
-            repo_slug="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
-            repo_url="https://github.com/${repo_slug}.git"
-            token=""
-            basic=""
-
-            have_tools() {
-              for tool in openssl curl jq; do
-                command -v "$tool" >/dev/null 2>&1 || return 1
-              done
-            }
-
-            if [ -n "${GITHUB_CHECKOUT_APP_ID:-}" ] && [ -n "${GITHUB_CHECKOUT_APP_PRIVATE_KEY_B64:-}" ] && have_tools; then
-              key_file="$(mktemp)"
-              trap 'rm -f "$key_file"' EXIT
-              printf '%s' "$GITHUB_CHECKOUT_APP_PRIVATE_KEY_B64" | base64 -d > "$key_file"
-              b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
-              now=$(date +%s)
-              header=$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)
-              payload=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' "$((now - 60))" "$((now + 540))" "$GITHUB_CHECKOUT_APP_ID" | b64url)
-              signature=$(printf '%s.%s' "$header" "$payload" | openssl dgst -sha256 -sign "$key_file" -binary | b64url)
-              jwt="$header.$payload.$signature"
-              installation_id=$(curl -fsSL --retry 3 \
-                -H "Authorization: Bearer $jwt" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${repo_slug}/installation" | jq -r '.id')
-              if [ -z "$installation_id" ] || [ "$installation_id" = "null" ]; then
-                echo "Failed to resolve GitHub App installation id" >&2
-                exit 1
-              fi
-              token_body=$(jq -n --arg repo "$CIRCLE_PROJECT_REPONAME" '{repositories: [$repo], permissions: {contents: "read"}}')
-              token=$(curl -fsSL --retry 3 -X POST \
-                -H "Authorization: Bearer $jwt" \
-                -H "Accept: application/vnd.github+json" \
-                -H "Content-Type: application/json" \
-                -d "$token_body" \
-                "https://api.github.com/app/installations/${installation_id}/access_tokens" | jq -r '.token')
-              if [ -z "$token" ] || [ "$token" = "null" ]; then
-                echo "Failed to mint GitHub App installation token" >&2
-                exit 1
-              fi
-              basic=$(printf 'x-access-token:%s' "$token" | base64 | tr -d '\n')
-              export GIT_CONFIG_COUNT=1
-              export GIT_CONFIG_KEY_0="http.${repo_url}.extraheader"
-              export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${basic}"
-            elif [ -n "${GITHUB_CHECKOUT_APP_ID:-}" ] || [ -n "${GITHUB_CHECKOUT_APP_PRIVATE_KEY_B64:-}" ]; then
-              echo "GitHub App checkout credentials are incomplete or openssl, curl and jq are missing, checking out anonymously" >&2
-            fi
+            repo_url="https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
             fetch_repo() {
               if [ "$CHECKOUT_METHOD" = "blobless" ]; then
@@ -126,11 +80,7 @@ commands:
               git remote add origin "$repo_url"
             fi
 
-            if [ -n "$token" ]; then
-              echo "Checking out with GitHub App token"
-            else
-              echo "Checking out anonymously"
-            fi
+            echo "Checking out anonymously"
 
             fetch_repo --quiet --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
             fetch_repo --quiet origin "$CIRCLE_SHA1"
@@ -477,42 +427,34 @@ workflows:
       - print_versions:
           context:
             - circleci-repo-readonly-authenticated-github-token
-            - github-checkout-app-superchain-ops
       # Forge checks.
       - forge_build:
           context:
             - circleci-repo-readonly-authenticated-github-token
-            - github-checkout-app-superchain-ops
       - forge_fmt:
           context:
             - circleci-repo-readonly-authenticated-github-token
-            - github-checkout-app-superchain-ops
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
-            - github-checkout-app-superchain-ops
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
-            - github-checkout-app-superchain-ops
       - just_new_recipe_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
-            - github-checkout-app-superchain-ops
       - check_task_names
       - check_struct_order
       - check_task_statuses:
           context:
             - circleci-repo-readonly-authenticated-github-token
-            - github-checkout-app-superchain-ops
       # check that superchain-registry is up to date
       - check_superchain_registry:
           context:
             - circleci-repo-readonly-authenticated-github-token
-            - github-checkout-app-superchain-ops
 
       # Stacked simulations for superchain-ops on Mainnet.
       - stacked_simulation:
@@ -521,7 +463,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
-            - github-checkout-app-superchain-ops
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -531,7 +472,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
-            - github-checkout-app-superchain-ops
 
   close-issue-workflow:
     when:
