@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-83, shared with the foundation approval of 087), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+84, shared with the foundation approval of 087), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,9 +16,9 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xbe845a6e73314cc509924b69b0ac2c30f0e281ce9c7265d7d58c281b95da0584`
+> - Message Hash: `0x658e535adaf35d39c61e5998c4929e61dcc27e5579ed287b6638d84e2c1936c6`
 
-Safe transaction hash: `0x19689fed416732d349fcb481ca6534826cf146273116a0ed51fc3110db4b5166`
+Safe transaction hash: `0xa45ed46e47fe7a7410bd43cbbb1c82e621c1da365547c0d5c37c546a21cf008a`
 
 ## For Signers
 
@@ -90,7 +90,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 83 (087 not executed)
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 84 (087 not executed)
 cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "batcherHash()(bytes32)" -r $RPC        # 0x0000000000000000000000001c7566fe8fae38a93bdcb1fbf7d746fd08c11545 (after 086)
 cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "unsafeBlockSigner()(address)" -r $RPC   # 0x3cDacd9da979ab023a9f2D16C42AFA062CCF33F5 (after 086)
@@ -123,7 +123,7 @@ transfer and 086, not changes made by this task.
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `83` → **After:** `84`
+  - **Before:** `84` → **After:** `85`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 
