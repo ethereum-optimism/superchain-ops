@@ -8,7 +8,7 @@ transaction which you are signing.
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
 pinned nonces in [config.toml](./config.toml) (L1PAO 59, FoundationUpgradeSafe 82,
-SecurityCouncil 73) and move only if those nonces move.
+SecurityCouncil 73) and move if those nonces or the calldata change.
 
 > [!CAUTION]
 >
@@ -40,8 +40,9 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones for your safe at the
    top of this file.
-2. In the Tenderly link printed by the simulation: paste the
-   [task calldata](#task-calldata) into the **Raw input data** field and simulate; the
+2. In the Tenderly link printed by the simulation: paste the `0x174dea71…` hex the simulation
+   prints under "Insert the following hex into the 'Raw input data' field" (the Multicall3 call,
+   not the task calldata) into the **Raw input data** field and simulate; the
    contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
    and nothing else.
 3. The decoded `upgrade` inputs show `startingRespectedGameType = 9` and the prestate
@@ -138,7 +139,8 @@ just execute
 
 ### Task State Changes
 
-Tenderly lists the contracts below; no other contract changes state. On each chain: `SystemConfigProxy` (implementation 4.0.0 → 4.3.0, `lastUsedOPCMVersion` 8.0.1 → 9.0.3),
+Tenderly lists the contracts below; no other contract changes state. On each chain: the
+`AddressManager` (the `L1CrossDomainMessenger` implementation entry, see the table below), `SystemConfigProxy` (implementation 4.0.0 → 4.3.0, `lastUsedOPCMVersion` 8.0.1 → 9.0.3),
 `OptimismPortalProxy` (implementation 5.8.0 → 6.1.0, re-initialized with the same
 AnchorStateRegistry and ETHLockbox), `L1CrossDomainMessengerProxy` (implementation 2.11.1 →
 2.13.0), `AnchorStateRegistryProxy` (implementation 3.9.0 → 4.0.0, re-initialized with the
@@ -151,12 +153,20 @@ their implementations (unchanged between v8.0.0 and v9.0.0). Shared: `Superchain
 and `approvedHashes` entry, the approving child safe's nonce, and (council path) the
 SecurityCouncil LivenessGuard `lastLive` simulation artifact.
 
+| Chain | AddressManager |
+|---|---|
+| OP Sepolia Testnet | `0x9bFE9c5609311DF1c011c47642253B78a4f33F4B` |
+| Ink Sepolia | `0x3454F9df5E750F1383e58c1CB001401e7A4f3197` |
+| Soneium Testnet Minato | `0x6e8A77673109783001150DFA770E6c662f473DA9` |
+| Unichain Sepolia Testnet | `0xEf1295ED471DFEC101691b946fb6B4654E88f98A` |
+
 ### Post-execution verification calls
 
 ```bash
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
-for sc in 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 0x05C993e60179f28bF649a2Bb5b00b5F4283bD525 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D; do
+for pair in 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538:0x9884C33C65111DA7Bbed0e63cD2392F503b135F5 0x05C993e60179f28bF649a2Bb5b00b5F4283bD525:0x2282d49d805333D8cd6ddda52B32aC07d6e4e51B 0x4Ca9608Fef202216bc21D543798ec854539bAAd3:0xa759A2C80Ec4C6421829862da30dD34436114502 0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D:0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800; do
+  sc=${pair%%:*}
   echo "== $sc"
   cast call $sc "version()(string)" -r $RPC                     # 4.3.0
   cast call $sc "lastUsedOPCMVersion()(string)" -r $RPC         # 9.0.3
@@ -167,6 +177,8 @@ for sc in 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 0x05C993e60179f28bF649a2Bb5
   dgf=$(cast call $portal "disputeGameFactory()(address)" -r $RPC)
   cast call $dgf "gameImpls(uint32)(address)" 9 -r $RPC         # non-zero
   cast call $dgf "initBonds(uint32)(uint256)" 9 -r $RPC         # 80000000000000000
+  cast call $dgf "gameArgs(uint32)(bytes)" 9 -r $RPC | cut -c1-66   # 0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9
+  [ "$(cast call $dgf "gameArgs(uint32)(bytes)" 5 -r $RPC | tail -c 41)" = "$(echo ${pair#*:0x} | tr A-F a-f)" ] && echo "proposer OK" || echo "proposer MISMATCH"
 done
 
 cast call 0xC2Be75506d5724086DEB7245bd260Cc9753911Be "version()(string)" -r $RPC   # 2.5.0

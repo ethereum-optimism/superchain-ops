@@ -67,6 +67,14 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     mapping(uint256 => bytes32) public preUpgradeAnchorRoot;
     mapping(uint256 => uint256) public preUpgradeAnchorL2SequenceNumber;
 
+    /// @notice Per-chain anchor game recorded in `_templateSetup`. Chains past their first resolved
+    /// game read the anchor from `anchorGame`, not the starting anchor root, so it must survive too.
+    mapping(uint256 => address) public preUpgradeAnchorGame;
+
+    /// @notice Per-chain DelayedWETH delay recorded in `_templateSetup`. The validator skips the
+    /// DelayedWETH when SUPER_CANNON_KONA is disabled, so the template checks it itself.
+    mapping(uint256 => uint256) public preUpgradeWethDelay;
+
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev ProtocolVersions is absent: op-contracts/v8.0.0 removed the ProtocolVersions
     /// contract and its OPCM integration. SuperchainConfig and each chain's DelayedWETH are
@@ -162,6 +170,10 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                 "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type"
             );
             (preUpgradeAnchorRoot[chainId], preUpgradeAnchorL2SequenceNumber[chainId]) = asr.getStartingAnchorRoot();
+            preUpgradeAnchorGame[chainId] = asr.anchorGame();
+            preUpgradeWethDelay[chainId] = IDelayedWETHView(
+                ISystemConfigV900(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)).delayedWETH()
+            ).delay();
         }
 
         // The OPCM gates enabling ZK_DISPUTE_GAME behind a dev feature (disabled on
@@ -396,7 +408,19 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                     && anchorL2SequenceNumber == preUpgradeAnchorL2SequenceNumber[chainId],
                 "OPCMUpgradeV900: starting anchor root changed"
             );
+            require(asr.anchorGame() == preUpgradeAnchorGame[chainId], "OPCMUpgradeV900: anchor game changed");
 
+            // The upgrade re-sets the SUPER_CANNON_KONA bond from config; pin it exactly.
+            IDisputeGameFactory factory =
+                IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+            if (address(factory.gameImpls(GameType.wrap(SUPER_CANNON_KONA))) != address(0)) {
+                require(
+                    factory.initBonds(GameType.wrap(SUPER_CANNON_KONA)) == upgrades[chainId].initBond,
+                    "OPCMUpgradeV900: SUPER_CANNON_KONA bond not applied"
+                );
+            }
+
+            _validateDelayedWETH(chainId);
             _validateLockbox(chainId);
 
             IOPContractsManagerStandardValidator.ValidationInputDev memory input = IOPContractsManagerStandardValidator
@@ -436,6 +460,21 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
+    }
+
+    /// @notice Pins a chain's DelayedWETH after the upgrade: v9 implementation, wired to the chain's
+    /// ETHLockbox (its v2.0.0 pause identifier), delay unchanged. Covers chains where the validator
+    /// skips it (SUPER_CANNON_KONA off).
+    function _validateDelayedWETH(uint256 chainId) internal view {
+        address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+        address portal = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
+        IDelayedWETHView weth = IDelayedWETHView(ISystemConfigV900(sysCfg).delayedWETH());
+        require(weth.version().eq("2.0.0"), "OPCMUpgradeV900: DelayedWETH not upgraded");
+        require(
+            weth.ethLockbox() == IOptimismPortalView(portal).ethLockbox(),
+            "OPCMUpgradeV900: DelayedWETH not wired to the chain's ETHLockbox"
+        );
+        require(weth.delay() == preUpgradeWethDelay[chainId], "OPCMUpgradeV900: DelayedWETH delay changed");
     }
 
     /// @notice Pins a chain's lockbox wiring after the upgrade. A chain that had a lockbox keeps it;
@@ -575,6 +614,13 @@ interface IDisputeGameFactory {
 interface IAnchorStateRegistryView {
     function getStartingAnchorRoot() external view returns (bytes32 root, uint256 l2SequenceNumber);
     function respectedGameType() external view returns (uint32);
+    function anchorGame() external view returns (address);
+}
+
+interface IDelayedWETHView {
+    function version() external view returns (string memory);
+    function ethLockbox() external view returns (address);
+    function delay() external view returns (uint256);
 }
 
 interface ISystemConfig {}
