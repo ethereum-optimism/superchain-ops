@@ -8,8 +8,8 @@ transaction which you are signing.
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
 pinned nonces in [config.toml](./config.toml) (L1PAO 49, FoundationUpgradeSafe 81,
-SecurityCouncil 76, i.e. after eth/082 and eth/083 execute) and move only if those nonces
-move.
+SecurityCouncil 76, i.e. after eth/082 and eth/083 execute) and move if those nonces or
+the calldata change.
 
 > [!CAUTION]
 >
@@ -41,8 +41,9 @@ Check:
 
 1. The domain and message hashes printed to the terminal match the ones for your safe at the
    top of this file.
-2. In the Tenderly link printed by the simulation: paste the
-   [task calldata](#task-calldata) into the **Raw input data** field and simulate; the
+2. In the Tenderly link printed by the simulation: paste the `0x174dea71…` hex the simulation
+   prints under "Insert the following hex into the 'Raw input data' field" (the Multicall3 call,
+   not the task calldata) into the **Raw input data** field and simulate; the
    contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
    and nothing else.
 3. The decoded `upgrade` inputs show `startingRespectedGameType = 9` with the prestate
@@ -141,7 +142,8 @@ just execute
 
 ### Task State Changes
 
-Tenderly lists the contracts below; no other contract changes state. On each chain: `SystemConfigProxy` (implementation 4.0.0 → 4.3.0, `lastUsedOPCMVersion` 8.0.1 → 9.0.3),
+Tenderly lists the contracts below; no other contract changes state. On each chain: the
+`AddressManager` (the `L1CrossDomainMessenger` implementation entry, see the table below), `SystemConfigProxy` (implementation 4.0.0 → 4.3.0, `lastUsedOPCMVersion` 8.0.1 → 9.0.3),
 `OptimismPortalProxy` (implementation 5.8.0 → 6.1.0, re-initialized with the same
 AnchorStateRegistry and ETHLockbox), `L1CrossDomainMessengerProxy` (implementation 2.11.1 →
 2.13.0), `AnchorStateRegistryProxy` (implementation 3.9.0 → 4.0.0, re-initialized with the
@@ -155,12 +157,20 @@ unchanged), the DelayedWETH proxy (implementation 1.5.1 → 2.0.0) and `EthLockb
 and `approvedHashes` entry, the approving child safe's nonce, and (council path) the
 SecurityCouncil LivenessGuard `lastLive` simulation artifact.
 
+| Chain | AddressManager |
+|---|---|
+| OP Mainnet | `0xdE1FCfB0851916CA5101820A69b13a4E276bd81F` |
+| Ink | `0x9b7C9BbD6d540A8A4dEDd935819fC4408Ba71153` |
+| Soneium | `0xB24bFEeCE1B3b7A44559F4Cbc21BeD312b130b70` |
+| Unichain | `0x8098F676033A377b9Defe302e9fE6877cD63D575` |
+
 ### Post-execution verification calls
 
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-for sc in 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 0xc407398d063f942feBbcC6F80a156b47F3f1BDA6; do
+for pair in 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290:0xc27ba3E0Fc01567a5E57Ae0c391AA98cECBA5bE0 0x62C0a111929fA32ceC2F76aDba54C16aFb6E8364:0x3832bfbef03173e4c49a00ec0dd178817a02d177 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3:0x400c164c4a8ca84385b70eed6eb03ea847c8e1b8 0xc407398d063f942feBbcC6F80a156b47F3f1BDA6:0x86b392ca30ad7453c8d88b56eb5a04fd0e2175b7; do
+  sc=${pair%%:*}
   echo "== $sc"
   cast call $sc "version()(string)" -r $RPC                     # 4.3.0
   cast call $sc "lastUsedOPCMVersion()(string)" -r $RPC         # 9.0.3
@@ -171,6 +181,8 @@ for sc in 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 0x62C0a111929fA32ceC2F76aDb
   dgf=$(cast call $portal "disputeGameFactory()(address)" -r $RPC)
   cast call $dgf "gameImpls(uint32)(address)" 9 -r $RPC         # non-zero (zero on Soneium)
   cast call $dgf "initBonds(uint32)(uint256)" 9 -r $RPC         # 80000000000000000 (0 on Soneium)
+  cast call $dgf "gameArgs(uint32)(bytes)" 9 -r $RPC | cut -c1-66   # 0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9 (0x on Soneium)
+  [ "$(cast call $dgf "gameArgs(uint32)(bytes)" 5 -r $RPC | tail -c 41)" = "$(echo ${pair#*:0x} | tr A-F a-f)" ] && echo "proposer OK" || echo "proposer MISMATCH"
 done
 
 cast call 0x95703e0982140D16f8ebA6d158FccEde42f04a4C "version()(string)" -r $RPC   # 2.5.0

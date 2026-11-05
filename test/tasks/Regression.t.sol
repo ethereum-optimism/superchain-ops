@@ -870,10 +870,10 @@ contract RegressionTest is Test {
     }
 
     /// @notice Expected call data and data to sign for the OPCMUpgradeV900 template at block 12057300 on sepolia,
-    /// upgrading Unichain Sepolia and OP Sepolia with the op-contracts/v9.0.0-rc.1 OPCM
+    /// upgrading Unichain Sepolia and OP Sepolia with the op-contracts/v9.0.0 OPCM
     /// 0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc.
     /// Simulate from task directory (test/tasks/example/sep/046-opcm-upgrade-v900) with:
-    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/nested.just simulate <foundation|council>
+    /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/justfile simulate <foundation|council>
     function testRegressionCallDataMatches_OPCMUpgradeV900_Sepolia() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/046-opcm-upgrade-v900/config.toml";
         string memory expectedCallData =
