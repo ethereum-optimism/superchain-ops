@@ -1,4 +1,4 @@
-# 089-soneium-revert-batcher-unsafe-signer
+# 088-soneium-revert-batcher-unsafe-signer
 
 Status: CANCELLED (CONTINGENCY TASK, SIGN AS NEEDED)
 
@@ -37,7 +37,7 @@ This is a **single-safe** task executed directly by the FoundationUpgradeSafe. I
 stack, so it is simulated on its own.
 
 ```bash
-cd src/tasks/eth/089-soneium-revert-batcher-unsafe-signer
+cd src/tasks/eth/088-soneium-revert-batcher-unsafe-signer
 
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 
@@ -51,7 +51,7 @@ pre-execution checks in [VALIDATION.md](./VALIDATION.md) first. `just execute` r
 without `SIGNATURES`.
 
 ```bash
-cd src/tasks/eth/089-soneium-revert-batcher-unsafe-signer
+cd src/tasks/eth/088-soneium-revert-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```

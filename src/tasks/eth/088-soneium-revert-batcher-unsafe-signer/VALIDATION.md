@@ -25,7 +25,7 @@ Safe transaction hash: `0xa45ed46e47fe7a7410bd43cbbb1c82e621c1da365547c0d5c37c54
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/089-soneium-revert-batcher-unsafe-signer
+cd src/tasks/eth/088-soneium-revert-batcher-unsafe-signer
 just --dotenv-path $(pwd)/.env --justfile ../../../justfile simulate
 ```
 
@@ -99,7 +99,7 @@ cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "unsafeBlockSigner()(addres
 Then execute with the collected signatures:
 
 ```bash
-cd src/tasks/eth/089-soneium-revert-batcher-unsafe-signer
+cd src/tasks/eth/088-soneium-revert-batcher-unsafe-signer
 
 SIGNATURES=0x... just execute
 ```
