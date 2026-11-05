@@ -5,7 +5,7 @@ Status: CANCELLED (CONTINGENCY TASK, SIGN AS NEEDED)
 > [!WARNING]
 > Rollback for [117](../117-soneium-minato-set-batcher-unsafe-signer), executed only if the OP Enterprise
 > sequencer or batcher has to be handed back to Sony after the cutover. `CANCELLED` keeps it out of
-> the stacked simulation, because it shares FoundationUpgradeSafe nonce 84 with the foundation
+> the stacked simulation, because it shares FoundationUpgradeSafe nonce 85 with the foundation
 > approval of [118](../118-soneium-minato-fee-vault): only one of the two can execute. Execute 118 only once
 > the cutover is confirmed; if this rollback executes instead, 118 and every later FoundationUpgradeSafe
 > task move up by one nonce and are re-signed. There is no rollback for the proposer
