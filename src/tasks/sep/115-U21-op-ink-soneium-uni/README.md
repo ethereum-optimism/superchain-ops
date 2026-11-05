@@ -1,6 +1,6 @@
 # 115-U21-op-ink-soneium-uni
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [READY TO EXECUTE]
 
 ## Objective
 
