@@ -132,8 +132,8 @@ On L2, once relayed, each vault's `recipient` / `withdrawalNetwork` (slot `2`) a
   - **Before:** `61` → **After:** `62`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
-- **Key (foundation path):** `0x788b7f83314c3b5660c7e544d8e1aeb162f2ab92b58323e128b0fc05ba5887fc`
-- **Key (council path):** `0x3cdaccb02dda8ffe7b8725fd07aa5f7d13d2511e4f82e9366b2e923911697b3c`
+- **Key (foundation path):** `0x16883093a8753ab89e790e0b46defa3aef9b1b7a856de713a53050b0cae1c292`
+- **Key (council path):** `0xb192f4a0437c2fcaef9439a019c056720950008ca685ca0048b0e688d7dcd2f5`
   - **Before:** `0` → **After:** `1`
   - **Summary:** `approvedHashes[<child safe>][0xae54bd6a…]`, the child safe's approval. Only the
     key of the path being simulated is written. Derive with

@@ -126,8 +126,8 @@ just execute
   - **Before:** `60` → **After:** `61`
   - **Summary:** nonce increment of the root safe. The before-value reflects the nonce state
     override in [config.toml](./config.toml).
-- **Key (foundation path):** `0xa339e40034dad033236ca820d52fd7954f3065cb3fdaf62d64ab7479bddd21b7`
-- **Key (council path):** `0x533ce18439029e5d50a490cfefd612b5c939a9539d6803861d60f8f39fd079e5`
+- **Key (foundation path):** `0xd03a17fc66ce48f19895a9b653d75d5a8c15c9b5fed067d8f81ed413302e7507`
+- **Key (council path):** `0x5cc307f07aa75ba2376cd23e49d0300458d62c9bf102b55c0e5bc35231a8962b`
   - **Before:** `0` → **After:** `1`
   - **Summary:** `approvedHashes[<child safe>][0x500322c0…]`, the child safe's approval. Only the
     key of the path being simulated is written. Derive with
