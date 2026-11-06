@@ -1,0 +1,54 @@
+templateName = "OPCMUpgradeV800"
+
+# Upgrade 20 (op-contracts/v8.0.0) on GIWA Sepolia: one OPCM.upgradeSuperchain on GIWA's own
+# SuperchainConfig, then one OPCM.upgrade. GIWA Sepolia is permissioned-only (no CANNON_KONA impl)
+# and rotates its respected game type from PERMISSIONED_CANNON (1) to SUPER_PERMISSIONED (5),
+# clears the CANNON (0), PERMISSIONED_CANNON (1) and CANNON_KONA (8) impls and re-anchors its
+# AnchorStateRegistry to a super root. Executed by the GIWA Sepolia ProxyAdminOwner, a nested
+# 2-of-2 of DunamuUpgradeSafe and GIWASecurityCouncil (each 1-of-1).
+
+l2chains = [
+    {name = "GIWA Sepolia Testnet", chainId = 91342}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 91342
+# kona-client/v1.7.0-rc.2 cannon64-kona-interop (superchain-registry standard-prestates.toml), the
+# value every registry chain uses in the U20 tasks (sep/107, sep/108, eth/071). The template
+# requires a non-zero value, but GIWA Sepolia has no CANNON_KONA impl, so SUPER_CANNON_KONA stays
+# disabled and the prestate is never encoded for this chain.
+cannonKonaPrestate = "0x031ac6f15c19010da258f5cb633ef6ca9318c2d0f244bea6b2045ce6b790e1df"
+# Single-chain super root at finalized L2 block 40513435 (timestamp 1793858551), check-super-root
+# against https://sepolia-rpc.giwa.io on 2026-11-05. Part of the signed calldata.
+startingAnchorRootRoot = "0x6afd237816adcfb144cc0d7aef8c33ed298612448d1e20e65cd5b7b5e66c5be6"
+startingAnchorRootL2SequenceNumber = 1793858551
+# Validator output at authoring time; assert-only, does not affect the calldata.
+# OVERRIDES-L1PAOMULTISIG / OVERRIDES-CHALLENGER report GIWA's own ProxyAdminOwner and Challenger,
+# SYSCON-130 its own SuperchainConfig (0xEF3a8c9Ec7873C3ACEE4e6153fb66072cdE9032d), and
+# SCKDG-SHAPE / SCKDG-10 that no SUPER_CANNON_KONA game is registered: expected for a
+# permissioned-only chain (same as sepolia-devnet-3 in sep/107).
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
+startingRespectedGameType = 5 # SUPER_PERMISSIONED
+
+[addresses]
+# op-contracts/v8.0.0 OPCM, version 8.0.1 (superchain-registry standard-versions-sepolia.toml).
+OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"
+# Owner safes of the GIWA Sepolia ProxyAdminOwner 0x0B266965c88C78f17e1F9f59784249bf8Da1CB9E.
+DunamuUpgradeSafe = "0x3d58888b6903B87bD030b93F6FD37cb843b92DB7"
+GIWASecurityCouncil = "0x37FF75B6545F0747b21c43EEB95744b791d1bf1C"
+
+# Safe nonces pinned to the values at authoring time (2026-11-05). Re-verify with
+# `cast call <safe> "nonce()(uint256)" -r sepolia` and regenerate the VALIDATION.md hashes if drifted.
+[stateOverrides]
+0x0B266965c88C78f17e1F9f59784249bf8Da1CB9E = [ # GIWA Sepolia ProxyAdminOwner
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 13}
+]
+0x3d58888b6903B87bD030b93F6FD37cb843b92DB7 = [ # DunamuUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1}
+]
+0x37FF75B6545F0747b21c43EEB95744b791d1bf1C = [ # GIWASecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 2}
+]
