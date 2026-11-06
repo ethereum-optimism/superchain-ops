@@ -1,0 +1,26 @@
+{
+  "_comment": "Whitechain Sepolia (chainId 1874). Not in superchain-registry. Addresses from superchain-registry/.staging/wch-sepolia.toml, cross-checked on Sepolia 2026-11-06 (SystemConfig 3.13.1, minBaseFee 5 gwei, isCustomGasToken true, portal 5.2.0 balance 0, DGF 1.4.0 owner = the PAO Safe, respectedGameType 1, gameImpls(1) only, SuperchainConfig 2.4.0). *** MUST BE REFRESHED AFTER U19 (sep/900) EXECUTES *** The U19 OPCM DEPLOYS A NEW DelayedWETH PROXY and leaves the old one unreferenced. The three WETH aliases below still point at the pre-U19 proxy 0xDD01A989Ed8Eb3fBe78e10923154B86d605de437. Running U21 against a stale address fails with 'MultisigTask: address UNLABELED @<new proxy> not in allowed storage accesses'. The sep/900 simulation predicts the new proxy at 0x2e02e6cB6A632ff1c83CC5F3596342299b8117fe and that prediction held on the replica, but CONFIRM it from the U19 execution state diff or from SystemConfig's delayedWETH() rather than assuming. Then update DelayedWETHProxy, PermissionedWETH and PermissionedDelayedWETHProxy here before simulating.",
+  "1874": {
+    "ProxyAdmin": "0x1E46b85eB0a0407Ae0f808D28207D8e0300b3a7A",
+    "ProxyAdminOwner": "0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85",
+    "SuperchainConfig": "0x11854D3146a460D095943C3231F2755ba342426E",
+    "SystemConfigProxy": "0x9328Ea869949f33c57B7b680B6EdB58769e2181c",
+    "OptimismPortalProxy": "0xFF9b597b0781457ae6aa7256Ca5ed5839bF7D0C3",
+    "L1ERC721BridgeProxy": "0x1e419Fc5575bBD6d352582E9D8073918D79F0C5B",
+    "OptimismMintableERC20FactoryProxy": "0x5898f6c319842A379799D634C6Ed2dA960a42B9B",
+    "L1StandardBridgeProxy": "0x0c50bE539AB5D72d226038928F2eB25100899DED",
+    "L1CrossDomainMessengerProxy": "0x547967f45d19Dc4Ca0A056Ba525Afe99BDA18a88",
+    "DisputeGameFactoryProxy": "0xfaa2fAA8912C069c01abc169c33713c79027c833",
+    "AnchorStateRegistryProxy": "0x4Da165963420dEeb0788f338b7A1Df41e535A32c",
+    "PermissionedWETH": "0xDD01A989Ed8Eb3fBe78e10923154B86d605de437",
+    "AddressManager": "0xa848d05c539B0E03AfAB6E4DB5C4e02568689e41",
+    "Challenger": "0xDbF9caAd3419442828Bca5fe0ED742685A6f74A2",
+    "Proposer": "0x422aF6C5af85798414F1Cb8df68716B70A80C63d",
+    "Guardian": "0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85",
+    "SystemConfigOwner": "0x96eA6e813328FcF11b577193f59C762e6c3166c9",
+    "UnsafeBlockSigner": "0x5c846d98a3b37CAe4b1A55c6B66DCD94df137363",
+    "BatchSubmitter": "0x7D451299Ab21Bfa7132c690b91D749756ec1Dbb7",
+    "DelayedWETHProxy": "0xDD01A989Ed8Eb3fBe78e10923154B86d605de437",
+    "PermissionedDelayedWETHProxy": "0xDD01A989Ed8Eb3fBe78e10923154B86d605de437"
+  }
+}

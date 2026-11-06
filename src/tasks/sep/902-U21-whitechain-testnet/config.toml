@@ -1,0 +1,77 @@
+# Upgrade 21 (op-contracts/v9.0.0) on Whitechain Sepolia (chainId 1874).
+# One OPCM.upgradeSuperchain on the chain's own SuperchainConfig, then one OPCM.upgrade.
+#
+# PREREQUISITE (NOT YET MET): the chain must already be on op-contracts/v8.0.0. As of 2026-11-06
+# Whitechain is on v6.0.0 (SystemConfig 3.13.1), so sep/900 (U19) and sep/901 (U20) must execute
+# first, in that order. Two gates enforce it: the template asserts startingRespectedGameType equals
+# the chain's current respected game type, and the v9 OPCM checks isPermittedUpgradeSequence
+# on-chain (OPCMUpgradeV900.sol:218-221). Attempting it early fails on the first with
+# "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type".
+#
+# Whitechain is a custom-gas-token chain on permissioned proofs: it stays on SUPER_PERMISSIONED
+# (5), SUPER_CANNON_KONA (9) is not registered and stays disabled, and the ETHLockbox the upgrade
+# wires to the portal receives no ETH, because CGT chains keep custody in the portal and its
+# balance is 0 (confirmed on-chain). The v9 OPCM reads isCustomGasToken() and only reverts when an
+# upgrade tries to turn the flag on (OPContractsManagerV2.sol:1005-1006), so no CGT input exists.
+#
+# This chain can never be MIGRATED. OPCMMigrateV900 rejects custom-gas-token chains outright
+# (OPContractsManagerMigrator.sol:484-486, "prevents incorrect pooling into shared ETHLockbox"),
+# so Whitechain cannot join an interop set. By design, not a defect: a CGT chain holds no ETH to
+# pool. Migration is a separate, later task and is not in this repository.
+#
+# Rehearsed on the Whitechain replica devnet (chainId 18740), where U19, Karst, U20 and U21 were
+# all executed, and U21's post-execution state matched its predicted diff exactly, including the
+# ETHLockbox landing at the predicted address. See the git history of sep/903-U21-whitechain-replica.
+# Modelled on sep/123-U21-sepolia-devnet-6, the same shape (CGT, permissioned, own
+# SuperchainConfig, not in the registry, 1-of-1 Safe) and already EXECUTED.
+#
+# Not in the superchain-registry: addresses come from addresses.json next to this file.
+# Executed by Whitechain's ProxyAdminOwner Safe 0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85
+# (1-of-1, owner 0xEAd4fe6b892e00763D715095eE4A880637179f3D, a plain EOA).
+
+l2chains = [
+    {name = "Whitechain Testnet", chainId = 1874}
+]
+
+templateName = "OPCMUpgradeV900"
+fallbackAddressesJsonPath = "src/tasks/sep/902-U21-whitechain-testnet/addresses.json"
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 1874
+# The standard kona-client v1.9.0 cannon64-kona-interop prestate, from the superchain-registry
+# (validation/standard/standard-prestates.toml) and named on the Upgrade 21 notice page. The same
+# value sep/115, sep/122, sep/123 and eth/084 use.
+#
+# It is NOT encoded for this chain and changes nothing. SUPER_CANNON_KONA (9) is enabled only when
+# gameImpls(CANNON_KONA) != 0, and Whitechain has no such implementation, so the config stays
+# disabled and the template emits empty gameArgs for it. The notice agrees: "permissioned chains do
+# not use an absolute prestate for SUPER_PERMISSIONED games". Proven on the replica: simulating
+# with 0xdead000…000 and with this value produced byte-identical calldata and identical hashes.
+# The real value is used anyway so the config matches the other U21 tasks and is checkable against
+# the registry. The template requires a non-zero value regardless.
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# TODO BEFORE SIGNING: re-read from the first simulation revert message once U20 has landed.
+# The replica reported exactly this set, as did sep/123. Whitechain should match, except that its
+# DisputeGameFactory owner and Guardian are already the ProxyAdminOwner Safe.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
+# Must EQUAL the chain's current respected game type, which sep/901 (U20) sets to 5. There is no
+# anchor-root input in v9: the only override is startingRespectedGameType, so the anchor set by U20
+# carries over untouched.
+startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged by this task
+
+[addresses]
+# op-contracts/v9.0.0 OPCM on Sepolia, version 9.0.3, deployed from v9.0.0-rc.1 (same commit, not
+# redeployed). Verified on-chain 2026-11-06. NOTE: the superchain-registry still lists the entry
+# under ["op-contracts/v9.0.0-rc.1"] and the Upgrade 21 notice page is marked provisional with no
+# governance proposal linked. Confirm the release is final before signing this on a real chain.
+OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
+
+[storageCodeExceptions]
+# REQUIRED HERE, unlike on the replica. SystemConfig slot 0x6c packs superchainConfig in the low
+# 160 bits with minBaseFee above it, and Whitechain's minBaseFee is 5 gwei, so the code-presence
+# check would misread the slot as an address. On the replica minBaseFee is 0 and this was a
+# harmless no-op, which is exactly why it must not be dropped when porting.
+"0x9328Ea869949f33c57B7b680B6EdB58769e2181c" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
