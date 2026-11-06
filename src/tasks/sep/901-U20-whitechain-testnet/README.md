@@ -97,22 +97,28 @@ DisputeGameFactory owner write.
 
 1. **Execute sep/900 (U19).** The chain is on v6 and U20 upgrades from v7.
 2. **Refresh [addresses.json](./addresses.json)** with the new DelayedWETH proxy that U19 deploys.
-3. **Obtain the starting anchor root.** This is the hard blocker. `startingAnchorRootRoot` and
+3. **Derive the starting anchor root.** `startingAnchorRootRoot` and
    `startingAnchorRootL2SequenceNumber` are part of the signed calldata and must be a single-chain
-   super root at a finalized L2 timestamp, read from Whitechain's own op-node:
+   super root at a finalized L2 timestamp. **No op-node access is needed**: Whitechain's public RPC
+   `https://rpc.testnet.whitechain.io` serves `eth_getProof`, which is enough, even though it does
+   not whitelist `optimism_outputAtBlock` or `superroot_atTimestamp`.
 
-   ```bash
-   cast rpc superroot_atTimestamp $(cast to-hex <finalized L2 timestamp>) --rpc-url <their op-node>
-   # take data.super_root, then recompute by hand:
-   cast keccak 0x01$(printf %016x <timestamp>)$(cast to-uint256 1874 | sed 's/^0x//')<outputRoot>
+   ```
+   stateRoot, blockHash   <- eth_getBlockByNumber
+   withdrawalStorageRoot  <- eth_getProof on 0x4200000000000000000000000000000000000016, storageHash
+   outputRoot = keccak256( bytes32(0) || stateRoot || withdrawalStorageRoot || blockHash )
+   superRoot  = keccak256( 0x01 || uint64(timestamp) || uint256(1874) || outputRoot )
    ```
 
-   Whitechain's public RPC does not whitelist `eth_config` and their op-node is not reachable from
-   here, so this cannot be filled in without them. **Ask Whitechain for an op-node endpoint that
-   serves `superroot_atTimestamp`**, which requires `--safedb.path` to be populated.
-4. **Confirm whether the Karst L2 fork is active on 1874.** It is U19's other half and still
-   unverified, for the same RPC reason. Derive the anchor from a finalized post-Karst block so the
-   ordering matches the rehearsal.
+   The formula was validated against op-node's `optimism_outputAtBlock` on the rehearsal devnet,
+   matching exactly, then exercised against Whitechain. Their proof window reaches at least 3000
+   blocks back, roughly 50 minutes at 1s block time, comfortably past the finality lag.
+
+   The one thing the public RPC cannot report is the L2 **finalized** head. Pick a conservatively
+   old block and have Whitechain confirm it is finalized.
+4. **Activate Karst**, which is confirmed **not** active on 1874: the L2 Contract Manager
+   predeploy's implementation slot is zero. Derive the anchor from a finalized post-Karst block so
+   the ordering matches the rehearsal.
 5. **Re-read `expectedValidationErrors`** from the first simulation once U19 has landed.
 6. **Generate `VALIDATION.md` and the calldata**, then confirm the Safe transaction hash against
    the live Safe at its then-current nonce.

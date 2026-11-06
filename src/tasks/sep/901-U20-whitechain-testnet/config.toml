@@ -37,16 +37,21 @@ chainId = 1874
 # this value produced byte-identical calldata and identical hashes.
 cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
 #
-# TODO BEFORE SIGNING — THIS IS THE BLOCKER. A single-chain super root at a finalized L2 timestamp
-# is part of the signed calldata and must come from Whitechain's own op-node:
-#   cast rpc superroot_atTimestamp $(cast to-hex <finalized L2 timestamp>) --rpc-url <their op-node>
-# taking data.super_root, then recomputed by hand as
-#   keccak256(0x01 || uint64(timestamp) || uint256(1874) || outputRoot)
-# Whitechain's public RPC does not whitelist eth_config and their op-node is not reachable from
-# here, so this cannot be filled in without them. Two things to confirm with Whitechain:
-#   1. an op-node endpoint that serves superroot_atTimestamp, which needs --safedb.path populated;
-#   2. whether the Karst L2 fork is active on 1874, since it is U19's other half.
-# Derive the anchor AFTER U19 has executed, from a finalized post-Karst block, so the rehearsal
+# TODO BEFORE SIGNING. A single-chain super root at a finalized L2 timestamp, part of the signed
+# calldata. It can be derived from Whitechain's PUBLIC RPC (https://rpc.testnet.whitechain.io),
+# which serves eth_getProof even though it does not whitelist optimism_outputAtBlock or
+# superroot_atTimestamp:
+#   stateRoot, blockHash        <- eth_getBlockByNumber
+#   withdrawalStorageRoot       <- eth_getProof on 0x4200000000000000000000000000000000000016
+#                                  (L2ToL1MessagePasser), field storageHash
+#   outputRoot = keccak256(bytes32(0) || stateRoot || withdrawalStorageRoot || blockHash)
+#   superRoot  = keccak256(0x01 || uint64(timestamp) || uint256(1874) || outputRoot)
+# The formula was validated against op-node's optimism_outputAtBlock on the rehearsal devnet (exact
+# match) and exercised against Whitechain. Their proof window reaches >= 3000 blocks back, about 50
+# minutes at 1s blocks, well past the L2 finality lag.
+# The public RPC cannot report the L2 FINALIZED head, so pick a conservatively old block and have
+# Whitechain confirm it is finalized.
+# Derive the anchor AFTER U19 and Karst, from a finalized post-Karst block, so the rehearsal
 # ordering is reproduced.
 startingAnchorRootRoot = "0x0000000000000000000000000000000000000000000000000000000000000000"
 startingAnchorRootL2SequenceNumber = 0
