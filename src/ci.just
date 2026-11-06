@@ -55,7 +55,7 @@ simulate-all-templates:
 
             # OPCMMigrateV900 needs an op-contracts/v9.0.0 OPCM and chains already upgraded with that
             # release. Neither exists on Sepolia yet.
-            if [ "$task_name" = "044-opcm-migrate-v900" ]; then
+            if [ "$task_name" = "047-opcm-migrate-v900" ]; then
                 echo "Skipping $task_name (no v9 OPCM or v9-upgraded chains on Sepolia)"
                 continue
             fi

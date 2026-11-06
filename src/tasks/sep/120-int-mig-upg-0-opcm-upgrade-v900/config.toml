@@ -18,9 +18,6 @@ l2chains = [
 templateName = "OPCMUpgradeV900"
 fallbackAddressesJsonPath = "src/tasks/sep/120-int-mig-upg-0-opcm-upgrade-v900/addresses.json"
 skipOPCMVersionCheck = false
-# Both portals have no ETHLockbox wired (ethLockbox() == 0, ETH_LOCKBOX feature off): netchef deployed the
-# EthLockboxProxy contracts but never attached them. v9 requires one, so permit the OPCM to deploy it.
-permitEthLockboxDeployment = [420120270, 420120271]
 
 [[opcmUpgrades]]
 chainId = 420120270

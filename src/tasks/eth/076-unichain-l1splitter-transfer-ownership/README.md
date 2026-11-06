@@ -1,6 +1,6 @@
 # 076-unichain-l1splitter-transfer-ownership
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x0eb4257bde5d956556d575219770ceb19988936a55d237e57011b5a24f7fa993)
 
 ## Objective
 

@@ -30,9 +30,7 @@ root, which the upgrade carries forward.
 netchef deployed an `EthLockboxProxy` per chain but never attached it: `OptimismPortal.ethLockbox()` is zero
 and the `ETH_LOCKBOX` feature is off on both SystemConfigs. The v9 OPCM deploys a lockbox in that case and
 reverts (`0x391074c9`, `ETHLockbox`) unless given the `PermittedProxyDeployment=ETHLockbox` instruction.
-`permitEthLockboxDeployment` in [config.toml](./config.toml) opts both chains in. This config key was
-added to `OPCMUpgradeV900` for this task; the template previously assumed every v8 chain already has a
-lockbox.
+`OPCMUpgradeV900` sends that instruction for every chain, so no task config is needed.
 
 ## Expected validation errors
 

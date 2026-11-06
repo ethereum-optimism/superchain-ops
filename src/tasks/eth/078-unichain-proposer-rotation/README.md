@@ -1,6 +1,6 @@
 # 078-unichain-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x626a5b99524a4602fdb8e373f2148e88fb9e7bf48740a804c35542bfc532de2f)
 
 ## Objective
 

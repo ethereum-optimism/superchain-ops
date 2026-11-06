@@ -29,10 +29,10 @@ contract MockOPCMV900 {
     }
 }
 
-/// @notice Exercises the `_templateSetup` checks of OPCMMigrateV900 against the 044 example task.
+/// @notice Exercises the `_templateSetup` checks of OPCMMigrateV900 against the 047 example task.
 /// @dev No v9 OPCM is deployed yet, so these tests stop at setup, or use a mock OPCM.
 contract OPCMMigrateV900SetupValidationTest is Test {
-    string constant CONFIG = "test/tasks/example/sep/044-opcm-migrate-v900/config.toml";
+    string constant CONFIG = "test/tasks/example/sep/047-opcm-migrate-v900/config.toml";
     // This directory is in the .gitignore file.
     string constant TEST_CONFIG_DIR = "test-config-files";
     uint256 internal constant FORK_BLOCK_NUMBER = 11_920_727;
