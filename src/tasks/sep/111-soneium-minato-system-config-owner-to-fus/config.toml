@@ -1,0 +1,14 @@
+templateName = "TransferSystemConfigOwnership"
+
+l2chains = [
+    {name = "Soneium Testnet Minato", chainId = 1946}
+]
+
+safeAddressString = "SystemConfigOwner"
+
+newOwner = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
+
+[stateOverrides]
+0xB278818732E5BEbb742dc4Aa0617ccd1Dec76b65 = [ # SystemConfigOwner nonce
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32}
+]
