@@ -1,4 +1,4 @@
-# 088-op-mainnet-set-unsafe-signer
+# 089-op-mainnet-set-unsafe-signer
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -17,9 +17,9 @@ Depends on eth/082 (batcher). A standalone `just simulate` would also rotate the
 Single-safe task. Check the output against [VALIDATION.md](./VALIDATION.md) before signing.
 
 ```bash
-cd src/tasks/eth/088-op-mainnet-set-unsafe-signer
+cd src/tasks/eth/089-op-mainnet-set-unsafe-signer
 
-just simulate-stack eth 088-op-mainnet-set-unsafe-signer
+just simulate-stack eth 089-op-mainnet-set-unsafe-signer
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 088-op-mainnet-set-unsafe-signer
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 089-op-mainnet-set-unsafe-signer
 ```
