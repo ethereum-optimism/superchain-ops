@@ -49,7 +49,7 @@ need the two sections above.
 ### Task Calldata
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the FoundationUpgradeSafe
-delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
+delegatecalls into `Multicall3` (`0xcA11bde05977b3631167028862bE2a173976CA11`); the Tenderly simulation takes the outer
 `execTransaction` wrapper printed by `just simulate` (see step 2 above).
 
 ```
@@ -58,7 +58,7 @@ delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the o
 
 ### Understanding Task Calldata
 
-The task is a single `Multicall3DelegateCall.aggregate3Value` from the FoundationUpgradeSafe (selector
+The task is a single `Multicall3.aggregate3Value` from the FoundationUpgradeSafe (selector
 `0x174dea71`) containing **2** call(s), each with `allowFailure = false` and
 `value = 0`:
 
@@ -115,7 +115,7 @@ SIGNATURES=0x... just execute
 - **Key:** `0x65a7ed542fb37fe237fdfbdd70b31598523fe5b32879e307bae27a0bd9581c08`
   - **Before:** `0x0000000000000000000000003cdacd9da979ab023a9f2d16c42afa062ccf33f5`
   - **After:**  `0x0000000000000000000000007c2bd59ee2a2c7391c9a240132f26071e9546262`
-  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner") - 1`).
+  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner")`).
 
 The before-values and the slot `0x33` owner are state overrides standing in for the Safe UI
 transfer and 086, not changes made by this task.
