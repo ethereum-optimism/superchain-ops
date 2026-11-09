@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonces in [config.toml](./config.toml) (L1PAO 51,
-FoundationUpgradeSafe 84, SecurityCouncil 78, one above eth/084 U21) and move
+FoundationUpgradeSafe 84, SecurityCouncil 78, one above eth/085, and eth/086 for the FoundationUpgradeSafe) and move
 only if those inputs move.
 
 > [!CAUTION]
@@ -56,7 +56,7 @@ need the two sections above.
 ### Task Calldata
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the L1PAO
-delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
+delegatecalls into `Multicall3` (`0xcA11bde05977b3631167028862bE2a173976CA11`); the Tenderly simulation takes the outer
 `execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
 
 ```
@@ -65,7 +65,7 @@ delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the o
 
 ### Understanding Task Calldata
 
-The task is a single `Multicall3DelegateCall.aggregate3Value` from the L1PAO (selector
+The task is a single `Multicall3.aggregate3Value` from the L1PAO (selector
 `0x174dea71`) containing **6** call(s), each with `allowFailure = false` and
 `value = 0`:
 

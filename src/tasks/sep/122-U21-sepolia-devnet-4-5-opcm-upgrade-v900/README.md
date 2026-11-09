@@ -1,6 +1,6 @@
 # 122-U21-sepolia-devnet-4-5-opcm-upgrade-v900
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x07ae4e6db291ecb95ea1a548dbff917f906b68c57063e1d88c02533b751e44cd)
 
 ## Objective
 
