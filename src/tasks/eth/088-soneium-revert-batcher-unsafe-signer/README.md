@@ -1,6 +1,6 @@
 # 088-soneium-revert-batcher-unsafe-signer
 
-Status: CONTINGENCY TASK, SIGN AS NEEDED
+Status: [CONTINGENCY TASK, SIGN AS NEEDED]
 
 > [!WARNING]
 > Rollback for [086](../086-soneium-set-batcher-unsafe-signer), executed only if the OP Enterprise
