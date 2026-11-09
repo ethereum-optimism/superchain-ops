@@ -53,10 +53,14 @@ Guardian and ProxyAdminOwner are the same Safe. That is expected, not a misconfi
 
 The type-1 game is registered with the placeholder prestate
 `0xdead000000000000000000000000000000000000000000000000000000000000`. A permissioned chain never
-loads the CANNON (0) prestate, and after the upgrade `op-challenger` only needs
-`--cannon-prestate=<any string>`. The value currently on chain is the generic op-program 1.3.1
+loads the CANNON (0) prestate. The value currently on chain is the generic op-program 1.3.1
 cannon32 prestate, which has no chain-1874 configuration and does not fit the v7 MIPS64 VM, so it
 is not a working prestate either way.
+
+**Do not try to pass this hash to op-challenger.** `--cannon-prestate` takes a *path to a prestate
+file*, not a hash (`op-challenger/flags/flags.go:161`: "Path to absolute prestate to use when
+generating trace data"), so `--cannon-prestate=0xdead…` is rejected. On a permissioned chain
+op-challenger needs no prestate flag at all; see the component section below.
 
 Verified on the replica devnet that this value is never loaded in anger, and that swapping it does
 not change the calldata for a disabled game config.
@@ -104,10 +108,13 @@ same-day end-to-end check is wanted.
 
 The L1 upgrade needs no op-node or op-reth change on a permissioned chain. After execution:
 
-- **op-challenger** >= v1.9.3: replace `--prestates-url` with `--cannon-prestate=<placeholder>`
-  (`OP_CHALLENGER_CANNON_PRESTATE`). The type-1 prestate is never loaded.
+- **op-challenger**: go straight to **v1.11.0**, which also covers U20 and U21 and saves two
+  upgrades. On this permissioned chain run it with `--game-types=permissioned`,
+  `--cannon-rollup-config`, `--cannon-l2-genesis` and `--cannon-bin`, and **no prestate flag**.
+  Do not pass `--cannon-prestate=<hash>`: that flag takes a path to a prestate file and rejects a
+  hash. This was hit during the rehearsal.
 - **op-proposer**: unchanged, keeps `--game-type=1`.
-- **op-dispute-mon** >= v1.5.2.
+- **op-dispute-mon**: go straight to **v1.6.4 or newer**, which also covers U20 and U21.
 
 ### Karst, U19's other half
 
