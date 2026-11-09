@@ -159,8 +159,10 @@ USE_KEYSTORE=1 just sign
 SIGNATURES=0x... just execute
 ```
 
-Public Sepolia RPCs are pruned and `just simulate` can fail with `block not found` on very recent
-blocks. Pin `FORK_BLOCK_NUMBER` a few dozen blocks back.
+The RPC does **not** need to be an archive node: the fork is near the head, so only recent state
+is read. Free load-balanced endpoints answer from backends at different heights and can fail with
+`block not found`; if that happens, either use a better endpoint or pin `FORK_BLOCK_NUMBER` a few
+blocks back.
 
 ## Validation
 

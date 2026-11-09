@@ -76,8 +76,9 @@ this branch once ported; their full content, hashes and state diffs are in the g
    and easy to drop by accident when porting. Do not drop it.
 3. **The `0xdead` placeholder prestate is correct for a permissioned chain**, and verified inert:
    on the replica, swapping the value produced byte-identical calldata and identical hashes.
-4. **Public Sepolia RPCs are pruned** and `just simulate` fails with `block not found` on very
-   recent blocks. Pin `FORK_BLOCK_NUMBER` a few dozen blocks back.
+4. **The RPC need not be an archive node**, since the fork is near the head. Free load-balanced
+   endpoints can fail with `block not found` because they answer from backends at different
+   heights; use a better endpoint, or pin `FORK_BLOCK_NUMBER` a few blocks back.
 5. **Keep `lib/superchain-registry` in sync** with the gitlink after any rebase
    (`git submodule update --init lib/superchain-registry`), or simulations go false-green.
 
