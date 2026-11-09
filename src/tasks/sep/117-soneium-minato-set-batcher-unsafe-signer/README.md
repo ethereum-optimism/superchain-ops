@@ -8,7 +8,7 @@ Soneium Minato migration, second cutover step (after the proposer rotation in
 [116](../116-soneium-minato-proposer-rotation)): registers the OP Enterprise batcher and unsafe
 block signer on the **Soneium Minato** (chainId 1946) `SystemConfigProxy` with `setBatcherHash(bytes32)` and
 `setUnsafeBlockSigner(address)`, executed by the SystemConfig owner, the
-[FoundationUpgradeSafe](../../../addresses.toml#L18) (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`).
+[FoundationUpgradeSafe](../../../addresses.toml#L17) (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`).
 
 | Chain | Chain ID | SystemConfigProxy | Field | Change |
 |---|---|---|---|---|
@@ -18,7 +18,7 @@ block signer on the **Soneium Minato** (chainId 1946) `SystemConfigProxy` with `
 The batcher and unsafe block signer public keys are the OP Enterprise signer config: [`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/2b8b8d9469e8611ba7d3dbf3c0f0d6148690656c/kustomize/op-signer/oplabs-prod-ent-testnet-us/tn-soneium-minato-0-op-signer/configmap.yaml#L10-L13) (batcher), [`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/2b8b8d9469e8611ba7d3dbf3c0f0d6148690656c/kustomize/op-signer/oplabs-prod-ent-testnet-us/tn-soneium-minato-0-op-signer/configmap.yaml#L22-L25) (sequencer).
 
 > [!IMPORTANT]
-> The FoundationUpgradeSafe becomes the SystemConfig owner through a `transferOwnership` the current owner executes from its own Safe, outside this repo. Until that lands, [config.toml](./config.toml) overrides `SystemConfig.owner()` (slot `0x33`) to the FoundationUpgradeSafe for simulation; the override is a no-op once it has landed.
+> The current SystemConfig owner already transferred ownership to the FoundationUpgradeSafe outside this repo. The `SystemConfig.owner()` override (slot `0x33`) in [config.toml](./config.toml) is a no-op.
 
 ## Simulation & Signing
 

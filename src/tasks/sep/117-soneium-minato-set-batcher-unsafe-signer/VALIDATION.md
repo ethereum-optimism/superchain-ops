@@ -49,7 +49,7 @@ need the two sections above.
 ### Task Calldata
 
 The inner `aggregate3Value` payload, for decoding and verification. It is what the FoundationUpgradeSafe
-delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the outer
+delegatecalls into `Multicall3` (`0xcA11bde05977b3631167028862bE2a173976CA11`); the Tenderly simulation takes the outer
 `execTransaction` wrapper printed by `just simulate-stack` (see step 2 above).
 
 ```
@@ -58,7 +58,7 @@ delegatecalls into `Multicall3DelegateCall`; the Tenderly simulation takes the o
 
 ### Understanding Task Calldata
 
-The task is a single `Multicall3DelegateCall.aggregate3Value` from the FoundationUpgradeSafe (selector
+The task is a single `Multicall3.aggregate3Value` from the FoundationUpgradeSafe (selector
 `0x174dea71`) containing **2** call(s), each with `allowFailure = false` and
 `value = 0`:
 
@@ -89,7 +89,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 RPC=https://ethereum-sepolia-rpc.publicnode.com
 
 cast call 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B "nonce()(uint256)" -r $RPC   # 84
-cast call 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B (after the Safe UI transfer)
+cast call 0x4Ca9608Fef202216bc21D543798ec854539bAAd3 "owner()(address)" -r $RPC   # 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
 ```
 
 Then execute with the collected signatures:
@@ -111,9 +111,9 @@ SIGNATURES=0x... just execute
 - **Key:** `0x65a7ed542fb37fe237fdfbdd70b31598523fe5b32879e307bae27a0bd9581c08`
   - **Before:** `0x00000000000000000000000055930859cd7003f32a2ba171297408476532e535`
   - **After:**  `0x000000000000000000000000a657d31425bc40068032ec4433d781099ed9ee3f`
-  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner") - 1`).
+  - **Summary:** `unsafeBlockSigner` (`keccak256("systemconfig.unsafeblocksigner")`).
 
-The slot `0x33` owner value is a state override standing in for the Safe UI transfer, not a change made by this task.
+The slot `0x33` owner value matches the on-chain owner; the override in [config.toml](./config.toml) is a no-op, not a change made by this task.
 
 #### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (FoundationUpgradeSafe)
 
