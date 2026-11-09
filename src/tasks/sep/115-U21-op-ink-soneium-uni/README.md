@@ -1,6 +1,6 @@
 # 115-U21-op-ink-soneium-uni
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xc6e770ee6cf88566dfef0e7113d5ce4423cdc80f1ee2f090b91e027e652b925b)
 
 ## Objective
 
