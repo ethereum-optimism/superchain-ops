@@ -116,8 +116,9 @@ SuperchainConfig, absent from the registry, 1-of-1 Safe. Review it alongside thi
 2. **Refresh [addresses.json](./addresses.json) after U19**, which deploys a new DelayedWETH proxy
    and leaves the old unreferenced. Running against a stale address fails with
    `MultisigTask: address UNLABELED @<new proxy> not in allowed storage accesses`.
-3. **Pin `FORK_BLOCK_NUMBER`** if `just simulate` fails with `block not found`; public Sepolia RPCs
-   are pruned.
+3. **The RPC need not be an archive node**, since the fork is near the head. If `just simulate`
+   fails with `block not found`, the endpoint is load-balanced across backends at different
+   heights; use a better one, or pin `FORK_BLOCK_NUMBER` a few blocks back.
 4. On the replica the guessed `expectedValidationErrors`, copied from sep/123, proved correct
    unchanged. Still re-read it from a real simulation rather than trusting that.
 
