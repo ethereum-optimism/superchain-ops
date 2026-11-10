@@ -4,7 +4,8 @@
 /src                @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety @Wazabie @sbvegan
 /src/tasks/sep      @ethereum-optimism/solutions @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety @Wazabie @sbvegan
 
-# GitHub Actions
+# GitHub Actions inputs
 /.github/workflows/ @ethereum-optimism/cloud-security
 /.github/actions/   @ethereum-optimism/cloud-security
+/.github/scripts/   @ethereum-optimism/cloud-security
 /.github/CODEOWNERS @ethereum-optimism/cloud-security
