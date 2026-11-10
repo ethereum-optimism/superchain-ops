@@ -3,3 +3,8 @@
 /runbooks           @ethereum-optimism/solutions @ethereum-optimism/evm-safety @Wazabie @sbvegan
 /src                @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety @Wazabie @sbvegan
 /src/tasks/sep      @ethereum-optimism/solutions @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety @Wazabie @sbvegan
+
+# GitHub Actions
+/.github/workflows/ @ethereum-optimism/cloud-security
+/.github/actions/   @ethereum-optimism/cloud-security
+/.github/CODEOWNERS @ethereum-optimism/cloud-security
