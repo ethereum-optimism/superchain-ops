@@ -1,6 +1,6 @@
 # 117-soneium-minato-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x6060f9761813e41831944c97b8482e070e17bfafd027ec9f970b7b4c3f9d89af)
 
 ## Objective
 
