@@ -6,9 +6,8 @@ templateName = "OPCMUpgradeV900"
 # current super-root anchor and its existing ETHLockbox (all four already have one, so no ETH
 # moves). Executed by the standard Mainnet L1PAO.
 #
-# Sequencing: first pending task on all three safes. eth/082 and eth/083 were cancelled, so this
-# task uses the next live nonce on each safe, and OP Mainnet's SUPER_PERMISSIONED (5) proposer is
-# the live one (0x473300df21D047806A082244b417f96b32f13A33), carried forward unchanged.
+# Sequencing: stacked after eth/082 (one FoundationUpgradeSafe nonce) and eth/083 (one L1PAO,
+# FoundationUpgradeSafe and SecurityCouncil nonce each).
 
 l2chains = [
     {name = "OP Mainnet", chainId = 10},
@@ -67,17 +66,17 @@ ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 "0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 "0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
-# Safe nonces pinned to the live values on 2026-11-12 (L1PAO 48, FoundationUpgradeSafe 79,
-# SecurityCouncil 75); no pending task precedes this one after eth/082 and eth/083 were cancelled.
-# Re-verify with `cast call <safe> "nonce()(uint256)" -r mainnet` and regenerate the
+# Safe nonces pinned to the live values on 2026-11-03 (L1PAO 48, FoundationUpgradeSafe 79,
+# SecurityCouncil 75) plus the pending stack (eth/082: +1 FoundationUpgradeSafe; eth/083: +1 on
+# all three). Re-verify with `cast call <safe> "nonce()(uint256)" -r mainnet` and regenerate the
 # VALIDATION.md hashes if drifted.
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 48}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 49}
 ]
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 79}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 81}
 ]
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 75}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
 ]

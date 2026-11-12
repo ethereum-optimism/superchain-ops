@@ -7,7 +7,7 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the pinned nonce in [config.toml](./config.toml) (FoundationUpgradeSafe
-81, one above eth/084 U21 and eth/085), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
+80, one above eth/085), with the SystemConfig owner set to the FoundationUpgradeSafe and move only if those inputs move.
 
 > [!CAUTION]
 >
@@ -16,9 +16,9 @@ ledger and the values printed to the terminal when you run the task. The hashes 
 > ### FoundationUpgradeSafe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x3c82f3579c516c430318584fac1048d44ddbace7866f6977381571cb28a4f0ae`
+> - Message Hash: `0xdcb360b8b7bc13f80e75c40d0d7ad844379aff0450ded4084e91538c68ff11ad`
 
-Safe transaction hash: `0x248dca960b17f5add89b2ed0ce3ad82c45b3200d9987fffe49708439b2580008`
+Safe transaction hash: `0x4383a575b867e260d0282c22b544f0be7516971b3ef9d4b0aa3672fbe8ea0be1`
 
 ## For Signers
 
@@ -88,7 +88,7 @@ cast calldata-decode "aggregate3Value((address,bool,uint256,bytes)[])" <task cal
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 81
+cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # 80
 cast call 0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3 "owner()(address)" -r $RPC   # 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (after the Safe UI transfer)
 ```
 
@@ -118,7 +118,7 @@ The slot `0x33` owner value is a state override standing in for the Safe UI tran
 #### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationUpgradeSafe)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Before:** `81` → **After:** `82`
+  - **Before:** `80` → **After:** `81`
   - **Summary:** nonce increment of the Safe executing the task. The before-value reflects the
     nonce state override in [config.toml](./config.toml).
 

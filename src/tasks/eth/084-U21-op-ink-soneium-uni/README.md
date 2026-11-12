@@ -1,6 +1,6 @@
 # 084-U21-op-ink-soneium-uni
 
-Status: [READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 
