@@ -428,8 +428,8 @@ contract RegressionTest is Test {
     /// @notice Expected call data and data to sign for the OPCMMigrateV900 template at block 12057300 on sepolia,
     /// migrating Unichain Sepolia and OP Sepolia onto a shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry
     /// with the op-contracts/v9.0.0-rc.1 OPCM 0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc.
-    /// The test stacks the tasks in production order: the v9 upgrade (045) executes first and this task is built on
-    /// the resulting state. CI's simulate-all-templates simulates the fixture the same way, stacked on 045
+    /// The test stacks the tasks in production order: the v9 upgrade (046) executes first and this task is built on
+    /// the resulting state. CI's simulate-all-templates simulates the fixture the same way, stacked on 046
     /// (DEPENDS_ON in the fixture's .env). The data-to-sign values reflect the safe nonces after the upgrade executed.
     function testRegressionCallDataMatches_OPCMMigrateV900_Sepolia() public {
         string memory taskConfigFilePath = "test/tasks/example/sep/047-opcm-migrate-v900/config.toml";
@@ -442,7 +442,7 @@ contract RegressionTest is Test {
         // Execute the v9 upgrade first, as production will.
         vm.createSelectFork("sepolia", 12057300);
         _simulateOnCurrentFork(
-            "test/tasks/example/sep/045-opcm-upgrade-v900/config.toml", new OPCMUpgradeV900(), allSafes
+            "test/tasks/example/sep/046-opcm-upgrade-v900/config.toml", new OPCMUpgradeV900(), allSafes
         );
 
         MultisigTask multisigTask = new OPCMMigrateV900();

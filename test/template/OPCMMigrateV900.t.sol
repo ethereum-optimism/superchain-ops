@@ -20,13 +20,13 @@ interface ISystemConfigFeatures {
 }
 
 /// @notice Runs the 047 example task end to end on a Sepolia fork, against the v9 OPCM the example points at. Both
-/// chains are on 8.0.1 at FORK_BLOCK_NUMBER, so setUp first simulates the 045 example, which upgrades them with that
+/// chains are on 8.0.1 at FORK_BLOCK_NUMBER, so setUp first simulates the 046 example, which upgrades them with that
 /// OPCM, as production stacks the two tasks.
 contract OPCMMigrateV900Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
 
     string constant CONFIG = "test/tasks/example/sep/047-opcm-migrate-v900/config.toml";
-    string constant UPGRADE_CONFIG = "test/tasks/example/sep/045-opcm-upgrade-v900/config.toml";
+    string constant UPGRADE_CONFIG = "test/tasks/example/sep/046-opcm-upgrade-v900/config.toml";
     uint256 internal constant FORK_BLOCK_NUMBER = 12_057_300;
 
     address internal constant OPCM = 0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc;

@@ -9,7 +9,7 @@
 #
 # migrate() requires both chains and the SuperchainConfig to be on the OPCM's release. Both chains report
 # lastUsedOPCMVersion 8.0.1 at FORK_BLOCK_NUMBER, so this fixture only makes sense on the state left by
-# 045-opcm-upgrade-v900, which upgrades them with the same OPCM. It is always simulated stacked on it
+# 046-opcm-upgrade-v900, which upgrades them with the same OPCM. It is always simulated stacked on it
 # (DEPENDS_ON in the .env), mirroring production.
 #
 # l2chains must be in strictly ascending chainId order (migrate reverts otherwise). The first chain's
@@ -48,7 +48,7 @@ superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, same as the chains' curr
 # op-contracts/v9.0.0-rc.1 OPCM listed in superchain-registry validation/standard/standard-versions-sepolia.toml.
 # `OPCM.version()` returns "9.0.3"; `OPCM.opcmStandardValidator()` returns
 # 0x960b74063a735720315F1238F2e1E27437d936a7 (OPContractsManagerStandardValidator 4.1.1).
-# Must be the OPCM 045-opcm-upgrade-v900 upgrades the chains with. A real task must use the OPCM listed for the
+# Must be the OPCM 046-opcm-upgrade-v900 upgrades the chains with. A real task must use the OPCM listed for the
 # final op-contracts/v9.0.0 release.
 OPCM = "0x160f0FE4dC1B3f4026687e8dD4b7F800879939Cc"
 # Root-safe pin: the registry pin still records Unichain Sepolia's pre-transfer ProxyAdminOwner
