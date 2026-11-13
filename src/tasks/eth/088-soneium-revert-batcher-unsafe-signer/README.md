@@ -5,7 +5,7 @@ Status: [CONTINGENCY TASK, SIGN AS NEEDED]
 > [!WARNING]
 > Rollback for [086](../086-soneium-set-batcher-unsafe-signer), executed only if the OP Enterprise
 > sequencer or batcher has to be handed back to Sony after the cutover. It is not part of
-> the planned sequence, because it shares FoundationUpgradeSafe nonce 84 with the foundation
+> the planned sequence, because it shares FoundationUpgradeSafe nonce 82 with the foundation
 > approval of [087](../087-soneium-fee-vault): only one of the two can execute. Execute 087 only once
 > the cutover is confirmed; if this rollback executes instead, 087 and every later FoundationUpgradeSafe
 > task move up by one nonce and are re-signed. There is no rollback for the proposer
