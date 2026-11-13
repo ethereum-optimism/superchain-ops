@@ -1,0 +1,27 @@
+l2chains = [
+    {name = "sepolia-devnet-4", chainId = 420130019},
+    {name = "sepolia-devnet-5", chainId = 420130020}
+]
+
+templateName = "OPCMMigrateV900"
+fallbackAddressesJsonPath = "src/tasks/sep/125-sepolia-devnet-4-5-opcm-migrate-v900/addresses.json"
+skipOPCMVersionCheck = false
+
+[opcmMigrate]
+# TODO: placeholder until a cannon64-kona-interop prestate embeds devnet-4 and -5 as one dependency set.
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead"
+expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG,SYSCON-130", "OVERRIDES-L1PAOMULTISIG,SYSCON-130"]
+expectedValidationErrors = "MIG-SLOCKBOX-40,MIG-CHAIN-0-130,MIG-CHAIN-1-130"
+proposer = "0xb48bc615daf5e62ea4069adfaba17dc8c766f511"
+startingAnchorRootRoot = "0xfd29a5416d438ba802ab34790e25afd47f55dd02e4b6722f1ade06fe967676db"
+startingAnchorRootL2SequenceNumber = 1794514637
+startingRespectedGameType = 5 # SUPER_PERMISSIONED; switch to 9 once the real Kona prestate is set
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
+
+[addresses]
+OPCM = "0x160f0fe4dc1b3f4026687e8dd4b7f800879939cc"
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [ # staging ProxyAdminOwner
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 157}
+]
