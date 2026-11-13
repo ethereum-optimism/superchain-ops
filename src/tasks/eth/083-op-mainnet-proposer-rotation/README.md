@@ -1,6 +1,6 @@
 # 083-op-mainnet-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # 089-op-mainnet-set-unsafe-signer
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 
