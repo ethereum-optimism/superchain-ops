@@ -473,6 +473,15 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
             - circleci-repo-rpc-secrets
 
+      # Stacked simulations for OP Labs devnets on Sepolia (src/tasks/sep-devnets).
+      - stacked_simulation:
+          name: stacked_simulation_sep_devnets
+          network: "sep-devnets"
+          mentions: "<!subteam^S07F1JJ80BW>"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+            - circleci-repo-rpc-secrets
+
   close-issue-workflow:
     when:
       and:

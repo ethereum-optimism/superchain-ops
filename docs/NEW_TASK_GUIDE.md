@@ -20,7 +20,8 @@ Tasks are organized by network in the following structure:
 ```
 src/tasks/
 ├── eth/    # Ethereum mainnet tasks (Task developers create tasks here)
-└── sep/    # Sepolia testnet tasks (Task developers create tasks here)
+├── sep/    # Sepolia testnet tasks (Task developers create tasks here)
+└── sep-devnets/  # OP Labs devnet tasks on Sepolia (see src/tasks/sep-devnets/README.md)
 ```
 
 ### Task Naming Convention

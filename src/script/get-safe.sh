@@ -51,10 +51,11 @@ lookup_safe_address() {
 case "$TASK_PATH" in
     *"/eth/"*) network="eth" ;;
     *"/sep/"*) network="sep" ;;
+    *"/sep-devnets/"*) network="sep" ;; # Sepolia L1: same [sep] table in addresses.toml
     *"/opsep/"*) network="opsep" ;;
     *"/oeth/"*) network="oeth" ;;
     *)
-        echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/ or /opsep/" >&2
+        echo "Error (get-safe.sh): Task path must contain one of /eth/, /sep/, /sep-devnets/, /oeth/ or /opsep/" >&2
         exit 1
         ;;
 esac
