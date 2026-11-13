@@ -104,6 +104,37 @@ contract OPCMUpgradeV900SetupValidationTest is Test {
         assertEq(harness.chainsToUpgrade(0), 1301);
     }
 
+    /// @dev `proposerOverrides` replaces the chain's current proposer in the SUPER_PERMISSIONED game args.
+    function test_proposer_override_is_loaded() public {
+        string memory config = _edit(
+            vm.readFile(CONFIG),
+            'templateName = "OPCMUpgradeV900"',
+            'templateName = "OPCMUpgradeV900"\nproposerOverrides = [{chainId = 1301, proposer = "0x00000000000000000000000000000000000000Aa"}]'
+        );
+        OPCMUpgradeV900SetupHarness harness = new OPCMUpgradeV900SetupHarness();
+        harness.setupForTest(_write("proposer-override", config));
+        assertEq(harness.proposerOverrides(1301), address(0xAa));
+        assertEq(harness.proposerOverrides(11155420), address(0));
+    }
+
+    function test_rejects_zero_proposer_override() public {
+        _assertSetupReverts(
+            "proposer-override-zero",
+            'templateName = "OPCMUpgradeV900"',
+            'templateName = "OPCMUpgradeV900"\nproposerOverrides = [{chainId = 1301, proposer = "0x0000000000000000000000000000000000000000"}]',
+            "OPCMUpgradeV900: proposer override is zero"
+        );
+    }
+
+    function test_rejects_proposer_override_for_unknown_chain() public {
+        _assertSetupReverts(
+            "proposer-override-unknown-chain",
+            'templateName = "OPCMUpgradeV900"',
+            'templateName = "OPCMUpgradeV900"\nproposerOverrides = [{chainId = 10, proposer = "0x00000000000000000000000000000000000000Aa"}]',
+            "OPCMUpgradeV900: proposer override for unknown chain"
+        );
+    }
+
     function test_rejects_non_super_starting_respected_game_type() public {
         _assertSetupReverts(
             "cannon-kona-respected",
