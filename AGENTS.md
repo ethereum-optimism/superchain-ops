@@ -40,6 +40,8 @@ signing.
 
 - `src/tasks/eth/` — Ethereum mainnet tasks.
 - `src/tasks/sep/` — Sepolia testnet tasks.
+- `src/tasks/sep-devnets/` — OP Labs devnet tasks on Sepolia (see
+  [`src/tasks/sep-devnets/README.md`](src/tasks/sep-devnets/README.md)).
 - `src/template/` — reusable Solidity templates for tasks.
 - `src/script/` — Foundry scripts and helpers.
 - `test/` — Foundry tests, including the template regression suite.

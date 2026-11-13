@@ -21,7 +21,8 @@ superchain-ops/
       ├── template/     # Solidity template contracts (Template developers create templates here)
       └── tasks/        # Network-specific tasks
           ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
-          └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
+          ├── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
+          └── sep-devnets/  # OP Labs devnet tasks on Sepolia
 
 ```
 

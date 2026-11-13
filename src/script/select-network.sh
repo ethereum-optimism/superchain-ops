@@ -3,7 +3,7 @@
 # This is a list of supported networks.
 # If you want the CLI to support more networks, add them here.
 get_supported_networks() {
-    echo "eth sep oeth opsep"
+    echo "eth sep sep-devnets oeth opsep"
 }
 
 select_network() {
