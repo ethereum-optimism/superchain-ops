@@ -37,6 +37,17 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         uint32 startingRespectedGameType;
     }
 
+    /// @notice Optional per-chain SUPER_PERMISSIONED proposer, from `[[proposerOverrides]]`.
+    /// @dev Fields must remain in alphabetical order for TOML decoding.
+    struct ProposerOverride {
+        uint256 chainId;
+        address proposer;
+    }
+
+    /// @notice Proposer the upgrade sets in the SUPER_PERMISSIONED game args instead of carrying
+    /// the chain's current one forward. Zero means no override.
+    mapping(uint256 => address) public proposerOverrides;
+
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     uint256[] public chainsToUpgrade;
     mapping(uint256 => OPCMUpgrade) public upgrades;
@@ -158,6 +169,23 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
+        // Optional: rotate a chain's SUPER_PERMISSIONED proposer as part of the upgrade.
+        if (tomlContent.keyExists(".proposerOverrides")) {
+            ProposerOverride[] memory _overrides =
+                abi.decode(tomlContent.parseRaw(".proposerOverrides"), (ProposerOverride[]));
+            for (uint256 i = 0; i < _overrides.length; i++) {
+                uint256 chainId = _overrides[i].chainId;
+                require(upgrades[chainId].chainId != 0, "OPCMUpgradeV900: proposer override for unknown chain");
+                require(_overrides[i].proposer != address(0), "OPCMUpgradeV900: proposer override is zero");
+                require(proposerOverrides[chainId] == address(0), "OPCMUpgradeV900: duplicate proposer override");
+                require(
+                    _overrides[i].proposer != superchainAddrRegistry.getAddress("Proposer", chainId),
+                    "OPCMUpgradeV900: proposer override equals the chain's current proposer"
+                );
+                proposerOverrides[chainId] = _overrides[i].proposer;
+            }
+        }
+
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
         require(superchainConfig != address(0), "OPCMUpgradeV900: SuperchainConfig not found");
         require(superchainConfig.code.length > 0, "OPCMUpgradeV900: SuperchainConfig has no code");
@@ -268,6 +296,13 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
         address proposer;
     }
 
+    /// @notice Proposer the upgrade sets for a chain: the config override if present, otherwise
+    /// the chain's current proposer.
+    function _proposer(uint256 chainId) internal view returns (address) {
+        address proposer = proposerOverrides[chainId];
+        return proposer != address(0) ? proposer : superchainAddrRegistry.getAddress("Proposer", chainId);
+    }
+
     /// @notice Builds a single DisputeGameConfig entry.
     /// @dev SUPER_PERMISSIONED (gt=5) uses the simplified super game: proposer-only args
     /// (no prestate, no challenger) and the OPCM requires its initBond to be zero.
@@ -301,7 +336,7 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
     {
         GameConfigAddrs memory a = GameConfigAddrs({
             factory: IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId)),
-            proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
+            proposer: _proposer(chainId)
         });
 
         bytes32 cannonKonaPre = Claim.unwrap(upgrades[chainId].cannonKonaPrestate);
@@ -438,7 +473,7 @@ contract OPCMUpgradeV900 is OPCMTaskBase {
                 cannonPrestate: bytes32(0),
                 cannonKonaPrestate: Claim.unwrap(upgrades[chainId].cannonKonaPrestate),
                 l2ChainID: chainId,
-                proposer: superchainAddrRegistry.getAddress("Proposer", chainId)
+                proposer: _proposer(chainId)
             });
 
             // Compute overrides: non-zero only if chain differs from standard. Chains arriving

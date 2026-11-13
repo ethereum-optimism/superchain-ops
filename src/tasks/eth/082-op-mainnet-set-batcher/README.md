@@ -1,6 +1,6 @@
 # 082-op-mainnet-set-batcher
 
-Status: [READY TO SIGN]
+Status: [CANCELLED]
 
 ## Objective
 

@@ -26,7 +26,11 @@ On every chain the upgrade moves `SystemConfig` to 4.3.0, `OptimismPortal2` to 6
 SUPER_PERMISSIONED (5, bondless, proposer-only) on every chain and SUPER_CANNON_KONA (9,
 0.08 ETH bond) with the U21 prestate on OP Mainnet, Ink and Unichain, and carries each chain's
 current super-root anchor forward. Soneium has no SUPER_CANNON_KONA implementation to carry
-over, so it stays permissioned on SUPER_PERMISSIONED. All four chains already have an
+over, so it stays permissioned on SUPER_PERMISSIONED. On OP Mainnet the re-registration also
+rotates the SUPER_PERMISSIONED proposer from `0x473300df21D047806A082244b417f96b32f13A33` to the
+OP Enterprise proposer `0xc27ba3E0Fc01567a5E57Ae0c391AA98cECBA5bE0`
+([`op-signer` configmap](https://github.com/ethereum-optimism/k8s-netchef-prod/blob/6862432f96e9fe4891d2b728dfc38a9b3a3417e3/kustomize/op-signer/oplabs-prod-ent-mainnet-eu/mn-op-mainnet-0-op-signer/configmap.yaml#L14-L17));
+the other chains keep their current proposer. All four chains already have an
 `ETHLockbox` wired to their portal, so no ETH moves and the chain-specific pause identifier is
 unchanged.
 

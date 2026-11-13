@@ -7,8 +7,8 @@ transaction which you are signing.
 
 Validate the domain and message hashes. These values should match both the values on your
 ledger and the values printed to the terminal when you run the task. The hashes assume the
-pinned nonces in [config.toml](./config.toml) (L1PAO 49, FoundationUpgradeSafe 81,
-SecurityCouncil 76, i.e. after eth/082 and eth/083 execute) and move if those nonces or
+pinned nonces in [config.toml](./config.toml) (L1PAO 48, FoundationUpgradeSafe 79,
+SecurityCouncil 75) and move if those nonces or
 the calldata change.
 
 > [!CAUTION]
@@ -18,15 +18,15 @@ the calldata change.
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x5d7e4d52b38dec49259ee684b853796fb1f836921f06819ce3a4eb75f93516fc`
+> - Message Hash: `0x04b80482e20a5628ce6e862e99c0c7d52763ea86e067293cb8c208ddb325a912`
 >
 > ### Security Council (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x8e5ed9a2bb208befa0ac3e291d38fcad708b1152113332782f2035c30fcf04cc`
+> - Message Hash: `0xf981d88151db4c0b2aeb047315e36dc927caf70f7c35e68a50ef481926d50a99`
 
 Safe transaction hash (root safe):
-`0x9f8776e8f008d7bace2b503bf0d4c7341bb17e337600512850f7ff7e996c0cd9`
+`0x02cf3fe098dbf48f8ca08d4a645fa021edbab9c4bbf80a6c51477bef08263ba2`
 
 ## For Signers
 
@@ -81,8 +81,10 @@ Each `upgrade` call carries the chain's `SystemConfigProxy`, six game configs in
 order 0, 1, 8, 5, 9, 10 and two extra instructions: `overrides.cfg.startingRespectedGameType`
 (ABI-encoded `9`, or `5` for Soneium) and `PermittedProxyDeployment` (raw `ETHLockbox`; a
 no-op here, every chain already has a lockbox). Game types 0, 1, 8 and 10 are disabled
-(`enabled = false`, zero bond, empty args). Game 5 is enabled with the chain's registry
-`Proposer` as its only argument and no bond; game 9 is enabled with the prestate and a
+(`enabled = false`, zero bond, empty args). Game 5 is enabled with the chain's current
+proposer as its only argument and no bond (on OP Mainnet the new proposer from
+`proposerOverrides` in [config.toml](./config.toml), replacing
+`0x473300df21D047806A082244b417f96b32f13A33`); game 9 is enabled with the prestate and a
 0.08 ETH bond on OP Mainnet, Ink and Unichain, and disabled on Soneium.
 
 | Chain | SystemConfigProxy | Game 5 args (proposer) | Game 9 |
@@ -117,7 +119,7 @@ Before approving, confirm the live state still matches the assumptions in
 ```bash
 RPC=https://ethereum-rpc.publicnode.com
 
-# eth/082 and eth/083 must have executed. Nonces must equal the pins (49 / 81 / 76); if not,
+# Nonces must equal the pins (48 / 79 / 75); if not,
 # re-simulate and regenerate the hashes.
 cast call 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A "nonce()(uint256)" -r $RPC   # L1PAO
 cast call 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 "nonce()(uint256)" -r $RPC   # FoundationUpgradeSafe
