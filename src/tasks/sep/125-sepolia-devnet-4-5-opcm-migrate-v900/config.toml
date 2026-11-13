@@ -8,7 +8,7 @@ fallbackAddressesJsonPath = "src/tasks/sep/125-sepolia-devnet-4-5-opcm-migrate-v
 skipOPCMVersionCheck = false
 
 [opcmMigrate]
-cannonKonaPrestate = "0x03384d2c48f1a0433cf9c7ce4ce52a3ba9059c71efece50a17d965a9dc039ea0"
+cannonKonaPrestate = "0x03db2e9bdc15db95cb3a13bb695ae237d7d57dec409120e6e25a76e3873f16c9"
 expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG,SYSCON-130", "OVERRIDES-L1PAOMULTISIG,SYSCON-130"]
 expectedValidationErrors = "MIG-SLOCKBOX-40,MIG-CHAIN-0-130,MIG-CHAIN-1-130"
 proposer = "0xb48bc615daf5e62ea4069adfaba17dc8c766f511"
