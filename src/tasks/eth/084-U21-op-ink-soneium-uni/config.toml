@@ -6,8 +6,7 @@ templateName = "OPCMUpgradeV900"
 # current super-root anchor and its existing ETHLockbox (all four already have one, so no ETH
 # moves). Executed by the standard Mainnet L1PAO.
 #
-# Sequencing: stacked after eth/082 (one FoundationUpgradeSafe nonce) and eth/083 (one L1PAO,
-# FoundationUpgradeSafe and SecurityCouncil nonce each).
+# OP Mainnet's SUPER_PERMISSIONED proposer is rotated by this upgrade (see proposerOverrides).
 
 l2chains = [
     {name = "OP Mainnet", chainId = 10},
@@ -52,6 +51,12 @@ expectedValidationErrors = ""
 initBond = 80000000000000000
 startingRespectedGameType = 9
 
+# OP Mainnet SUPER_PERMISSIONED proposer set by the upgrade: 0x473300df21D047806A082244b417f96b32f13A33
+# -> the OP Enterprise proposer. Part of the signed calldata.
+[[proposerOverrides]]
+chainId = 10
+proposer = "0xc27ba3E0Fc01567a5E57Ae0c391AA98cECBA5bE0"
+
 [addresses]
 # op-contracts/v9.0.0 OPCM, version 9.0.3 (deployed from v9.0.0-rc.1; the final tag is the same commit,
 # ba6fcad, so it was not redeployed) (superchain-registry standard-versions-mainnet.toml,
@@ -66,17 +71,16 @@ ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 "0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 "0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
 
-# Safe nonces pinned to the live values on 2026-11-03 (L1PAO 48, FoundationUpgradeSafe 79,
-# SecurityCouncil 75) plus the pending stack (eth/082: +1 FoundationUpgradeSafe; eth/083: +1 on
-# all three). Re-verify with `cast call <safe> "nonce()(uint256)" -r mainnet` and regenerate the
+# Safe nonces pinned to the live values on 2026-11-12 (L1PAO 48, FoundationUpgradeSafe 79,
+# SecurityCouncil 75). Re-verify with `cast call <safe> "nonce()(uint256)" -r mainnet` and regenerate the
 # VALIDATION.md hashes if drifted.
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 49}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 48}
 ]
 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 81}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 79}
 ]
 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
-    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 75}
 ]
