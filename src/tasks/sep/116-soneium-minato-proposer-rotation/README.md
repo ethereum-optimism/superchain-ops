@@ -1,6 +1,6 @@
 # 116-soneium-minato-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xecb243d6dd2ecb6ddd847074af7e55d2fc0647902c11b345c312c59b1ddcd1e9)
 
 ## Objective
 

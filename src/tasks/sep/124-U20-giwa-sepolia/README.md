@@ -1,6 +1,6 @@
 # 124-U20-giwa-sepolia
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x59ef077b02a92abecf165fe6588f30f89937197632699271fd505284d3002dde)
 
 ## Objective
 

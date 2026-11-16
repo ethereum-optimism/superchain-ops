@@ -1,6 +1,6 @@
 # 118-soneium-minato-fee-vault
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x0448de17f9c2ed8630c576e31b17af8ca636251ab02c916486f1b85d7f13db08)
 
 ## Objective
 
