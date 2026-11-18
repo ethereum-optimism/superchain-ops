@@ -1,15 +1,14 @@
 templateName = "OPCMUpgradeV1000"
 
 skipOPCMVersionCheck = false
-skipPrestateRegistryCheckChainIds = [] # TODO_STAGING_CHAIN_IDS (devnet-4, devnet-5)
-fallbackAddressesJsonPath = "src/tasks/sep/126-U22-sepolia-devnet-2-3-4-5-opcm-upgrade-v1000/addresses.json" # TODO_STAGING_ADDRESSES_JSON (redeployed devnet-4/-5)
+skipPrestateRegistryCheckChainIds = [420130023, 420130024]
+fallbackAddressesJsonPath = "src/tasks/sep/126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/addresses.json" # TODO_STAGING_ADDRESSES_JSON (stg-op-replica, stg-uni-replica: not in the registry)
 
-# TODO_STAGING_CHAIN_ID: chain IDs of the redeployed devnet-4/-5.
 l2chains = [
     {name = "sepolia-devnet-2", chainId = 420130015},
     {name = "sepolia-devnet-3", chainId = 420130018},
-    {name = "sepolia-devnet-4", chainId = 0},
-    {name = "sepolia-devnet-5", chainId = 0}
+    {name = "stg-op-replica", chainId = 420130023},
+    {name = "stg-uni-replica", chainId = 420130024}
 ]
 
 [[opcmUpgrades]]
@@ -41,8 +40,8 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_DEVNET_4_PRESTATE
-chainId = 0 # TODO_STAGING_CHAIN_ID
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_OP_REPLICA_PRESTATE
+chainId = 420130023
 expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
 startingRespectedGameType = 9
 superCannonKonaEnabled = true
@@ -55,8 +54,8 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_DEVNET_5_PRESTATE
-chainId = 0 # TODO_STAGING_CHAIN_ID
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_UNI_REPLICA_PRESTATE
+chainId = 420130024
 expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
 startingRespectedGameType = 9
 superCannonKonaEnabled = true

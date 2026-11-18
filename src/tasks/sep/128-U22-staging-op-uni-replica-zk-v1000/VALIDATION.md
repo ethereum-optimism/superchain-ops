@@ -28,8 +28,8 @@ Safe transaction hash (root safe): `TODO_SAFE_TX_HASH`
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/127-U22-sepolia-devnet-4-5-opcm-migrate-v1000
-just simulate-stack sep 127-U22-sepolia-devnet-4-5-opcm-migrate-v1000
+cd src/tasks/sep/128-U22-staging-op-uni-replica-zk-v1000
+just simulate-stack sep 128-U22-staging-op-uni-replica-zk-v1000
 ```
 
 ## Calldata
