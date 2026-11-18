@@ -1,0 +1,14 @@
+templateName = "SetReviewPeriodDelays"
+
+l2chains = [
+    {name = "TODO_TESTNET_NAME", chainId = 0} # TODO_TESTNET_CHAIN_ID
+]
+
+fallbackAddressesJsonPath = "src/tasks/sep/132-testnet-1-day-withdrawals/addresses.json" # TODO_ADDRESSES_JSON (drop if registry-listed)
+
+[delays]
+proofMaturityDelaySeconds = 86400 # 1 day
+disputeGameFinalityDelaySeconds = 86400 # 1 day
+withdrawalDelaySeconds = 86400 # 1 day (DelayedWETH)
+
+# TODO_PAO_NONCE: pin the root safe nonce once the testnet is deployed.

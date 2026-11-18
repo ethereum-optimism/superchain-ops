@@ -1,0 +1,85 @@
+templateName = "OPCMUpgradeV1000"
+
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Ink Sepolia", chainId = 763373},
+    {name = "Soneium Testnet Minato", chainId = 1946},
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+chainId = 11155420
+expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+chainId = 763373
+expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+chainId = 1946
+expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+chainId = 1301
+expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[addresses]
+OPCM = "0xdead00000000000000000000000000000000dead" # TODO_U22_OPCM_ADDRESS (op-contracts/v10.0.0, standard-versions-sepolia.toml)
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+"0x4Ca9608Fef202216bc21D543798ec854539bAAd3" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 62}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 86}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+]
