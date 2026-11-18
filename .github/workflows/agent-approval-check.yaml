@@ -16,4 +16,4 @@ permissions:
 
 jobs:
   agent-approval-check:
-    uses: ethereum-optimism/factory/.github/workflows/agent-approval-check.yaml@cbc049cd7e7fdd7f25524fa681e47aab7f98c2a5
+    uses: ethereum-optimism/factory/.github/workflows/agent-approval-check.yaml@d22ac8e13c80920bb61d8f9898319ae1bfb7ebc7
