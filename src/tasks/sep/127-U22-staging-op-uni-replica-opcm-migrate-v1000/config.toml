@@ -1,6 +1,7 @@
 templateName = "OPCMMigrateV1000"
 
 skipOPCMVersionCheck = false
+skipPrestateRegistryCheckChainIds = [420130023, 420130024]
 fallbackAddressesJsonPath = "src/tasks/sep/126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/addresses.json" # TODO_STAGING_ADDRESSES_JSON (stg-op-replica, stg-uni-replica: not in the registry)
 
 l2chains = [
