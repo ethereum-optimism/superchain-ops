@@ -1,16 +1,15 @@
 templateName = "OPCMMigrateV1000"
 
 skipOPCMVersionCheck = false
-fallbackAddressesJsonPath = "src/tasks/sep/126-U22-sepolia-devnet-2-3-4-5-opcm-upgrade-v1000/addresses.json" # TODO_STAGING_ADDRESSES_JSON (redeployed devnet-4/-5)
+fallbackAddressesJsonPath = "src/tasks/sep/126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/addresses.json" # TODO_STAGING_ADDRESSES_JSON (stg-op-replica, stg-uni-replica: not in the registry)
 
-# TODO_STAGING_CHAIN_ID: chain IDs of the redeployed devnet-4/-5.
 l2chains = [
-    {name = "sepolia-devnet-4", chainId = 0},
-    {name = "sepolia-devnet-5", chainId = 0}
+    {name = "stg-op-replica", chainId = 420130023},
+    {name = "stg-uni-replica", chainId = 420130024}
 ]
 
 [opcmMigrate]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_DEPSET_PRESTATE (kona interop, devnet-4 + devnet-5 dependency set)
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_DEPSET_PRESTATE (kona interop, stg-op-replica + stg-uni-replica dependency set)
 expectedChainValidationErrors = ["TODO_U22_EXPECTED_CHAIN_VALIDATION_ERRORS", "TODO_U22_EXPECTED_CHAIN_VALIDATION_ERRORS"]
 expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
 proposer = "0xdead00000000000000000000000000000000dead" # TODO_U22_SHARED_PROPOSER
