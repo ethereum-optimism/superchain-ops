@@ -10,8 +10,8 @@ l2chains = [
 
 [opcmMigrate]
 cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_DEPSET_PRESTATE (kona interop, stg-op-replica + stg-uni-replica dependency set)
-expectedChainValidationErrors = ["TODO_U22_EXPECTED_CHAIN_VALIDATION_ERRORS", "TODO_U22_EXPECTED_CHAIN_VALIDATION_ERRORS"]
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG,SYSCON-130", "OVERRIDES-L1PAOMULTISIG,SYSCON-130"]
+expectedValidationErrors = "MIG-SLOCKBOX-40,MIG-CHAIN-0-130,MIG-CHAIN-1-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 proposer = "0xdead00000000000000000000000000000000dead" # TODO_U22_SHARED_PROPOSER
 startingAnchorRootL2SequenceNumber = 0 # TODO_U22_ANCHOR_L2_SEQUENCE_NUMBER
 startingAnchorRootRoot = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ANCHOR_ROOT
