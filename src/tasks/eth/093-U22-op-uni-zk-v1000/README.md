@@ -2,7 +2,7 @@
 
 Status: [DRAFT, NOT READY TO SIGN]
 
-Scaffold. Path B (single OPCM re-run) chosen for now; may move to Path A (register, then Guardian `setRespectedGameType`).
+Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA off, respect 10), as agreed with the proofs team.
 
 ## Summary
 
@@ -27,7 +27,6 @@ Second `OPCMUpgradeV1000` run on the migrated OP Mainnet + Unichain set: registe
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [ ] ZK config: SP1 vkey (`kona-sp1`), max challenge/prove durations, challenger bond, init bond.
-- [ ] Confirm Path B with proofs (vs Path A).
 - [ ] ZK proposer and challenger config ready; stop proposer, execute, restart.
 - [ ] Old challenger keeps playing in-flight SUPER_CANNON_KONA games.
 
