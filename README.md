@@ -148,7 +148,7 @@ just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-
 6. Create a Tenderly account. Once a user simulates a task, we print a Tenderly link. This allows us to compare our local simulation with Tenderly's simulation state changes. If you don’t already have a Tenderly account, go to https://dashboard.tenderly.co/login and sign up. The free account is sufficient.
 
 7. Fill out the `README.md` and `VALIDATION.md` files.
-    - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations.
+    - If your task status is not `EXECUTED`, `CANCELLED`, `APPROVED` or `CONTINGENCY TASK, SIGN AS NEEDED`, it is considered non-terminal and will automatically be included in stacked simulations.
     - If your task has a `VALIDATION.md` file, you **must** fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly. Any mismatches will cause the task to revert.
 
 ## FAQ
