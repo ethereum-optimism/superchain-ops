@@ -16,9 +16,10 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// @dev Migration is one-way. A single delegatecall deploys a shared ETHLockbox, DisputeGameFactory and
 /// AnchorStateRegistry, moves every chain's ETH into the shared lockbox, points every portal at the shared
 /// dispute contracts and enables INTEROP on every chain. It invalidates all prior withdrawal proofs.
-/// @dev In U22 this is task 2 of three: it runs after every chain is upgraded with `OPCMUpgradeV1000` and before
-/// the `OPCMUpgradeV1000` re-run that enables ZK_DISPUTE_GAME. migrate() registers SUPER_PERMISSIONED and
-/// SUPER_CANNON_KONA with the chains' respected game type (5 or 9) and cannot respect ZK_DISPUTE_GAME.
+/// @dev Runs after every chain is upgraded with `OPCMUpgradeV1000`, with the same OPCM. migrate() registers
+/// SUPER_PERMISSIONED and SUPER_CANNON_KONA on the shared DisputeGameFactory, and the OPCM limits the respected game
+/// type to one of them. ZK_DISPUTE_GAME is not carried across: enable it on the migrated set with an
+/// `OPCMUpgradeV1000` re-run.
 contract OPCMMigrateV1000 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -29,6 +30,13 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
     /// @dev Fields must remain in alphabetical order for TOML decoding. `expectedValidationErrors` is the expected
     /// output of the migration validator. `expectedChainValidationErrors` holds the expected output of the standard
     /// validator for each chain, in `l2chains` order.
+    /// @dev Both validators compare the chain against these same inputs, so the task's VALIDATION.md must cite an
+    /// independent source for each of them:
+    /// - `proposer` becomes the only SUPER_PERMISSIONED proposer on the shared DisputeGameFactory, and controls
+    ///   withdrawals from the shared ETHLockbox whenever SUPER_PERMISSIONED is respected. It is a governance input.
+    /// - `startingAnchorRootRoot` is the super root at timestamp `startingAnchorRootL2SequenceNumber`. Recompute it
+    ///   with `Hashing.hashSuperRootProof`: version 1, that timestamp, and each chain's output root at that
+    ///   timestamp, in ascending chain-ID order.
     struct OPCMMigrate {
         bytes32 cannonKonaPrestate;
         string[] expectedChainValidationErrors;
@@ -50,8 +58,15 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
     /// portal and SystemConfig getters these come from, so they are read during setup.
     IOPContractsManagerMigrationValidatorV1000.LegacyChainContracts[] internal legacyChainContracts;
 
+    /// @notice ETH held by every portal and its pre-migration ETHLockbox, recorded during setup. migrate() moves all
+    /// of it into the shared ETHLockbox.
+    uint256 public preMigrationEth;
+
     uint32 internal constant SUPER_PERMISSIONED = 5;
     uint32 internal constant SUPER_CANNON_KONA = 9;
+    uint32 internal constant ZK_DISPUTE_GAME = 10;
+
+    bytes32 internal constant INTEROP = "INTEROP";
 
     /// @notice Names in the SuperchainAddressRegistry that are expected to be written during this task.
     /// @dev The shared proxies migrate() deploys are new contracts, which MultisigTask allows without an entry. Each
@@ -92,16 +107,9 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
         require(migrateConfig.cannonKonaPrestate != bytes32(0), "OPCMMigrateV1000: cannonKonaPrestate is zero");
         require(migrateConfig.proposer != address(0), "OPCMMigrateV1000: proposer is zero");
         require(migrateConfig.superCannonKonaInitBond != 0, "OPCMMigrateV1000: superCannonKonaInitBond is zero");
-        require(
-            migrateConfig.startingRespectedGameType == SUPER_PERMISSIONED
-                || migrateConfig.startingRespectedGameType == SUPER_CANNON_KONA,
-            "OPCMMigrateV1000: startingRespectedGameType must be a super game type (5 or 9)"
-        );
         require(migrateConfig.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV1000: startingAnchorRootRoot is zero");
         // No game can be created at or before the anchor, so a future anchor (e.g. milliseconds instead of seconds)
-        // would block withdrawals for the whole set. There is deliberately no lower bound: each chain's current
-        // anchor moves forward as games finalize, so a check against it would start failing once the anchors pass
-        // this timestamp, which can happen before the task is approved or executed.
+        // would block withdrawals for the whole set.
         require(
             migrateConfig.startingAnchorRootL2SequenceNumber <= block.timestamp,
             "OPCMMigrateV1000: startingAnchorRootL2SequenceNumber is in the future"
@@ -112,16 +120,29 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
         );
 
         _snapshotChains(chains);
+        _checkPrestateInRegistry(chains, tomlContent);
 
-        // OPCM from TOML; must be an op-contracts/v10 OPCM. Any 10.x is accepted: isPermittedMigrateSequence below
-        // enforces the minor ordering, and allows a replacement OPCM for the same release.
+        // OPCM from TOML: the op-contracts/v10 OPCM that upgraded every chain. migrate() keeps each chain's
+        // `lastUsedOPCM`, so OPCMUpgradeV1000 re-runs with the same OPCM stay permitted afterwards.
         opcm = IOPContractsManagerV1000(tomlContent.readAddress(".addresses.OPCM"));
         require(address(opcm).code.length > 0, "OPCMMigrateV1000: OPCM has no code");
         OPCM_TARGETS.push(address(opcm));
         skipOPCMVersionCheck =
             tomlContent.keyExists(".skipOPCMVersionCheck") && tomlContent.readBool(".skipOPCMVersionCheck");
+        require(
+            !skipOPCMVersionCheck || block.chainid != 1,
+            "OPCMMigrateV1000: skipOPCMVersionCheck is not allowed on mainnet"
+        );
         if (!skipOPCMVersionCheck) {
             require(opcm.version().startsWith("10."), "OPCMMigrateV1000: incorrect OPCM major version");
+            require(opcm.devFeatureBitmap() == bytes32(0), "OPCMMigrateV1000: OPCM has dev features enabled");
+            for (uint256 i = 0; i < chains.length; i++) {
+                address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId);
+                require(
+                    ISystemConfigV1000(sysCfg).lastUsedOPCM() == address(opcm),
+                    "OPCMMigrateV1000: OPCM must be the one that upgraded every chain"
+                );
+            }
         }
         vm.label(address(opcm), "OPCM");
 
@@ -173,6 +194,8 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
                     anchorStateRegistry: address(asr)
                 })
             );
+            _checkLiveGames(IDisputeGameFactoryV1000(portal.disputeGameFactory()));
+            preMigrationEth += address(portal).balance + portal.ethLockbox().balance;
 
             // The shared AnchorStateRegistry and DelayedWETH hold one delay each, so the template requires every chain
             // to have the same ones before migrating.
@@ -189,6 +212,55 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
                 "OPCMMigrateV1000: all chains must have the same DelayedWETH delay"
             );
         }
+    }
+
+    /// @notice Checks a chain's live games: migrate() clears them from the chain's factory and registers only
+    /// SUPER_PERMISSIONED and SUPER_CANNON_KONA on the shared one.
+    /// @dev A live SUPER_CANNON_KONA bond carries forward, as in OPCMUpgradeV1000; change it with SetDisputeGameArgs
+    /// before migrating. A live ZK_DISPUTE_GAME would be removed with no error, so the chain is refused: disable it
+    /// with an OPCMUpgradeV1000 re-run first, and enable it on the migrated set afterwards.
+    function _checkLiveGames(IDisputeGameFactoryV1000 dgf) internal view {
+        if (dgf.gameImpls(SUPER_CANNON_KONA) != address(0)) {
+            require(
+                dgf.initBonds(SUPER_CANNON_KONA) == migrateConfig.superCannonKonaInitBond,
+                "OPCMMigrateV1000: superCannonKonaInitBond must equal every chain's current SUPER_CANNON_KONA bond"
+            );
+        }
+        require(
+            dgf.gameImpls(ZK_DISPUTE_GAME) == address(0),
+            "OPCMMigrateV1000: chain has a live ZK_DISPUTE_GAME that migrate() would remove; disable it first"
+        );
+    }
+
+    /// @notice Requires `cannonKonaPrestate` to be a `cannon64-kona-interop` entry in the pinned superchain-registry
+    /// `standard-prestates.toml`, as OPCMUpgradeV1000 does: both validators compare the on-chain prestate against this
+    /// same input. Skipped only when every listed chain is in `skipPrestateRegistryCheckChainIds` (a set of chains
+    /// outside the registry with a custom prestate).
+    function _checkPrestateInRegistry(SuperchainAddressRegistry.ChainInfo[] memory chains, string memory tomlContent)
+        internal
+        view
+    {
+        if (tomlContent.keyExists(".skipPrestateRegistryCheckChainIds")) {
+            uint256[] memory skip = tomlContent.readUintArray(".skipPrestateRegistryCheckChainIds");
+            uint256 skipped;
+            for (uint256 i = 0; i < chains.length; i++) {
+                for (uint256 j = 0; j < skip.length; j++) {
+                    if (skip[j] == chains[i].chainId) {
+                        skipped++;
+                        break;
+                    }
+                }
+            }
+            if (skipped == chains.length) return;
+        }
+        string memory prestates = vm.readFile("lib/superchain-registry/validation/standard/standard-prestates.toml");
+        string memory entry = string.concat(
+            "type=\"cannon64-kona-interop\"\nhash=\"", vm.toString(migrateConfig.cannonKonaPrestate), "\""
+        );
+        require(
+            prestates.contains(entry),
+            "OPCMMigrateV1000: cannonKonaPrestate is not a cannon64-kona-interop prestate in the registry"
+        );
     }
 
     /// @notice Builds the dispute game configs registered on the shared DisputeGameFactory.
@@ -251,6 +323,7 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
     {
         address[] memory created = accountAccesses.getNewContracts();
         require(created.length == 3, "OPCMMigrateV1000: expected migrate to create exactly 3 contracts");
+        _validateMigratedState(created[0], created[1], created[2]);
 
         IOPContractsManagerMigrationValidatorV1000.ExpectedInitBond[] memory expectedInitBonds =
             new IOPContractsManagerMigrationValidatorV1000.ExpectedInitBond[](2);
@@ -305,6 +378,41 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
         );
 
         _validateChains(rootSafe);
+    }
+
+    /// @notice Pins migrate()'s key outcomes directly, independently of the validators' expected-error strings.
+    /// `>=` tolerates ETH sent to the shared ETHLockbox's address ahead of the migration.
+    function _validateMigratedState(address sharedLockbox, address sharedDgf, address sharedAsr) internal view {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IOptimismPortalV1000 portal =
+                IOptimismPortalV1000(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId));
+            require(portal.ethLockbox() == sharedLockbox, "OPCMMigrateV1000: portal not on the shared ETHLockbox");
+            require(
+                portal.disputeGameFactory() == sharedDgf,
+                "OPCMMigrateV1000: portal not on the shared DisputeGameFactory"
+            );
+            require(
+                portal.anchorStateRegistry() == sharedAsr,
+                "OPCMMigrateV1000: portal not on the shared AnchorStateRegistry"
+            );
+            require(
+                ISystemConfigV1000(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)).isFeatureEnabled(
+                    INTEROP
+                ),
+                "OPCMMigrateV1000: INTEROP not enabled"
+            );
+            require(
+                address(portal).balance == 0 && legacyChainContracts[i].ethLockbox.balance == 0,
+                "OPCMMigrateV1000: ETH left behind"
+            );
+        }
+        require(sharedLockbox.balance >= preMigrationEth, "OPCMMigrateV1000: shared lockbox did not receive all ETH");
+        require(
+            IAnchorStateRegistryV1000(sharedAsr).respectedGameType() == migrateConfig.startingRespectedGameType,
+            "OPCMMigrateV1000: startingRespectedGameType not applied"
+        );
     }
 
     /// @notice Runs the standard validator on every chain after migration.
@@ -420,6 +528,8 @@ interface IOPContractsManagerV1000 {
 
     function version() external view returns (string memory);
 
+    function devFeatureBitmap() external view returns (bytes32);
+
     function migrate(MigrateInput calldata _input) external;
 
     function isPermittedMigrateSequence(address _systemConfig) external view returns (bool);
@@ -506,6 +616,12 @@ interface IOptimismPortalV1000 {
 
 interface IAnchorStateRegistryV1000 {
     function disputeGameFinalityDelaySeconds() external view returns (uint256);
+    function respectedGameType() external view returns (uint32);
+}
+
+interface IDisputeGameFactoryV1000 {
+    function gameImpls(uint32 gameType) external view returns (address);
+    function initBonds(uint32 gameType) external view returns (uint256);
 }
 
 interface IDelayedWETHV1000 {
@@ -517,4 +633,6 @@ interface ISystemConfigV1000 {
     function unsafeBlockSigner() external view returns (address);
     function batcherHash() external view returns (bytes32);
     function delayedWETH() external view returns (address);
+    function isFeatureEnabled(bytes32) external view returns (bool);
+    function lastUsedOPCM() external view returns (address);
 }
