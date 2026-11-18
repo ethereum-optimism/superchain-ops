@@ -1,0 +1,70 @@
+# OPCM.upgrade example task: enable ZK_DISPUTE_GAME on the migrated Unichain Sepolia + OP Sepolia interop set
+# (Sepolia L1) by re-running the op-contracts/v10 OPCM (U22).
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for each chain with the same OPCM that
+#     upgraded (048) and migrated (049) them. v10 permits re-running the OPCM a chain was last upgraded with.
+#   - Registers ZK_DISPUTE_GAME (10), disables SUPER_CANNON_KONA (9), keeps SUPER_PERMISSIONED (5) and makes 10
+#     the respected game type. The chains share one DisputeGameFactory and AnchorStateRegistry after migrate(),
+#     so both entries below must carry identical game fields; each upgrade() rewrites the shared contracts.
+#
+# migrate() does not carry ZK_DISPUTE_GAME, so this fixture only makes sense on the state left by
+# 048-opcm-upgrade-v1000 and 049-opcm-migrate-v1000. It is always simulated stacked on both (DEPENDS_ON in the
+# .env), mirroring production. The same template also enables ZK on chains that are not migrated.
+#
+# Every ZK value below is a placeholder until governance sets the production values: the SP1 program vkey,
+# the challenge and prove durations, the challenger bond and the init bond.
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMUpgradeV1000"
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 1301
+# SUPER_CANNON_KONA is disabled: its prestate and bond must be zero.
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+# Live validator output captured during simulation against the v10 OPCM.
+expectedValidationErrors = ""
+startingRespectedGameType = 10 # ZK_DISPUTE_GAME
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 1000000000000000000 # Placeholder: 1 ETH
+zkEnabled = true
+zkInitBond = 80000000000000000 # Placeholder: 0.08 ETH
+zkMaxChallengeDuration = 604800 # Placeholder: 7 days
+zkMaxProveDuration = 259200 # Placeholder: 3 days
+# Placeholder: the kona-sp1 0.0.1 program vkey listed in superchain-registry standard-prestates.toml.
+zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c"
+
+[[opcmUpgrades]]
+chainId = 11155420
+# Same placeholder values as the 1301 entry: chains sharing a DisputeGameFactory must use identical game configs.
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+expectedValidationErrors = ""
+startingRespectedGameType = 10 # ZK_DISPUTE_GAME
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 1000000000000000000
+zkEnabled = true
+zkInitBond = 80000000000000000
+zkMaxChallengeDuration = 604800
+zkMaxProveDuration = 259200
+zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c"
+
+[addresses]
+# op-contracts/v10.0.0-rc.1 OPCM. `OPCM.version()` returns "10.0.0"; `OPCM.opcmStandardValidator()` returns
+# 0xc3E505AD2bF339F7112F774a654fF9818643aa4f (OPContractsManagerStandardValidator 6.0.0). Same OPCM as 048 and 049.
+OPCM = "0xe3D1CC898cd19F4ACE77715259eF942766c1d0D3"
+# Root-safe pin: the registry still records Unichain Sepolia's pre-transfer ProxyAdminOwner
+# (0xd363…9dbf); the pin resolves the same L1PAO root safe for both chains. Same pin as 048 and 049.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee (500000) in slot 0x6c,
+# which the code-presence check would misread as an address. upgrade() reinitializes SystemConfig, so the
+# slot is rewritten. Same exception as 048 and 049.
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]

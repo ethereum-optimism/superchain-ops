@@ -27,8 +27,9 @@ contract OPCMUpgradeV1000PureHarness is OPCMUpgradeV1000 {
     }
 }
 
-/// @notice Fork-free checks of the template's config rules and ZK_DISPUTE_GAME encodings. The end-to-end behavior
-/// against a v10 OPCM is covered by the example task once one is deployed on Sepolia.
+/// @notice Fork-free checks of the template's config rules and ZK_DISPUTE_GAME encodings. The fork tests in
+/// OPCMUpgradeV1000Setup.t.sol and test/integration/OPCMUpgradeV1000ZKDisputeGame.t.sol run the template against the
+/// v10 OPCM on Sepolia.
 contract OPCMUpgradeV1000Test is Test {
     string constant RGT_ERR =
         "OPCMUpgradeV1000: startingRespectedGameType must be an enabled super game type (5, 9 or 10)";
