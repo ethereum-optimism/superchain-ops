@@ -11,7 +11,7 @@ l2chains = [
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 chainId = 420130023
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
@@ -25,7 +25,7 @@ zkPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 chainId = 420130024
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
