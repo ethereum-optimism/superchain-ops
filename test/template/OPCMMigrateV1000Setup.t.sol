@@ -167,6 +167,12 @@ contract OPCMMigrateV1000SetupValidationTest is Test {
         _expectSetupRevert(CONFIG, "OPCMMigrateV1000: all chains must have the same DelayedWETH delay");
     }
 
+    /// @dev The portals share the ETHLockbox after migrate(), so they must already agree on the proof maturity delay.
+    function test_rejects_mismatched_proof_maturity_delay() public {
+        vm.mockCall(OP_SEPOLIA_PORTAL, abi.encodeWithSignature("proofMaturityDelaySeconds()"), abi.encode(uint256(1)));
+        _expectSetupRevert(CONFIG, "OPCMMigrateV1000: all chains must have the same proof maturity delay");
+    }
+
     /// @dev migrate() re-sets the SUPER_CANNON_KONA bond on the shared game: a value that differs from the chains'
     /// current bond is rejected, not applied.
     function test_rejects_super_cannon_kona_bond_that_differs_from_chains() public {
