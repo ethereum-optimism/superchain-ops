@@ -1,6 +1,6 @@
 # 086-soneium-set-batcher-unsafe-signer
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xad2bf9a3bf643ccbe3fc2c21cf096b49dc71a161536543dbdf52a79d2f3435ae)
 
 ## Objective
 
