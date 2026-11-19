@@ -1,6 +1,6 @@
 # 085-soneium-proposer-rotation
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xc187a640392f2f916a9ef37749f9f88c58ff4f6d69efb345965c8c57817db260)
 
 ## Objective
 
