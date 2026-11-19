@@ -1,0 +1,81 @@
+# OPCM.upgrade example task: Unichain Sepolia and OP Sepolia (Sepolia L1) onto an op-contracts/v10 OPCM (U22).
+#
+# What this task does:
+#   - Calls OPCMv2.upgradeSuperchain once, then OPCMv2.upgrade(...) for each chain, using a v10 OPCM.
+#   - Both chains arrive from op-contracts/v9.0.0 (lastUsedOPCMVersion 9.0.3, sep/115) with SUPER_PERMISSIONED (5)
+#     and SUPER_CANNON_KONA (9) registered and 9 respected. The upgrade keeps both games and the respected type and
+#     leaves ZK_DISPUTE_GAME (10) off. This is U22's first call.
+#   - Runs BEFORE the OPCMMigrateV1000 task (049): migrate() requires every chain to be upgraded with the same OPCM.
+#
+# The OPCM below is the op-contracts/v10.0.0-rc.1 OPCM on Sepolia: version 10.0.0, empty dev-feature bitmap,
+# wired to the Sepolia Standard SuperchainConfig. It is not yet listed in superchain-registry
+# validation/standard/standard-versions-sepolia.toml; update this example when the final v10 OPCM is deployed.
+#
+# Both chains share SuperchainConfig 0xC2Be75506d5724086DEB7245bd260Cc9753911Be and resolve to the
+# L1PAO root safe through the ProxyAdminOwner pin below.
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMUpgradeV1000"
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 1301
+# Placeholder: the chains' current SUPER_CANNON_KONA prestate, kona-client/v1.9.0 cannon64-kona-interop (sep/115).
+# A real U22 task uses the cannon64-kona-interop prestate of the kona-client release that ships with U22.
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# Live validator output captured during simulation against the v10 OPCM.
+expectedValidationErrors = ""
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, the chain's current SUPER_CANNON_KONA bond
+# ZK_DISPUTE_GAME stays off: every ZK field must be zero.
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+chainId = 11155420
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+expectedValidationErrors = ""
+startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[addresses]
+# op-contracts/v10.0.0-rc.1 OPCM (see header). `OPCM.version()` returns "10.0.0"; `OPCM.opcmStandardValidator()`
+# returns 0xc3E505AD2bF339F7112F774a654fF9818643aa4f (OPContractsManagerStandardValidator 6.0.0).
+OPCM = "0xe3D1CC898cd19F4ACE77715259eF942766c1d0D3"
+# Root-safe pin: the registry still records Unichain Sepolia's pre-transfer ProxyAdminOwner
+# (0xd363…9dbf); the pin resolves the same L1PAO root safe for both chains. Same pin as 046 and 047.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee (500000) in slot 0x6c,
+# which the code-presence check would misread as an address. upgrade() reinitializes SystemConfig, so the
+# slot is rewritten. Same exception as 046 and 047.
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+# Safe nonces at FORK_BLOCK_NUMBER. Slot 5 is the Gnosis Safe `nonce` slot.
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 62}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 86}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 76}
+]
