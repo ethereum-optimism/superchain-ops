@@ -9,8 +9,8 @@ Scaffold. Every U22 release input is a placeholder.
 | | |
 |---|---|
 | Target date | Dec 15-17, 2026 (before the end-of-year pause; signatures gathered before the break) |
-| Depends on | U21 (eth/084, executed); eth/085-087 and eth/090 for nonces. |
-| Sequencing | Mainnet 1/3. Followed by [092-U22-op-uni-opcm-migrate-v1000](../092-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 51, FUS 84, SC 78. Nonces assume eth/085-087 and eth/090 (#1639) execute first. |
+| Depends on | U21 (eth/084, executed); eth/085-087 and one further FUS task for nonces. |
+| Sequencing | Mainnet 1/3. Followed by [092-U22-op-uni-opcm-migrate-v1000](../092-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 51, FUS 84, SC 78. Nonces assume eth/085-087 and one further FUS task execute first. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -30,7 +30,7 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP-governed Mainnet chains from 
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [ ] U22 SUPER_CANNON_KONA prestate (`TODO_U22_KONA_INTEROP_PRESTATE`), from standard-prestates.toml.
 - [ ] Re-check `storageCodeExceptions` (Unichain / Soneium slot 0x6c) against the v10 simulation.
-- [ ] Re-pin nonces if eth/085-087 or eth/090 slip, are cancelled or a private task lands first.
+- [ ] Re-pin nonces if eth/085-087 slip or are cancelled, or if another L1PAO/FUS/SC task lands first.
 - [ ] Governance kickoff ~Dec 5.
 
 ## Simulation & Signing

@@ -10,7 +10,7 @@ Scaffold. Every U22 release input is a placeholder.
 |---|---|
 | Target date | Same day as the upgrade (Dec 15-17, 2026), right after it |
 | Depends on | [091-U22-op-ink-soneium-uni](../091-U22-op-ink-soneium-uni/README.md) (migrate requires every chain on the v10 OPCM). |
-| Sequencing | Mainnet 2/3. Followed by [093-U22-op-uni-zk-v1000](../093-U22-op-uni-zk-v1000/README.md). Nonces L1PAO 52, FUS 85, SC 79. Nonces assume eth/085-087 and eth/090 (#1639) execute first. |
+| Sequencing | Mainnet 2/3. Followed by [093-U22-op-uni-zk-v1000](../093-U22-op-uni-zk-v1000/README.md). Nonces L1PAO 52, FUS 85, SC 79. Nonces assume eth/085-087 and one further FUS task execute first. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
