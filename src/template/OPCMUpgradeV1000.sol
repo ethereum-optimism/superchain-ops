@@ -60,6 +60,13 @@ contract OPCMUpgradeV1000 is OPCMTaskBase {
     /// pre-checks (10.0.0 version pin, empty dev-feature bitmap, `isPermittedUpgradeSequence`); the
     /// OPCM still enforces the upgrade sequence on-chain. Only for dev OPCM builds; refused on mainnet.
     bool public skipOPCMVersionCheck;
+    /// @notice Set by `skipUpgradeSuperchain = true` in the task config. `_build` then omits
+    /// `OPCM.upgradeSuperchain`, which calls the SuperchainConfig's ProxyAdmin even when nothing changes, so
+    /// the executing Safe would have to own that ProxyAdmin. For chains on a shared SuperchainConfig that
+    /// another task has already upgraded, when the executing Safe does not own its ProxyAdmin (e.g. a chain
+    /// owned by the Foundation Upgrade Safe on the Mainnet SuperchainConfig, which the L1PAO owns).
+    /// `_templateSetup` asserts the SuperchainConfig is already at the v10 version.
+    bool public skipUpgradeSuperchain;
 
     // Game type constants (from GameTypes library in op-contracts v10.0.0).
     // SUPER_CANNON (4) is retired since v8: the OPCM does not accept a config for it.
@@ -167,6 +174,19 @@ contract OPCMUpgradeV1000 is OPCMTaskBase {
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
         require(superchainConfig != address(0), "OPCMUpgradeV1000: SuperchainConfig not found");
         require(superchainConfig.code.length > 0, "OPCMUpgradeV1000: SuperchainConfig has no code");
+
+        // Optional: skip OPCM.upgradeSuperchain when the shared SuperchainConfig was already upgraded.
+        // OPCM.upgrade reverts with SuperchainConfigNeedsUpgrade otherwise; fail here with a clear message.
+        // 2.5.0 is the op-contracts/v10.0.0 SuperchainConfig, unchanged since v9.0.0 (U21).
+        skipUpgradeSuperchain =
+            tomlContent.keyExists(".skipUpgradeSuperchain") && tomlContent.readBool(".skipUpgradeSuperchain");
+        if (skipUpgradeSuperchain) {
+            require(
+                ISuperchainConfigView(superchainConfig).version().eq("2.5.0"),
+                "OPCMUpgradeV1000: skipUpgradeSuperchain requires SuperchainConfig already at 2.5.0"
+            );
+        }
+
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             require(upgrades[chainId].chainId != 0, "OPCMUpgradeV1000: config not found for chain");
@@ -507,19 +527,22 @@ contract OPCMUpgradeV1000 is OPCMTaskBase {
         require(chains.length > 0, "OPCMUpgradeV1000: no chains configured");
 
         // upgradeSuperchain must precede every upgrade(): the OPCM reverts if SuperchainConfig is behind.
-        address sc = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
-        _delegatecallOPCM(
-            abi.encodeCall(
-                IOPContractsManagerV1000.upgradeSuperchain,
-                (
-                    IOPContractsManagerV1000.SuperchainUpgradeInput({
-                        superchainConfig: ISuperchainConfig(sc),
-                        extraInstructions: new IOPContractsManagerV1000.ExtraInstruction[](0)
-                    })
-                )
-            ),
-            "upgradeSuperchain"
-        );
+        // Skipped when the task config says another task already upgraded it (`skipUpgradeSuperchain`).
+        if (!skipUpgradeSuperchain) {
+            address sc = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
+            _delegatecallOPCM(
+                abi.encodeCall(
+                    IOPContractsManagerV1000.upgradeSuperchain,
+                    (
+                        IOPContractsManagerV1000.SuperchainUpgradeInput({
+                            superchainConfig: ISuperchainConfig(sc),
+                            extraInstructions: new IOPContractsManagerV1000.ExtraInstruction[](0)
+                        })
+                    )
+                ),
+                "upgradeSuperchain"
+            );
+        }
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -868,6 +891,10 @@ interface IOPContractsManagerStandardValidator {
 }
 
 interface ISuperchainConfig {}
+
+interface ISuperchainConfigView {
+    function version() external view returns (string memory);
+}
 
 interface IDisputeGameFactory {
     function gameImpls(GameType gameType) external view returns (address);
