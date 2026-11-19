@@ -62,6 +62,9 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
     /// of it into the shared ETHLockbox.
     uint256 public preMigrationEth;
 
+    /// @notice The proof maturity delay of every portal, recorded during setup. migrate() keeps each portal's delay.
+    uint256 public preMigrationProofMaturityDelay;
+
     uint32 internal constant SUPER_PERMISSIONED = 5;
     uint32 internal constant SUPER_CANNON_KONA = 9;
     uint32 internal constant ZK_DISPUTE_GAME = 10;
@@ -162,8 +165,8 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
         }
     }
 
-    /// @notice Checks each chain against the set-wide requirements of migrate() and snapshots its pre-migration
-    /// contracts into `legacyChainContracts`.
+    /// @notice Checks each chain against the set-wide requirements of migrate() and the template's shared-delay
+    /// policy, and snapshots its pre-migration contracts into `legacyChainContracts`.
     function _snapshotChains(SuperchainAddressRegistry.ChainInfo[] memory chains) internal {
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId);
         uint256 prevChainId;
@@ -197,11 +200,14 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
             _checkLiveGames(IDisputeGameFactoryV1000(portal.disputeGameFactory()));
             preMigrationEth += address(portal).balance + portal.ethLockbox().balance;
 
-            // The shared AnchorStateRegistry and DelayedWETH hold one delay each, so the template requires every chain
-            // to have the same ones before migrating.
+            // The shared AnchorStateRegistry and DelayedWETH hold one delay each. Each portal keeps its own proof
+            // maturity delay, but the portals share the ETHLockbox, so the shortest delay sets how fast the pooled ETH
+            // can leave. migrate() only assumes the portals agree, and SetReviewPeriodDelays requires it for portals
+            // that share a lockbox. The template requires every chain to have the same three delays before migrating.
             if (i == 0) {
                 finalityDelay = asr.disputeGameFinalityDelaySeconds();
                 withdrawalDelay = delayedWETH.delay();
+                preMigrationProofMaturityDelay = portal.proofMaturityDelaySeconds();
             }
             require(
                 asr.disputeGameFinalityDelaySeconds() == finalityDelay,
@@ -210,6 +216,10 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
             require(
                 delayedWETH.delay() == withdrawalDelay,
                 "OPCMMigrateV1000: all chains must have the same DelayedWETH delay"
+            );
+            require(
+                portal.proofMaturityDelaySeconds() == preMigrationProofMaturityDelay,
+                "OPCMMigrateV1000: all chains must have the same proof maturity delay"
             );
         }
     }
@@ -406,6 +416,10 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
             require(
                 address(portal).balance == 0 && legacyChainContracts[i].ethLockbox.balance == 0,
                 "OPCMMigrateV1000: ETH left behind"
+            );
+            require(
+                portal.proofMaturityDelaySeconds() == preMigrationProofMaturityDelay,
+                "OPCMMigrateV1000: proof maturity delay changed"
             );
         }
         require(sharedLockbox.balance >= preMigrationEth, "OPCMMigrateV1000: shared lockbox did not receive all ETH");
@@ -612,6 +626,7 @@ interface IOptimismPortalV1000 {
     function anchorStateRegistry() external view returns (address);
     function disputeGameFactory() external view returns (address);
     function ethLockbox() external view returns (address);
+    function proofMaturityDelaySeconds() external view returns (uint256);
 }
 
 interface IAnchorStateRegistryV1000 {

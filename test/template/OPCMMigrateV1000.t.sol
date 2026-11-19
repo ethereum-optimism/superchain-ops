@@ -16,6 +16,14 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
+/// @notice Exposes the post-migration state checks, so a test can rerun them on state that differs from what
+/// migrate() produced.
+contract OPCMMigrateV1000ValidateHarness is OPCMMigrateV1000 {
+    function validateMigratedStateForTest(address sharedLockbox, address sharedDgf, address sharedAsr) external view {
+        _validateMigratedState(sharedLockbox, sharedDgf, sharedAsr);
+    }
+}
+
 /// @notice Runs the 049 example task end to end on a Sepolia fork, against the v10 OPCM the example points at. Both
 /// chains are on 9.0.3 at FORK_BLOCK_NUMBER, so setUp first simulates the 048 example, which upgrades them with that
 /// OPCM, as production stacks the two tasks. OPCMMigrateV1000Setup.t.sol covers the setup guards.
@@ -121,6 +129,20 @@ contract OPCMMigrateV1000Test is Test {
             assertEq(oldLockboxes[i].balance, 0);
         }
         assertEq(sharedLockbox.balance, ethBefore);
+    }
+
+    /// @notice migrate() keeps each portal's proof maturity delay. Validation fails if a portal's delay differs from
+    /// the one recorded during setup.
+    function test_validate_rejectsChangedProofMaturityDelay() public {
+        OPCMMigrateV1000ValidateHarness task = new OPCMMigrateV1000ValidateHarness();
+        (VmSafe.AccountAccess[] memory accesses,,,) = task.simulate(CONFIG, _childSafes());
+        address[] memory created = accesses.getNewContracts();
+        assertEq(task.preMigrationProofMaturityDelay(), 604800);
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
+
+        vm.mockCall(OP_SEPOLIA_PORTAL, abi.encodeWithSignature("proofMaturityDelaySeconds()"), abi.encode(uint256(1)));
+        vm.expectRevert(bytes("OPCMMigrateV1000: proof maturity delay changed"));
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
     }
 
     /// @notice A wrong expectedValidationErrors fails simulate().
