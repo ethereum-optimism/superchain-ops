@@ -7,8 +7,8 @@ calldata and no verified state diff. Do not sign anything against this file in i
 
 See [README.md](./README.md), section "Before this can be signed". In short:
 
-1. Execute sep/900 (U19).
-2. Refresh `addresses.json` with the new DelayedWETH proxy that U19 deploys.
+1. ~~Execute sep/900 (U19).~~ Done.
+2. ~~Refresh `addresses.json` with the new DelayedWETH proxy.~~ Done: `0x2e02e6cB…17fe`.
 3. Obtain a finalized single-chain super root from Whitechain's own op-node and set
    `startingAnchorRootRoot` / `startingAnchorRootL2SequenceNumber`. This is the hard blocker and
    needs Whitechain to expose an op-node serving `superroot_atTimestamp`.

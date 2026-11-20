@@ -65,9 +65,9 @@ this branch once ported; their full content, hashes and state diffs are in the g
    replica the first U20 simulation failed with
    `MultisigTask: address UNLABELED @<new proxy> not in allowed storage accesses`, which is the
    tooling correctly refusing to sign for undeclared state.
-   **[addresses.json](./addresses.json) still lists the pre-U19 proxy `0xDD01A989…e437` and must be
-   refreshed after U19 executes**, under all three aliases `DelayedWETHProxy`, `PermissionedWETH`
-   and `PermissionedDelayedWETHProxy`. Every other address survives U19 unchanged.
+   [addresses.json](./addresses.json) now lists the new proxy `0x2e02e6cB…17fe` under all three
+   aliases `DelayedWETHProxy`, `PermissionedWETH` and `PermissionedDelayedWETHProxy`, confirmed
+   on-chain after U19. Every other address survives U19 unchanged.
 2. **The `storageCodeExceptions` entry is genuinely required here**, where on the replica it was a
    no-op. SystemConfig slot `0x6c` packs `superchainConfig` in the low 160 bits with `minBaseFee`
    above it. Whitechain's `minBaseFee` is 5 gwei so the slot reads
@@ -96,8 +96,8 @@ DisputeGameFactory owner write.
 
 ## Before this can be signed
 
-1. **Execute sep/900 (U19).** The chain is on v6 and U20 upgrades from v7.
-2. **Refresh [addresses.json](./addresses.json)** with the new DelayedWETH proxy that U19 deploys.
+1. ~~**Execute sep/900 (U19).**~~ Done: tx `0xa0bc4620…adc9`, Safe nonce now 6.
+2. ~~**Refresh [addresses.json](./addresses.json)**~~ Done: DelayedWETH `0x2e02e6cB…17fe`.
 3. **Derive the starting anchor root.** `startingAnchorRootRoot` and
    `startingAnchorRootL2SequenceNumber` are part of the signed calldata and must be a single-chain
    super root at a finalized L2 timestamp. **No op-node access is needed**: Whitechain's public RPC

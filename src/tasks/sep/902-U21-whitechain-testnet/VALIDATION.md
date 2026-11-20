@@ -8,7 +8,7 @@ calldata and no verified state diff. Do not sign anything against this file in i
 See [README.md](./README.md), section "Before this can be signed". In short:
 
 1. Execute sep/900 (U19), then sep/901 (U20), in that order.
-2. Refresh `addresses.json` with the post-U19 DelayedWETH proxy.
+2. ~~Refresh `addresses.json` with the post-U19 DelayedWETH proxy.~~ Done: `0x2e02e6cB…17fe`.
 3. Confirm `op-contracts/v9.0.0` is a final release; the registry still lists only
    `v9.0.0-rc.1` and the notice page is provisional with no governance proposal linked.
 4. Re-read `expectedValidationErrors` from the first simulation.

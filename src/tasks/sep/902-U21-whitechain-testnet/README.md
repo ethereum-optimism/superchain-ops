@@ -125,7 +125,7 @@ SuperchainConfig, absent from the registry, 1-of-1 Safe. Review it alongside thi
 ## Before this can be signed
 
 1. **Execute sep/900 (U19), then sep/901 (U20)**, in that order.
-2. **Refresh [addresses.json](./addresses.json)** with the post-U19 DelayedWETH proxy.
+2. ~~**Refresh [addresses.json](./addresses.json)**~~ Done: DelayedWETH `0x2e02e6cB…17fe`.
 3. **Confirm `op-contracts/v9.0.0` is a final release.** The superchain-registry still lists the
    entry as `["op-contracts/v9.0.0-rc.1"]`, the notice page is marked **provisional** and says
    component versions "will be added when the release candidates are published", and no governance
