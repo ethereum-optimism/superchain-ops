@@ -1,0 +1,37 @@
+# Upgrade 19 (op-contracts/v7.0.0, OPCM version 7.1.17) on Whitechain Sepolia (chainId 1874).
+# One OPCM.upgradeSuperchain on the chain's own SuperchainConfig, then one OPCM.upgrade.
+# Simulated clean 2026-11-06 at fork block 12078035; hashes and state diff in VALIDATION.md.
+# The chain stays permissioned: respectedGameType remains 1, and gameImpls(1) is its only game.
+# Custom gas token v2 stays enabled; the OPCM reads isCustomGasToken() and never writes it.
+# NOTE: this upgrade DEPLOYS A NEW DelayedWETH PROXY (predicted 0x2e02e6cB...8117fe) and leaves
+# the pre-U19 proxy 0xDD01A989...e437 unreferenced. After executing, propagate the real address
+# into sep/901 and sep/902 addresses.json or their simulations will fail.
+l2chains = [
+    {name = "Whitechain Sepolia", chainId = 1874}
+]
+fallbackAddressesJsonPath = "src/tasks/sep/900-U19-whitechain-testnet/addresses.json"
+templateName = "OPCMUpgradeV700"
+
+[[opcmUpgrades]]
+chainId = 1874
+# Same placeholder as the permissioned chains in sep/099. On-chain today is the generic
+# op-program 1.3.1 cannon32 prestate, which has no chain 1874 config and does not fit the
+# v7 MIPS64 VM, so it is not a working prestate either way.
+cannonPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+# OVERRIDES-*: non-standard PAO + challenger (template passes overrides). SYSCON-130: own SuperchainConfig,
+# not the standard Sepolia one. CKDG-NOSHAPE,CKDG-10: CANNON_KONA not wired (permissioned).
+# PLDG-10: CANNON slot zeroed by V700.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,CKDG-NOSHAPE,PLDG-10,CKDG-10"
+initBond = 0
+startingRespectedGameType = 1
+
+[addresses]
+OPCM = "0x44e197058fb98fb3618453b3d90cdef6f5db8297"
+
+[storageCodeExceptions]
+# SystemConfig slot 0x6c packs superchainConfig (low 160 bits) with minBaseFee (upper bits).
+# Whitechain Sepolia minBaseFee = 5000000000 (5 gwei), so the packed value exceeds uint160 and
+# the likely-address check misreads it. Same exemption as eth/054 and sep/100.
+# Pre-task value: 0x00000000000000012a05f20011854d3146a460d095943c3231f2755ba342426e
+"0x9328Ea869949f33c57B7b680B6EdB58769e2181c" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]

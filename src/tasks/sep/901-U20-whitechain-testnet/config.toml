@@ -1,0 +1,66 @@
+# Upgrade 20 (op-contracts/v8.0.0) on Whitechain Sepolia (chainId 1874).
+# One OPCM.upgradeSuperchain on the chain's own SuperchainConfig, then one OPCM.upgrade.
+#
+# Prerequisite met: sep/900 (U19) executed on 2026-11-19, so the chain is on op-contracts/v7.0.0
+# (SystemConfig 3.14.2, respectedGameType 1). Permissioned-only: gameImpls(1) is the chain's sole
+# registered game.
+#
+# Whitechain is a custom-gas-token chain on permissioned proofs. U20 rotates the respected game
+# type from PERMISSIONED_CANNON (1) to SUPER_PERMISSIONED (5), clears the CANNON (0),
+# PERMISSIONED_CANNON (1) and CANNON_KONA (8) impls, and re-anchors the AnchorStateRegistry to a
+# single-chain super root. The v8 OPCM reads isCustomGasToken() from the chain and only reverts
+# when an upgrade tries to turn the flag on (OPContractsManagerV2.sol:997-1003), so no CGT input
+# exists.
+#
+# Rehearsed end to end on the Whitechain replica devnet (chainId 18740) before this task was
+# written: U19, the Karst L2 fork and U20 were all executed there. See the git history of the
+# removed sep/901-U19-whitechain-replica and sep/902-U20-whitechain-replica for the record.
+#
+# Not in the superchain-registry: addresses come from addresses.json next to this file.
+# Executed by Whitechain's ProxyAdminOwner Safe 0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85
+# (2-of-3; two owners carry an EIP-7702 delegation, see VALIDATION.md).
+
+l2chains = [
+    {name = "Whitechain Testnet", chainId = 1874}
+]
+
+templateName = "OPCMUpgradeV800"
+fallbackAddressesJsonPath = "src/tasks/sep/901-U20-whitechain-testnet/addresses.json"
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 1874
+# The template requires a non-zero Claim, but SUPER_CANNON_KONA (9) is enabled only when
+# gameImpls(CANNON_KONA) != 0 (OPCMUpgradeV800.sol:209-211). Whitechain has no CANNON_KONA impl,
+# so the config stays disabled and this value is never encoded. Proven on the replica: swapping
+# this value produced byte-identical calldata and identical hashes.
+cannonKonaPrestate = "0xdead000000000000000000000000000000000000000000000000000000000000"
+#
+# Single-chain super root at L2 block 13579854 (timestamp 1795176222): finalized, post-Karst
+# (activation block 13579632) and inside the safedb range of Whitechain's op-nodes. Derived from
+# the public RPC with eth_getProof and matched by their op-nodes' superroot_atTimestamp.
+#   outputRoot = keccak256(bytes32(0) || stateRoot || withdrawalStorageRoot || blockHash)
+#              = 0x050804a4b736c6481c7ea9fa9df7cc96ae84b57c6396c1e1b03bd368eb65c7c5
+#   superRoot  = keccak256(0x01 || uint64(timestamp) || uint256(1874) || outputRoot)
+startingAnchorRootRoot = "0x7664bf40cd54b297c9c7c15ac09dc32c8ce294ee490e7aaafa833d491507a1d4"
+startingAnchorRootL2SequenceNumber = 1795176222
+#
+# Confirmed by the 2026-11-20 simulation against live state.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+initBond = 0 # SUPER_PERMISSIONED is bondless; the template forces 0 for that game type regardless
+startingRespectedGameType = 5 # SUPER_PERMISSIONED
+
+[addresses]
+# op-contracts/v8.0.0 OPCM on Sepolia, version 8.0.1. Verified on-chain 2026-11-06
+# (superchain-registry validation/standard/standard-versions-sepolia.toml). The final v8.0.0
+# release is the same commit as v8.0.0-rc.3 with contracts not redeployed.
+OPCM = "0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca"
+
+[storageCodeExceptions]
+# REQUIRED HERE, unlike on the replica. SystemConfig slot 0x6c packs superchainConfig in the low
+# 160 bits with minBaseFee above it. Whitechain's minBaseFee is 5 gwei, so the slot currently reads
+# 0x00000000000000012a05f20011854d3146a460d095943c3231f2755ba342426e and the code-presence check
+# would misread it as an address. On the replica minBaseFee is 0 and this exception was a harmless
+# no-op, which is exactly why it must not be dropped when porting.
+"0x9328Ea869949f33c57B7b680B6EdB58769e2181c" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
