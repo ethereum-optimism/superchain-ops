@@ -1,10 +1,9 @@
 # Upgrade 21 (op-contracts/v9.0.0) on Whitechain Sepolia (chainId 1874).
 # One OPCM.upgradeSuperchain on the chain's own SuperchainConfig, then one OPCM.upgrade.
 #
-# PREREQUISITE (NOT YET MET): the chain must already be on op-contracts/v8.0.0. As of 2026-11-06
-# Whitechain is on v6.0.0 (SystemConfig 3.13.1), so sep/900 (U19) and sep/901 (U20) must execute
-# first, in that order. Two gates enforce it: the template asserts startingRespectedGameType equals
-# the chain's current respected game type, and the v9 OPCM checks isPermittedUpgradeSequence
+# Prerequisite met: sep/900 (U19) and sep/901 (U20) are executed, so the chain is on
+# op-contracts/v8.0.0 (SystemConfig 4.0.0, respectedGameType 5). Two gates enforce it: the template
+# asserts startingRespectedGameType equals the chain's current respected game type, and the v9 OPCM checks isPermittedUpgradeSequence
 # on-chain (OPCMUpgradeV900.sol:218-221). Attempting it early fails on the first with
 # "OPCMUpgradeV900: startingRespectedGameType must equal the chain's current respected game type".
 #
@@ -27,7 +26,7 @@
 #
 # Not in the superchain-registry: addresses come from addresses.json next to this file.
 # Executed by Whitechain's ProxyAdminOwner Safe 0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85
-# (1-of-1, owner 0xEAd4fe6b892e00763D715095eE4A880637179f3D, a plain EOA).
+# (2-of-3; two owners carry an EIP-7702 delegation, see VALIDATION.md).
 
 l2chains = [
     {name = "Whitechain Testnet", chainId = 1874}
@@ -52,9 +51,7 @@ chainId = 1874
 # The real value is used anyway so the config matches the other U21 tasks and is checkable against
 # the registry. The template requires a non-zero value regardless.
 cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
-# TODO BEFORE SIGNING: re-read from the first simulation revert message once U20 has landed.
-# The replica reported exactly this set, as did sep/123. Whitechain should match, except that its
-# DisputeGameFactory owner and Guardian are already the ProxyAdminOwner Safe.
+# Confirmed by the 2026-11-20 simulation against live state.
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
 initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
 # Must EQUAL the chain's current respected game type, which sep/901 (U20) sets to 5. There is no
