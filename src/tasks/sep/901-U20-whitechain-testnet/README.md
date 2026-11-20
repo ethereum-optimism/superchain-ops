@@ -1,9 +1,9 @@
 # 901-U20-whitechain-testnet
 
-Status: **DRAFT, BLOCKED. NOT READY TO SIGN.**
+Status: READY TO SIGN
 
-Blocked on two things: sep/900 (U19) must execute first, and the starting anchor root must be
-obtained from Whitechain. See [Before this can be signed](#before-this-can-be-signed).
+Simulated clean against live Sepolia state on 2026-11-20 at PAO Safe nonce 6, after U19 and Karst.
+Hashes, calldata and the full state diff are in [VALIDATION.md](./VALIDATION.md).
 
 ## Objective
 
@@ -13,7 +13,7 @@ Upgrades Whitechain Sepolia (chain id 1874) from `op-contracts/v7.0.0` to `op-co
 [OPCM `0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca`](https://sepolia.etherscan.io/address/0x6AbfAbBC793883adD5fa308A97163E8225a9f4Ca)
 (version 8.0.1), executed by the ProxyAdminOwner Safe
 [`0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85`](https://sepolia.etherscan.io/address/0x044a91B182C3B4c1b645421d9a3c498Dfa7cCb85)
-(1-of-1, owner `0xEAd4fe6b892e00763D715095eE4A880637179f3D`, a plain EOA).
+(2-of-3; two owners carry an EIP-7702 delegation).
 
 | Chain | Chain ID | Respected game type | SystemConfigProxy |
 |---|---|---|---|
@@ -31,22 +31,23 @@ Custom gas token stays enabled. The v8 OPCM reads `isCustomGasToken()` from the 
 reverts when an upgrade tries to turn the flag on (`OPContractsManagerV2.sol:997-1003`), so no
 CGT-specific input exists.
 
-## Chain state as of 2026-11-06
+## Chain state as of 2026-11-20
 
-Read directly from Sepolia. The chain is still on U18, which is why this task is blocked.
+Read directly from Sepolia, after U19 (sep/900) executed and Karst activated on L2.
 
 | | Value |
 |---|---|
-| SystemConfig | 3.13.1 (`op-contracts/v6.0.0`) |
-| OptimismPortal2 | 5.2.0 |
-| AnchorStateRegistry | 3.7.0 |
-| DisputeGameFactory | 1.4.0, owner already the PAO Safe |
-| SuperchainConfig | 2.4.0 (its own, not the shared one) |
+| SystemConfig | 3.14.2 (`op-contracts/v7.0.0`) |
+| OptimismPortal2 | 5.6.1 |
+| AnchorStateRegistry | 3.9.0 |
+| DisputeGameFactory | 1.6.1, owner already the PAO Safe |
+| SuperchainConfig | 2.4.2 (its own, not the shared one) |
 | respectedGameType | 1, with `gameImpls(1)` the only registered game |
 | isCustomGasToken | true |
 | minBaseFee | 5 gwei |
 | Portal ETH balance | 0 |
-| PAO Safe nonce | 4 |
+| PAO Safe | 2-of-3, nonce 6; two owners carry an EIP-7702 delegation |
+| Karst | active since L2 block 13579632 (timestamp 1795176000) |
 
 ## Rehearsed first
 
@@ -89,40 +90,31 @@ this branch once ported; their full content, hashes and state diffs are in the g
 | DisputeGameFactory owner before | already the PAO Safe | an EOA, so slot `0x33` appeared in the replica diff and will be **absent here** |
 | Guardian | the PAO Safe | an EOA |
 | `minBaseFee` | 5 gwei, exception required | 0, exception a no-op |
-| Safe owner | plain EOA | was EIP-7702 delegated, which broke the tooling until revoked |
+| Safe owners | 2-of-3, two EIP-7702 delegated, so the tooling needs the local `0xef0100` patch | was EIP-7702 delegated, which broke the tooling until revoked |
 
 The replica's diff was 6 accounts and 21 slots. Whitechain's should be the same minus the
 DisputeGameFactory owner write.
 
 ## Before this can be signed
 
-1. ~~**Execute sep/900 (U19).**~~ Done: tx `0xa0bc4620…adc9`, Safe nonce now 6.
-2. ~~**Refresh [addresses.json](./addresses.json)**~~ Done: DelayedWETH `0x2e02e6cB…17fe`.
-3. **Derive the starting anchor root.** `startingAnchorRootRoot` and
-   `startingAnchorRootL2SequenceNumber` are part of the signed calldata and must be a single-chain
-   super root at a finalized L2 timestamp. **No op-node access is needed**: Whitechain's public RPC
-   `https://rpc.testnet.whitechain.io` serves `eth_getProof`, which is enough, even though it does
-   not whitelist `optimism_outputAtBlock` or `superroot_atTimestamp`.
+All done as of 2026-11-20:
 
-   ```
-   stateRoot, blockHash   <- eth_getBlockByNumber
-   withdrawalStorageRoot  <- eth_getProof on 0x4200000000000000000000000000000000000016, storageHash
-   outputRoot = keccak256( bytes32(0) || stateRoot || withdrawalStorageRoot || blockHash )
-   superRoot  = keccak256( 0x01 || uint64(timestamp) || uint256(1874) || outputRoot )
-   ```
+1. U19 (sep/900) executed in tx `0xa0bc4620…adc9`; the Safe nonce is 6.
+2. [addresses.json](./addresses.json) lists the DelayedWETH proxy U19 deployed, `0x2e02e6cB…17fe`.
+3. Karst activated at L2 block 13579632.
+4. The starting anchor is the super root at L2 block 13579854 (timestamp 1795176222), finalized
+   and post-Karst: `0x7664bf40…a1d4`. Derived from the public RPC with `eth_getProof` and matched
+   by Whitechain's op-nodes. See [VALIDATION.md](./VALIDATION.md) for the check.
+5. `expectedValidationErrors` held unchanged in the simulation.
 
-   The formula was validated against op-node's `optimism_outputAtBlock` on the rehearsal devnet,
-   matching exactly, then exercised against Whitechain. Their proof window reaches at least 3000
-   blocks back, roughly 50 minutes at 1s block time, comfortably past the finality lag.
+Deriving a super root without op-node access:
 
-   The one thing the public RPC cannot report is the L2 **finalized** head. Pick a conservatively
-   old block and have Whitechain confirm it is finalized.
-4. **Activate Karst**, which is confirmed **not** active on 1874: the L2 Contract Manager
-   predeploy's implementation slot is zero. Derive the anchor from a finalized post-Karst block so
-   the ordering matches the rehearsal.
-5. **Re-read `expectedValidationErrors`** from the first simulation once U19 has landed.
-6. **Generate `VALIDATION.md` and the calldata**, then confirm the Safe transaction hash against
-   the live Safe at its then-current nonce.
+```
+stateRoot, blockHash   <- eth_getBlockByNumber
+withdrawalStorageRoot  <- eth_getProof on 0x4200000000000000000000000000000000000016, storageHash
+outputRoot = keccak256( bytes32(0) || stateRoot || withdrawalStorageRoot || blockHash )
+superRoot  = keccak256( 0x01 || uint64(timestamp) || uint256(1874) || outputRoot )
+```
 
 ## Component changes
 
@@ -144,7 +136,8 @@ restart, which is the check that it worked.
 
 ## Simulation & Signing
 
-Single-safe task (1-of-1 ProxyAdminOwner), no child-safe argument. **Only valid after U19.**
+Single-safe task (2-of-3 ProxyAdminOwner), no child-safe argument. If `just simulate` fails with
+`block not found`, set `FORK_BLOCK_NUMBER` a few blocks behind the head.
 
 ```bash
 cd src/tasks/sep/901-U20-whitechain-testnet
