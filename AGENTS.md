@@ -101,6 +101,32 @@ These apply to every governance task:
 See [`docs/NEW_TASK_GUIDE.md`](docs/NEW_TASK_GUIDE.md) for the full task
 lifecycle and the pre-submission checklist.
 
+## Simulating fast (without cutting corners)
+
+Simulations are bound by RPC latency (~800 sequential reads, ~2 min cold), not
+by compiling. See [`docs/FAST-SIMULATIONS.md`](docs/FAST-SIMULATIONS.md) for
+details and measurements. In short:
+
+- **Repeat runs are cheap.** `simulate*` recipes fork the head rounded down to
+  a multiple of 50 blocks, so runs within ~10 min reuse Foundry's RPC cache
+  (~2 min → ~10 s). `FORK_BLOCK_NUMBER` overrides it; `FORK_BLOCK_NUMBER=-1` or
+  `SIM_FORK_BLOCK_ROUNDING=1` uses the latest block. `sign*` recipes always use
+  the latest block.
+- **Check every child safe in one process:**
+  `just simulate-stack-all-safes <network> [task]` instead of one
+  `simulate-stack` per (task, child safe). It runs the same hash and state-diff
+  checks for each child safe, prints a PASS/FAIL summary with every
+  domain/message hash, and exits non-zero on any failure.
+- **Long reviews:** pin with `export FORK_BLOCK_NUMBER=...`. The default
+  publicnode RPC is not an archive node, so blocks more than ~128 behind the head
+  fail with `403 ... Archive requests require a personal token`; set
+  `OVERRIDE_RPC_URL` to an archive RPC for longer pins.
+- **Parallelism:** warm the cache with one run first, then run the rest in
+  parallel. Never fan out cold runs against publicnode (429 / `block not found`).
+- **Never** skip stacked tasks with `FETCH_TASKS_ONLY` to save time (it breaks
+  Safe nonces and hashes), and re-simulate at the latest block after any related
+  on-chain execution and before signing.
+
 ## Authoring a template
 
 Templates standardize and secure task execution. Scaffold one with:
@@ -165,5 +191,6 @@ The `docs/` directory is the source of truth for detailed workflows:
 | [`docs/NESTED.md`](docs/NESTED.md) | Nested-safe execution workflow |
 | [`docs/SINGLE-VALIDATION.md`](docs/SINGLE-VALIDATION.md) | Validation patterns for single-safe operations |
 | [`docs/NESTED-VALIDATION.md`](docs/NESTED-VALIDATION.md) | Validation patterns for nested-safe operations |
+| [`docs/FAST-SIMULATIONS.md`](docs/FAST-SIMULATIONS.md) | Making simulations fast: block pinning, all-child-safe runs, RPC tips |
 
 For contribution setup and tooling, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
