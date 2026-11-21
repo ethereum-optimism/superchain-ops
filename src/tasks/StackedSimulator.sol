@@ -156,6 +156,19 @@ contract StackedSimulator is Script {
         address[][] memory paths = _config.isNested ? getChildSafePaths(_config.rootSafe) : new address[][](1);
         if (!_config.isNested) paths[0] = new address[](0);
 
+        // A nested task must have at least one child-safe path; never report success without simulating anything.
+        if (paths.length == 0) {
+            return (
+                string.concat(
+                    "\n[FAIL] ",
+                    _taskName,
+                    " | no child safes found for nested root safe ",
+                    vm.toString(_config.rootSafe)
+                ),
+                1
+            );
+        }
+
         for (uint256 j = 0; j < paths.length; j++) {
             string memory label = string.concat(_taskName, " | ", _formatSafePath(paths[j], _config.rootSafe));
             uint256 snapshot = vm.snapshotState();
@@ -215,10 +228,12 @@ contract StackedSimulator is Script {
         }
     }
 
-    /// @notice True if `_account` looks like a Safe: real contract code (an EIP-7702 delegation designator is exactly
-    /// 23 bytes and belongs to an EOA signer) that answers `getOwners()`.
+    /// @notice True if `_account` looks like a Safe: it has contract code that is not an EIP-7702 delegation
+    /// designator (`0xef0100 ++ address`, which belongs to an EOA signer) and it answers `getOwners()`.
     function _isSafe(address _account) internal view returns (bool) {
-        if (_account.code.length <= 23) return false;
+        bytes memory code = _account.code;
+        if (code.length == 0) return false;
+        if (code.length == 23 && code[0] == 0xef && code[1] == 0x01 && code[2] == 0x00) return false;
         (bool ok, bytes memory ret) = _account.staticcall(abi.encodeCall(IGnosisSafe.getOwners, ()));
         return ok && ret.length >= 64;
     }

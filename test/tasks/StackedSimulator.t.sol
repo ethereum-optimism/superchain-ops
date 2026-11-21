@@ -426,6 +426,30 @@ contract StackedSimulatorUnitTest is Test {
         );
     }
 
+    function testGetChildSafePaths_NoSafeOwnersMeansNoPaths() public {
+        vm.createSelectFork("mainnet", 22306611);
+        StackedSimulator ss = new StackedSimulator();
+        // Make every owner of the foundation safe an EIP-7702-delegated EOA: nothing is left to simulate as a child.
+        address[] memory owners = IGnosisSafe(childMultisig).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            vm.etch(owners[i], abi.encodePacked(hex"ef0100", address(0xdead)));
+        }
+        assertEq(ss.getChildSafePaths(childMultisig).length, 0);
+    }
+
+    function testGetChildSafePaths_SkipsEip7702DelegatedOwner() public {
+        vm.createSelectFork("mainnet", 22306611);
+        StackedSimulator ss = new StackedSimulator();
+        address[] memory owners = IGnosisSafe(rootSafe).getOwners();
+        // Turn the first child safe into an EIP-7702-delegated EOA (0xef0100 ++ delegate address).
+        vm.etch(owners[0], abi.encodePacked(hex"ef0100", address(0xdead)));
+        address[][] memory paths = ss.getChildSafePaths(rootSafe);
+        assertEq(paths.length, owners.length - 1, "7702-delegated owner must be skipped");
+        for (uint256 i = 0; i < paths.length; i++) {
+            assertTrue(paths[i][0] != owners[0]);
+        }
+    }
+
     function testSimulateStackAllChildSafes_NestedStackPassesAndIsolatesRuns() public {
         vm.createSelectFork("mainnet", 22306611); // Starting nonce for parent is 12 and for child is 20 at this block.
         string memory network = "eth_030";
