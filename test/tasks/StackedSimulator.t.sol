@@ -412,6 +412,80 @@ contract StackedSimulatorUnitTest is Test {
         ss.simulateStack("eth_019");
     }
 
+    function testGetChildSafePaths_RootSafeWithTwoChildSafes() public {
+        vm.createSelectFork("mainnet", 22306611);
+        StackedSimulator ss = new StackedSimulator();
+        address[][] memory paths = ss.getChildSafePaths(rootSafe);
+        assertEq(paths.length, 2, "expected one path per child safe");
+        assertEq(paths[0].length, 1, "depth-1 child safes have EOA owners, so paths are single-hop");
+        assertEq(paths[1].length, 1, "depth-1 child safes have EOA owners, so paths are single-hop");
+        assertTrue(
+            (paths[0][0] == childMultisig && paths[1][0] == childMultisig2)
+                || (paths[0][0] == childMultisig2 && paths[1][0] == childMultisig),
+            "expected the foundation and security council safes"
+        );
+    }
+
+    function testSimulateStackAllChildSafes_NestedStackPassesAndIsolatesRuns() public {
+        vm.createSelectFork("mainnet", 22306611); // Starting nonce for parent is 12 and for child is 20 at this block.
+        string memory network = "eth_030";
+        SimpleStorage simpleStorage = new SimpleStorage();
+        uint256 parentNonce = 12;
+        uint256 childNonce = 20;
+        uint256 childNonce2 = 22;
+        uint256 firstValue = 2003;
+        createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce, childNonce2
+        );
+        string memory taskName2 = createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, ++childNonce, ++childNonce2
+        );
+
+        StackedSimulator ss = new StackedSimulator();
+        // Each task is simulated on both child safes. Task 2's nonces only line up if the stack was advanced by
+        // exactly one execution of task 1 (i.e. the per-child runs of task 1 were reverted).
+        ss.simulateStackAllChildSafes(network, taskName2);
+
+        // The last task's child-safe runs are reverted and it is not re-executed, so the fork is left in the state
+        // after task 1 only.
+        assertEq(simpleStorage.current(), 1);
+        assertEq(IGnosisSafe(rootSafe).nonce(), 13);
+        assertEq(IGnosisSafe(childMultisig).nonce(), 21);
+        assertEq(IGnosisSafe(childMultisig2).nonce(), 23);
+    }
+
+    function testSimulateStackAllChildSafes_FailsWhenAChildSafeRunFails() public {
+        vm.createSelectFork("mainnet", 22306611);
+        string memory network = "eth_031";
+        SimpleStorage simpleStorage = new SimpleStorage();
+        uint256 firstValue = 2003;
+        uint256 parentNonce = 12;
+        uint256 childNonce = 20;
+        uint256 childNonce2 = 22;
+        createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce, childNonce2
+        );
+        // Second child safe's nonce is not bumped, so task 2 is invalid.
+        string memory taskName2 = createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, ++childNonce, childNonce2
+        );
+
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: one or more child-safe simulations failed (see summary above).");
+        ss.simulateStackAllChildSafes(network, taskName2);
+    }
+
+    function testSimulateStackAllChildSafes_RefusesStackedSigningMode() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_032", 1, 970);
+        vm.setEnv("STACKED_SIGNING_MODE", "true");
+        vm.expectRevert(
+            "StackedSimulator: simulateStackAllChildSafes is simulation-only and cannot be used for signing."
+        );
+        ss.simulateStackAllChildSafes("eth_032", "970-task-name");
+        vm.setEnv("STACKED_SIGNING_MODE", "false");
+    }
+
     function testConvertPrefixToUint_ExactThreeCharacters() public {
         StackedSimulator ss = new StackedSimulator();
         uint256 result = ss.convertPrefixToUint("123-task-name");

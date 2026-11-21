@@ -9,6 +9,8 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Script} from "forge-std/Script.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 /// This script enables stacked simulations. Stacked simulations allow us to simulate a task
@@ -56,13 +58,54 @@ contract StackedSimulator is Script {
         _simulateStack(network, tasks[tasks.length - 1].name, new address[](0));
     }
 
+    /// @notice Review helper: simulates every non-terminal task for a network and, for each nested task in the
+    /// stack, simulates it once on every child safe of its root safe, all in a single forge process.
+    /// @dev Replaces running `simulate-stack <network> <task> <child-safe>` once per (task, child safe) pair. Every
+    /// fork read is fetched once and reused from memory, so N child-safe runs cost about one cold run.
+    /// Simulation only: refuses to run in stacked signing mode because it prints more than one data-to-sign.
+    function simulateStackAllChildSafes(string memory network) public {
+        TaskInfo[] memory tasks = getNonTerminalTasks(network);
+        if (tasks.length == 0) {
+            console.log("No non-terminal tasks found for network: %s", network);
+            return;
+        }
+        simulateStackAllChildSafes(network, tasks[tasks.length - 1].name);
+    }
+
+    /// @notice Same as `simulateStackAllChildSafes(string)` but stops at (and includes) `task`.
+    function simulateStackAllChildSafes(string memory network, string memory task) public {
+        require(
+            !Utils.isFeatureEnabled("STACKED_SIGNING_MODE"),
+            "StackedSimulator: simulateStackAllChildSafes is simulation-only and cannot be used for signing."
+        );
+        _simulateStackImpl(network, task, new address[](0), true);
+    }
+
     /// @notice Simulates a stack of tasks with a given network, task, and child safes. The child safes can be empty.
     function _simulateStack(string memory _network, string memory _task, address[] memory _targetTaskChildSafes)
         private
     {
+        _simulateStackImpl(_network, _task, _targetTaskChildSafes, false);
+    }
+
+    /// @notice Shared implementation. When `_allChildSafes` is true, every nested task is additionally simulated on
+    /// each of its child safes (state is snapshotted before and reverted after each child-safe run), and the stack is
+    /// then advanced exactly as a normal stacked simulation would (default child safe).
+    function _simulateStackImpl(
+        string memory _network,
+        string memory _task,
+        address[] memory _targetTaskChildSafes,
+        bool _allChildSafes
+    ) private {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(_network, _task);
         TaskConfig[] memory taskConfigs = new TaskConfig[](tasks.length);
+
+        // Print the execution order here so callers don't need a separate `listStack` forge process.
+        printStack(tasks, _network);
+
+        string memory summary;
+        uint256 failures;
 
         // Setting this env variable to true by default to reduce logging for stack simulations.
         // Use SIGNING_MODE_IN_PROGRESS=false to see print the full output.
@@ -80,12 +123,127 @@ contract StackedSimulator is Script {
                 vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
             }
 
+            if (_allChildSafes) {
+                (string memory taskSummary, uint256 taskFailures) =
+                    _simulateOnAllChildSafes(taskManager, taskConfigs[i], tasks[i].name);
+                summary = string.concat(summary, taskSummary);
+                failures += taskFailures;
+                // The last task has nothing stacked on top of it, so there is no need to advance the state.
+                if (isLastTask) break;
+            }
+
             if (isLastTask) {
                 taskManager.executeTask(taskConfigs[i], _targetTaskChildSafes);
             } else {
                 taskManager.executeTask(taskConfigs[i], new address[](0)); // Empty array because child safes are only used for the last task.
             }
         }
+
+        if (_allChildSafes) {
+            console.log("\n========== StackedSimulator: all-child-safes summary ==========");
+            console.log(summary);
+            require(failures == 0, "StackedSimulator: one or more child-safe simulations failed (see summary above).");
+        }
+    }
+
+    /// @notice Simulates `_config` once per child-safe path of its root safe, reverting the fork state after each
+    /// run so the runs are independent and the stack can then be advanced normally. Non-nested tasks run once on the
+    /// root safe. Returns a human-readable summary and the number of failed runs.
+    function _simulateOnAllChildSafes(TaskManager _taskManager, TaskConfig memory _config, string memory _taskName)
+        private
+        returns (string memory summary_, uint256 failures_)
+    {
+        address[][] memory paths = _config.isNested ? getChildSafePaths(_config.rootSafe) : new address[][](1);
+        if (!_config.isNested) paths[0] = new address[](0);
+
+        for (uint256 j = 0; j < paths.length; j++) {
+            string memory label = string.concat(_taskName, " | ", _formatSafePath(paths[j], _config.rootSafe));
+            uint256 snapshot = vm.snapshotState();
+            try _taskManager.executeTask(_config, paths[j]) returns (
+                VmSafe.AccountAccess[] memory, bytes[] memory dataToSign_
+            ) {
+                summary_ = string.concat(summary_, "\n[PASS] ", label);
+                address leaf = paths[j].length > 0 ? paths[j][0] : _config.rootSafe;
+                bytes32 leafDomain = IGnosisSafe(leaf).domainSeparator();
+                for (uint256 k = 0; k < dataToSign_.length; k++) {
+                    (bytes32 domainHash, bytes32 messageHash) =
+                        GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(dataToSign_[k]);
+                    summary_ = string.concat(
+                        summary_,
+                        "\n         domain: ",
+                        vm.toString(domainHash),
+                        "  message: ",
+                        vm.toString(messageHash),
+                        domainHash == leafDomain ? "  <- simulated safe" : ""
+                    );
+                }
+            } catch Error(string memory reason) {
+                failures_++;
+                summary_ = string.concat(summary_, "\n[FAIL] ", label, "\n         ", reason);
+            } catch (bytes memory) {
+                failures_++;
+                summary_ = string.concat(summary_, "\n[FAIL] ", label, "\n         (reverted without a reason)");
+            }
+            require(vm.revertToStateAndDelete(snapshot), "StackedSimulator: failed to revert child-safe snapshot.");
+        }
+    }
+
+    /// @notice Returns every child-safe path that can approve a transaction on `_rootSafe`, in the ordering expected
+    /// by `TaskManager.executeTask` (leaf first). A depth-1 owner whose owners are all Safes is treated as nested and
+    /// expanded into one path per depth-2 Safe owner; otherwise it is a leaf. EOA (and EIP-7702-delegated EOA) owners
+    /// are skipped because they sign the root safe directly.
+    function getChildSafePaths(address _rootSafe) public view returns (address[][] memory paths_) {
+        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
+        uint256 count;
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (!_isSafe(owners[i])) continue;
+            count += _hasOnlySafeOwners(owners[i]) ? _countSafes(IGnosisSafe(owners[i]).getOwners()) : 1;
+        }
+        paths_ = new address[][](count);
+        uint256 idx;
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (!_isSafe(owners[i])) continue;
+            if (_hasOnlySafeOwners(owners[i])) {
+                address[] memory depth2Owners = IGnosisSafe(owners[i]).getOwners();
+                for (uint256 k = 0; k < depth2Owners.length; k++) {
+                    if (!_isSafe(depth2Owners[k])) continue;
+                    paths_[idx++] = Solarray.addresses(depth2Owners[k], owners[i]);
+                }
+            } else {
+                paths_[idx++] = Solarray.addresses(owners[i]);
+            }
+        }
+    }
+
+    /// @notice True if `_account` looks like a Safe: real contract code (an EIP-7702 delegation designator is exactly
+    /// 23 bytes and belongs to an EOA signer) that answers `getOwners()`.
+    function _isSafe(address _account) internal view returns (bool) {
+        if (_account.code.length <= 23) return false;
+        (bool ok, bytes memory ret) = _account.staticcall(abi.encodeCall(IGnosisSafe.getOwners, ()));
+        return ok && ret.length >= 64;
+    }
+
+    function _hasOnlySafeOwners(address _safe) internal view returns (bool) {
+        address[] memory owners = IGnosisSafe(_safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (!_isSafe(owners[i])) return false;
+        }
+        return owners.length > 0;
+    }
+
+    function _countSafes(address[] memory _accounts) internal view returns (uint256 count_) {
+        for (uint256 i = 0; i < _accounts.length; i++) {
+            if (_isSafe(_accounts[i])) count_++;
+        }
+    }
+
+    function _formatSafePath(address[] memory _path, address _rootSafe) internal pure returns (string memory out_) {
+        if (_path.length == 0) return string.concat("root safe ", vm.toString(_rootSafe));
+        out_ = "child safes ";
+        for (uint256 i = 0; i < _path.length; i++) {
+            out_ = string.concat(out_, vm.toString(_path[i]), " -> ");
+        }
+        out_ = string.concat(out_, "root ", vm.toString(_rootSafe));
     }
 
     /// @notice Returns an ordered list of non-terminal tasks that must be executed for a given task.

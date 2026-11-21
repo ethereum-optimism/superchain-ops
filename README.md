@@ -170,7 +170,11 @@ just simulate-stack eth 001-example                           # Simulate specifi
 just simulate-stack eth 001-example foundation                # Simulate on foundation child safe
 just simulate-stack eth 001-example base-nested base-council  # Simulate on nested architecture
 SKIP_DECODE_AND_PRINT=1 just simulate-stack eth               # By using the 'SKIP_DECODE_AND_PRINT' environment variable, you'll have faster stacked simulations. However, markdown will not be printed to the terminal.
+just simulate-stack-all-safes eth                             # Simulate every task on every child safe of each nested task, in one process
+just simulate-stack-all-safes eth 001-example                 # Same, for the stack up to and including 001-example
 ```
+
+> **Speed**: simulations are RPC-latency bound. `simulate*` recipes automatically pin the fork to the head rounded down to a multiple of 50 blocks so repeated runs reuse Foundry's RPC cache (set `FORK_BLOCK_NUMBER` to override, or `SIM_FORK_BLOCK_ROUNDING=1` for the latest block). See [docs/FAST-SIMULATIONS.md](docs/FAST-SIMULATIONS.md) for more tips.
 
 > **Note**: For nested architectures, specify child safes in ownership order: depth-1 safe (owned by root) then depth-2 safe (owned by depth-1).
 

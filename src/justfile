@@ -69,6 +69,8 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo "  just simulate-stack eth rehearsals                           # All rehearsal tasks"
         echo "  just simulate-stack eth rehearsals/2025-01-08-R1-welcome     # Specific rehearsal task"
         echo "  just simulate-stack eth rehearsals/2025-01-08-R3 council     # Rehearsal with nested safe"
+        echo "Environment: FORK_BLOCK_NUMBER (pin a block; -1 = latest), SIM_FORK_BLOCK_ROUNDING (default 50; 1 = latest)"
+        echo "See also: just simulate-stack-all-safes <network> [task]  # every child safe of every nested task, one process"
     }
 
     [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m"; show_usage; exit 1; }
@@ -110,24 +112,38 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         done
     fi
 
+    # Pin a recent, rounded-down block (unless FORK_BLOCK_NUMBER is already set) so repeated runs reuse
+    # Foundry's per-block RPC cache instead of re-fetching all state at a new head every time.
+    FORK_BLOCK_NUMBER=$(just --justfile "$root_just_file" _pin-sim-fork-block "$ETH_RPC_URL")
+    export FORK_BLOCK_NUMBER
+
     # Get fork block arguments - will be used for all tasks in the stack
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
 
     echo -e "\n⏳ Stacked Task simulation in progress..."
 
-    if [ -z "$effective_task" ]; then
+    if [ -n "${SIMULATE_ALL_CHILD_SAFES:-}" ]; then
+        if [ -n "{{CHILD_SAFE_NAME_DEPTH_1}}" ] || [ -n "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
+            echo -e "\n\033[31mError: SIMULATE_ALL_CHILD_SAFES simulates every child safe; do not pass child safe names.\033[0m"
+            exit 1
+        fi
+        if [ -z "$effective_task" ]; then
+            echo -e "⏳ You are simulating all tasks for network: {{NETWORK}} on every child safe of each nested task\n"
+            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStackAllChildSafes(string)" {{NETWORK}} --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+        else
+            echo -e "⏳ You are simulating the stack up to task: $effective_task for network: '{{NETWORK}}' on every child safe of each nested task\n"
+            forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStackAllChildSafes(string,string)" "{{NETWORK}}" "$effective_task" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
+        fi
+    elif [ -z "$effective_task" ]; then
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
-        just list-stack {{NETWORK}}
         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are simulating the task: $effective_task for network: '{{NETWORK}}' on the root safe\n"
-        just list-stack {{NETWORK}} $effective_task
         forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "$effective_task" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     else
         task_dir_path="${root_dir}/src/tasks/{{NETWORK}}/{{TASK}}"
         child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
         child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
-        just list-stack {{NETWORK}} $effective_task
 
         if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
             echo -e "⏳ You are simulating the task: $effective_task for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
@@ -138,6 +154,16 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         fi
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
+
+# Review helper: simulate the stack and every child safe of every nested task in ONE forge process.
+# Equivalent to running `simulate-stack <network> <task> <child-safe>` once per (task, child safe), but all fork
+# state is fetched once. Simulation only (never used for signing). Prints a PASS/FAIL summary with the domain and
+# message hashes of every run, and exits non-zero if any run fails.
+simulate-stack-all-safes NETWORK="" TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m\nUsage: just simulate-stack-all-safes <network> [task]"; exit 1; }
+    SIMULATE_ALL_CHILD_SAFES=1 just --justfile "$(git rev-parse --show-toplevel)/src/justfile" simulate-stack "{{NETWORK}}" "{{TASK}}"
 
 sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
@@ -211,7 +237,6 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
          forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "$effective_task" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are signing the task: $effective_task for network: '{{NETWORK}}' on the root safe\n"
-        just list-stack {{NETWORK}} $effective_task
         ${root_dir}/bin/eip712sign ${signer_args} -- \
          forge script ${root_dir}/src/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "$effective_task" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} ${fork_block_args}
     else
@@ -275,7 +300,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     show_usage() {
         echo
         echo "Usage: just simulate [child-safe-name-depth-1] [child-safe-name-depth-2]"
-        echo "Environment: SIMULATE_WITHOUT_LEDGER, HD_PATH (default: 0), FORK_BLOCK_NUMBER"
+        echo "Environment: SIMULATE_WITHOUT_LEDGER, HD_PATH (default: 0), FORK_BLOCK_NUMBER, SIM_FORK_BLOCK_ROUNDING"
     }
 
     # Set test directory if running test task
@@ -289,6 +314,9 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     # Get fork block arguments first: every forge invocation below (root-safe lookup, signer
     # resolution, simulation) must read the same pinned state, otherwise FORK_BLOCK_NUMBER
     # only applies to the final simulation while the helpers fork at the latest block.
+    # Unless FORK_BLOCK_NUMBER is set, pin a recent rounded-down block so repeated runs reuse the RPC cache.
+    FORK_BLOCK_NUMBER=$(just --justfile "$root_just_file" _pin-sim-fork-block "$ETH_RPC_URL")
+    export FORK_BLOCK_NUMBER
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
 
     # Get function signature and arguments using helper
@@ -492,6 +520,40 @@ _get-fork-block-args:
         echo "Using fork block number from env: ${FORK_BLOCK_NUMBER}" >&2
         echo "--fork-block-number ${FORK_BLOCK_NUMBER}"
     fi
+
+# Resolve the fork block for simulate* recipes (sign* recipes keep using the latest block).
+# - FORK_BLOCK_NUMBER set (including -1 = latest): returned unchanged.
+# - Otherwise: the chain head rounded down to a multiple of SIM_FORK_BLOCK_ROUNDING (default 50, ~10 min on L1),
+#   so every simulation in that window forks the same block and reuses Foundry's on-disk RPC cache
+#   (~/.foundry/cache/rpc/<chain>/<block>): a repeat run drops from ~2 min to ~10 s.
+#   SIM_FORK_BLOCK_ROUNDING=1 (or 0) disables rounding and forks the latest block, as before.
+# Prints -1 (latest) if the head cannot be fetched, so a flaky RPC never blocks a simulation.
+[no-cd]
+_pin-sim-fork-block ETH_RPC_URL:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -n "${FORK_BLOCK_NUMBER+x}" ] && [ -n "${FORK_BLOCK_NUMBER}" ]; then
+        echo "${FORK_BLOCK_NUMBER}"
+        exit 0
+    fi
+    rounding="${SIM_FORK_BLOCK_ROUNDING:-50}"
+    if ! [[ "$rounding" =~ ^[0-9]+$ ]]; then
+        echo "Error: SIM_FORK_BLOCK_ROUNDING must be a non-negative integer, got '${rounding}'" >&2
+        exit 1
+    fi
+    if [ "$rounding" -le 1 ]; then
+        echo "-1"
+        exit 0
+    fi
+    # cast resolves foundry.toml [rpc_endpoints] aliases (e.g. "mainnet") from the repo root.
+    if ! head=$(cd "$(git rev-parse --show-toplevel)" && cast block-number --rpc-url "{{ETH_RPC_URL}}" 2>/dev/null); then
+        echo "Warning: could not fetch the chain head; simulating at the latest block (no cache reuse)" >&2
+        echo "-1"
+        exit 0
+    fi
+    block=$(( head - head % rounding ))
+    echo "Pinned simulation fork block ${block} (head ${head} rounded down to a multiple of ${rounding}; set FORK_BLOCK_NUMBER to override, SIM_FORK_BLOCK_ROUNDING=1 for latest)" >&2
+    echo "${block}"
 
 # Configure signer for simulation (ledger or safe owner)
 [no-cd]
