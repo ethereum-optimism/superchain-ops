@@ -1,0 +1,61 @@
+# OPCM.migrate example task: Unichain Sepolia and OP Sepolia (Sepolia L1) with an op-contracts/v10 OPCM (U22).
+#
+# What this task does:
+#   - Delegatecalls OPCMv2.migrate once for the whole set, using an op-contracts/v10 OPCM.
+#   - Deploys a shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry, moves every portal's and
+#     old lockbox's ETH into the shared lockbox, points every portal at the shared dispute contracts and
+#     enables INTEROP on every chain. One-way: all prior withdrawal proofs are invalidated.
+#   - Registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9) on the shared DisputeGameFactory. By template
+#     policy migrate() gets no ZK_DISPUTE_GAME (10) config; 050 enables it afterwards with an OPCMUpgradeV1000 re-run.
+#
+# migrate() requires every chain to be upgraded with this OPCM. Both chains report lastUsedOPCMVersion 9.0.3 at
+# FORK_BLOCK_NUMBER, so this fixture only makes sense on the state left by 048-opcm-upgrade-v1000, which upgrades
+# them with the same OPCM. It is always simulated stacked on it (DEPENDS_ON in the .env), mirroring production.
+#
+# l2chains must be in strictly ascending chainId order (migrate reverts otherwise). The first chain's
+# ProxyAdmin administers the shared proxies and its DelayedWETH becomes the shared DelayedWETH.
+# Both chains share SuperchainConfig 0xC2Be75506d5724086DEB7245bd260Cc9753911Be.
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+templateName = "OPCMMigrateV1000"
+skipOPCMVersionCheck = false
+
+[opcmMigrate]
+# Placeholder: the chains' current SUPER_CANNON_KONA prestate, kona-client/v1.9.0 cannon64-kona-interop
+# (sep/115). A real task MUST use the interop prestate built with this set declared as one interop cluster in
+# the superchain-registry.
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# expectedValidationErrors is the migration validator's output for the set. expectedChainValidationErrors is the
+# standard validator's output for each chain, in l2chains order.
+expectedChainValidationErrors = ["", ""]
+expectedValidationErrors = ""
+# Placeholder: OP Sepolia's SUPER_PERMISSIONED proposer at FORK_BLOCK_NUMBER. The shared game takes a single
+# proposer, but the chains have different ones (Unichain 0x97E74f93DF7Fb8eb2542d0Cc42DFB21AaBB40800).
+# A real task MUST use the set's super proposer.
+proposer = "0x9884C33C65111DA7Bbed0e63cD2392F503b135F5"
+# Placeholder super root. A real task MUST supply the honest super root of the whole set, generated with
+# op-chain-ops/cmd/check-super-root over every chain, and its timestamp.
+startingAnchorRootRoot = "0xdead000000000000000000000000000000000000000000000000000000000000"
+startingAnchorRootL2SequenceNumber = 1794412446
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, must equal the chains' current SUPER_CANNON_KONA bond
+
+[addresses]
+# op-contracts/v10.0.0-rc.1 OPCM. `OPCM.version()` returns "10.0.0"; `OPCM.opcmStandardValidator()` returns
+# 0xc3E505AD2bF339F7112F774a654fF9818643aa4f (OPContractsManagerStandardValidator 6.0.0).
+# Must be the OPCM 048-opcm-upgrade-v1000 upgrades the chains with (the template checks lastUsedOPCM). A real task
+# must use the OPCM listed for the final op-contracts/v10.0.0 release.
+OPCM = "0xe3D1CC898cd19F4ACE77715259eF942766c1d0D3"
+# Root-safe pin: the registry still records Unichain Sepolia's pre-transfer ProxyAdminOwner
+# (0xd363…9dbf); the pin resolves the same root safe for both chains. Same pin as 047 and 048.
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# Unichain Sepolia's SystemConfig packs superchainConfig with a non-zero minBaseFee (500000) in slot 0x6c,
+# which the code-presence check would misread as an address. migrate() reinitializes SystemConfig, so the
+# slot is rewritten. Same exception as 047 and 048.
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
