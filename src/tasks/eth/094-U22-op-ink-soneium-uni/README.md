@@ -1,4 +1,4 @@
-# 091-U22-op-ink-soneium-uni
+# 094-U22-op-ink-soneium-uni
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -9,8 +9,8 @@ Scaffold. Every U22 release input is a placeholder.
 | | |
 |---|---|
 | Target date | Dec 15-17, 2026 (before the end-of-year pause; signatures gathered before the break) |
-| Depends on | U21 (eth/084, executed); eth/085-087 and one further FUS task for nonces. |
-| Sequencing | Mainnet 1/3. Followed by [092-U22-op-uni-opcm-migrate-v1000](../092-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 51, FUS 84, SC 78. Nonces assume eth/085-087 and one further FUS task execute first. |
+| Depends on | U21 (eth/084, executed). |
+| Sequencing | Mainnet 1/3. Followed by [095-U22-op-uni-opcm-migrate-v1000](../095-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 51, FUS 87, SC 78. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -30,7 +30,7 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP-governed Mainnet chains from 
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [ ] U22 SUPER_CANNON_KONA prestate (`TODO_U22_KONA_INTEROP_PRESTATE`), from standard-prestates.toml.
 - [ ] Re-check `storageCodeExceptions` (Unichain / Soneium slot 0x6c) against the v10 simulation.
-- [ ] Re-pin nonces if eth/085-087 slip or are cancelled, or if another L1PAO/FUS/SC task lands first.
+- [ ] Re-pin nonces if another L1PAO/FUS/SC task lands first.
 - [ ] Governance kickoff ~Dec 5.
 
 ## Simulation & Signing
@@ -39,11 +39,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/091-U22-op-ink-soneium-uni
+cd src/tasks/eth/094-U22-op-ink-soneium-uni
 
-just simulate-stack eth 091-U22-op-ink-soneium-uni council   # or foundation
+just simulate-stack eth 094-U22-op-ink-soneium-uni council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 091-U22-op-ink-soneium-uni council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 094-U22-op-ink-soneium-uni council   # or foundation
 ```
 
 ## Validation
