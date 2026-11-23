@@ -16,6 +16,14 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
+/// @notice Exposes the post-migration state checks, so a test can rerun them on state that differs from what
+/// migrate() produced.
+contract OPCMMigrateV1000ValidateHarness is OPCMMigrateV1000 {
+    function validateMigratedStateForTest(address sharedLockbox, address sharedDgf, address sharedAsr) external view {
+        _validateMigratedState(sharedLockbox, sharedDgf, sharedAsr);
+    }
+}
+
 /// @notice Runs the 049 example task end to end on a Sepolia fork, against the v10 OPCM the example points at. Both
 /// chains are on 9.0.3 at FORK_BLOCK_NUMBER, so setUp first simulates the 048 example, which upgrades them with that
 /// OPCM, as production stacks the two tasks. OPCMMigrateV1000Setup.t.sol covers the setup guards.
@@ -123,6 +131,75 @@ contract OPCMMigrateV1000Test is Test {
         assertEq(sharedLockbox.balance, ethBefore);
     }
 
+    /// @notice migrate() keeps each portal's proof maturity delay. Validation fails if a portal's delay differs from
+    /// the one recorded during setup.
+    function test_validate_rejectsChangedProofMaturityDelay() public {
+        (OPCMMigrateV1000ValidateHarness task, address[] memory created) = _simulateHarness();
+        assertEq(task.preMigrationProofMaturityDelay(), 604800);
+
+        vm.mockCall(OP_SEPOLIA_PORTAL, abi.encodeWithSignature("proofMaturityDelaySeconds()"), abi.encode(uint256(1)));
+        vm.expectRevert(bytes("OPCMMigrateV1000: proof maturity delay changed"));
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
+    }
+
+    /// @notice Validation fails if a portal does not point at each shared contract migrate() created.
+    function test_validate_rejectsPortalOffSharedContracts() public {
+        (OPCMMigrateV1000ValidateHarness task, address[] memory created) = _simulateHarness();
+        vm.expectRevert(bytes("OPCMMigrateV1000: portal not on the shared ETHLockbox"));
+        task.validateMigratedStateForTest(address(1), created[1], created[2]);
+        vm.expectRevert(bytes("OPCMMigrateV1000: portal not on the shared DisputeGameFactory"));
+        task.validateMigratedStateForTest(created[0], address(1), created[2]);
+        vm.expectRevert(bytes("OPCMMigrateV1000: portal not on the shared AnchorStateRegistry"));
+        task.validateMigratedStateForTest(created[0], created[1], address(1));
+    }
+
+    /// @notice Validation fails if a portal kept ETH, or if the shared lockbox holds less than the ETH recorded during
+    /// setup.
+    function test_validate_rejectsEthNotMoved() public {
+        (OPCMMigrateV1000ValidateHarness task, address[] memory created) = _simulateHarness();
+        vm.deal(OP_SEPOLIA_PORTAL, 1);
+        vm.expectRevert(bytes("OPCMMigrateV1000: ETH left behind"));
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
+
+        vm.deal(OP_SEPOLIA_PORTAL, 0);
+        assertGt(task.preMigrationEth(), 0);
+        vm.deal(created[0], task.preMigrationEth() - 1);
+        vm.expectRevert(bytes("OPCMMigrateV1000: shared lockbox did not receive all ETH"));
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
+    }
+
+    /// @notice Validation fails if the shared AnchorStateRegistry does not respect the configured game type.
+    function test_validate_rejectsRespectedGameTypeNotApplied() public {
+        (OPCMMigrateV1000ValidateHarness task, address[] memory created) = _simulateHarness();
+        vm.mockCall(created[2], abi.encodeWithSignature("respectedGameType()"), abi.encode(uint32(5)));
+        vm.expectRevert(bytes("OPCMMigrateV1000: startingRespectedGameType not applied"));
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
+    }
+
+    /// @notice When the root safe is not the validator's standard L1PAO, both validators run with the root safe as the
+    /// L1PAO override. The migration validator applies it silently; the standard validator reports it for each chain.
+    function test_simulate_validatesWithL1PAOOverride() public {
+        address validator = address(IOPContractsManagerV1000(OPCM).opcmStandardValidator());
+        vm.mockCall(validator, abi.encodeWithSignature("l1PAOMultisig()"), abi.encode(address(0xdead)));
+        vm.expectCall(
+            validator,
+            abi.encodePacked(IOPContractsManagerStandardValidatorV1000.validateMigratedChainWithOverrides.selector),
+            1
+        );
+        vm.expectCall(
+            validator, abi.encodePacked(IOPContractsManagerStandardValidatorV1000.validateWithOverrides.selector), 2
+        );
+
+        string memory config = vm.replace(
+            vm.readFile(CONFIG),
+            'expectedChainValidationErrors = ["", ""]',
+            'expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG", "OVERRIDES-L1PAOMULTISIG"]'
+        );
+        string memory path = MultisigTaskTestHelper.createTempTomlFile(config, "opcm-migrate-v1000", "l1pao-override");
+        new OPCMMigrateV1000().simulate(path, _childSafes());
+        MultisigTaskTestHelper.removeFile(path);
+    }
+
     /// @notice A wrong expectedValidationErrors fails simulate().
     function test_simulate_rejectsUnexpectedMigrationValidationErrors() public {
         _assertSimulateReverts(
@@ -144,6 +221,16 @@ contract OPCMMigrateV1000Test is Test {
     /// @notice Simulates the example task as the Foundation Upgrade Safe, one of the L1PAO's two owners.
     function _simulate() internal returns (VmSafe.AccountAccess[] memory accesses, Action[] memory actions) {
         (accesses, actions,,) = new OPCMMigrateV1000().simulate(CONFIG, _childSafes());
+    }
+
+    /// @notice Simulates the example task with a harness that can rerun the post-migration checks, and returns the
+    /// contracts migrate() created: the shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry. The checks pass
+    /// on the unmodified result.
+    function _simulateHarness() internal returns (OPCMMigrateV1000ValidateHarness task, address[] memory created) {
+        task = new OPCMMigrateV1000ValidateHarness();
+        (VmSafe.AccountAccess[] memory accesses,,,) = task.simulate(CONFIG, _childSafes());
+        created = accesses.getNewContracts();
+        task.validateMigratedStateForTest(created[0], created[1], created[2]);
     }
 
     function _childSafes() internal pure returns (address[] memory childSafes) {
