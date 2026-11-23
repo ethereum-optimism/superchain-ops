@@ -97,6 +97,17 @@ contract OPCMMigrateV1000SetupValidationTest is Test {
         );
     }
 
+    /// @dev migrate() only accepts SUPER_PERMISSIONED or SUPER_CANNON_KONA as the respected game type; the template
+    /// refuses anything else in setup rather than at build time with an OPCM error.
+    function test_rejects_non_super_respected_game_type() public {
+        _assertSetupReverts(
+            "respected-zk",
+            "startingRespectedGameType = 9 # SUPER_CANNON_KONA",
+            "startingRespectedGameType = 10",
+            "OPCMMigrateV1000: startingRespectedGameType must be a super game type (5 or 9)"
+        );
+    }
+
     function test_rejects_zero_starting_anchor_root() public {
         _assertSetupReverts(
             "zero-anchor",

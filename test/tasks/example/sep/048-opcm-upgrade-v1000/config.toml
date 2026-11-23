@@ -32,13 +32,8 @@ expectedValidationErrors = ""
 startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 superCannonKonaEnabled = true
 superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, the chain's current SUPER_CANNON_KONA bond
-# ZK_DISPUTE_GAME stays off: every ZK field must be zero.
-zkChallengerBond = 0
+# ZK_DISPUTE_GAME stays off; its omitted fields default to zero.
 zkEnabled = false
-zkInitBond = 0
-zkMaxChallengeDuration = 0
-zkMaxProveDuration = 0
-zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
 chainId = 11155420
@@ -47,12 +42,7 @@ expectedValidationErrors = ""
 startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged
 superCannonKonaEnabled = true
 superCannonKonaInitBond = 80000000000000000
-zkChallengerBond = 0
 zkEnabled = false
-zkInitBond = 0
-zkMaxChallengeDuration = 0
-zkMaxProveDuration = 0
-zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [addresses]
 # op-contracts/v10.0.0-rc.1 OPCM (see header). `OPCM.version()` returns "10.0.0"; `OPCM.opcmStandardValidator()`

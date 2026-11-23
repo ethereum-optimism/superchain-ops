@@ -5,8 +5,8 @@
 #   - Deploys a shared ETHLockbox, DisputeGameFactory and AnchorStateRegistry, moves every portal's and
 #     old lockbox's ETH into the shared lockbox, points every portal at the shared dispute contracts and
 #     enables INTEROP on every chain. One-way: all prior withdrawal proofs are invalidated.
-#   - Registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9) on the shared DisputeGameFactory. migrate()
-#     cannot register ZK_DISPUTE_GAME (10); 050 enables it afterwards with an OPCMUpgradeV1000 re-run.
+#   - Registers SUPER_PERMISSIONED (5) and SUPER_CANNON_KONA (9) on the shared DisputeGameFactory. By template
+#     policy migrate() gets no ZK_DISPUTE_GAME (10) config; 050 enables it afterwards with an OPCMUpgradeV1000 re-run.
 #
 # migrate() requires every chain to be upgraded with this OPCM. Both chains report lastUsedOPCMVersion 9.0.3 at
 # FORK_BLOCK_NUMBER, so this fixture only makes sense on the state left by 048-opcm-upgrade-v1000, which upgrades

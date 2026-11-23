@@ -12,14 +12,14 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for migrating a set of chains onto shared dispute contracts with OPCM.migrate.
-/// Supports: op-contracts/v10.0.0-rc.1 (OPContractsManagerV2 10.x)
+/// Supports: op-contracts/v10.0.0-rc.1 (OPContractsManagerV2 10.0.0)
 /// @dev Migration is one-way. A single delegatecall deploys a shared ETHLockbox, DisputeGameFactory and
 /// AnchorStateRegistry, moves every chain's ETH into the shared lockbox, points every portal at the shared
 /// dispute contracts and enables INTEROP on every chain. It invalidates all prior withdrawal proofs.
-/// @dev Runs after every chain is upgraded with `OPCMUpgradeV1000`, with the same OPCM. migrate() registers
-/// SUPER_PERMISSIONED and SUPER_CANNON_KONA on the shared DisputeGameFactory, and the OPCM limits the respected game
-/// type to one of them. ZK_DISPUTE_GAME is not carried across: enable it on the migrated set with an
-/// `OPCMUpgradeV1000` re-run.
+/// @dev Runs after every chain is upgraded with `OPCMUpgradeV1000`, with the same OPCM. This template's migrate() input
+/// registers SUPER_PERMISSIONED and SUPER_CANNON_KONA on the shared DisputeGameFactory, and the OPCM limits the
+/// respected game type to one of them. migrate() could also register ZK_DISPUTE_GAME, but by template policy the set
+/// migrates without it: enable it on the migrated set with an `OPCMUpgradeV1000` re-run.
 contract OPCMMigrateV1000 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -110,6 +110,11 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
         require(migrateConfig.cannonKonaPrestate != bytes32(0), "OPCMMigrateV1000: cannonKonaPrestate is zero");
         require(migrateConfig.proposer != address(0), "OPCMMigrateV1000: proposer is zero");
         require(migrateConfig.superCannonKonaInitBond != 0, "OPCMMigrateV1000: superCannonKonaInitBond is zero");
+        require(
+            migrateConfig.startingRespectedGameType == SUPER_PERMISSIONED
+                || migrateConfig.startingRespectedGameType == SUPER_CANNON_KONA,
+            "OPCMMigrateV1000: startingRespectedGameType must be a super game type (5 or 9)"
+        );
         require(migrateConfig.startingAnchorRootRoot != bytes32(0), "OPCMMigrateV1000: startingAnchorRootRoot is zero");
         // No game can be created at or before the anchor, so a future anchor (e.g. milliseconds instead of seconds)
         // would block withdrawals for the whole set.
@@ -224,11 +229,12 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
         }
     }
 
-    /// @notice Checks a chain's live games: migrate() clears them from the chain's factory and registers only
-    /// SUPER_PERMISSIONED and SUPER_CANNON_KONA on the shared one.
-    /// @dev A live SUPER_CANNON_KONA bond carries forward, as in OPCMUpgradeV1000; change it with SetDisputeGameArgs
-    /// before migrating. A live ZK_DISPUTE_GAME would be removed with no error, so the chain is refused: disable it
-    /// with an OPCMUpgradeV1000 re-run first, and enable it on the migrated set afterwards.
+    /// @notice Checks a chain's live games: migrate() clears them from the chain's factory and registers only the games
+    /// in this template's input (SUPER_PERMISSIONED and SUPER_CANNON_KONA) on the shared one.
+    /// @dev migrate() applies the configured SUPER_CANNON_KONA bond; the template requires it to equal every chain's
+    /// live bond, as OPCMUpgradeV1000 does. Change the bond with SetDisputeGameArgs before migrating. By template policy
+    /// ZK_DISPUTE_GAME is never passed to migrate(), so a live one would be removed with no error and the chain is
+    /// refused: disable it with an OPCMUpgradeV1000 re-run first, and enable it on the migrated set afterwards.
     function _checkLiveGames(IDisputeGameFactoryV1000 dgf) internal view {
         if (dgf.gameImpls(SUPER_CANNON_KONA) != address(0)) {
             require(
@@ -445,8 +451,8 @@ contract OPCMMigrateV1000 is OPCMTaskBase {
                 // type, so the value is unused.
                 cannonPrestate: bytes32(0),
                 cannonKonaPrestate: migrateConfig.cannonKonaPrestate,
-                // This template's migrate input never registers ZK_DISPUTE_GAME; the validator skips it when
-                // unregistered.
+                // By template policy, the migrate() input never registers ZK_DISPUTE_GAME; the validator skips it
+                // when unregistered.
                 zkPrestate: bytes32(0),
                 l2ChainID: chainId,
                 proposer: migrateConfig.proposer
