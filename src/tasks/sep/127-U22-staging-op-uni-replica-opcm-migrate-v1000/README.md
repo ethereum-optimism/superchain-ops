@@ -26,7 +26,7 @@ Scaffold. Every U22 input and both redeployed chains are placeholders.
 - [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [ ] Replica contract addresses (`addresses.json`) once deployed.
+- [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420).
 - [ ] Dependency-set kona interop prestate embedding both chains.
 - [ ] Shared SUPER_PERMISSIONED proposer.
 - [ ] Starting anchor (super root + L2 sequence number), set close to execution.

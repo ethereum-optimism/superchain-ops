@@ -28,7 +28,7 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP Labs staging networks: one `O
 - [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [ ] Replica contract addresses (`addresses.json`) once deployed; confirm they use the devnet SuperchainConfig `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` and the staging PAO (the v9 OPCM they deploy with is bound to both).
+- [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420). Confirm they use the devnet SuperchainConfig `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` and the staging PAO (the v9 OPCM they deploy with is bound to both).
 - [ ] Uses the same official Sepolia v10 OPCM as sep/129-131, not a devnet-bound one, as U21 did. Expected validator errors (staging Safe, devnet SuperchainConfig, devnet challenger) are pre-filled from sep/122 and sep/125; confirm them against the v10 validator in simulation.
 - [ ] SUPER_CANNON_KONA prestates: U22 kona interop prestate for devnet-2 (`TODO_U22_KONA_INTEROP_PRESTATE`), netchef prestates for each replica.
 - [ ] Re-check staging PAO nonce (158 on 2026-11-18) before signing.
