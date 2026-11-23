@@ -23,7 +23,7 @@ Scaffold. Every U22 release input is a placeholder.
 
 ## Open items
 
-- [ ] OPCM address: op-contracts/v10.0.0 OPCM (`TODO_U22_OPCM_ADDRESS`), from the stable release tag and the superchain-registry standard-versions file.
+- [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [ ] Dependency-set kona interop prestate embedding OP Sepolia + Unichain Sepolia.

@@ -23,7 +23,7 @@ Second `OPCMUpgradeV1000` run on the migrated OP Mainnet + Unichain set: registe
 
 ## Open items
 
-- [ ] OPCM address: op-contracts/v10.0.0 OPCM (`TODO_U22_OPCM_ADDRESS`), from the stable release tag and the superchain-registry standard-versions file.
+- [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56` (superchain-registry #1424, `standard-versions-mainnet.toml`).
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [ ] ZK config: SP1 vkey (`kona-sp1`), max challenge/prove durations, challenger bond, init bond.

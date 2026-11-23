@@ -66,7 +66,7 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [addresses]
-OPCM = "0xdead00000000000000000000000000000000dead" # TODO_U22_OPCM_ADDRESS (op-contracts/v10.0.0, standard-versions-mainnet.toml)
+OPCM = "0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56" # op-contracts/v10.0.0-rc.2, standard-versions-mainnet.toml
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [storageCodeExceptions]
