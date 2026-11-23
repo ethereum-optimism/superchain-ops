@@ -20,7 +20,7 @@ startingRespectedGameType = 9 # SUPER_CANNON_KONA
 superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
 
 [addresses]
-OPCM = "0xdead00000000000000000000000000000000dead" # TODO_U22_OPCM_ADDRESS (op-contracts/v10.0.0, standard-versions-sepolia.toml)
+OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0-rc.2, standard-versions-sepolia.toml
 
 [stateOverrides]
 0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [ # staging ProxyAdminOwner
