@@ -25,6 +25,10 @@ contract OPCMUpgradeV1000PureHarness is OPCMUpgradeV1000 {
     function gameConfigHash(OPCMUpgrade memory u) external pure returns (bytes32) {
         return _gameConfigHash(u);
     }
+
+    function versionLt(string memory a, string memory b) external pure returns (bool) {
+        return _versionLt(a, b);
+    }
 }
 
 /// @notice Fork-free checks of the template's config rules and ZK_DISPUTE_GAME encodings. The fork tests in
@@ -250,5 +254,24 @@ contract OPCMUpgradeV1000Test is Test {
             if (i == 9) b.zkPrestate = Claim.wrap(bytes32(uint256(0x007b)));
             assertTrue(harness.gameConfigHash(b) != base, vm.toString(i));
         }
+    }
+
+    /// @notice The `skipUpgradeSuperchain` gate compares versions numerically per component, as the OPCM's
+    /// `SemverComp.lt` does, not as strings.
+    function test_versionLt_comparesNumerically() public view {
+        assertTrue(harness.versionLt("2.4.0", "2.5.0"));
+        assertTrue(harness.versionLt("2.5.0", "2.5.1"));
+        assertTrue(harness.versionLt("1.99.99", "2.0.0"));
+        assertTrue(harness.versionLt("2.9.0", "2.10.0"));
+        assertFalse(harness.versionLt("2.5.0", "2.5.0"));
+        assertFalse(harness.versionLt("2.10.0", "2.9.0"));
+        assertFalse(harness.versionLt("3.0.0", "2.5.0"));
+    }
+
+    function test_versionLt_rejectsTaggedOrPartialVersions() public {
+        vm.expectRevert(bytes("OPCMUpgradeV1000: unsupported version format"));
+        harness.versionLt("2.5.0-beta.1", "2.5.0");
+        vm.expectRevert(bytes("OPCMUpgradeV1000: unsupported version format"));
+        harness.versionLt("2.5.0", "2.5");
     }
 }

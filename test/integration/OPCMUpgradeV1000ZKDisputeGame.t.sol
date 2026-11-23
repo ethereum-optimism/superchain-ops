@@ -235,15 +235,15 @@ contract OPCMUpgradeV1000ZKDisputeGameTest is Test {
     /// @notice Turns ZK_DISPUTE_GAME on in every entry of the 048 config with the 050 values, and respects it. SUPER
     /// CANNON_KONA stays registered.
     function _enableZK(string memory config) internal pure returns (string memory) {
-        config = _edit(config, "zkChallengerBond = 0\n", "zkChallengerBond = 1000000000000000000\n");
-        config = _edit(config, "zkEnabled = false", "zkEnabled = true");
-        config = _edit(config, "zkInitBond = 0\n", "zkInitBond = 80000000000000000\n");
-        config = _edit(config, "zkMaxChallengeDuration = 0\n", "zkMaxChallengeDuration = 604800\n");
-        config = _edit(config, "zkMaxProveDuration = 0\n", "zkMaxProveDuration = 259200\n");
         config = _edit(
             config,
-            'zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"',
-            string.concat('zkPrestate = "', vm.toString(ZK_PRESTATE), '"')
+            "zkEnabled = false",
+            string.concat(
+                "zkChallengerBond = 1000000000000000000\nzkEnabled = true\nzkInitBond = 80000000000000000\n",
+                "zkMaxChallengeDuration = 604800\nzkMaxProveDuration = 259200\nzkPrestate = \"",
+                vm.toString(ZK_PRESTATE),
+                "\""
+            )
         );
         return _edit(
             config, "startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged", "startingRespectedGameType = 10"
