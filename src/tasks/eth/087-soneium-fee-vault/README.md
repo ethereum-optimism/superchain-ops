@@ -1,6 +1,6 @@
 # 087-soneium-fee-vault
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x07f743cbe334216498780d6bc2161c53a6ac39ba2f6d536f40d15209a283725a)
 
 ## Objective
 
