@@ -1,4 +1,4 @@
-# 093-U22-op-uni-zk-v1000
+# 096-U22-op-uni-zk-v1000
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -9,8 +9,8 @@ Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA of
 | | |
 |---|---|
 | Target date | Right after Lagoon activation on Mainnet (Jan 11, 2027) |
-| Depends on | [092-U22-op-uni-opcm-migrate-v1000](../092-U22-op-uni-opcm-migrate-v1000/README.md) and Lagoon activation on Mainnet (Jan 11). |
-| Sequencing | Mainnet 3/3. Nonces L1PAO 53, FUS 86, SC 80. Nonces assume eth/085-087 and one further FUS task execute first. Any L1PAO/FUS/SC task between Dec 17 and Jan 11 shifts these. |
+| Depends on | [095-U22-op-uni-opcm-migrate-v1000](../095-U22-op-uni-opcm-migrate-v1000/README.md) and Lagoon activation on Mainnet (Jan 11). |
+| Sequencing | Mainnet 3/3. Nonces L1PAO 53, FUS 89, SC 80. Any L1PAO/FUS/SC task between Dec 17 and Jan 11 shifts these. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -36,11 +36,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/093-U22-op-uni-zk-v1000
+cd src/tasks/eth/096-U22-op-uni-zk-v1000
 
-just simulate-stack eth 093-U22-op-uni-zk-v1000 council   # or foundation
+just simulate-stack eth 096-U22-op-uni-zk-v1000 council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 093-U22-op-uni-zk-v1000 council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 096-U22-op-uni-zk-v1000 council   # or foundation
 ```
 
 ## Validation

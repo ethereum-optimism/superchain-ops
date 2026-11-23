@@ -33,8 +33,8 @@ Safe transaction hash (root safe): `TODO_SAFE_TX_HASH`
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/eth/093-U22-op-uni-zk-v1000
-just simulate-stack eth 093-U22-op-uni-zk-v1000 council   # or foundation
+cd src/tasks/eth/095-U22-op-uni-opcm-migrate-v1000
+just simulate-stack eth 095-U22-op-uni-opcm-migrate-v1000 council   # or foundation
 ```
 
 ## Calldata

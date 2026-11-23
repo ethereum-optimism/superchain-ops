@@ -1,4 +1,4 @@
-# 092-U22-op-uni-opcm-migrate-v1000
+# 095-U22-op-uni-opcm-migrate-v1000
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -9,8 +9,8 @@ Scaffold. Every U22 release input is a placeholder.
 | | |
 |---|---|
 | Target date | Same day as the upgrade (Dec 15-17, 2026), right after it |
-| Depends on | [091-U22-op-ink-soneium-uni](../091-U22-op-ink-soneium-uni/README.md) (migrate requires every chain on the v10 OPCM). |
-| Sequencing | Mainnet 2/3. Followed by [093-U22-op-uni-zk-v1000](../093-U22-op-uni-zk-v1000/README.md). Nonces L1PAO 52, FUS 85, SC 79. Nonces assume eth/085-087 and one further FUS task execute first. |
+| Depends on | [094-U22-op-ink-soneium-uni](../094-U22-op-ink-soneium-uni/README.md) (migrate requires every chain on the v10 OPCM). |
+| Sequencing | Mainnet 2/3. Followed by [096-U22-op-uni-zk-v1000](../096-U22-op-uni-zk-v1000/README.md). Nonces L1PAO 52, FUS 88, SC 79. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -38,11 +38,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/eth/092-U22-op-uni-opcm-migrate-v1000
+cd src/tasks/eth/095-U22-op-uni-opcm-migrate-v1000
 
-just simulate-stack eth 092-U22-op-uni-opcm-migrate-v1000 council   # or foundation
+just simulate-stack eth 095-U22-op-uni-opcm-migrate-v1000 council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack eth 092-U22-op-uni-opcm-migrate-v1000 council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack eth 095-U22-op-uni-opcm-migrate-v1000 council   # or foundation
 ```
 
 ## Validation
