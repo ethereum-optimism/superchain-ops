@@ -1,0 +1,73 @@
+# Upgrade 21 (op-contracts/v9.0.0) on Whitechain Mainnet (chainId 1875).
+# One OPCM.upgradeSuperchain on the chain's own SuperchainConfig, then one OPCM.upgrade.
+#
+# Prerequisite met at deployment: the chain was deployed directly at op-contracts/v8.0.0
+# (SystemConfig 4.0.0, respectedGameType 5), so no U19/U20 task ever ran and the PAO Safe is at
+# nonce 0. Two gates enforce the sequence: the template asserts startingRespectedGameType equals
+# the chain's current respected game type, and the v9 OPCM checks isPermittedUpgradeSequence
+# on-chain (OPCMUpgradeV900.sol:218-221).
+#
+# Whitechain is a custom-gas-token chain on permissioned proofs: it stays on SUPER_PERMISSIONED
+# (5), SUPER_CANNON_KONA (9) is not registered and stays disabled, and the ETHLockbox the upgrade
+# wires to the portal receives no ETH, because CGT chains keep custody in the portal and its
+# balance is 0 (confirmed on-chain). The v9 OPCM reads isCustomGasToken() and only reverts when an
+# upgrade tries to turn the flag on (OPContractsManagerV2.sol:1005-1006), so no CGT input exists.
+#
+# This chain can never be MIGRATED. OPCMMigrateV900 rejects custom-gas-token chains outright
+# (OPContractsManagerMigrator.sol:484-486), so Whitechain cannot join an interop set. By design.
+#
+# The exact same upgrade was executed on Whitechain Sepolia (sep/902) on 2026-11-23 in tx
+# 0xb8d6155cc51b36020911d04ff59582086003e08c9b7f5bb0b342364af1f8bb6b, and post-execution state
+# matched the predicted diff exactly, including the ETHLockbox landing at the predicted address.
+# One deliberate difference from the original mainnet deployment: it created an ETHLockbox proxy
+# 0xBEDFe5233e7A57Ef396ba7B4292BE32A7782097D that was never wired to the portal
+# (portal.ethLockbox() is zero). The v9 OPCM only reads portal.ethLockbox(), so it deploys a FRESH
+# lockbox and the old proxy stays unreferenced.
+#
+# Not in the superchain-registry: addresses come from addresses.json next to this file.
+# Executed by Whitechain's ProxyAdminOwner Safe 0x568440132075d4E1c3E42111EF561636f4956eAd
+# (Safe v1.5.0, 3-of-5, all owners plain EOAs - no EIP-7702 delegations, unlike the testnet Safe).
+
+l2chains = [
+    {name = "Whitechain Mainnet", chainId = 1875}
+]
+
+templateName = "OPCMUpgradeV900"
+fallbackAddressesJsonPath = "src/tasks/eth/900-U21-whitechain-mainnet/addresses.json"
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+chainId = 1875
+# The standard kona-client v1.9.0 cannon64-kona-interop prestate, from the superchain-registry
+# (validation/standard/standard-prestates.toml) and named on the Upgrade 21 notice page. The same
+# value sep/902, eth/084 and the other U21 tasks use.
+#
+# It is NOT encoded for this chain and changes nothing: SUPER_CANNON_KONA (9) is enabled only when
+# gameImpls(CANNON_KONA) != 0, and Whitechain has no such implementation, so the config stays
+# disabled and the template emits empty gameArgs for it. Proven on the Whitechain replica:
+# simulating with 0xdead000...000 and with this value produced byte-identical calldata and
+# identical hashes. The real value is used anyway so the config matches the other U21 tasks and is
+# checkable against the registry. The template requires a non-zero value regardless.
+cannonKonaPrestate = "0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9"
+# Confirmed by the 2026-11-23 simulation against live mainnet state: identical to the testnet task.
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10"
+initBond = 0 # SUPER_PERMISSIONED is bondless and SUPER_CANNON_KONA stays disabled
+# Must EQUAL the chain's current respected game type: 5 since the v8 deployment. There is no
+# anchor-root input in v9: the only override is startingRespectedGameType, so the existing anchor
+# carries over untouched.
+startingRespectedGameType = 5 # SUPER_PERMISSIONED, unchanged by this task
+
+[addresses]
+# op-contracts/v9.0.0 OPCM on Ethereum mainnet, version 9.0.3 (verified on-chain 2026-11-23).
+# The same OPCM eth/084 (U21 for OP/Ink/Soneium/Unichain) uses.
+OPCM = "0x2d91e6F2bcF6CD1df90E1FAF9714E18705EA331f"
+
+[storageCodeExceptions]
+# Carried over from the testnet task, where it was REQUIRED because SystemConfig slot 0x6c packs
+# superchainConfig in the low 160 bits with minBaseFee above it and the testnet minBaseFee is
+# 5 gwei. On mainnet the L1 SystemConfig.minBaseFee() is 0 (the chain's 5 gwei floor lives only in
+# the node/genesis config, never written to L1 storage), so the slot reads as a bare address with
+# code and this entry is a harmless no-op - kept deliberately so the tasks stay symmetric, and it
+# becomes load-bearing if setMinBaseFee is ever called on L1.
+"0x1D761826ad3098D10f6dDfbd143957Aaf2b6e50C" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
