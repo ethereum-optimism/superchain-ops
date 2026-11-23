@@ -1,0 +1,28 @@
+templateName = "OPCMMigrateV1000"
+
+skipOPCMVersionCheck = false
+skipPrestateRegistryCheckChainIds = [420130023, 420130024]
+fallbackAddressesJsonPath = "src/tasks/sep/126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/addresses.json" # TODO_STAGING_ADDRESSES_JSON (stg-op-replica, stg-uni-replica: not in the registry)
+
+l2chains = [
+    {name = "stg-op-replica", chainId = 420130023},
+    {name = "stg-uni-replica", chainId = 420130024}
+]
+
+[opcmMigrate]
+cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_STAGING_DEPSET_PRESTATE (kona interop, stg-op-replica + stg-uni-replica dependency set)
+expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG,SYSCON-130", "OVERRIDES-L1PAOMULTISIG,SYSCON-130"]
+expectedValidationErrors = "MIG-SLOCKBOX-40,MIG-CHAIN-0-130,MIG-CHAIN-1-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
+proposer = "0xdead00000000000000000000000000000000dead" # TODO_U22_SHARED_PROPOSER
+startingAnchorRootL2SequenceNumber = 0 # TODO_U22_ANCHOR_L2_SEQUENCE_NUMBER
+startingAnchorRootRoot = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ANCHOR_ROOT
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
+
+[addresses]
+OPCM = "0xdead00000000000000000000000000000000dead" # TODO_U22_OPCM_ADDRESS (op-contracts/v10.0.0, standard-versions-sepolia.toml)
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [ # staging ProxyAdminOwner
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 159}
+]
