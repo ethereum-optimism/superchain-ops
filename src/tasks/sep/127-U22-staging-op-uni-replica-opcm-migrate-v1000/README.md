@@ -27,7 +27,7 @@ Scaffold. Every U22 input and both redeployed chains are placeholders.
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420).
-- [ ] Dependency-set kona interop prestate embedding both chains.
+- [ ] Dependency-set kona interop prestate: `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (same develop build as sep/126); swap for the U22 kona-client release prestate once tagged.
 - [ ] Shared SUPER_PERMISSIONED proposer.
 - [ ] Starting anchor (super root + L2 sequence number), set close to execution.
 - [ ] Supernode, challenger and proposer cut-over ready (infra, no ops task).
