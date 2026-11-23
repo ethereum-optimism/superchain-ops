@@ -97,6 +97,17 @@ contract OPCMMigrateV1000SetupValidationTest is Test {
         );
     }
 
+    /// @dev migrate() only accepts SUPER_PERMISSIONED or SUPER_CANNON_KONA as the respected game type; the template
+    /// refuses anything else in setup rather than at build time with an OPCM error.
+    function test_rejects_non_super_respected_game_type() public {
+        _assertSetupReverts(
+            "respected-zk",
+            "startingRespectedGameType = 9 # SUPER_CANNON_KONA",
+            "startingRespectedGameType = 10",
+            "OPCMMigrateV1000: startingRespectedGameType must be a super game type (5 or 9)"
+        );
+    }
+
     function test_rejects_zero_starting_anchor_root() public {
         _assertSetupReverts(
             "zero-anchor",
@@ -165,6 +176,12 @@ contract OPCMMigrateV1000SetupValidationTest is Test {
             abi.encode(uint256(1))
         );
         _expectSetupRevert(CONFIG, "OPCMMigrateV1000: all chains must have the same DelayedWETH delay");
+    }
+
+    /// @dev The portals share the ETHLockbox after migrate(), so they must already agree on the proof maturity delay.
+    function test_rejects_mismatched_proof_maturity_delay() public {
+        vm.mockCall(OP_SEPOLIA_PORTAL, abi.encodeWithSignature("proofMaturityDelaySeconds()"), abi.encode(uint256(1)));
+        _expectSetupRevert(CONFIG, "OPCMMigrateV1000: all chains must have the same proof maturity delay");
     }
 
     /// @dev migrate() re-sets the SUPER_CANNON_KONA bond on the shared game: a value that differs from the chains'

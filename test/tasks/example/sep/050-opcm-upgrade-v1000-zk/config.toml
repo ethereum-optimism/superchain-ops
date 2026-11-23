@@ -8,7 +8,7 @@
 #     the respected game type. The chains share one DisputeGameFactory and AnchorStateRegistry after migrate(),
 #     so both entries below must carry identical game fields; each upgrade() rewrites the shared contracts.
 #
-# migrate() does not carry ZK_DISPUTE_GAME, so this fixture only makes sense on the state left by
+# OPCMMigrateV1000 does not carry ZK_DISPUTE_GAME, so this fixture only makes sense on the state left by
 # 048-opcm-upgrade-v1000 and 049-opcm-migrate-v1000. It is always simulated stacked on both (DEPENDS_ON in the
 # .env), mirroring production. The same template also enables ZK on chains that are not migrated.
 #
@@ -25,13 +25,11 @@ skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
 chainId = 1301
-# SUPER_CANNON_KONA is disabled: its prestate and bond must be zero.
-cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+# SUPER_CANNON_KONA is disabled; its omitted prestate and bond default to zero.
+superCannonKonaEnabled = false
 # Live validator output captured during simulation against the v10 OPCM.
 expectedValidationErrors = ""
 startingRespectedGameType = 10 # ZK_DISPUTE_GAME
-superCannonKonaEnabled = false
-superCannonKonaInitBond = 0
 zkChallengerBond = 1000000000000000000 # Placeholder: 1 ETH
 zkEnabled = true
 zkInitBond = 80000000000000000 # Placeholder: 0.08 ETH
@@ -43,11 +41,9 @@ zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c
 [[opcmUpgrades]]
 chainId = 11155420
 # Same placeholder values as the 1301 entry: chains sharing a DisputeGameFactory must use identical game configs.
-cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+superCannonKonaEnabled = false
 expectedValidationErrors = ""
 startingRespectedGameType = 10 # ZK_DISPUTE_GAME
-superCannonKonaEnabled = false
-superCannonKonaInitBond = 0
 zkChallengerBond = 1000000000000000000
 zkEnabled = true
 zkInitBond = 80000000000000000

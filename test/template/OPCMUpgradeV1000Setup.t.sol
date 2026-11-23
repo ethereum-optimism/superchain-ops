@@ -2,8 +2,9 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {OPCMUpgradeV1000} from "src/template/OPCMUpgradeV1000.sol";
+import {OPCMUpgradeV1000, IOPContractsManagerV1000} from "src/template/OPCMUpgradeV1000.sol";
 import {SuperchainAddressRegistry} from "src/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
 contract OPCMUpgradeV1000SetupHarness is OPCMUpgradeV1000 {
@@ -27,6 +28,12 @@ contract OPCMUpgradeV1000SetupValidationTest is Test {
     string constant CONFIG = "test/tasks/example/sep/048-opcm-upgrade-v1000/config.toml";
     string constant TESTING_DIRECTORY = "opcm-upgrade-v1000";
     uint256 internal constant FORK_BLOCK_NUMBER = 12_162_600;
+
+    address internal constant SUPERCHAIN_CONFIG = 0xC2Be75506d5724086DEB7245bd260Cc9753911Be;
+    address internal constant FOUNDATION_UPGRADE_SAFE = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
+    string constant SKIP_UPGRADE_SUPERCHAIN = "skipOPCMVersionCheck = false\nskipUpgradeSuperchain = true";
+    string constant SKIP_UPGRADE_SUPERCHAIN_ERR =
+        "OPCMUpgradeV1000: skipUpgradeSuperchain requires SuperchainConfig at or above the OPCM's version";
 
     address internal constant OPCM = 0xe3D1CC898cd19F4ACE77715259eF942766c1d0D3;
     string constant EXAMPLE_OPCM = 'OPCM = "0xe3D1CC898cd19F4ACE77715259eF942766c1d0D3"';
@@ -169,17 +176,81 @@ contract OPCMUpgradeV1000SetupValidationTest is Test {
         MultisigTaskTestHelper.removeFile(path);
     }
 
+    /// @dev The OPCM only requires the SuperchainConfig not to be behind its SuperchainConfig implementation (2.5.0 in
+    /// v10). Setup accepts one at that version or one a later release moved ahead, and refuses one that is behind.
+    function test_skipUpgradeSuperchain_requires_superchain_config_not_behind_opcm() public {
+        string memory path = _write(
+            "skip-upgrade-superchain",
+            _edit(vm.readFile(CONFIG), "skipOPCMVersionCheck = false", SKIP_UPGRADE_SUPERCHAIN)
+        );
+        OPCMUpgradeV1000SetupHarness harness = new OPCMUpgradeV1000SetupHarness();
+        harness.setupForTest(path);
+        assertTrue(harness.skipUpgradeSuperchain());
+
+        vm.mockCall(SUPERCHAIN_CONFIG, abi.encodeWithSignature("version()"), abi.encode("2.6.0"));
+        new OPCMUpgradeV1000SetupHarness().setupForTest(path);
+
+        vm.mockCall(SUPERCHAIN_CONFIG, abi.encodeWithSignature("version()"), abi.encode("2.4.9"));
+        _expectSetupRevert(path, SKIP_UPGRADE_SUPERCHAIN_ERR);
+    }
+
+    /// @notice With `skipUpgradeSuperchain`, the task only calls upgrade() for each chain and leaves the
+    /// SuperchainConfig off the storage-write allowlist. simulate() fails on any write outside the allowlist, so it
+    /// also shows that nothing writes to the SuperchainConfig.
+    function test_skipUpgradeSuperchain_build_omits_upgradeSuperchain() public {
+        string memory path = _write(
+            "skip-upgrade-superchain-build",
+            _edit(vm.readFile(CONFIG), "skipOPCMVersionCheck = false", SKIP_UPGRADE_SUPERCHAIN)
+        );
+        address[] memory childSafes = new address[](1);
+        childSafes[0] = FOUNDATION_UPGRADE_SAFE;
+        OPCMUpgradeV1000 task = new OPCMUpgradeV1000();
+        (, Action[] memory actions,,) = task.simulate(path, childSafes);
+        MultisigTaskTestHelper.removeFile(path);
+
+        assertEq(actions.length, 2);
+        for (uint256 i = 0; i < actions.length; i++) {
+            assertEq(bytes4(actions[i].arguments), IOPContractsManagerV1000.upgrade.selector);
+        }
+        assertEq(task.superchainAddrRegistry().getAddress("SuperchainConfig", 1301), SUPERCHAIN_CONFIG);
+        address[] memory allowed = task.getAllowedStorageAccess();
+        for (uint256 i = 0; i < allowed.length; i++) {
+            assertTrue(allowed[i] != SUPERCHAIN_CONFIG, "SuperchainConfig is allowlisted");
+        }
+    }
+
+    /// @dev A game's fields default to zero when omitted, so an enabled game missing one is refused rather than
+    /// upgraded with a zero value.
+    function test_rejects_enabled_game_with_omitted_field() public {
+        _assertSetupReverts(
+            "omitted-sck-bond",
+            "superCannonKonaInitBond = 80000000000000000 # 0.08 ETH, the chain's current SUPER_CANNON_KONA bond\n",
+            "",
+            "OPCMUpgradeV1000: superCannonKonaInitBond is zero"
+        );
+    }
+
+    /// @dev Narrow fields are range-checked, not truncated: 2^32 + 9 would otherwise read as 9.
+    function test_rejects_out_of_range_respected_game_type() public {
+        _assertSetupReverts(
+            "respected-game-type-overflow",
+            "startingRespectedGameType = 9 # SUPER_CANNON_KONA, unchanged",
+            "startingRespectedGameType = 4294967305",
+            "SafeCast: value doesn't fit in 32 bits"
+        );
+    }
+
     /// @notice Turns ZK_DISPUTE_GAME on in every entry of the 048 config, with the 050 example's values and `prestate`.
     function _enableZK(string memory config, string memory prestate) internal pure returns (string memory) {
-        config = _edit(config, "zkChallengerBond = 0\n", "zkChallengerBond = 1000000000000000000\n");
-        config = _edit(config, "zkEnabled = false", "zkEnabled = true");
-        config = _edit(config, "zkInitBond = 0\n", "zkInitBond = 80000000000000000\n");
-        config = _edit(config, "zkMaxChallengeDuration = 0\n", "zkMaxChallengeDuration = 604800\n");
-        config = _edit(config, "zkMaxProveDuration = 0\n", "zkMaxProveDuration = 259200\n");
         return _edit(
             config,
-            'zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"',
-            string.concat('zkPrestate = "', prestate, '"')
+            "zkEnabled = false",
+            string.concat(
+                "zkChallengerBond = 1000000000000000000\nzkEnabled = true\nzkInitBond = 80000000000000000\n",
+                "zkMaxChallengeDuration = 604800\nzkMaxProveDuration = 259200\nzkPrestate = \"",
+                prestate,
+                "\""
+            )
         );
     }
 
