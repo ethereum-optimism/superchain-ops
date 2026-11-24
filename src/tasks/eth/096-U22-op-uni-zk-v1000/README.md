@@ -8,7 +8,7 @@ Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA of
 
 | | |
 |---|---|
-| Target date | Right after Lagoon activation on Mainnet (Jan 11, 2027) |
+| Target date | Jan 14, 2027, after Lagoon activation on Mainnet (Jan 11) |
 | Depends on | [095-U22-op-uni-opcm-migrate-v1000](../095-U22-op-uni-opcm-migrate-v1000/README.md) and Lagoon activation on Mainnet (Jan 11). |
 | Sequencing | Mainnet 3/3. Nonces L1PAO 53, FUS 89, SC 80. Any L1PAO/FUS/SC task between Dec 17 and Jan 11 shifts these. |
 

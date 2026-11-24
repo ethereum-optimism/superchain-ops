@@ -8,7 +8,7 @@ Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA of
 
 | | |
 |---|---|
-| Target date | Dec 10, 2026, after Lagoon activation on Sepolia |
+| Target date | Dec 11, 2026, after Lagoon activation on Sepolia (Dec 10) |
 | Depends on | [131-U22-op-uni-opcm-migrate-v1000](../131-U22-op-uni-opcm-migrate-v1000/README.md) and Lagoon activation on Sepolia (Dec 10). |
 | Sequencing | Sepolia 3/3. Nonces L1PAO 64, FUS 88, SC 78. |
 

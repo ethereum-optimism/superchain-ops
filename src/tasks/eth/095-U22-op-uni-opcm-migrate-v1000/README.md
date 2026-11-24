@@ -8,7 +8,7 @@ Scaffold. Every U22 release input is a placeholder.
 
 | | |
 |---|---|
-| Target date | Same day as the upgrade (Dec 15-17, 2026), right after it |
+| Target date | Dec 14, 2026, right after the upgrade |
 | Depends on | [094-U22-op-ink-soneium-uni](../094-U22-op-ink-soneium-uni/README.md) (migrate requires every chain on the v10 OPCM). |
 | Sequencing | Mainnet 2/3. Followed by [096-U22-op-uni-zk-v1000](../096-U22-op-uni-zk-v1000/README.md). Nonces L1PAO 52, FUS 88, SC 79. |
 

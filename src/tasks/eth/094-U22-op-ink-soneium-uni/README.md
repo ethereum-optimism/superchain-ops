@@ -8,7 +8,7 @@ Scaffold. Every U22 release input is a placeholder.
 
 | | |
 |---|---|
-| Target date | Dec 15-17, 2026 (before the end-of-year pause; signatures gathered before the break) |
+| Target date | Dec 14, 2026 (signatures Dec 10-11, before the end-of-year pause) |
 | Depends on | U21 (eth/084, executed). |
 | Sequencing | Mainnet 1/3. Followed by [095-U22-op-uni-opcm-migrate-v1000](../095-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 51, FUS 87, SC 78. |
 
