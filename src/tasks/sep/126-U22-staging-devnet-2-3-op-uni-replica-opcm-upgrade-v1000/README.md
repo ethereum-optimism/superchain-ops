@@ -10,7 +10,7 @@ Scaffold. The replicas' contract addresses and every U22 release input are place
 |---|---|
 | Target date | Nov 25, 2026 (staging upgrade + migrate; staging hard fork Nov 30) |
 | Depends on | Deploy of stg-op-replica / stg-uni-replica on op-contracts/v9 through the devnet v9.0.3 OPCM `0x49Fbb5dc6Af181bD91686a6520C16236040A20B1` (devnets-private #2723, #2724). |
-| Sequencing | Staging 1/3. Followed by [127-U22-staging-op-uni-replica-opcm-migrate-v1000](../127-U22-staging-op-uni-replica-opcm-migrate-v1000/README.md). Staging PAO nonce 158. |
+| Sequencing | Staging 1/4. Followed by [127-U22-staging-devnet-6-opcm-upgrade-v1000](../127-U22-staging-devnet-6-opcm-upgrade-v1000/README.md). Staging PAO nonce 158. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -29,7 +29,7 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP Labs staging networks: one `O
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420). Confirm they use the devnet SuperchainConfig `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` and the staging PAO (the v9 OPCM they deploy with is bound to both).
-- [ ] Uses the same official Sepolia v10 OPCM as sep/129-131, not a devnet-bound one, as U21 did. Expected validator errors (staging Safe, devnet SuperchainConfig, devnet challenger) are pre-filled from sep/122 and sep/125; confirm them against the v10 validator in simulation.
+- [ ] Uses the same official Sepolia v10 OPCM as sep/130-132, not a devnet-bound one, as U21 did. Expected validator errors (staging Safe, devnet SuperchainConfig, devnet challenger) are pre-filled from sep/122 and sep/125; confirm them against the v10 validator in simulation.
 - [ ] SUPER_CANNON_KONA prestate: `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (kona-client-int built from optimism develop `24623f2c`, embeds devnet-2/3, op-int-0, uni-int-0 and Lagoon). Not in the registry yet, so devnet-2 and the replicas skip the registry prestate check; swap for the U22 kona-client release prestate once tagged.
 - [ ] Re-check staging PAO nonce (158 on 2026-11-18) before signing.
 

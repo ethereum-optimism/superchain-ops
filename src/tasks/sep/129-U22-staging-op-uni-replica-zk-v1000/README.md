@@ -1,4 +1,4 @@
-# 128-U22-staging-op-uni-replica-zk-v1000
+# 129-U22-staging-op-uni-replica-zk-v1000
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -9,8 +9,8 @@ Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA of
 | | |
 |---|---|
 | Target date | Dec 1, 2026, after the staging hard fork, with the proposer stop/restart |
-| Depends on | [127-U22-staging-op-uni-replica-opcm-migrate-v1000](../127-U22-staging-op-uni-replica-opcm-migrate-v1000/README.md) and staging hard fork activation (Nov 30). |
-| Sequencing | Staging 3/3. Staging PAO nonce 160. |
+| Depends on | [128-U22-staging-op-uni-replica-opcm-migrate-v1000](../128-U22-staging-op-uni-replica-opcm-migrate-v1000/README.md) and staging hard fork activation (Nov 30). |
+| Sequencing | Staging 4/4. Staging PAO nonce 161. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -35,11 +35,11 @@ Second `OPCMUpgradeV1000` run on the migrated stg-op-replica + stg-uni-replica s
 This is a **single-safe** task, so no child-safe argument is needed.
 
 ```bash
-cd src/tasks/sep/128-U22-staging-op-uni-replica-zk-v1000
+cd src/tasks/sep/129-U22-staging-op-uni-replica-zk-v1000
 
-just simulate-stack sep 128-U22-staging-op-uni-replica-zk-v1000
+just simulate-stack sep 129-U22-staging-op-uni-replica-zk-v1000
 
-USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 128-U22-staging-op-uni-replica-zk-v1000
+USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 129-U22-staging-op-uni-replica-zk-v1000
 ```
 
 ## Validation

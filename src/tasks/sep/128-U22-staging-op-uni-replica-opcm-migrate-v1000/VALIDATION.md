@@ -28,8 +28,8 @@ Safe transaction hash (root safe): `0xd58d233b0f63ea1ce709cfe311be7589fd72fcb132
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/127-U22-staging-op-uni-replica-opcm-migrate-v1000
-just simulate-stack sep 127-U22-staging-op-uni-replica-opcm-migrate-v1000
+cd src/tasks/sep/128-U22-staging-op-uni-replica-opcm-migrate-v1000
+just simulate-stack sep 128-U22-staging-op-uni-replica-opcm-migrate-v1000
 ```
 
 ## Calldata

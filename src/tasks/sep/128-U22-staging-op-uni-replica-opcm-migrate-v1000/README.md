@@ -1,4 +1,4 @@
-# 127-U22-staging-op-uni-replica-opcm-migrate-v1000
+# 128-U22-staging-op-uni-replica-opcm-migrate-v1000
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -9,8 +9,8 @@ Scaffold. Every U22 input and both redeployed chains are placeholders.
 | | |
 |---|---|
 | Target date | Nov 25, 2026, right after the upgrade |
-| Depends on | [126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000](../126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/README.md) (migrate requires every chain on the v10 OPCM). |
-| Sequencing | Staging 2/3. Followed by [128-U22-staging-op-uni-replica-zk-v1000](../128-U22-staging-op-uni-replica-zk-v1000/README.md). Staging PAO nonce 159. |
+| Depends on | [126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000](../126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/README.md) and [127-U22-staging-devnet-6-opcm-upgrade-v1000](../127-U22-staging-devnet-6-opcm-upgrade-v1000/README.md) (migrate requires every chain on the v10 OPCM). |
+| Sequencing | Staging 3/4. Followed by [129-U22-staging-op-uni-replica-zk-v1000](../129-U22-staging-op-uni-replica-zk-v1000/README.md). Staging PAO nonce 160. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -37,11 +37,11 @@ Scaffold. Every U22 input and both redeployed chains are placeholders.
 This is a **single-safe** task, so no child-safe argument is needed.
 
 ```bash
-cd src/tasks/sep/127-U22-staging-op-uni-replica-opcm-migrate-v1000
+cd src/tasks/sep/128-U22-staging-op-uni-replica-opcm-migrate-v1000
 
-just simulate-stack sep 127-U22-staging-op-uni-replica-opcm-migrate-v1000
+just simulate-stack sep 128-U22-staging-op-uni-replica-opcm-migrate-v1000
 
-USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 127-U22-staging-op-uni-replica-opcm-migrate-v1000
+USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 128-U22-staging-op-uni-replica-opcm-migrate-v1000
 ```
 
 ## Validation
