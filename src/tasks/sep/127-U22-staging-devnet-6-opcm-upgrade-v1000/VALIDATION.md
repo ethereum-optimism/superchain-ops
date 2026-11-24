@@ -19,9 +19,9 @@ the calldata change.
 > ### Staging ProxyAdminOwner (`0xe934Dc97E347C6aCef74364B50125bb8689c40ff`)
 >
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
-> - Message Hash: `TODO_MESSAGE_HASH`
+> - Message Hash: `0x3782b1a3742eb3fbe987441873dc1023b9ff058a67dbf558f0025a992b511aaa`
 
-Safe transaction hash (root safe): `TODO_SAFE_TX_HASH`
+Safe transaction hash (root safe): `0x72e58d48142b7142ccf74a01f3190b919e5b8e30aa6c5a51277bf10c132cd860`
 
 ## For Signers
 
