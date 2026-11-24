@@ -8,7 +8,7 @@ Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA of
 
 | | |
 |---|---|
-| Target date | Week of Nov 30, 2026, after the staging hard fork, with the proposer stop/restart |
+| Target date | Dec 1, 2026, after the staging hard fork, with the proposer stop/restart |
 | Depends on | [127-U22-staging-op-uni-replica-opcm-migrate-v1000](../127-U22-staging-op-uni-replica-opcm-migrate-v1000/README.md) and staging hard fork activation (Nov 30). |
 | Sequencing | Staging 3/3. Staging PAO nonce 160. |
 

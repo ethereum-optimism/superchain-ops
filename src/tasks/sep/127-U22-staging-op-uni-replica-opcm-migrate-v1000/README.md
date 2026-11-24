@@ -8,7 +8,7 @@ Scaffold. Every U22 input and both redeployed chains are placeholders.
 
 | | |
 |---|---|
-| Target date | Nov 23, 2026, right after the upgrade |
+| Target date | Nov 25, 2026, right after the upgrade |
 | Depends on | [126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000](../126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000/README.md) (migrate requires every chain on the v10 OPCM). |
 | Sequencing | Staging 2/3. Followed by [128-U22-staging-op-uni-replica-zk-v1000](../128-U22-staging-op-uni-replica-zk-v1000/README.md). Staging PAO nonce 159. |
 

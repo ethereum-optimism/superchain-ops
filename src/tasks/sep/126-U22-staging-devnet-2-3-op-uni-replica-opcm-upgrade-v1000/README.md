@@ -8,7 +8,7 @@ Scaffold. The replicas' contract addresses and every U22 release input are place
 
 | | |
 |---|---|
-| Target date | Nov 23, 2026 (staging upgrade + migrate; staging hard fork Nov 30) |
+| Target date | Nov 25, 2026 (staging upgrade + migrate; staging hard fork Nov 30) |
 | Depends on | Deploy of stg-op-replica / stg-uni-replica on op-contracts/v9 through the devnet v9.0.3 OPCM `0x49Fbb5dc6Af181bD91686a6520C16236040A20B1` (devnets-private #2723, #2724). |
 | Sequencing | Staging 1/3. Followed by [127-U22-staging-op-uni-replica-opcm-migrate-v1000](../127-U22-staging-op-uni-replica-opcm-migrate-v1000/README.md). Staging PAO nonce 158. |
 
