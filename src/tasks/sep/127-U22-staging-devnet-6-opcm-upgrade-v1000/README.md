@@ -20,7 +20,7 @@ Upgrade 22 (`op-contracts/v10.0.0`) on sepolia-devnet-6: one `OPCM.upgradeSuperc
 
 ## Open items
 
-- [ ] `expectedValidationErrors`: pre-filled from U21 sep/123; confirm against the v10 validator in simulation.
+- [x] `expectedValidationErrors`: OVERRIDES-L1PAOMULTISIG, SYSCON-130, DF-60, from the v10 validator in simulation (same as sepolia-devnet-3 in sep/126).
 - [ ] Calldata breakdown and state changes in VALIDATION.md.
 - [ ] Re-check staging PAO nonce before signing.
 

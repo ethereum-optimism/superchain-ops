@@ -9,7 +9,7 @@ l2chains = [
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 chainId = 420130021
-expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,OVERRIDES-CHALLENGER,SYSCON-130,SCKDG-SHAPE,SCKDG-10" # as in U21 sep/123; confirm in simulation
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130,DF-60" # from the v10 validator in simulation
 startingRespectedGameType = 5
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
