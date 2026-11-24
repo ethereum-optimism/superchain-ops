@@ -14,12 +14,12 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with 
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
-zkChallengerBond = 0 # TODO_U22_ZK_CHALLENGER_BOND
+zkChallengerBond = 1000000000000000000 # TODO_U22_ZK_CHALLENGER_BOND (placeholder: 1 ETH)
 zkEnabled = true
-zkInitBond = 0 # TODO_U22_ZK_INIT_BOND
-zkMaxChallengeDuration = 0 # TODO_U22_ZK_MAX_CHALLENGE_DURATION
-zkMaxProveDuration = 0 # TODO_U22_ZK_MAX_PROVE_DURATION
-zkPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ZK_VKEY (kona-sp1)
+zkInitBond = 80000000000000000 # TODO_U22_ZK_INIT_BOND (placeholder: 0.08 ETH)
+zkMaxChallengeDuration = 604800 # TODO_U22_ZK_MAX_CHALLENGE_DURATION (placeholder: 7 days)
+zkMaxProveDuration = 259200 # TODO_U22_ZK_MAX_PROVE_DURATION (placeholder: 3 days)
+zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c" # TODO_U22_ZK_VKEY (placeholder: kona-sp1 0.0.1 in standard-prestates.toml)
 
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -28,12 +28,12 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with 
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
-zkChallengerBond = 0 # TODO_U22_ZK_CHALLENGER_BOND
+zkChallengerBond = 1000000000000000000 # TODO_U22_ZK_CHALLENGER_BOND (placeholder: 1 ETH)
 zkEnabled = true
-zkInitBond = 0 # TODO_U22_ZK_INIT_BOND
-zkMaxChallengeDuration = 0 # TODO_U22_ZK_MAX_CHALLENGE_DURATION
-zkMaxProveDuration = 0 # TODO_U22_ZK_MAX_PROVE_DURATION
-zkPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ZK_VKEY (kona-sp1)
+zkInitBond = 80000000000000000 # TODO_U22_ZK_INIT_BOND (placeholder: 0.08 ETH)
+zkMaxChallengeDuration = 604800 # TODO_U22_ZK_MAX_CHALLENGE_DURATION (placeholder: 7 days)
+zkMaxProveDuration = 259200 # TODO_U22_ZK_MAX_PROVE_DURATION (placeholder: 3 days)
+zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c" # TODO_U22_ZK_VKEY (placeholder: kona-sp1 0.0.1 in standard-prestates.toml)
 
 [addresses]
 OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0-rc.2, standard-versions-sepolia.toml
