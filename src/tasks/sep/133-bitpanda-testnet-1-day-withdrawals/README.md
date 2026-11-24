@@ -1,4 +1,4 @@
-# 132-bitpanda-testnet-1-day-withdrawals
+# 133-bitpanda-testnet-1-day-withdrawals
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -34,11 +34,11 @@ Sets 1-day withdrawals on the Bitpanda testnet via `SetReviewPeriodDelays`, from
 This is a **single-safe** task, so no child-safe argument is needed.
 
 ```bash
-cd src/tasks/sep/132-bitpanda-testnet-1-day-withdrawals
+cd src/tasks/sep/133-bitpanda-testnet-1-day-withdrawals
 
-just simulate-stack sep 132-bitpanda-testnet-1-day-withdrawals
+just simulate-stack sep 133-bitpanda-testnet-1-day-withdrawals
 
-USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 132-bitpanda-testnet-1-day-withdrawals
+USE_KEYSTORE=1 SKIP_DECODE_AND_PRINT=1 just sign-stack sep 133-bitpanda-testnet-1-day-withdrawals
 ```
 
 ## Validation

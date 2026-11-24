@@ -4,7 +4,7 @@ l2chains = [
     {name = "TODO_BITPANDA_TESTNET_NAME", chainId = 0} # TODO_BITPANDA_TESTNET_CHAIN_ID
 ]
 
-fallbackAddressesJsonPath = "src/tasks/sep/132-bitpanda-testnet-1-day-withdrawals/addresses.json" # TODO_BITPANDA_ADDRESSES_JSON (drop if registry-listed)
+fallbackAddressesJsonPath = "src/tasks/sep/133-bitpanda-testnet-1-day-withdrawals/addresses.json" # TODO_BITPANDA_ADDRESSES_JSON (drop if registry-listed)
 
 [delays]
 proofMaturityDelaySeconds = 86400 # 1 day

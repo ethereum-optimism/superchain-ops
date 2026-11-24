@@ -1,4 +1,4 @@
-# 131-U22-op-uni-zk-v1000
+# 132-U22-op-uni-zk-v1000
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -9,7 +9,7 @@ Scaffold. ZK is activated with a single OPCM re-run (ZK on, SUPER_CANNON_KONA of
 | | |
 |---|---|
 | Target date | Dec 10, 2026, after Lagoon activation on Sepolia |
-| Depends on | [130-U22-op-uni-opcm-migrate-v1000](../130-U22-op-uni-opcm-migrate-v1000/README.md) and Lagoon activation on Sepolia (Dec 10). |
+| Depends on | [131-U22-op-uni-opcm-migrate-v1000](../131-U22-op-uni-opcm-migrate-v1000/README.md) and Lagoon activation on Sepolia (Dec 10). |
 | Sequencing | Sepolia 3/3. Nonces L1PAO 64, FUS 88, SC 78. |
 
 | Chain | Chain ID | Change |
@@ -36,11 +36,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/131-U22-op-uni-zk-v1000
+cd src/tasks/sep/132-U22-op-uni-zk-v1000
 
-just simulate-stack sep 131-U22-op-uni-zk-v1000 council   # or foundation
+just simulate-stack sep 132-U22-op-uni-zk-v1000 council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 131-U22-op-uni-zk-v1000 council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 132-U22-op-uni-zk-v1000 council   # or foundation
 ```
 
 ## Validation
