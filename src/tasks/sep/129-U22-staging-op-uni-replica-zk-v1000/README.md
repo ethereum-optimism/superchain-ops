@@ -26,7 +26,7 @@ Second `OPCMUpgradeV1000` run on the migrated stg-op-replica + stg-uni-replica s
 - [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [ ] ZK config: SP1 vkey (`kona-sp1`), max challenge/prove durations, challenger bond, init bond.
+- [ ] ZK config: durations and bonds taken from the zk-proofs-2 devnet's live ZK game (factory `0x2bc713C345109b95C7cFF034d7f60B2ac86D0A75` on Sepolia: 4 h challenge, 3.5 d prove, 0.01 ETH challenger bond, 0.021 ETH init bond); confirm with Proofs. SP1 vkey still a placeholder: needs the `konaSP1` build for this dependency set.
 - [ ] ZK proposer and challenger config ready; stop proposer, execute, restart.
 - [ ] Old challenger keeps playing in-flight SUPER_CANNON_KONA games.
 
