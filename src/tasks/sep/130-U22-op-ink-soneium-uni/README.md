@@ -1,4 +1,4 @@
-# 129-U22-op-ink-soneium-uni
+# 130-U22-op-ink-soneium-uni
 
 Status: [DRAFT, NOT READY TO SIGN]
 
@@ -10,7 +10,7 @@ Scaffold. Every U22 release input is a placeholder.
 |---|---|
 | Target date | Dec 8, 2026 |
 | Depends on | U21 (sep/115, executed). OPCM v10 deployed on Sepolia. |
-| Sequencing | Sepolia 1/3. Followed by [130-U22-op-uni-opcm-migrate-v1000](../130-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 62, FUS 86, SC 76. |
+| Sequencing | Sepolia 1/3. Followed by [131-U22-op-uni-opcm-migrate-v1000](../131-U22-op-uni-opcm-migrate-v1000/README.md). Nonces L1PAO 62, FUS 86, SC 76. |
 
 | Chain | Chain ID | Change |
 |---|---|---|
@@ -38,11 +38,11 @@ This is a **nested** task: signers act through one of the L1PAO's two owner safe
 child-safe argument (`council` or `foundation`) is required.
 
 ```bash
-cd src/tasks/sep/129-U22-op-ink-soneium-uni
+cd src/tasks/sep/130-U22-op-ink-soneium-uni
 
-just simulate-stack sep 129-U22-op-ink-soneium-uni council   # or foundation
+just simulate-stack sep 130-U22-op-ink-soneium-uni council   # or foundation
 
-SKIP_DECODE_AND_PRINT=1 just sign-stack sep 129-U22-op-ink-soneium-uni council   # or foundation
+SKIP_DECODE_AND_PRINT=1 just sign-stack sep 130-U22-op-ink-soneium-uni council   # or foundation
 ```
 
 ## Validation

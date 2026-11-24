@@ -28,8 +28,8 @@ Safe transaction hash (root safe): `TODO_SAFE_TX_HASH`
 Simulate the task and check the output against this file before signing.
 
 ```bash
-cd src/tasks/sep/132-testnet-1-day-withdrawals
-just simulate-stack sep 132-testnet-1-day-withdrawals
+cd src/tasks/sep/133-testnet-1-day-withdrawals
+just simulate-stack sep 133-testnet-1-day-withdrawals
 ```
 
 ## Calldata
