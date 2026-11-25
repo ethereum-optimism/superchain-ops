@@ -1,0 +1,54 @@
+templateName = "OPCMUpgradeV1000"
+
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+chainId = 11155420
+expectedValidationErrors = ""
+startingRespectedGameType = 10
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 100000000000000000 # 0.1 ETH
+zkEnabled = true
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+chainId = 1301
+expectedValidationErrors = ""
+startingRespectedGameType = 10
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 100000000000000000 # 0.1 ETH
+zkEnabled = true
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
+
+[addresses]
+OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0, standard-versions-sepolia.toml
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 64}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 88}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 78}
+]

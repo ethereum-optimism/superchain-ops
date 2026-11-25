@@ -1,0 +1,36 @@
+templateName = "OPCMMigrateV1000"
+
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "OP Sepolia Testnet", chainId = 11155420}
+]
+
+skipOPCMVersionCheck = false
+
+[opcmMigrate]
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
+expectedChainValidationErrors = ["", ""]
+expectedValidationErrors = ""
+proposer = "0x9884C33C65111DA7Bbed0e63cD2392F503b135F5" # OP Sepolia proposer, shared SUPER_PERMISSIONED proposer
+startingAnchorRootL2SequenceNumber = 1795622400 # 2026-11-25 16:00:00 UTC, finalized on both chains
+startingAnchorRootRoot = "0x9f9c5cc9e6285e341a9d174bc7f0e2dd1057c3dce213a4c0b2991546ec7636e1" # super root at 1795622400; refresh before signing
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
+
+[addresses]
+OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0, standard-versions-sepolia.toml
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[storageCodeExceptions]
+"0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 63}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 87}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 77}
+]

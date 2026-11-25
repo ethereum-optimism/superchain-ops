@@ -1,0 +1,36 @@
+templateName = "OPCMMigrateV1000"
+
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Unichain", chainId = 130}
+]
+
+skipOPCMVersionCheck = false
+
+[opcmMigrate]
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
+expectedChainValidationErrors = ["", ""]
+expectedValidationErrors = ""
+proposer = "0xc27ba3E0Fc01567a5E57Ae0c391AA98cECBA5bE0" # OP Mainnet proposer, shared SUPER_PERMISSIONED proposer
+startingAnchorRootL2SequenceNumber = 1795622400 # 2026-11-25 16:00:00 UTC, finalized on both chains
+startingAnchorRootRoot = "0x873fe76c947226ea66a1b4c5d403681e533895f40183d248c32c1dec8a6cfce4" # super root at 1795622400; refresh before the governance post
+startingRespectedGameType = 9 # SUPER_CANNON_KONA
+superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
+
+[addresses]
+OPCM = "0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56" # op-contracts/v10.0.0, standard-versions-mainnet.toml
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[storageCodeExceptions]
+"0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 52}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 88}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 79}
+]

@@ -1,0 +1,54 @@
+templateName = "OPCMUpgradeV1000"
+
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Unichain", chainId = 130}
+]
+
+skipOPCMVersionCheck = false
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+chainId = 10
+expectedValidationErrors = ""
+startingRespectedGameType = 10
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 100000000000000000 # 0.1 ETH
+zkEnabled = true
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+chainId = 130
+expectedValidationErrors = ""
+startingRespectedGameType = 10
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 100000000000000000 # 0.1 ETH
+zkEnabled = true
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
+
+[addresses]
+OPCM = "0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56" # op-contracts/v10.0.0, standard-versions-mainnet.toml
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[storageCodeExceptions]
+"0xc407398d063f942feBbcC6F80a156b47F3f1BDA6" = ["0x000000000000000000000000000000000000000000000000000000000000006c"]
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [ # L1PAO
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 53}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 89}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 80}
+]
