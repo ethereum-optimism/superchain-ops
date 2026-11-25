@@ -1,0 +1,74 @@
+templateName = "OPCMUpgradeV1000"
+
+skipOPCMVersionCheck = false
+
+l2chains = [
+    {name = "sepolia-devnet-2", chainId = 420130015},
+    {name = "sepolia-devnet-3", chainId = 420130018},
+    {name = "op-int-0", chainId = 420130023},
+    {name = "uni-int-0", chainId = 420130024}
+]
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
+chainId = 420130015
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130"
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+chainId = 420130018
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130,DF-60"
+startingRespectedGameType = 5
+superCannonKonaEnabled = false
+superCannonKonaInitBond = 0
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
+chainId = 420130023
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130"
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[[opcmUpgrades]]
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
+chainId = 420130024
+expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130"
+startingRespectedGameType = 9
+superCannonKonaEnabled = true
+superCannonKonaInitBond = 80000000000000000
+zkChallengerBond = 0
+zkEnabled = false
+zkInitBond = 0
+zkMaxChallengeDuration = 0
+zkMaxProveDuration = 0
+zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+[addresses]
+OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0, standard-versions-sepolia.toml
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [ # staging ProxyAdminOwner
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 158}
+]
