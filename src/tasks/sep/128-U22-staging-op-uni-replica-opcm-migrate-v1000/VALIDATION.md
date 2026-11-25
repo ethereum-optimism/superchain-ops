@@ -111,14 +111,14 @@ SIGNATURES=0x... just execute
 ### Task State Changes
 
 `migrate` creates three proxies, all administered by op-int-0's ProxyAdmin
-`0x3761A2B7fB5Cc6Fce2187Fa9EfFa13857A7BC8db`. The addresses below are from the simulation and
-depend on the OPCM's deployment nonce:
+`0x3761A2B7fB5Cc6Fce2187Fa9EfFa13857A7BC8db`. Their addresses are not fixed in advance (they differ
+between simulation runs), so check them by role in the Tenderly diff:
 
 | New proxy | Address | Implementation | Initialized with |
 |---|---|---|---|
-| ETHLockbox | `0xcd62f7b4f3bab1479cead7fa110b6da5f203dea6` | `0x406948c8…78d1` (2.1.0) | SuperchainConfig `0x289d…1DBb`; both portals and both legacy lockboxes authorized; receives 0.01 ETH |
-| DisputeGameFactory | `0xfc38c55eb7a82e54e89eb5a32d2947fda443b284` | `0x72b97171…393b` (1.6.1) | owner staging PAO; game 5 → `0x5C3eb47c…D691` with proposer `0x0595…d8Ba`; game 9 → `0x4deb67df…b7e8` with prestate `0x034589…d93d`, MIPS `0xacc005dc…5cfa`, DelayedWETH `0xe181…4b53`, bond 0.08 ETH |
-| AnchorStateRegistry | `0xc567cf3b050366cf45ac5c560036f2064d1c6a6d` | `0xb11be607…4165` (5.1.0) | factory `0xfc38…b284`, anchor `0xf47562c8…e9ce` @ 1795551692, respected type 9, finality delay 302400 |
+| Shared ETHLockbox | new | `0x406948c8…78d1` (2.1.0) | SuperchainConfig `0x289d…1DBb`; both portals and both legacy lockboxes authorized; receives 0.01 ETH |
+| Shared DisputeGameFactory | new | `0x72b97171…393b` (1.6.1) | owner staging PAO; game 5 → `0x5C3eb47c…D691` with proposer `0x0595…d8Ba`; game 9 → `0x4deb67df…b7e8` with prestate `0x034589…d93d`, MIPS `0xacc005dc…5cfa`, DelayedWETH `0xe181…4b53`, bond 0.08 ETH |
+| Shared AnchorStateRegistry | new | `0xb11be607…4165` (5.1.0) | shared factory, anchor `0xf47562c8…e9ce` @ 1795551692, respected type 9, finality delay 302400 |
 
 op-int-0's DelayedWETH `0xe181e5a4520d69b22d852a200c2a46e73c774b53` becomes the shared
 DelayedWETH: uni-int-0's SystemConfig is repointed to it. Existing contracts written:
@@ -126,11 +126,11 @@ DelayedWETH: uni-int-0's SystemConfig is repointed to it. Existing contracts wri
 | Contract | op-int-0 | uni-int-0 | Change |
 |---|---|---|---|
 | SystemConfigProxy | `0x2fB895799975C47285f950171dABaa873b158793` | `0x4c10De2C774C6b5B8c512f691058FAC6dacFf728` | INTEROP feature enabled; uni-int-0 DelayedWETH `0x7d3d…2d49` → `0xe181…4b53` |
-| OptimismPortalProxy | `0x43090F6Cd0d3f7970B35F9348E411474f0E7942d` | `0x4e445a4e2BaEC3F8c0bCef9137ce83797522077F` | `anchorStateRegistry` → `0xc567…6a6d`, `ethLockbox` → `0xcd62…dea6` |
+| OptimismPortalProxy | `0x43090F6Cd0d3f7970B35F9348E411474f0E7942d` | `0x4e445a4e2BaEC3F8c0bCef9137ce83797522077F` | `anchorStateRegistry` and `ethLockbox` → the shared contracts |
 | ETHLockboxProxy (legacy) | `0x0a33b2AA1d33F5609a63FD6650E59e389bDDD8d5` | `0x0E8f50D884De5C9Efc69c60c832a1Ba479a6BB23` | 0.005 ETH each moved to the shared lockbox |
 | DisputeGameFactoryProxy (legacy) | `0xe235da77a0A13C4B47A303898d99B7ba2c3dB09d` | `0x9a13B95E5690c801739EaD84215EDc8dc8B68B38` | games 5 and 9 cleared (implementation, args, bond) |
-| AnchorStateRegistryProxy (legacy) | `0x14601589Cc0ECAb20a7E22A8b3A6980BCDD6DD98` | `0xFBfe26a0ED6C840cf920D30D7C915347ccaBb083` | lockbox reference → `0xcd62…dea6` |
-| DelayedWETH proxy | `0xe181e5a4520d69b22d852a200c2a46e73c774b53` | `0x7d3d047c2395eba8b9d8f86d8266a87d73412d49` | lockbox reference → `0xcd62…dea6` |
+| AnchorStateRegistryProxy (legacy) | `0x14601589Cc0ECAb20a7E22A8b3A6980BCDD6DD98` | `0xFBfe26a0ED6C840cf920D30D7C915347ccaBb083` | lockbox reference → the shared lockbox |
+| DelayedWETH proxy | `0xe181e5a4520d69b22d852a200c2a46e73c774b53` | `0x7d3d047c2395eba8b9d8f86d8266a87d73412d49` | lockbox reference → the shared lockbox |
 
 Plus the staging ProxyAdminOwner nonce (160 → 161). The template's post-execution checks run
 the OPCM migration validator and the per-chain standard validator; the accepted findings are
