@@ -1,6 +1,6 @@
 # 128-U22-staging-op-uni-replica-opcm-migrate-v1000
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xde6c5a6839f093488757f177e7251acf78f33bfdffa42bffa9ae1feb0db030fb)
 
 ## Summary
 
