@@ -1,6 +1,6 @@
 # 126-U21-giwa-sepolia
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
