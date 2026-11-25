@@ -14,11 +14,11 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with 
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
-zkChallengerBond = 10000000000000000 # 0.01 ETH, as on the zk-proofs-2 devnet; confirm with Proofs
+zkChallengerBond = 100000000000000000 # 0.1 ETH
 zkEnabled = true
-zkInitBond = 21000000000000000 # 0.021 ETH, as on the zk-proofs-2 devnet; confirm with Proofs
-zkMaxChallengeDuration = 14400 # 4 hours, as on the zk-proofs-2 devnet; confirm with Proofs
-zkMaxProveDuration = 302400 # 3.5 days, as on the zk-proofs-2 devnet; confirm with Proofs
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
 zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [[opcmUpgrades]]
@@ -28,11 +28,11 @@ expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with 
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
-zkChallengerBond = 10000000000000000 # 0.01 ETH, as on the zk-proofs-2 devnet; confirm with Proofs
+zkChallengerBond = 100000000000000000 # 0.1 ETH
 zkEnabled = true
-zkInitBond = 21000000000000000 # 0.021 ETH, as on the zk-proofs-2 devnet; confirm with Proofs
-zkMaxChallengeDuration = 14400 # 4 hours, as on the zk-proofs-2 devnet; confirm with Proofs
-zkMaxProveDuration = 302400 # 3.5 days, as on the zk-proofs-2 devnet; confirm with Proofs
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
 zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [addresses]
