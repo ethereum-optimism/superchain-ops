@@ -76,7 +76,10 @@ cd src/
 just simulate-stack <network> <your-task-name>
 ```
 
-See [SINGLE.md](SINGLE.md) or [NESTED.md](NESTED.md) for detailed simulation instructions.
+For a nested task, check every child safe in one run with `just simulate-stack-all-safes <network> <your-task-name>`.
+
+See [SINGLE.md](SINGLE.md) or [NESTED.md](NESTED.md) for detailed simulation instructions, and
+[FAST-SIMULATIONS.md](FAST-SIMULATIONS.md) for tips to make repeated simulations fast.
 
 ### 2. Review and Understand the Simulation Results
 
