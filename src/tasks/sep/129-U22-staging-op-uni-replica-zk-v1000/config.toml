@@ -19,7 +19,7 @@ zkEnabled = true
 zkInitBond = 21000000000000000 # 0.021 ETH, as on the zk-proofs-2 devnet; confirm with Proofs
 zkMaxChallengeDuration = 14400 # 4 hours, as on the zk-proofs-2 devnet; confirm with Proofs
 zkMaxProveDuration = 302400 # 3.5 days, as on the zk-proofs-2 devnet; confirm with Proofs
-zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c" # TODO_U22_ZK_VKEY (placeholder: kona-sp1 0.0.1 in standard-prestates.toml)
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -33,7 +33,7 @@ zkEnabled = true
 zkInitBond = 21000000000000000 # 0.021 ETH, as on the zk-proofs-2 devnet; confirm with Proofs
 zkMaxChallengeDuration = 14400 # 4 hours, as on the zk-proofs-2 devnet; confirm with Proofs
 zkMaxProveDuration = 302400 # 3.5 days, as on the zk-proofs-2 devnet; confirm with Proofs
-zkPrestate = "0x007a57c684472769fa73877d2fae9feef79fb64a5f833f8e4fe40ed63ca4286c" # TODO_U22_ZK_VKEY (placeholder: kona-sp1 0.0.1 in standard-prestates.toml)
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [addresses]
 OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0, standard-versions-sepolia.toml

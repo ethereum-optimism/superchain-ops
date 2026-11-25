@@ -1,7 +1,6 @@
 templateName = "OPCMUpgradeV1000"
 
 skipOPCMVersionCheck = false
-skipPrestateRegistryCheckChainIds = [420130015, 420130023, 420130024]
 
 l2chains = [
     {name = "sepolia-devnet-2", chainId = 420130015},
@@ -11,7 +10,7 @@ l2chains = [
 ]
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client-int, optimism develop 24623f2c
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 420130015
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 startingRespectedGameType = 9
@@ -39,7 +38,7 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client-int, optimism develop 24623f2c
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 420130023
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 startingRespectedGameType = 9
@@ -53,7 +52,7 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client-int, optimism develop 24623f2c
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 420130024
 expectedValidationErrors = "OVERRIDES-L1PAOMULTISIG,SYSCON-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 startingRespectedGameType = 9

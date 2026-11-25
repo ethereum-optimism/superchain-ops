@@ -27,9 +27,9 @@ Scaffold. Every U22 input and both redeployed chains are placeholders.
 - [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
 - [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
 - [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420).
-- [ ] Dependency-set kona interop prestate: `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (same develop build as sep/126); swap for the U22 kona-client release prestate once tagged.
+- [x] Dependency-set kona interop prestate: `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d`, kona-client v1.10.0-rc.1 (superchain-registry #1425), checked against the registry.
 - [ ] Shared SUPER_PERMISSIONED proposer: op-int-0's proposer `0x0595c28b885f65Ce70d65e1A1593ac77e1F2d8Ba` (superchain-registry `addresses.json`). Confirm with Proofs.
-- [ ] Starting anchor: super root `0xf47562c855e09d6c10a7bda89c8c0a13dbacf6fe75168ee207ff52bf6069e9ce` at timestamp `1795551692` (op-int-0 block 258340, uni-int-0 block 514376, both finalized), computed from the L2 EL RPCs as `keccak256(0x01 ‖ be64(ts) ‖ chainId ‖ outputRoot …)`. Recompute with the supernode's `superroot_atTimestamp` and confirm the supernode has safe-head history back to this timestamp before signing.
+- [x] Starting anchor: super root `0xf47562c855e09d6c10a7bda89c8c0a13dbacf6fe75168ee207ff52bf6069e9ce` at timestamp `1795551692` (op-int-0 block 258340, uni-int-0 block 514376, both finalized), computed from the L2 EL RPCs as `keccak256(0x01 ‖ be64(ts) ‖ chainId ‖ outputRoot …)`. Recomputed from the L2 EL RPCs on 2026-11-25 (match). Confirm the supernode has safe-head history back to this timestamp before signing.
 - [ ] Supernode, challenger and proposer cut-over ready (infra, no ops task).
 
 ## Simulation & Signing

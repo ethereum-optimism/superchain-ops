@@ -1,7 +1,6 @@
 templateName = "OPCMMigrateV1000"
 
 skipOPCMVersionCheck = false
-skipPrestateRegistryCheckChainIds = [420130015, 420130023, 420130024]
 
 l2chains = [
     {name = "op-int-0", chainId = 420130023},
@@ -9,7 +8,7 @@ l2chains = [
 ]
 
 [opcmMigrate]
-cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client-int, optimism develop 24623f2c
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 expectedChainValidationErrors = ["OVERRIDES-L1PAOMULTISIG,SYSCON-130", "OVERRIDES-L1PAOMULTISIG,SYSCON-130"]
 expectedValidationErrors = "MIG-SLOCKBOX-40,MIG-CHAIN-0-130,MIG-CHAIN-1-130" # expected with the standard OPCM (as in U21 sep/122, sep/125); confirm in simulation
 proposer = "0x0595c28b885f65Ce70d65e1A1593ac77e1F2d8Ba" # op-int-0 proposer (registry addresses.json), shared SUPER_PERMISSIONED proposer; confirm with Proofs
