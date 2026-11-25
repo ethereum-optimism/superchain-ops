@@ -2,8 +2,6 @@
 
 Status: [DRAFT, NOT READY TO SIGN]
 
-Scaffold. Every U22 release input is a placeholder.
-
 ## Summary
 
 | | |
@@ -26,11 +24,12 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP-governed Sepolia chains from 
 ## Open items
 
 - [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
-- [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
-- [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [ ] U22 SUPER_CANNON_KONA prestate (`TODO_U22_KONA_INTEROP_PRESTATE`), from standard-prestates.toml.
+- [x] `expectedValidationErrors` from the v10 validator in simulation.
+- [x] Domain/message hashes in VALIDATION.md.
+- [ ] Calldata breakdown and state changes in VALIDATION.md.
+- [x] SUPER_CANNON_KONA prestate `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (kona-client v1.10.0-rc.1, superchain-registry #1425). Ink Sepolia also gets ZK_DISPUTE_GAME (10), not respected, with the ZK config of sep/132.
 - [ ] Re-check `storageCodeExceptions` (Unichain Sepolia / Minato slot 0x6c) against the v10 simulation.
-- [ ] Re-check Sepolia nonces (L1PAO 62, FUS 86, SC 76 on 2026-11-18) before signing.
+- [ ] Re-check Sepolia nonces (L1PAO 62, FUS 86, SC 76 on 2026-11-25) before signing.
 
 ## Simulation & Signing
 

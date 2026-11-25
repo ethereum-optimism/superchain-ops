@@ -18,15 +18,15 @@ the calldata change.
 >
 > ### Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
-> - Domain Hash:  `TODO_DOMAIN_HASH`
-> - Message Hash: `TODO_MESSAGE_HASH`
+> - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0x2532bea82d7e491c73350a13f9e10f9917ff80890971c536381d77048574402f`
 >
 > ### Security Council (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
-> - Domain Hash:  `TODO_DOMAIN_HASH`
-> - Message Hash: `TODO_MESSAGE_HASH`
+> - Domain Hash:  `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0x65979c0f5e1b9f7a429ee99cee71ef210a708db61c5b058650d003ee8cb21747`
 
-Safe transaction hash (root safe): `TODO_SAFE_TX_HASH`
+Safe transaction hash (root safe): `0x6c327dbb3d4084dd6b5233cb262bfbdea036cbd9b1c22d3d5c89df54f172e740`
 
 ## For Signers
 

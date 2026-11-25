@@ -1,24 +1,24 @@
 templateName = "OPCMMigrateV1000"
 
 l2chains = [
-    {name = "OP Sepolia Testnet", chainId = 11155420},
-    {name = "Unichain Sepolia Testnet", chainId = 1301}
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "OP Sepolia Testnet", chainId = 11155420}
 ]
 
 skipOPCMVersionCheck = false
 
 [opcmMigrate]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_DEPSET_PRESTATE (kona interop, OP Sepolia + Unichain Sepolia dependency set)
-expectedChainValidationErrors = ["TODO_U22_EXPECTED_CHAIN_VALIDATION_ERRORS", "TODO_U22_EXPECTED_CHAIN_VALIDATION_ERRORS"]
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
-proposer = "0xdead00000000000000000000000000000000dead" # TODO_U22_SHARED_PROPOSER
-startingAnchorRootL2SequenceNumber = 0 # TODO_U22_ANCHOR_L2_SEQUENCE_NUMBER
-startingAnchorRootRoot = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ANCHOR_ROOT
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
+expectedChainValidationErrors = ["", ""]
+expectedValidationErrors = ""
+proposer = "0x9884C33C65111DA7Bbed0e63cD2392F503b135F5" # OP Sepolia proposer, shared SUPER_PERMISSIONED proposer
+startingAnchorRootL2SequenceNumber = 1795622400 # 2026-11-25 16:00:00 UTC, finalized on both chains
+startingAnchorRootRoot = "0x9f9c5cc9e6285e341a9d174bc7f0e2dd1057c3dce213a4c0b2991546ec7636e1" # super root at 1795622400; refresh before signing
 startingRespectedGameType = 9 # SUPER_CANNON_KONA
 superCannonKonaInitBond = 80000000000000000 # 0.08 ETH
 
 [addresses]
-OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0-rc.2, standard-versions-sepolia.toml
+OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0, standard-versions-sepolia.toml
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [storageCodeExceptions]

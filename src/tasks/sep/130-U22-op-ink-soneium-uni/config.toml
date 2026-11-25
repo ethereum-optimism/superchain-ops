@@ -10,9 +10,9 @@ l2chains = [
 skipOPCMVersionCheck = false
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 11155420
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = ""
 startingRespectedGameType = 9
 superCannonKonaEnabled = true
 superCannonKonaInitBond = 80000000000000000
@@ -24,23 +24,23 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 763373
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = ""
 startingRespectedGameType = 9
 superCannonKonaEnabled = true
 superCannonKonaInitBond = 80000000000000000
-zkChallengerBond = 0
-zkEnabled = false
-zkInitBond = 0
-zkMaxChallengeDuration = 0
-zkMaxProveDuration = 0
-zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
+zkChallengerBond = 100000000000000000 # 0.1 ETH
+zkEnabled = true
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 1946
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = ""
 startingRespectedGameType = 9
 superCannonKonaEnabled = true
 superCannonKonaInitBond = 80000000000000000
@@ -52,9 +52,9 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [[opcmUpgrades]]
-cannonKonaPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_KONA_INTEROP_PRESTATE
+cannonKonaPrestate = "0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d" # kona-client v1.10.0-rc.1
 chainId = 1301
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = ""
 startingRespectedGameType = 9
 superCannonKonaEnabled = true
 superCannonKonaInitBond = 80000000000000000
@@ -66,7 +66,7 @@ zkMaxProveDuration = 0
 zkPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 [addresses]
-OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0-rc.2, standard-versions-sepolia.toml
+OPCM = "0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7" # op-contracts/v10.0.0, standard-versions-sepolia.toml
 ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [storageCodeExceptions]
