@@ -1,6 +1,6 @@
 # 127-U22-staging-devnet-6-opcm-upgrade-v1000
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x1a6c7e96627895566fe47c20235bb9121f5917a2fb8dc37568ec6d0b42b1f612)
 
 ## Summary
 
