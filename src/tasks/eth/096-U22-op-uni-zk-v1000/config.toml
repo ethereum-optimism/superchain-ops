@@ -10,33 +10,33 @@ skipOPCMVersionCheck = false
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 chainId = 10
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = ""
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
-zkChallengerBond = 0 # TODO_U22_ZK_CHALLENGER_BOND
+zkChallengerBond = 100000000000000000 # 0.1 ETH
 zkEnabled = true
-zkInitBond = 0 # TODO_U22_ZK_INIT_BOND
-zkMaxChallengeDuration = 0 # TODO_U22_ZK_MAX_CHALLENGE_DURATION
-zkMaxProveDuration = 0 # TODO_U22_ZK_MAX_PROVE_DURATION
-zkPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ZK_VKEY (kona-sp1)
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [[opcmUpgrades]]
 cannonKonaPrestate = "0x0000000000000000000000000000000000000000000000000000000000000000"
 chainId = 130
-expectedValidationErrors = "" # TODO_U22_EXPECTED_VALIDATION_ERRORS
+expectedValidationErrors = ""
 startingRespectedGameType = 10
 superCannonKonaEnabled = false
 superCannonKonaInitBond = 0
-zkChallengerBond = 0 # TODO_U22_ZK_CHALLENGER_BOND
+zkChallengerBond = 100000000000000000 # 0.1 ETH
 zkEnabled = true
-zkInitBond = 0 # TODO_U22_ZK_INIT_BOND
-zkMaxChallengeDuration = 0 # TODO_U22_ZK_MAX_CHALLENGE_DURATION
-zkMaxProveDuration = 0 # TODO_U22_ZK_MAX_PROVE_DURATION
-zkPrestate = "0xdead00000000000000000000000000000000000000000000000000000000dead" # TODO_U22_ZK_VKEY (kona-sp1)
+zkInitBond = 200000000000000000 # 0.2 ETH
+zkMaxChallengeDuration = 345600 # 4 days
+zkMaxProveDuration = 259200 # 3 days
+zkPrestate = "0x0073def5ff73ea4fa3adb828fa0839943e1fbf439e669779c66dcea387d71562" # kona-sp1 v1.0.0-rc.1 super-aggregation vkey
 
 [addresses]
-OPCM = "0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56" # op-contracts/v10.0.0-rc.2, standard-versions-mainnet.toml
+OPCM = "0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56" # op-contracts/v10.0.0, standard-versions-mainnet.toml
 ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
 
 [storageCodeExceptions]

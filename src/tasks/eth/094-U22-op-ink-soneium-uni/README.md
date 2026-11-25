@@ -2,8 +2,6 @@
 
 Status: [DRAFT, NOT READY TO SIGN]
 
-Scaffold. Every U22 release input is a placeholder.
-
 ## Summary
 
 | | |
@@ -26,9 +24,10 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP-governed Mainnet chains from 
 ## Open items
 
 - [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x7d060B2f703c7A32Bb0D3775DA2E6c4Cc0cDdd56` (superchain-registry #1424, `standard-versions-mainnet.toml`).
-- [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
-- [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [ ] U22 SUPER_CANNON_KONA prestate (`TODO_U22_KONA_INTEROP_PRESTATE`), from standard-prestates.toml.
+- [x] `expectedValidationErrors` from the v10 validator in simulation.
+- [x] Domain/message hashes in VALIDATION.md.
+- [ ] Calldata breakdown and state changes in VALIDATION.md.
+- [x] SUPER_CANNON_KONA prestate `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (kona-client v1.10.0-rc.1, superchain-registry #1425). Ink also gets ZK_DISPUTE_GAME (10), not respected, with the ZK config of eth/096. Soneium expects `DF-60` (permissioned only).
 - [ ] Re-check `storageCodeExceptions` (Unichain / Soneium slot 0x6c) against the v10 simulation.
 - [ ] Re-pin nonces if another L1PAO/FUS/SC task lands first.
 - [ ] Governance kickoff ~Dec 5.

@@ -2,8 +2,6 @@
 
 Status: [DRAFT, NOT READY TO SIGN]
 
-Scaffold. Every U22 release input is a placeholder.
-
 ## Summary
 
 | | |
@@ -24,11 +22,12 @@ Scaffold. Every U22 release input is a placeholder.
 ## Open items
 
 - [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
-- [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
-- [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [ ] Dependency-set kona interop prestate embedding OP Sepolia + Unichain Sepolia.
-- [ ] Shared SUPER_PERMISSIONED proposer.
-- [ ] Starting anchor (super root + L2 sequence number), set close to execution.
+- [x] `expectedValidationErrors` from the v10 validator in simulation.
+- [x] Domain/message hashes in VALIDATION.md.
+- [ ] Calldata breakdown and state changes in VALIDATION.md.
+- [x] Dependency-set kona interop prestate `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (kona-client v1.10.0-rc.1, superchain-registry #1425).
+- [x] Shared SUPER_PERMISSIONED proposer: the OP chain's current proposer (see config.toml).
+- [ ] Starting anchor: super root at 1795622400 (2026-11-25 16:00 UTC) in config.toml; refresh close to execution.
 - [ ] Gas of the single atomic `migrate()` call (open question on #1626).
 - [ ] Supernode with OP Sepolia + Unichain Sepolia, challenger/proposer/dispute-mon cut-over ready (infra, no ops task).
 
