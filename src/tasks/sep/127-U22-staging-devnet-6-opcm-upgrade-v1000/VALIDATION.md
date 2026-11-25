@@ -3,14 +3,12 @@
 This document can be used to validate the inputs and result of the execution of the
 transaction which you are signing.
 
-> [!WARNING]
-> Scaffold only. Every value below is a placeholder until the open items in
-> [README.md](./README.md) are resolved and the task is simulated.
-
 ## Expected Domain and Message Hashes
 
-The hashes assume the pinned nonces in [config.toml](./config.toml) and move if those nonces or
-the calldata change.
+Validate the domain and message hashes. These values should match both the values on your
+ledger and the values printed to the terminal when you run the task. The hashes assume the
+pinned nonce in [config.toml](./config.toml) (staging ProxyAdminOwner 159) and move if that
+nonce or the calldata changes.
 
 > [!CAUTION]
 >
@@ -21,7 +19,7 @@ the calldata change.
 > - Domain Hash:  `0x07e03428d7125835eca12b6dd1a02903029b456da3a091ecd66fda859fbce61e`
 > - Message Hash: `0x3782b1a3742eb3fbe987441873dc1023b9ff058a67dbf558f0025a992b511aaa`
 
-Safe transaction hash (root safe): `0x72e58d48142b7142ccf74a01f3190b919e5b8e30aa6c5a51277bf10c132cd860`
+Safe transaction hash: `0x72e58d48142b7142ccf74a01f3190b919e5b8e30aa6c5a51277bf10c132cd860`
 
 ## For Signers
 
@@ -32,10 +30,120 @@ cd src/tasks/sep/127-U22-staging-devnet-6-opcm-upgrade-v1000
 just simulate-stack sep 127-U22-staging-devnet-6-opcm-upgrade-v1000
 ```
 
-## Calldata
+Check:
 
-TODO: decoded calldata breakdown.
+1. The domain and message hashes printed to the terminal match the ones at the top of this
+   file.
+2. In the Tenderly link printed by the simulation: paste the `0x6a761202…` hex the simulation
+   prints under "Insert the following hex into the 'Raw input data' field" (the Safe
+   `execTransaction`, not the task calldata) into the **Raw input data** field and simulate; the
+   contracts touched must be the ones listed in [Task State Changes](#task-state-changes),
+   and nothing else.
+3. The decoded `upgrade` input shows `startingRespectedGameType = 5`, game 5 with proposer
+   `0xC471D5d8C942fbaDFea1b7F57438CBf1597f08A9` and games 9 and 10 disabled.
 
-## State Changes
+## For Facilitators and Reviewers
 
-TODO: expected state changes from the simulation.
+Everything from here on is for facilitators executing the task and for reviewers: the raw
+calldata and its breakdown, the pre-execution checks and execution commands, the expected
+state changes and the post-execution checks. Signers only need the two sections above.
+
+### Task Calldata
+
+```
+0x82ad56cb000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000016000000000000000000000000091c167c7afbd0d0acc0aa7e4525e90b5cccb76a700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008486fe1c660000000000000000000000000000000000000000000000000000000000000020000000000000000000000000bbe108882084b30b4acb1da19abc3e512678cc5a000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000091c167c7afbd0d0acc0aa7e4525e90b5cccb76a70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000006648a847e2e0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000d1a07b6fd6f0da2d89101aef12fc1dd0fe32b0f700000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000520000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002a00000000000000000000000000000000000000000000000000000000000000360000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000020000000000000000000000000c471d5d8c942fbadfea1b7f57438cbf1597f08a90000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000090000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000276f76657272696465732e6366672e7374617274696e6752657370656374656447616d6554797065000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000
+```
+
+### Understanding Task Calldata
+
+The task is a single `Multicall3DelegateCall.aggregate3` from the staging ProxyAdminOwner
+(selector `0x82ad56cb`) containing **2** delegatecalls, both to the v10 OPCM
+`0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` with `allowFailure = false`:
+
+| # | Function | Selector | Payload |
+|---|---|---|---|
+| 1 | `upgradeSuperchain((address,(string,bytes)[]))` | `0x86fe1c66` | sepolia-devnet-6 SuperchainConfig `0xBbe108882084b30B4acB1Da19abc3E512678Cc5A`, no extra instructions |
+| 2 | `upgrade((address,(bool,uint256,uint32,bytes)[],(string,bytes)[]))` | `0x8a847e2e` | sepolia-devnet-6, SystemConfigProxy `0xd1a07b6fD6F0dA2d89101aeF12FC1Dd0fe32b0f7` |
+
+Each `upgrade` call carries the chain's `SystemConfigProxy`, six game configs in the fixed
+order 0, 1, 8, 5, 9, 10 and one extra instruction, `overrides.cfg.startingRespectedGameType`
+(ABI-encoded). Game types 0, 1, 8 and 10 are disabled (`enabled = false`, zero bond, empty
+args). Game 5 (SUPER_PERMISSIONED) is enabled with the chain's current proposer as its only
+argument and no bond. Game 9 (SUPER_CANNON_KONA), where enabled, carries the kona-client
+v1.10.0-rc.1 `cannon64-kona-interop` prestate
+`0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d` (superchain-registry #1425)
+and the live 0.08 ETH bond.
+
+On sepolia-devnet-6 only game 5 is enabled, with proposer
+`0xC471D5d8C942fbaDFea1b7F57438CBf1597f08A9` (the live value), and the respected game type
+stays 5.
+
+```bash
+cast calldata-decode "aggregate3((address,bool,bytes)[])" <task calldata>
+cast calldata-decode "upgrade((address,(bool,uint256,uint32,bytes)[],(string,bytes)[]))" <0x8a847e2e… payload>
+```
+
+### Pre-execution checks and execution
+
+Before executing, confirm the live nonce still matches the pin in
+[config.toml](./config.toml); if not, re-simulate and regenerate the hashes:
+
+```bash
+RPC=https://ethereum-sepolia-rpc.publicnode.com
+cast call 0xe934Dc97E347C6aCef74364B50125bb8689c40ff "nonce()(uint256)" -r $RPC   # 159
+```
+
+Then execute with the collected signature (the safe is 1-of-1; `just execute` refuses to run
+without `SIGNATURES`):
+
+```bash
+cd src/tasks/sep/127-U22-staging-devnet-6-opcm-upgrade-v1000
+
+SIGNATURES=0x... just execute
+```
+
+### Task State Changes
+
+`upgradeSuperchain` is a no-op: the sepolia-devnet-6 SuperchainConfig is already at 2.5.0, so
+it is not written. The staging ProxyAdminOwner nonce goes 159 → 160.
+
+Per chain, `upgrade` writes only implementation and version slots; no proxy is created and no
+ETH moves. New implementations are the `op-contracts/v10.0.0` entries of
+`standard-versions-sepolia.toml` (same commit as v10.0.0-rc.2):
+
+| Contract | Change |
+|---|---|
+| SystemConfigProxy | implementation `0x66b88c13…85a4` (4.4.0); `lastUsedOPCM` `0x160f0FE4…39Cc` → `0x91C167C7…76A7` |
+| OptimismPortalProxy | implementation `0x3fdbe48f…d414` (7.5.1); initialized 3 → 4; `proofMaturityDelaySeconds` stored as 604800 |
+| ETHLockboxProxy | implementation `0x406948c8…78d1` (2.1.0) |
+| AddressManager | `OVM_L1CrossDomainMessenger` → `0x8765c0ca…7df2` (3.4.0) |
+| L1StandardBridgeProxy | implementation `0x6689ae0c…a36e` (2.9.0) |
+| DelayedWETH proxy | implementation `0x03e166fb…4660` (3.0.0); initialized 1 → 2; delay stored as 302400 |
+| AnchorStateRegistryProxy | implementation `0xb11be607…4165` (5.1.0); initialized 1 → 2; `disputeGameFinalityDelaySeconds` stored as 302400 |
+| DisputeGameFactoryProxy | game 9 only: implementation `0x19AF533C…3208` → `0x4deb67df…b7e8`, prestate → `0x034589…d93d` |
+
+L1ERC721Bridge and OptimismMintableERC20Factory are already at their v10 versions and are not
+written.
+
+The DisputeGameFactory is not written (game 5 is unchanged and game 9 stays disabled).
+
+| Contract | sepolia-devnet-6 |
+|---|---|
+| SystemConfigProxy | `0xd1a07b6fD6F0dA2d89101aeF12FC1Dd0fe32b0f7` |
+| OptimismPortalProxy | `0xEaC4c47b8E40ae731A0eb6a5dCe2B4cB3148235E` |
+| ETHLockboxProxy | `0x91AD522D307C3704F0832438B593173372811165` |
+| AddressManager | `0x7ccb3d6f856767b571ed82ad5df8a7e94f09aec0` |
+| L1StandardBridgeProxy | `0xED15c1b50f89F41F6CD575811aDB5c3B12d00df1` |
+| DelayedWETH proxy | `0x046d79d97a521a3868fa524a8dbf874c77ac3982` |
+| AnchorStateRegistryProxy | `0xe7bb6a299DD2ECBd9Bf5D295958ED3b929dD690C` |
+
+Accepted StandardValidator findings: `OVERRIDES-L1PAOMULTISIG,SYSCON-130,DF-60`.
+
+### Post-execution checks
+
+```bash
+RPC=https://ethereum-sepolia-rpc.publicnode.com
+SC=0xd1a07b6fD6F0dA2d89101aeF12FC1Dd0fe32b0f7
+cast call $SC "version()(string)" -r $RPC        # 4.4.0
+cast call $SC "lastUsedOPCM()(address)" -r $RPC  # 0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7
+```

@@ -1,8 +1,6 @@
 # 126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000
 
-Status: [DRAFT, NOT READY TO SIGN]
-
-Scaffold. The replicas' contract addresses and every U22 release input are placeholders.
+Status: [READY TO SIGN]
 
 ## Summary
 
@@ -25,13 +23,13 @@ Upgrade 22 (`op-contracts/v10.0.0`) on the four OP Labs staging networks: one `O
 
 ## Open items
 
-- [x] OPCM address: op-contracts/v10.0.0-rc.2 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (superchain-registry #1424, `standard-versions-sepolia.toml`).
-- [ ] `expectedValidationErrors`: fill from the StandardValidator output once simulated.
-- [ ] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
-- [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420). Confirm they use the devnet SuperchainConfig `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` and the staging PAO (the v9 OPCM they deploy with is bound to both).
-- [ ] Uses the same official Sepolia v10 OPCM as sep/130-132, not a devnet-bound one, as U21 did. Expected validator errors (staging Safe, devnet SuperchainConfig, devnet challenger) are pre-filled from sep/122 and sep/125; confirm them against the v10 validator in simulation.
+- [x] OPCM address: op-contracts/v10.0.0 OPCM `0x91C167C7AfBd0D0ACc0AA7e4525e90B5CCcb76A7` (`standard-versions-sepolia.toml`, same commit as v10.0.0-rc.2).
+- [x] `expectedValidationErrors`: OVERRIDES-L1PAOMULTISIG, SYSCON-130 (plus DF-60 on sepolia-devnet-3), from the v10 validator in simulation.
+- [x] Domain/message hashes in VALIDATION.md, calldata breakdown and state changes.
+- [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420), on the devnet SuperchainConfig `0x289d2A1b1AE6E0470D8B72E53B6E3f485f251DBb` and the staging PAO (checked on-chain).
+- [x] Uses the same official Sepolia v10 OPCM as sep/130-132, not a devnet-bound one, as U21 did.
 - [x] SUPER_CANNON_KONA prestate: `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d`, kona-client v1.10.0-rc.1 `cannon64-kona-interop` (superchain-registry #1425), checked against the registry.
-- [ ] Re-check staging PAO nonce (158 on 2026-11-18) before signing.
+- [ ] Re-check staging PAO nonce (158 on 2026-11-25) before signing.
 
 ## Simulation & Signing
 

@@ -1,6 +1,6 @@
 # 127-U22-staging-devnet-6-opcm-upgrade-v1000
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Summary
 
@@ -21,8 +21,8 @@ Upgrade 22 (`op-contracts/v10.0.0`) on sepolia-devnet-6: one `OPCM.upgradeSuperc
 ## Open items
 
 - [x] `expectedValidationErrors`: OVERRIDES-L1PAOMULTISIG, SYSCON-130, DF-60, from the v10 validator in simulation (same as sepolia-devnet-3 in sep/126).
-- [ ] Calldata breakdown and state changes in VALIDATION.md.
-- [ ] Re-check staging PAO nonce before signing.
+- [x] Calldata breakdown and state changes in VALIDATION.md.
+- [ ] Re-check staging PAO nonce (159 after sep/126) before signing.
 
 ## Simulation & Signing
 
