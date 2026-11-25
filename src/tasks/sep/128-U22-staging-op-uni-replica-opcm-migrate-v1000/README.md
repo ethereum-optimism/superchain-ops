@@ -27,7 +27,7 @@ Status: [READY TO SIGN]
 - [x] Replica contract addresses: op-int-0 and uni-int-0 in the superchain-registry (`sepolia-devnets`, #1420).
 - [x] Dependency-set kona interop prestate: `0x034589520fac03115a1d2f1dc8ae3632c15593d4b084a6bbb985966f20fed93d`, kona-client v1.10.0-rc.1 (superchain-registry #1425), checked against the registry.
 - [x] Shared SUPER_PERMISSIONED proposer: op-int-0's proposer `0x0595c28b885f65Ce70d65e1A1593ac77e1F2d8Ba` (superchain-registry `addresses.json`, live game 5 args, k8s-netchef-stg op-signer). uni-int-0's proposer `0xf2CB80F7E9C4b2427f3c60b2254af6B8B56122d6` must be stopped after execution.
-- [x] Starting anchor: super root `0xf47562c855e09d6c10a7bda89c8c0a13dbacf6fe75168ee207ff52bf6069e9ce` at timestamp `1795551692` (op-int-0 block 258340, uni-int-0 block 514376, both finalized), computed from the L2 EL RPCs as `keccak256(0x01 ‖ be64(ts) ‖ chainId ‖ outputRoot …)`. Recomputed from the L2 EL RPCs on 2026-11-25 (match). Confirm the supernode has safe-head history back to this timestamp before signing.
+- [x] Starting anchor: super root `0xa35b1bd1d9ed7d4ac558e3398ec8e12f7daf548a5282d066afbb176ece7c4082` at `1795608000` (2026-11-25 12:00 UTC; op-int-0 block 286494, uni-int-0 block 570684, both finalized). Matches `superroot_atTimestamp` on `dn-op-int-0-supernode-0`, which derives both chains and has safe-head history from that time (the earlier Nov 24 anchor was before its history).
 - [ ] Supernode, challenger and proposer cut-over ready (infra, no ops task).
 
 ## Simulation & Signing
