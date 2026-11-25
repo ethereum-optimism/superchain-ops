@@ -1,6 +1,6 @@
 # 126-U22-staging-devnet-2-3-op-uni-replica-opcm-upgrade-v1000
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x224392242a5c734ed9d1685df8aa12230a0a9703f58122f58d253fdca19f6f16)
 
 ## Summary
 
