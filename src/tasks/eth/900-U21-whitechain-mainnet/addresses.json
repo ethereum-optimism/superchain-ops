@@ -1,0 +1,26 @@
+{
+  "_comment": "Whitechain Mainnet (chainId 1875). Not in superchain-registry. Addresses from whitechain-labs/whitechain-bootstrap mainnet/l1-addresses.json and intent.toml, cross-checked on Ethereum mainnet 2026-11-23 (SystemConfig 4.0.0 minBaseFee 0, isCustomGasToken true, Portal 5.8.0 balance 0 ethLockbox unset, ASR 3.9.0, DGF 1.6.1 owner = the PAO Safe, respectedGameType 5 with gameImpls(5) the only registered game, SuperchainConfig 2.4.3 own not shared, DelayedWETH 1.5.1, PAO Safe v1.5.0 3-of-5 nonce 0 all plain-EOA owners). The chain was deployed directly at op-contracts/v8.0.0: no U19/U20 task was ever needed, which is why the Safe nonce is 0. NOTE: the original deployment also created an UNWIRED ETHLockbox proxy 0xBEDFe5233e7A57Ef396ba7B4292BE32A7782097D (version 1.3.1); portal.ethLockbox() is zero, so U21 deploys a FRESH lockbox and the old proxy stays unreferenced. It is intentionally absent from this file.",
+  "1875": {
+    "ProxyAdmin": "0x9419a57179dEF1FBdb8e7859756e85ad0ae396c7",
+    "ProxyAdminOwner": "0x568440132075d4E1c3E42111EF561636f4956eAd",
+    "SuperchainConfig": "0x35aB61eE5D1C2319d1822A7bE1b6B3FaE98AD886",
+    "SystemConfigProxy": "0x1D761826ad3098D10f6dDfbd143957Aaf2b6e50C",
+    "OptimismPortalProxy": "0x0665f74e013b7FCcfDa6dAF8951bAf3C982a3864",
+    "L1ERC721BridgeProxy": "0x7b854CBa91d3B788bc311e2326E203C0f46dB3Fe",
+    "OptimismMintableERC20FactoryProxy": "0x149a093e8Fe94610586e068739E929723Ac0Cd1A",
+    "L1StandardBridgeProxy": "0x7e954f20F24b7988EA966C4E7880fe6D21dCc2D9",
+    "L1CrossDomainMessengerProxy": "0x589cD6dEd71Cf4867351E86507A1Ce81Bde0Bc9C",
+    "DisputeGameFactoryProxy": "0x1De4f415Dc5bF6e458Cf32d13452c24A35Ec90e3",
+    "AnchorStateRegistryProxy": "0x860801a7766859B82b0B572f75a56d4D3903B23a",
+    "PermissionedWETH": "0x99BbebAea69666405A8e19dF5d185fecC6BF46Fe",
+    "AddressManager": "0x7b806b8A81Ba1D4d2Df62180147e40F32f1eeb49",
+    "Challenger": "0x0ad1510D7757c5a8dDDaCc69497815Ad21efD264",
+    "Proposer": "0x077843C51bC1c464899879F77fa02B98ee5A00d9",
+    "Guardian": "0x5918870d5391e0610d7624837cABEd9d4AbEeeE0",
+    "SystemConfigOwner": "0x8da4Ce0f49E472fb6F892c779b3E63C7a55B23aF",
+    "UnsafeBlockSigner": "0xBfea0b467A57Aa8516204E3aa057c8f583371476",
+    "BatchSubmitter": "0x681FCc4272c14f70203Ea655B1EAF9A20557a473",
+    "DelayedWETHProxy": "0x99BbebAea69666405A8e19dF5d185fecC6BF46Fe",
+    "PermissionedDelayedWETHProxy": "0x99BbebAea69666405A8e19dF5d185fecC6BF46Fe"
+  }
+}
